@@ -1,11 +1,15 @@
 <html>
 <head>
+	<title>WinRun4J</title>
+	<link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon">
 	<link rel="stylesheet" href="style.css" type="text/css" />
 </head>
 <body>
-	<div class="title">WinRun4j</div>
-	<div class="subtitle">Configurable Java Launcher for Windows</div>
-	<div class="content">
+	<div id="heading">
+		<div class="title"><img src="WinRun4J.gif"/>WinRun4j</div>
+		<div class="subtitle">Configurable Java Launcher for Windows</div>
+	</div>
+	<div id="content">
 		<p class="section">
 			<div class="section-title">About</div>
 			<p class="section-content">
@@ -39,7 +43,7 @@
 			<p class="section-content">
 			The launcher is designed to be used as follows:
 			<p>
-				<ul>
+				<ol>
 					<li>Copy WinRun4J.exe to [YourApp].exe</li>
 					<li>Create [YourApp].ini (in the same directory)</li>
 					<li>Customize [YourApp].ini (see the table below for information)</li>
@@ -47,7 +51,7 @@
 					<li>Run [YourApp].exe --seticon (this will create [YourApp].seticon.exe with your icon</li>
 					<li>Rename [YourApp].seticon.exe to [YourApp].exe</li>
 					<li>Launch [YourApp].exe</li>
-				</ul>
+				</ol>
 			</p>
 			<p>
 				The INI file accepts the following settings:
@@ -88,8 +92,10 @@ main.class=org.boris.winrun4j.WinRunTest
 			</p>
 		</p>
 	</div>
-	<p>
-	<a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=195634&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
-	</p>
+	<div id="footer">
+		<p>
+		<a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=195634&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
+		</p>
+	</div>
 </body>
 </html>

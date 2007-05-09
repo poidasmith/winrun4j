@@ -36,8 +36,30 @@ a:hover
 	color:1393c0;
 	text-decoration:underline
 }
-table
+table,tr,td,th
 {
-	border-width:1px;
-	border-color:666666;
+	border-collapse:collapse;
+	border:1px solid;
+	border-color:BBBBBB;
+	padding:5px;
 }
+
+body
+{
+		width:700px;
+		margin-right:auto;
+		margin-left:auto;
+		margin-top:10px;
+		padding:0px;
+		text-align:left;
+}
+
+.section
+{
+	border-bottom:1px solid #cccccc;
+}
+#footer
+{
+	border-top:1px solid #cccccc;
+}
+

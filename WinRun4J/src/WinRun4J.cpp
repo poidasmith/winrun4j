@@ -52,20 +52,20 @@ void SetWorkingDirectory(dictionary* ini)
 	char* dir = iniparser_getstr(ini, WORKING_DIR);
 	if(dir != NULL)
 		SetCurrentDirectory(dir);
+
+
 }
 
 char* MakeClassPathEntry(TCHAR* dirend, TCHAR* path, TCHAR* filename)
 {
 	TCHAR file[MAX_PATH];
-	strcpy_s(file, sizeof(file), "\"");
+	file[0] = 0;
 	if(dirend != NULL) {
 		strcat_s(file, sizeof(file), path);
 		strcat_s(file, sizeof(file), "\\");
-	} else {
-		file[0] = 0;
-	}
+	} 
+
 	strcat_s(file, sizeof(file), filename);
-	strcat_s(file, sizeof(file), "\\");
 	return _strdup(file);
 }
 
