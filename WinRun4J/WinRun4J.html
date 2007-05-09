@@ -1,0 +1,92 @@
+<html>
+<head>
+	<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+<body>
+	<div class="title">WinRun4j</div>
+	<div class="subtitle">Configurable Java Launcher for Windows</div>
+	<div class="content">
+		<p class="section">
+			<div class="section-title">About</div>
+			<p class="section-content">
+				WinRun4j is a java launcher for windows. It provides an alternative to javaw.exe and provides the following benefits:
+				<ul>
+					<li>Use of INI for specifying classpath, main class, vm args, program args.</li>
+					<li>Custom executable name that appears in task manager.</li>
+					<li>Additional VM args for (eg.) more flexible memory use.</li>
+					<li>Built-in icon replacer for custom icon.</li>
+				</ul>
+				WinRun4J is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
+			</p>
+		</p>
+		<p class="section">
+			<div class="section-title">Download</div>
+			<p class="section-content">
+			The latest <a href="#">download</a> is available from the Project Page.
+			</p>
+		</p>
+		<p class="section">
+			<div class="section-title">Change History</div>
+			<p class="section-content">
+				<div class="section-heading">V0.0.1</div>
+				<ul>
+				<li>Initial release.
+				</ul>
+			</p>
+		</p>
+		<p class="section">
+			<div class="section-title">Usage</div>
+			<p class="section-content">
+			The launcher is designed to be used as follows:
+			<p>
+				<ul>
+					<li>Copy WinRun4J.exe to [YourApp].exe</li>
+					<li>Create [YourApp].ini (in the same directory)</li>
+					<li>Customize [YourApp].ini (see the table below for information)</li>
+					<li>Create [YourApp].ico (in the same directory)</li>
+					<li>Run [YourApp].exe --seticon (this will create [YourApp].seticon.exe with your icon</li>
+					<li>Rename [YourApp].seticon.exe to [YourApp].exe</li>
+					<li>Launch [YourApp].exe</li>
+				</ul>
+			</p>
+			<p>
+				The INI file accepts the following settings:
+				<table>
+					<tr><th>Key</th><th>Description</th></tr>
+					<tr>
+						<td>working.directory</td>
+						<td>This will be the current directory for the app. It can be relative to your executable.</td>
+					</tr>
+					<tr>
+						<td>classpath.1, classpath.2, ..., classpath.n</td>
+						<td>Classpath entries. These will be relative to the working directory above. They can be wildcards (eg. *.jar)</td>
+					</tr>
+					<tr>
+						<td>main.class</td>
+						<td>This is the java class that will be run</td>
+					</tr>
+					<tr>
+						<td>vmarg.1, vmarg.2, ..., vmarg.n</td>
+						<td>Java VM args. These will be passed on to the VM.</td>
+					</tr>
+					<tr>
+						<td>arg.1, arg.2, ..., arg.n</td>
+						<td>Program arguments. These will be sent before and commandline arguments.</td>
+					</tr>
+					<tr>
+						<td>log</td>
+						<td>StdOut and StdErr will be redirected to this file (including launcher messages).</td>
+					</tr>
+				</table>
+			</p>
+			<p>
+				An example INI file (included in the download) is:
+				<pre>
+classpath.1=*.jar
+main.class=org.boris.winrun4j.WinRunTest
+				</pre>
+			</p>
+		</p>
+	</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+body, td, th
+{
+	color: 666666;
+	font-family: arial;
+	font-size: 12px;
+	text-align: left;
+}
+.title
+{
+	font-size:28px;
+	color:1393c0;
+}
+.subtitle
+{
+	font-size:20px;
+	color:BBBBBB
+}
+.section-title
+{
+	font-size:15px;
+	color:006090;
+}
+.section-heading
+{
+	font-size:13px;
+	color:666666;
+}
+a 
+{
+	color:1393c0;
+	text-decoration:none;
+	font-size:12px
+}
+a:hover 
+{
+	color:1393c0;
+	text-decoration:underline
+}
+table
+{
+	border-width:1px;
+	border-color:666666;
+}
