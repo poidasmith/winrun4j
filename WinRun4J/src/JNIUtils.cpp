@@ -87,7 +87,7 @@ static jobjectArray createRunArgs( JNIEnv *env, TCHAR * args[] ) {
 	return stringArray;
 }
 
-int startJavaVM( TCHAR* libPath, TCHAR* vmArgs[], TCHAR* classpath, TCHAR* mainClass, TCHAR* progArgs[] )
+int startJavaVM( TCHAR* libPath, TCHAR* vmArgs[], TCHAR* mainClass, TCHAR* progArgs[] )
 {
 	int i;
 	int numVMArgs = -1;
@@ -122,16 +122,10 @@ int startJavaVM( TCHAR* libPath, TCHAR* vmArgs[], TCHAR* classpath, TCHAR* mainC
 		options[i].optionString = _strdup(vmArgs[i]);
 		options[i].extraInfo = 0;
 	}
-
-	// Add classpath
-	TCHAR cp[4096];
-	sprintf_s(cp, sizeof(cp), "-Djava.class.path=%s", classpath);
-	options[numVMArgs].optionString = _strdup(cp);
-	options[numVMArgs].extraInfo = 0;
 		
 	init_args.version = JNI_VERSION_1_2;
 	init_args.options = options;
-	init_args.nOptions = numVMArgs + 1;
+	init_args.nOptions = numVMArgs;
 	init_args.ignoreUnrecognized = JNI_TRUE;
 	
 	if( createJavaVM(&jvm, &env, &init_args) == 0 ) {
