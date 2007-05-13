@@ -55,7 +55,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib gdi32.lib"
+				AdditionalDependencies="user32.lib advapi32.lib"
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
 			/>
@@ -128,7 +128,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG"
-				AdditionalDependencies="user32.lib advapi32.lib gdi32.lib"
+				AdditionalDependencies="user32.lib advapi32.lib "
 				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
