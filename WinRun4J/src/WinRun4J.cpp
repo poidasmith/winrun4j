@@ -31,10 +31,10 @@
 #define WORKING_DIR ":working.directory"
 #define MAIN_CLASS ":main.class"
 #define LOG_FILE ":log"
+#define LOG_LEVEL ":log.level"
 #define CLASS_PATH ":classpath"
 #define VM_ARG ":vmarg"
 #define PROG_ARG ":arg"
-#define HEAP_SIZE_PERCENT ":vm.heapsize.percent"
 
 using namespace std;
 
@@ -199,7 +199,7 @@ void ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count)
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 	// Initialise the logger using std streams
-	Log::Init(hInstance, NULL);
+	Log::Init(hInstance, NULL, NULL);
 
 	// Check for seticon util request
 	if(strncmp(lpCmdLine, "--seticon", 9) == 0) {
@@ -216,7 +216,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	}
 
 	// Now initialise the logger using std streams + specified log dir
-	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE));
+	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL));
 
 	// Attempt to find an appropriate java VM
 	char* vmlibrary = VM::FindJavaVMLibrary(ini);

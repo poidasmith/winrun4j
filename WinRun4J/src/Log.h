@@ -13,10 +13,10 @@
 
 #include <windows.h>
 
-enum LoggingLevel { info = 0, warning, error };
+enum LoggingLevel { info = 0, warning, error, none };
 
 struct Log {
-	static void Init(HINSTANCE hInstance, const char* logfile);
+	static void Init(HINSTANCE hInstance, const char* logfile, const char* loglevel);
 	static void SetLevel(LoggingLevel level);
 	static void Info(const char* format, ...);
 	static void Warning(const char* format, ...);

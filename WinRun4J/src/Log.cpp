@@ -21,7 +21,7 @@ static const WORD MAX_CONSOLE_LINES = 500;
 static BOOL haveInit = FALSE;
 static BOOL haveConsole = FALSE;
 static FILE* fp = NULL;
-static LoggingLevel level = LoggingLevel::info; 
+static LoggingLevel level = LoggingLevel::none; 
 
 typedef BOOL (__stdcall *FPTR_AttachConsole) ( DWORD );
 
@@ -50,8 +50,18 @@ void Log::RedirectIOToConsole()
 	ios::sync_with_stdio();
 }
 
-void Log::Init(HINSTANCE hInstance, const char* logfile)
+void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 {
+	if(loglevel == "none") {
+		level = LoggingLevel::none;
+	} else if(loglevel == "info") {
+		level = LoggingLevel::info;
+	} else if(loglevel == "warning") {
+		level = LoggingLevel::warning;
+	} else if(loglevel == "error") {
+		level = LoggingLevel::error;
+	}
+
 	if(!haveInit) {
 		// Attempt to attach to parent console (if function is present)
 		HMODULE hModule = GetModuleHandle("kernel32");

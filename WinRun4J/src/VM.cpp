@@ -20,6 +20,9 @@
 #define JRE_VERSION_KEY TEXT("CurrentVersion")
 #define JRE_LIB_KEY TEXT("RuntimeLib")
 
+// VM Version keys
+#define MAX_VER
+
 char* VM::FindJavaVMLibrary(dictionary *ini)
 {
 	TCHAR filename[MAX_PATH];
@@ -65,24 +68,47 @@ bool VM::GetJavaVMLibrary(LPSTR filename, DWORD filesize, LPSTR version)
 
 void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 {
-	/* FIXME
-	// Look for heap size percent
-	TCHAR *heapSizePercentStr = iniparser_getstr(ini, HEAP_SIZE_PERCENT);
-	if(heapSizePercentStr != NULL) {
-		double percent = atof(heapSizePercentStr);
-		if(percent < 0 || percent > 100) {
-			Log::Info("Error with heap size percent. Should be between 0 and 100.\n");
-		}
+	// Extract memory size
+	MEMORYSTATUS ms;
+	GlobalMemoryStatus(&ms);
+	int overallMax = 1530;
+	int availMax = (int)(ms.dwTotalPhys/1024/1024) - 80;
 
-		Log::Info("Percent is: %f\n", percent);
-		MEMORYSTATUS ms;
-		GlobalMemoryStatus(&ms);
-		Log::Info("Avail Phys: %d\n", ms.dwTotalPhys);
-		Log::Info("Avail Virt: %d\n", ms.dwAvailVirtual);
-		double size = ((percent/100) * (double)ms.dwTotalPhys);
-		TCHAR sizeArg[MAX_PATH];
-		sprintf(sizeArg, "-Xmx%u", size);
-		//args[count++] = strdup(sizeArg);
+	// Look for max heap size percent
+	TCHAR *MaxHeapSizePercentStr = iniparser_getstr(ini, HEAP_SIZE_MAX_PERCENT);
+	if(MaxHeapSizePercentStr != NULL) {
+		double percent = atof(MaxHeapSizePercentStr);
+		if(percent < 0 || percent > 100) {
+			Log::Error("Error with heap size percent. Should be between 0 and 100.\n");
+		} else {
+			Log::Info("Percent is: %f\n", percent);
+			Log::Info("Avail Phys: %dm\n", availMax);
+			int size = (int)((percent/100) * (double)(availMax));
+			if(size > overallMax) {
+				size = overallMax;
+			}
+			TCHAR sizeArg[MAX_PATH];
+			sprintf(sizeArg, "-Xmx%um", size);
+			args[count++] = strdup(sizeArg);
+		}
 	}
-	*/
+
+	// Look for min heap size percent
+	TCHAR *MinHeapSizePercentStr = iniparser_getstr(ini, HEAP_SIZE_MIN_PERCENT);
+	if(MinHeapSizePercentStr != NULL) {
+		double percent = atof(MinHeapSizePercentStr);
+		if(percent < 0 || percent > 100) {
+			Log::Error("Error with heap size percent. Should be between 0 and 100.\n");
+		} else {
+			Log::Info("Percent is: %f\n", percent);
+			Log::Info("Avail Phys: %dm\n", availMax);
+			int size = (int)((percent/100) * (double)(availMax));
+			if(size > overallMax) {
+				size = overallMax;
+			}
+			TCHAR sizeArg[MAX_PATH];
+			sprintf(sizeArg, "-Xms%um", size);
+			args[count++] = strdup(sizeArg);
+		}
+	}
 }

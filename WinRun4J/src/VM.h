@@ -14,9 +14,19 @@
 #include <windows.h>
 #include "INI.h"
 
+// VM versions
+#define VM_VERSION_MAX ":vm.version.max"
+#define VM_VERSION ":vm.version"
+#define VM_VERSION_MIN ":vm.version.min"
+
 // VM keys
+#define HEAP_SIZE_MAX_PERCENT ":vm.heapsize.max.percent"
+#define HEAP_SIZE_MIN_PERCENT ":vm.heapsize.min.percent"
+
 
 // VM args
+#define VM_ARG_HEAPSIZE "-Xmx"
+
 
 struct VM {
 	static char* FindJavaVMLibrary(dictionary *ini);
