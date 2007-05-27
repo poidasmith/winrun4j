@@ -15,8 +15,8 @@
  * 	   Andrew Niefer
  *******************************************************************************/
 
-#include "JNIUtils.h"
-#include "LogUtils.h"
+#include "JNI.h"
+#include "Log.h"
 
 static JavaVM * jvm = 0;
 static JNIEnv *env = 0;
@@ -104,13 +104,13 @@ int startJavaVM( TCHAR* libPath, TCHAR* vmArgs[], TCHAR* mainClass, TCHAR* progA
 	
 	jniLibrary = LoadLibrary(libPath);
 	if(jniLibrary == NULL) {
-		Log("ERROR: Could not load library: %s\n", libPath);
+		Log::Info("ERROR: Could not load library: %s\n", libPath);
 		return -1; /*error*/
 	}
 
 	createJavaVM = (JNI_createJavaVM)GetProcAddress(jniLibrary, "JNI_CreateJavaVM");
 	if(createJavaVM == NULL) {
-		Log("ERROR: Could not find JNI_CreateJavaVM function\n");
+		Log::Info("ERROR: Could not find JNI_CreateJavaVM function\n");
 		return -1; /*error*/
 	}
 	

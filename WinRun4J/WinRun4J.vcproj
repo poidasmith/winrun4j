@@ -39,6 +39,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/c"
 				Optimization="0"
+				RuntimeTypeInfo="false"
 				WarningLevel="4"
 				DebugInformationFormat="3"
 				CallingConvention="2"
@@ -166,27 +167,27 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\Dictionary.c"
+				RelativePath=".\src\Classpath.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\IconUtils.cpp"
+				RelativePath=".\src\Icon.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\IniParser.c"
+				RelativePath=".\src\INI.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\JNIUtils.cpp"
+				RelativePath=".\src\JNI.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\LogUtils.cpp"
+				RelativePath=".\src\Log.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\StrLib.c"
+				RelativePath=".\src\VM.cpp"
 				>
 			</File>
 			<File
@@ -200,27 +201,27 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\src\Dictionary.h"
+				RelativePath=".\src\Classpath.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\IconUtils.h"
+				RelativePath=".\src\Icon.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\IniParser.h"
+				RelativePath=".\src\INI.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\JNIUtils.h"
+				RelativePath=".\src\JNI.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\LogUtils.h"
+				RelativePath=".\src\Log.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\StrLib.h"
+				RelativePath=".\src\VM.h"
 				>
 			</File>
 		</Filter>

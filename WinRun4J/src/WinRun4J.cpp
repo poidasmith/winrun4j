@@ -11,19 +11,21 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
-#include "IniParser.h"
-#include "JNIUtils.h"
-#include "IconUtils.h"
-#include "LogUtils.h"
 #include <jni.h>
 #include <string>
+
+#include "INI.h"
+#include "JNI.h"
+#include "Icon.h"
+#include "Log.h"
+#include "VM.h"
+#include "Classpath.h"
 
 // Internal keys
 #define MODULE_NAME "WinRun4J:ModuleName"
 #define MODULE_INI "WinRun4J:ModuleIni"
 #define MODULE_BASE "WinRun4J:ModuleBaseName"
 #define MODULE_DIR "WinRun4J:ModuleDir"
-#define GEN_CLASSPATH "WinRun4J:GeneratedClasspath"
 
 // Ini keys
 #define WORKING_DIR ":working.directory"
@@ -32,16 +34,7 @@
 #define CLASS_PATH ":classpath"
 #define VM_ARG ":vmarg"
 #define PROG_ARG ":arg"
-#define HEAP_SIZE_MAX_MIN ":vm.heapsize.min"
-#define HEAP_SIZE_MAX_MAX ":vm.heapsize.max"
-
-// VM args
-#define CLASS_PATH_ARG "-Djava.class.path="
-
-// VM Registry keys
-#define JRE_REG_PATH TEXT("Software\\JavaSoft\\Java Runtime Environment")
-#define JRE_VERSION_KEY TEXT("CurrentVersion")
-#define JRE_LIB_KEY TEXT("RuntimeLib")
+#define HEAP_SIZE_PERCENT ":vm.heapsize.percent"
 
 using namespace std;
 
@@ -55,78 +48,10 @@ void SetWorkingDirectory(dictionary* ini)
 		// Now set working directory to specified (this allows for a relative working directory)
 		SetCurrentDirectory(dir);
 	} else {
-		Log("Working directory not set\n");
+		Log::Info("Working directory not set\n");
 	}
 }
 
-char* MakeClassPathEntry(TCHAR* dirend, TCHAR* path, TCHAR* filename)
-{
-	TCHAR file[MAX_PATH];
-	file[0] = 0;
-	if(dirend != NULL) {
-		strcat_s(file, sizeof(file), path);
-		strcat_s(file, sizeof(file), "\\");
-	} 
-
-	strcat_s(file, sizeof(file), filename);
-	return _strdup(file);
-}
-
-void ExpandClassPathEntry(TCHAR** entries, int& index, TCHAR* entry)
-{
-	WIN32_FIND_DATA FindFileData;
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-	TCHAR* path = _strdup(entry);
-
-	TCHAR* dirend = strrchr(path, '\\');
-	if(dirend == NULL) {
-		dirend = strrchr(path, '/');
-	}
-	if(dirend != NULL) {
-		path[dirend - path] = 0;
-	}
-	
-	hFind = FindFirstFile(entry, &FindFileData);
-	if(hFind != INVALID_HANDLE_VALUE) {
-		entries[index++] = MakeClassPathEntry(dirend, path, FindFileData.cFileName);
-		while(FindNextFile(hFind, &FindFileData) != 0) {
-			entries[index++] = MakeClassPathEntry(dirend, path, FindFileData.cFileName);
-		}
-	}
-
-	free(path);
-}
-
-// Build up the classpath entry from the ini file list
-void BuildClassPath(dictionary* ini)
-{
-	TCHAR* entries[MAX_PATH];
-	int i = 0, index = 0;
-	TCHAR* entry = NULL;
-	TCHAR entryName[MAX_PATH];
-	while(true) {
-		sprintf_s(entryName, sizeof(entryName), "%s.%d", CLASS_PATH, i+1);
-		entry = iniparser_getstr(ini, entryName);
-		if(entry != NULL) {
-			ExpandClassPathEntry(entries, index, entry);
-		}
-		i++;
-		if(i > 10 && entry == NULL) {
-			break;
-		}
-	}
-
-	string classpath = "";
-	for(int i = 0; i < index; i++) {
-		classpath += entries[i];
-		classpath += ";";
-		free(entries[i]);
-	}
-
-	TCHAR *built = _strdup(classpath.c_str());
-	iniparser_setstr(ini, GEN_CLASSPATH, built);
-	free(built);
-}
 
 void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index)
 {
@@ -146,39 +71,6 @@ void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, in
 	entries[index] = NULL;
 }
 
-// Find an appropriate VM library (this needs improving)
-bool GetJavaVMLibrary(LPSTR filename, DWORD filesize, LPSTR version)
-{
-	HKEY hKey, hVersionKey;
-	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_REG_PATH, 0, KEY_READ, &hKey) != ERROR_SUCCESS)
-		return false;
-
-	DWORD length = MAX_PATH;
-	TCHAR keyName[MAX_PATH];
-	if(version == NULL)
-	{
-		// Find current VM version
-		if(RegQueryValueEx(hKey, JRE_VERSION_KEY, NULL, NULL, (LPBYTE)&keyName, &length) != ERROR_SUCCESS)
-			return false;
-		version = keyName;
-	}
-
-	if(RegOpenKeyEx(hKey, version, 0, KEY_READ, &hVersionKey) != ERROR_SUCCESS)
-		return false;
-
-	length = MAX_PATH;
-	if(RegQueryValueEx(hVersionKey, JRE_LIB_KEY, NULL, NULL, (LPBYTE)&keyName, &length) != ERROR_SUCCESS)
-		return false;
-
-	strcpy_s(filename, filesize, keyName);
-
-	RegCloseKey(hVersionKey);
-	RegCloseKey(hKey);
-
-	return true;
-}
-
-
 /* The ini filename is in the same directory as the executable and called the same (except with ini at the end). */
 dictionary* LoadIniFile()
 {
@@ -194,8 +86,8 @@ dictionary* LoadIniFile()
 	dictionary* ini = iniparser_load(inifile);
 	iniparser_setstr(ini, MODULE_NAME, filename);
 	iniparser_setstr(ini, MODULE_INI, inifile);
-	Log("Module Name: %s\n", filename);
-	Log("Module INI: %s\n", inifile);
+	Log::Info("Module Name: %s\n", filename);
+	Log::Info("Module INI: %s\n", inifile);
 
 	// strip off filename to get module directory
 	for(int i = len - 1; i >= 0; i--) {
@@ -205,7 +97,7 @@ dictionary* LoadIniFile()
 		}
 	}
 	iniparser_setstr(ini, MODULE_DIR, filedir);
-	Log("Module Dir: %s\n", filedir);
+	Log::Info("Module Dir: %s\n", filedir);
 
 	// Fix main class - ie. replace x.y.z with x/y/z for use in jni
 	char* mainClass = iniparser_getstr(ini, MAIN_CLASS);
@@ -218,9 +110,9 @@ dictionary* LoadIniFile()
 		}
 	}
 	if(mainClass == NULL) {
-		Log("ERROR: no main class specified\n");
+		Log::Info("ERROR: no main class specified\n");
 	} else {
-		Log("Main Class: %s\n", mainClass);
+		Log::Info("Main Class: %s\n", mainClass);
 	}
 
 	return ini;
@@ -228,7 +120,8 @@ dictionary* LoadIniFile()
 
 bool StrTrimInChars(LPSTR trimChars, char c)
 {
-	for(unsigned int i = 0; i < strlen(trimChars); i++) {
+	unsigned int len = strlen(trimChars);
+	for(unsigned int i = 0; i < len; i++) {
 		if(c == trimChars[i]) {
 			return true;
 		}
@@ -298,75 +191,58 @@ void ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count)
 		arg[k] = lpCmdLine[j];
 	}
 	arg[k] = 0;
-	args[count] = strdup(arg);
+	args[count] = _strdup(arg);
 	StrTrim(args[count], " ");
 	StrTrim(args[count], "\"");
 	count++;
 }
 
-void ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
-{
-	// Add classpath
-	TCHAR* classpath = iniparser_getstr(ini, GEN_CLASSPATH);
-	Log("Generated Classpath: %s\n", classpath);
-
-	// Make arg
-	TCHAR* cpArg = (TCHAR *) malloc(sizeof(TCHAR)*strlen(classpath) + sizeof(TCHAR)*strlen(CLASS_PATH_ARG) + 1);
-	strcpy(cpArg, CLASS_PATH_ARG);
-	strcat(cpArg, classpath);
-
-	// Add classpath
-	args[count++] = cpArg;
-}
-
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 	// Initialise the logger using std streams
-	LogInit(hInstance, NULL);
+	Log::Init(hInstance, NULL);
 
 	// Check for seticon util request
-	if(strcmp(lpCmdLine, "--seticon") == 0) {
-		SetExeIcon();
-		LogClose();
+	if(strncmp(lpCmdLine, "--seticon", 9) == 0) {
+		Icon::SetExeIcon(lpCmdLine);
+		Log::Close();
 		return 0;
 	}
 
 	dictionary* ini = LoadIniFile();
 	if(ini == NULL) {
 		MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
-		LogClose();
+		Log::Close();
 		return 1;
 	}
 
 	// Now initialise the logger using std streams + specified log dir
-	LogInit(hInstance, iniparser_getstr(ini, LOG_FILE));
+	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE));
 
 	// Attempt to find an appropriate java VM
-	TCHAR filename[MAX_PATH];
-	bool success = GetJavaVMLibrary(filename, sizeof(filename), NULL);
-	if(!success) {
+	char* vmlibrary = VM::FindJavaVMLibrary(ini);
+	if(!vmlibrary) {
 		MessageBox(NULL, "Failed to find Java VM.", "Startup Error", 0);
-		LogClose();
+		Log::Close();
 		return 1;
 	}
-	Log("VM: %s\n", filename);
 
 	// Set the current working directory if specified
 	SetWorkingDirectory(ini);
-
-	// Build up the classpath
-	BuildClassPath(ini);
 
 	// Collect the VM args from the INI file
 	TCHAR *vmargs[MAX_PATH];
 	int vmargsCount = 0;
 	GetNumberedKeysFromIni(ini, VM_ARG, vmargs, vmargsCount);
 
+	// Build up the classpath and add to vm args
+	Classpath::BuildClassPath(ini, vmargs, vmargsCount);
+
 	// Extract the specific VM args
-	ExtractSpecificVMArgs(ini, vmargs, vmargsCount);
+	VM::ExtractSpecificVMArgs(ini, vmargs, vmargsCount);
 
 	// Log the VM args
 	for(int i = 0; i < vmargsCount; i++) {
-		Log("vmarg.%d=%s\n", i, vmargs[i]);
+		Log::Info("vmarg.%d=%s\n", i, vmargs[i]);
 	}
 
 	// Collect the program arguments from the INI file
@@ -379,7 +255,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	// Log the commandline args
 	for(int i = 0; i < progargsCount; i++) {
-		Log("arg.%d=%s\n", i, progargs[i]);
+		Log::Info("arg.%d=%s\n", i, progargs[i]);
 	}
 
 	// Make sure there is a NULL at the end of the args
@@ -387,7 +263,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	progargs[progargsCount] = NULL;
 
 	// Fire up the VM
-	startJavaVM(filename, vmargs, iniparser_getstr(ini, MAIN_CLASS), progargs);
+	startJavaVM(vmlibrary, vmargs, iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
 	// Free vm args
 	for(int i = 0; i < vmargsCount; i++) {
@@ -406,7 +282,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	int result = cleanupVM();
 
 	// Close the log
-	LogClose();
+	Log::Close();
 
 	return result;
 }

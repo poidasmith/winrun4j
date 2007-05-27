@@ -8,7 +8,7 @@
  *     Peter Smith
  *******************************************************************************/
 
-#include "LogUtils.h"
+#include "Log.h"
 #include <stdio.h>
 #include <fcntl.h>
 #include <io.h>
@@ -21,10 +21,11 @@ static const WORD MAX_CONSOLE_LINES = 500;
 static BOOL haveInit = FALSE;
 static BOOL haveConsole = FALSE;
 static FILE* fp = NULL;
+static LoggingLevel level = LoggingLevel::info; 
 
 typedef BOOL (__stdcall *FPTR_AttachConsole) ( DWORD );
 
-void RedirectIOToConsole()
+void Log::RedirectIOToConsole()
 {
 	// redirect unbuffered STDOUT to the console
 	long lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
@@ -49,7 +50,7 @@ void RedirectIOToConsole()
 	ios::sync_with_stdio();
 }
 
-void LogInit(HINSTANCE hInstance, const char* logfile)
+void Log::Init(HINSTANCE hInstance, const char* logfile)
 {
 	if(!haveInit) {
 		// Attempt to attach to parent console (if function is present)
@@ -67,22 +68,47 @@ void LogInit(HINSTANCE hInstance, const char* logfile)
 
 	// If there is a log file specified redirect std streams to this file
 	if(logfile != NULL) {
-		freopen(logfile, "w", stdout);
+		freopen(logfile, "a", stdout);
 		freopen(logfile, "a", stderr);
 	}
 }
 
-extern void Log(const char* format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	vprintf(format, args);
-	fflush(stdout);
-	fflush(stderr);
+#define LOG_IT               \
+	va_list args;            \
+	va_start(args, format);  \
+	vprintf(format, args);   \
+	fflush(stdout);          \
+	fflush(stderr);          \
 	va_end(args);
+
+void Log::SetLevel(LoggingLevel logingLevel) 
+{
+	level = logingLevel;
 }
 
-extern void LogClose() 
+
+void Log::Info(const char* format, ...)
+{
+	if(level >= LoggingLevel::info) {
+		LOG_IT
+	}
+}
+
+void Log::Warning(const char* format, ...)
+{
+	if(level >= LoggingLevel::warning) {
+		LOG_IT
+	}
+}
+
+void Log::Error(const char* format, ...)
+{
+	if(level >= LoggingLevel::error) {
+		LOG_IT
+	}
+}
+
+void Log::Close() 
 {
 	if(fp != NULL) {
 		fclose(fp);

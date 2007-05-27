@@ -8,13 +8,17 @@
  *     Peter Smith
  *******************************************************************************/
 
-#ifndef LOG_UTILS_H
-#define LOG_UTILS_H
+#ifndef CLASSPATH_H
+#define CLASSPATH_H
 
 #include <windows.h>
+#include "INI.h"
 
-extern void LogInit(HINSTANCE hInstance, const char* logfile);
-extern void Log(const char* format, ...);
-extern void LogClose();
+#define CLASS_PATH ":classpath"
+#define CLASS_PATH_ARG "-Djava.class.path="
 
-#endif // LOG_UTILS_H
+struct Classpath {
+	static void BuildClassPath(dictionary *ini, TCHAR** args, int& count);
+};
+
+#endif // CLASSPATH_H

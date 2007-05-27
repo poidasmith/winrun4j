@@ -1,6 +1,15 @@
+/*******************************************************************************
+ * This program and the accompanying materials
+ * are made available under the terms of the Common Public License v1.0
+ * which accompanies this distribution, and is available at 
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * 
+ * Contributors:
+ *     Peter Smith
+ *******************************************************************************/
 
-#ifndef ICON_UTILS_H
-#define ICON_UTILS_H
+#ifndef ICON_H
+#define ICON_H
 
 #include <windows.h>
 #include <stdio.h>
@@ -57,6 +66,14 @@ typedef struct
 } GRPICONHEADER;
 #pragma pack(pop)
 
-extern void SetExeIcon();
+struct Icon {
+	static void SetExeIcon(LPSTR commandLine);
+	static bool SetIcon(LPSTR exeFile, LPSTR iconFile);
+
+private:	
+	static void CopyToRandomAndRun() ;
+	static void DeleteRandomFile(LPSTR commandLine);
+	static void SetIcon(LPSTR commandLine);
+};
 
 #endif // ICON_UTILS_H
