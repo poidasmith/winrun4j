@@ -110,7 +110,7 @@ dictionary* LoadIniFile()
 		}
 	}
 	if(mainClass == NULL) {
-		Log::Info("ERROR: no main class specified\n");
+		Log::Error("ERROR: no main class specified\n");
 	} else {
 		Log::Info("Main Class: %s\n", mainClass);
 	}
@@ -286,3 +286,4 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	return result;
 }
+

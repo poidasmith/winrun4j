@@ -22,18 +22,34 @@
 // VM keys
 #define HEAP_SIZE_MAX_PERCENT ":vm.heapsize.max.percent"
 #define HEAP_SIZE_MIN_PERCENT ":vm.heapsize.min.percent"
-
+#define HEAP_SIZE_PREFERRED ":vm.heapsize.preferred"
 
 // VM args
 #define VM_ARG_HEAPSIZE "-Xmx"
 
+// Encapsulates a VM version number
+class Version {
+public:
+	Version() : Parsed(false) {}
+	void Parse(LPSTR version);
+	int Compare(Version& other);
+	char* GetVersionStr() { return VersionStr; }
 
+private:
+	bool Parsed;
+	char VersionStr[MAX_PATH];
+	int VersionPart[10];
+};
+
+// VM utilities
 struct VM {
 	static char* FindJavaVMLibrary(dictionary *ini);
 	static void ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count);
-
-private:
-	static bool GetJavaVMLibrary(LPSTR filename, DWORD filesize, LPSTR version);
+	static char* GetJavaVMLibrary(LPSTR version, LPSTR min, LPSTR max);
+	
+public:
+	static Version* FindVersion(Version* versions, DWORD numVersions, LPSTR version, LPSTR min, LPSTR max);
+	static void FindVersions(Version* versions, DWORD* numVersions);
 };
 
 #endif // VM_UTILS_H

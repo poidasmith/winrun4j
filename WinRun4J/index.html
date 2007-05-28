@@ -15,7 +15,7 @@
 			<p class="section-content">
 				WinRun4j is a java launcher for windows. It provides an alternative to javaw.exe and provides the following benefits:
 				<ul>
-					<li>Use of INI for specifying classpath, main class, vm args, program args.</li>
+					<li>Use of an INI file for specifying classpath, main class, vm args, program args.</li>
 					<li>Custom executable name that appears in task manager.</li>
 					<li>Additional VM args for (eg.) more flexible memory use.</li>
 					<li>Built-in icon replacer for custom icon.</li>
@@ -94,12 +94,20 @@
 						<td>Specify an exact version to use (eg. 1.5.0_07).</td>
 					</tr>
 					<tr>
-						<td>vm.heapsize.percent</td>
-						<td>Specify a proportion of the available physical memory to use (eg. vm.heapsize.percent=75). Note that this will use the maximum memory possible.</td>
+						<td>vm.heapsize.max.percent</td>
+						<td>Specify a proportion of the available physical memory to use (ie. relates to -Xmx arg). For example, vm.heapsize.max.percent=75. Note that this will use the maximum memory possible.</td>
+					</tr>
+					<tr>
+						<td>vm.heapsize.min.percent</td>
+						<td>Specify a proportion of the available physical memory to use as the minimum starting heap size (ie. relates to -Xms arg).</td>
+					</tr>
+					<tr>
+						<td>vm.heapsize.preferred</td>
+						<td>Specify a preferred amount (in MB) for the heap size (ie. relates to -Xmx arg). If this amount is not available it will use the maximum amount possible given the physical memory available.</td>
 					</tr>
 					<tr>
 						<td>arg.1, arg.2, ..., arg.n</td>
-						<td>Program arguments. These will be sent before and commandline arguments.</td>
+						<td>Program arguments. These will be sent before and command line arguments.</td>
 					</tr>
 					<tr>
 						<td>log</td>
