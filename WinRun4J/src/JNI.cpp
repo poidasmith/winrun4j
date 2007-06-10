@@ -1,6 +1,5 @@
-
 /* 
-	Code borrowed from eclipse-launcher and tweaked.... (this code is licensed as EPL).
+	Code borrowed from eclipse-launcher and tweaked (heavily).... (this code is licensed as EPL).
 */
 
 /*******************************************************************************
@@ -18,12 +17,17 @@
 #include "JNI.h"
 #include "Log.h"
 
-static JavaVM * jvm = 0;
+static JavaVM *jvm = 0;
 static JNIEnv *env = 0;
 
 typedef jint (JNICALL *JNI_createJavaVM)(JavaVM **pvm, JNIEnv **env, void *args);
 
-static jstring newJavaString(JNIEnv *env, TCHAR * str)
+JNIEnv* JNI::GetJNIEnv()
+{
+	return env;
+}
+
+jstring JNI::NewJavaString(JNIEnv *env, TCHAR * str)
 {
 	jstring newString = NULL;
 	int length = strlen(str);
@@ -53,7 +57,8 @@ static jstring newJavaString(JNIEnv *env, TCHAR * str)
 	return newString;
 }
 
-static jobjectArray createRunArgs( JNIEnv *env, TCHAR * args[] ) {
+jobjectArray JNI::CreateRunArgs( JNIEnv *env, TCHAR * args[] ) 
+{
 	int index = 0, length = -1;
 	jclass stringClass;
 	jobjectArray stringArray = NULL;
@@ -67,7 +72,7 @@ static jobjectArray createRunArgs( JNIEnv *env, TCHAR * args[] ) {
 		stringArray = env->NewObjectArray(length, stringClass, 0);
 		if(stringArray != NULL) {
 			for( index = 0; index < length; index++) {
-				string = newJavaString(env, args[index]);
+				string = NewJavaString(env, args[index]);
 				if(string != NULL) {
 					env->SetObjectArrayElement(stringArray, index, string); 
 					env->DeleteLocalRef(string);
@@ -87,20 +92,14 @@ static jobjectArray createRunArgs( JNIEnv *env, TCHAR * args[] ) {
 	return stringArray;
 }
 
-int startJavaVM( TCHAR* libPath, TCHAR* vmArgs[], TCHAR* mainClass, TCHAR* progArgs[] )
+int JNI::StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[] )
 {
 	int i;
 	int numVMArgs = -1;
-	int jvmExitCode = -1;
 	HMODULE jniLibrary;
 	JNI_createJavaVM createJavaVM;
 	JavaVMInitArgs init_args;
 	JavaVMOption * options;
-	
-	/* JNI reflection */
-	jclass mainClassCls = NULL;			/* The Main class to load */
-	jmethodID runMethod = NULL;			/* Main.run(String[]) */
-	jobjectArray methodArgs = NULL;		/* Arguments to pass to run */
 	
 	jniLibrary = LoadLibrary(libPath);
 	if(jniLibrary == NULL) {
@@ -117,7 +116,7 @@ int startJavaVM( TCHAR* libPath, TCHAR* vmArgs[], TCHAR* mainClass, TCHAR* progA
 	/* count the vm args */
 	while(vmArgs[++numVMArgs] != NULL) {}
 	
-	options = (JavaVMOption*) malloc((numVMArgs+1) * sizeof(JavaVMOption));
+	options = (JavaVMOption*) malloc((numVMArgs) * sizeof(JavaVMOption));
 	for(i = 0; i < numVMArgs; i++){
 		options[i].optionString = _strdup(vmArgs[i]);
 		options[i].extraInfo = 0;
@@ -128,40 +127,54 @@ int startJavaVM( TCHAR* libPath, TCHAR* vmArgs[], TCHAR* mainClass, TCHAR* progA
 	init_args.nOptions = numVMArgs;
 	init_args.ignoreUnrecognized = JNI_TRUE;
 	
-	if( createJavaVM(&jvm, &env, &init_args) == 0 ) {
-		mainClassCls = env->FindClass(mainClass);
-		if(mainClassCls != NULL) {
-			runMethod = env->GetStaticMethodID(mainClassCls, "main", "([Ljava/lang/String;)V");
-			if(runMethod != NULL) {
-				methodArgs = createRunArgs(env, progArgs);
-				if(methodArgs != NULL) {
-					env->CallStaticVoidMethod(mainClassCls, runMethod, methodArgs);
-					env->DeleteLocalRef(methodArgs);
-				}
-			}
-		} 
-		if(env->ExceptionOccurred()){
-			env->ExceptionDescribe();
-			env->ExceptionClear();
-		}
-		
-	}
+	int result = createJavaVM(&jvm, &env, &init_args);
 
 	/* toNarrow allocated new strings, free them */
 	for(i = 0; i < numVMArgs; i++){
 		free( options[i].optionString );
 	}
 	free(options);
-	return jvmExitCode;
+
+	return result;
 }
 
+int JNI::RunMainClass( TCHAR* mainClass, TCHAR* progArgs[] )
+{
+	/* JNI reflection */
+	jclass mainClassCls = NULL;			/* The Main class to load */
+	jmethodID runMethod = NULL;			/* Main.run(String[]) */
+	jobjectArray methodArgs = NULL;		/* Arguments to pass to run */
 
-int cleanupVM() {
-	if (jvm == 0 || env == 0)
-		return 1;
-	if (env->ExceptionOccurred()) {
+	mainClassCls = env->FindClass(mainClass);
+	if(mainClassCls != NULL) {
+		runMethod = env->GetStaticMethodID(mainClassCls, "main", "([Ljava/lang/String;)V");
+		if(runMethod != NULL) {
+			methodArgs = CreateRunArgs(env, progArgs);
+			if(methodArgs != NULL) {
+				env->CallStaticVoidMethod(mainClassCls, runMethod, methodArgs);
+				env->DeleteLocalRef(methodArgs);
+			}
+		}
+	} 
+	if(env->ExceptionOccurred())
+	{
 		env->ExceptionDescribe();
 		env->ExceptionClear();
 	}
+
+	return 0;
+}
+
+int JNI::CleanupVM() 
+{
+	if (jvm == 0 || env == 0)
+		return 1;
+
+	if (env->ExceptionOccurred()) 
+	{
+		env->ExceptionDescribe();
+		env->ExceptionClear();
+	}
+
 	return jvm->DestroyJavaVM();
 }

@@ -14,6 +14,24 @@ iniparser is distributed under an MIT license.
 #include <stdlib.h>
 #include <string.h>
 
+
+// Internal keys
+#define MODULE_NAME "WinRun4J:ModuleName"
+#define MODULE_INI "WinRun4J:ModuleIni"
+#define MODULE_BASE "WinRun4J:ModuleBaseName"
+#define MODULE_DIR "WinRun4J:ModuleDir"
+
+// Ini keys
+#define WORKING_DIR ":working.directory"
+#define MAIN_CLASS ":main.class"
+#define LOG_FILE ":log"
+#define LOG_LEVEL ":log.level"
+#define CLASS_PATH ":classpath"
+#define VM_ARG ":vmarg"
+#define PROG_ARG ":arg"
+
+
+
 typedef struct _dictionary_ {
 	int				n ;		/** Number of entries in dictionary */
 	int				size ;	/** Storage size */

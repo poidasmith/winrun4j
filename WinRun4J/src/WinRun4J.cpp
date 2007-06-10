@@ -8,37 +8,11 @@
  *     Peter Smith
  *******************************************************************************/
 
-#include <windows.h>
-#include <stdio.h>
-#include <string.h>
-#include <jni.h>
-#include <string>
-
-#include "INI.h"
-#include "JNI.h"
-#include "Icon.h"
-#include "Log.h"
-#include "VM.h"
-#include "Classpath.h"
-
-// Internal keys
-#define MODULE_NAME "WinRun4J:ModuleName"
-#define MODULE_INI "WinRun4J:ModuleIni"
-#define MODULE_BASE "WinRun4J:ModuleBaseName"
-#define MODULE_DIR "WinRun4J:ModuleDir"
-
-// Ini keys
-#define WORKING_DIR ":working.directory"
-#define MAIN_CLASS ":main.class"
-#define LOG_FILE ":log"
-#define LOG_LEVEL ":log.level"
-#define CLASS_PATH ":classpath"
-#define VM_ARG ":vmarg"
-#define PROG_ARG ":arg"
+#include "WinRun4J.h"
 
 using namespace std;
 
-void SetWorkingDirectory(dictionary* ini)
+void WinRun4J::SetWorkingDirectory(dictionary* ini)
 {
 	char* dir = iniparser_getstr(ini, WORKING_DIR);
 	if(dir != NULL) {
@@ -47,13 +21,11 @@ void SetWorkingDirectory(dictionary* ini)
 
 		// Now set working directory to specified (this allows for a relative working directory)
 		SetCurrentDirectory(dir);
-	} else {
-		Log::Info("Working directory not set\n");
-	}
+	} 
 }
 
 
-void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index)
+void WinRun4J::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index)
 {
 	int i = 0;
 	TCHAR entryName[MAX_PATH];
@@ -72,10 +44,10 @@ void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, in
 }
 
 /* The ini filename is in the same directory as the executable and called the same (except with ini at the end). */
-dictionary* LoadIniFile()
+dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
 {
 	TCHAR filename[MAX_PATH], inifile[MAX_PATH], filedir[MAX_PATH];
-	GetModuleFileName(NULL, filename, sizeof(filename));
+	GetModuleFileName(hInstance, filename, sizeof(filename));
 	strcpy_s(inifile, sizeof(inifile), filename);
 	strcpy_s(filedir, sizeof(filedir), filename);
 	int len = strlen(inifile);
@@ -99,26 +71,10 @@ dictionary* LoadIniFile()
 	iniparser_setstr(ini, MODULE_DIR, filedir);
 	Log::Info("Module Dir: %s\n", filedir);
 
-	// Fix main class - ie. replace x.y.z with x/y/z for use in jni
-	char* mainClass = iniparser_getstr(ini, MAIN_CLASS);
-	if(mainClass != NULL) {
-		len = strlen(mainClass);
-		for(int i = 0; i < len; i++) {
-			if(mainClass[i] == '.') {
-				mainClass[i] = '/';
-			}
-		}
-	}
-	if(mainClass == NULL) {
-		Log::Error("ERROR: no main class specified\n");
-	} else {
-		Log::Info("Main Class: %s\n", mainClass);
-	}
-
 	return ini;
 }
 
-bool StrTrimInChars(LPSTR trimChars, char c)
+bool WinRun4J::StrTrimInChars(LPSTR trimChars, char c)
 {
 	unsigned int len = strlen(trimChars);
 	for(unsigned int i = 0; i < len; i++) {
@@ -129,7 +85,7 @@ bool StrTrimInChars(LPSTR trimChars, char c)
 	return false;
 }
 
-void StrTrim(LPSTR str, LPSTR trimChars)
+void WinRun4J::StrTrim(LPSTR str, LPSTR trimChars)
 {
 	unsigned int start = 0;
 	unsigned int end = strlen(str) - 1;
@@ -156,7 +112,7 @@ void StrTrim(LPSTR str, LPSTR trimChars)
 	}
 }
 
-void ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count)
+void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count)
 {
 	StrTrim(lpCmdLine, " ");
 	int len = strlen(lpCmdLine);
@@ -208,7 +164,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		return 0;
 	}
 
-	dictionary* ini = LoadIniFile();
+	dictionary* ini = WinRun4J::LoadIniFile(hInstance);
 	if(ini == NULL) {
 		MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
 		Log::Close();
@@ -227,12 +183,12 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	}
 
 	// Set the current working directory if specified
-	SetWorkingDirectory(ini);
+	WinRun4J::SetWorkingDirectory(ini);
 
 	// Collect the VM args from the INI file
 	TCHAR *vmargs[MAX_PATH];
 	int vmargsCount = 0;
-	GetNumberedKeysFromIni(ini, VM_ARG, vmargs, vmargsCount);
+	WinRun4J::GetNumberedKeysFromIni(ini, VM_ARG, vmargs, vmargsCount);
 
 	// Build up the classpath and add to vm args
 	Classpath::BuildClassPath(ini, vmargs, vmargsCount);
@@ -248,10 +204,10 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	// Collect the program arguments from the INI file
 	TCHAR *progargs[MAX_PATH];
 	int progargsCount = 0;
-	GetNumberedKeysFromIni(ini, PROG_ARG, progargs, progargsCount);
+	WinRun4J::GetNumberedKeysFromIni(ini, PROG_ARG, progargs, progargsCount);
 
 	// Add the args from commandline
-	ParseCommandLine(lpCmdLine, progargs, progargsCount);
+	WinRun4J::ParseCommandLine(lpCmdLine, progargs, progargsCount);
 
 	// Log the commandline args
 	for(int i = 0; i < progargsCount; i++) {
@@ -262,8 +218,31 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	vmargs[vmargsCount] = NULL;
 	progargs[progargsCount] = NULL;
 
-	// Fire up the VM
-	startJavaVM(vmlibrary, vmargs, iniparser_getstr(ini, MAIN_CLASS), progargs);
+	// Fix main class - ie. replace x.y.z with x/y/z for use in jni
+	char* mainClass = iniparser_getstr(ini, MAIN_CLASS);
+	if(mainClass != NULL) {
+		int len = strlen(mainClass);
+		for(int i = 0; i < len; i++) {
+			if(mainClass[i] == '.') {
+				mainClass[i] = '/';
+			}
+		}
+	}
+	if(mainClass == NULL) {
+		Log::Error("ERROR: no main class specified\n");
+		return 1;
+	} else {
+		Log::Info("Main Class: %s\n", mainClass);
+	}
+
+	// Start the VM
+	if(JNI::StartJavaVM(vmlibrary, vmargs) != 0) {
+		Log::Error("Error starting java VM\n");
+		return 1;
+	}
+
+	// Run the main class
+	JNI::RunMainClass(iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
 	// Free vm args
 	for(int i = 0; i < vmargsCount; i++) {
@@ -279,7 +258,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	iniparser_freedict(ini);
 
 	// Close VM (This will block until all non-daemon java threads finish).
-	int result = cleanupVM();
+	int result = JNI::CleanupVM();
 
 	// Close the log
 	Log::Close();

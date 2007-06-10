@@ -46,6 +46,12 @@ void ExpandClassPathEntry(TCHAR** entries, int& index, TCHAR* entry)
 // Build up the classpath entry from the ini file list
 void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, int& count)
 {
+	// It assumed that the classpath entries are relative to the module directory so we temporarily set
+	// the current directory 
+	TCHAR current[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, current);
+	SetCurrentDirectory(iniparser_getstr(ini, MODULE_DIR));
+
 	TCHAR* entries[MAX_PATH];
 	int i = 0, index = 0;
 	TCHAR* entry = NULL;
@@ -77,4 +83,7 @@ void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, int& count)
 	strcpy(cpArg, CLASS_PATH_ARG);
 	strcat(cpArg, classpath.c_str());
 	args[count++] = cpArg;
+
+	// Now set the working directory back
+	SetCurrentDirectory(current);
 }

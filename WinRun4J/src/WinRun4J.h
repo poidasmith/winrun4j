@@ -8,25 +8,28 @@
  *     Peter Smith
  *******************************************************************************/
 
-#ifndef JNI_UTILS_H
-#define JNI_UTILS_H
-
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
 #include <jni.h>
+#include <string>
 
-class JNI 
+#include "INI.h"
+#include "JNI.h"
+#include "Icon.h"
+#include "Log.h"
+#include "VM.h"
+#include "Classpath.h"
+
+class WinRun4J
 {
 public:
-	static int StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[] );
-	static int RunMainClass( TCHAR* mainClass, TCHAR* progArgs[] );
-	static int CleanupVM();
-	static JNIEnv* GetJNIEnv();
+	static void SetWorkingDirectory(dictionary* ini);
+	static void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index);
+	static dictionary* LoadIniFile(HINSTANCE hInstance);
+	static void ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count);
 
 private:
-	static jstring NewJavaString(JNIEnv *env, TCHAR * str);
-	static jobjectArray CreateRunArgs( JNIEnv *env, TCHAR * args[] );
+	static bool StrTrimInChars(LPSTR trimChars, char c);
+	static void StrTrim(LPSTR str, LPSTR trimChars);
 };
-
-#endif // JNI_UTILS_H
