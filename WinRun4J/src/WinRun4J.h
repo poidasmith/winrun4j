@@ -13,6 +13,7 @@
 #include <string.h>
 #include <jni.h>
 #include <string>
+#include <commctrl.h>
 
 #include "INI.h"
 #include "JNI.h"

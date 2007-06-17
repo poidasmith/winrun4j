@@ -1,0 +1,21 @@
+LIBRARY	"ExcelAddin4J"
+
+EXPORTS
+	xlAutoOpen
+	xlAutoClose
+	xlAutoRegister
+	xlAutoAdd
+	xlAutoRemove
+	xlAddInManagerInfo
+	EA4JGetLastError
+	EA4JFunc1
+	EA4JFunc2
+	EA4JFunc3
+	EA4JFunc4
+	EA4JFunc5
+	EA4JFunc6
+	EA4JFunc7
+	EA4JFunc8
+	EA4JFunc9
+	EA4JFunc10
+	

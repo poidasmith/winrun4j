@@ -9,7 +9,7 @@
 			Name="Debug|Win32"
 			>
 			<DebugSettings
-				Command="C:\Program Files\Microsoft Office\Office\EXCEL.EXE"
+				Command="C:\Program Files\Microsoft Office\Office12\EXCEL.EXE"
 				WorkingDirectory=""
 				CommandArguments=""
 				Attach="false"

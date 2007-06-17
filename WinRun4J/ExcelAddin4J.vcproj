@@ -64,6 +64,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib advapi32.lib $(InputDir)\src\xlcall32.lib ole32.lib oleaut32.lib "
 				OutputFile="$(OutDir)\$(ProjectName).xll"
+				ModuleDefinitionFile="ExcelAddin4J.def"
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
 				MapExports="true"
@@ -138,6 +139,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				ModuleDefinitionFile="ExcelAddin4J.def"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -179,6 +181,10 @@
 			</File>
 			<File
 				RelativePath=".\src\ExcelAddin4J.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ExcelAddin4J.def"
 				>
 			</File>
 			<File

@@ -89,7 +89,7 @@ void WinRun4J::StrTrim(LPSTR str, LPSTR trimChars)
 {
 	unsigned int start = 0;
 	unsigned int end = strlen(str) - 1;
-	for(int i = 0; i < end; i++) {
+	for(unsigned int i = 0; i < end; i++) {
 		char c = str[i];
 		if(!StrTrimInChars(trimChars, c)) {
 			start = i;
@@ -105,7 +105,7 @@ void WinRun4J::StrTrim(LPSTR str, LPSTR trimChars)
 	}
 	if(start != 0 || end != strlen(str) - 1) {
 		int k = 0;
-		for(int i = start; i <= end; i++, k++) {
+		for(unsigned int i = start; i <= end; i++, k++) {
 			str[k] = str[i];
 		}
 		str[k] = 0;
@@ -133,7 +133,7 @@ void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count)
 				arg[k] = lpCmdLine[j];
 			}
 			arg[k] = 0;
-			args[count] = strdup(arg);
+			args[count] = _strdup(arg);
 			StrTrim(args[count], " ");
 			StrTrim(args[count], "\"");
 			count++;
