@@ -24,6 +24,8 @@ typedef jint (JNICALL *JNI_createJavaVM)(JavaVM **pvm, JNIEnv **env, void *args)
 
 JNIEnv* JNI::GetJNIEnv()
 {
+	JNIEnv* env = 0;
+	jvm->GetEnv((void **) &env, JNI_VERSION_1_1);
 	return env;
 }
 
