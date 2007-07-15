@@ -135,6 +135,9 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		return 1;
 	}
 
+	// Set the current working directory if specified
+	WinRun4J::SetWorkingDirectory(ini);
+
 	// Now initialise the logger using std streams + specified log dir
 	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL));
 
@@ -148,9 +151,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		Log::Close();
 		return 1;
 	}
-
-	// Set the current working directory if specified
-	WinRun4J::SetWorkingDirectory(ini);
 
 	// Collect the VM args from the INI file
 	TCHAR *vmargs[MAX_PATH];
