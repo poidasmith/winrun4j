@@ -42,8 +42,8 @@ private:
 	static void StrTrim(LPSTR str, LPSTR trimChars);
 
 	// JNI functions
-	static jstring INI::GetKey(JNIEnv* env, jobject self, jstring key);
-	static jobjectArray INI::GetKeys(JNIEnv* env, jobject self);
+	static jstring GetKey(JNIEnv* env, jobject self, jstring key);
+	static jobjectArray GetKeys(JNIEnv* env, jobject self);
 };
 
 #endif // INI_H

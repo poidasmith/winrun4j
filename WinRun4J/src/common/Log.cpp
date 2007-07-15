@@ -108,21 +108,21 @@ void Log::SetLevel(LoggingLevel logingLevel)
 
 void Log::Info(const char* format, ...)
 {
-	if(level >= LoggingLevel::info) {
+	if(level <= LoggingLevel::info) {
 		LOG_IT
 	}
 }
 
 void Log::Warning(const char* format, ...)
 {
-	if(level >= LoggingLevel::warning) {
+	if(level <= LoggingLevel::warning) {
 		LOG_IT
 	}
 }
 
 void Log::Error(const char* format, ...)
 {
-	if(level >= LoggingLevel::error) {
+	if(level <= LoggingLevel::error) {
 		LOG_IT
 	}
 }

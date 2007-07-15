@@ -110,13 +110,13 @@ void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count)
 int main(int argc, char* argv[])
 {
 	LPSTR lpCmdLine = 0;
+	HINSTANCE hInstance = 0;
 #else
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
 {
-#endif
 	int argc = 0;
 	char** argv = 0;
-
+#endif
 	// Initialise the logger using std streams
 	Log::Init(hInstance, NULL, NULL);
 

@@ -94,6 +94,8 @@ void INI::RegisterNatives(JNIEnv *env)
 	clazz = env->FindClass("org/boris/winrun4j/INI");
 	if(clazz == NULL) {
 		Log::Warning("org.boris.WinRun4J not found in classpath\n");
+		if(env->ExceptionOccurred())
+			env->ExceptionClear();
 		return;
 	}
 	methods[0].fnPtr = GetKeys;
