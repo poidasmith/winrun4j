@@ -12,7 +12,8 @@
 #define VM_H
 
 #include <windows.h>
-#include "INI.h"
+#include <jni.h>
+#include "../common/INI.h"
 
 // VM versions
 #define VM_VERSION_MAX ":vm.version.max"
@@ -46,6 +47,9 @@ struct VM {
 	static char* FindJavaVMLibrary(dictionary *ini);
 	static void ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count);
 	static char* GetJavaVMLibrary(LPSTR version, LPSTR min, LPSTR max);
+	static int StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[] );
+	static int CleanupVM();
+	static JNIEnv* GetJNIEnv();
 	
 public:
 	static Version* FindVersion(Version* versions, DWORD numVersions, LPSTR version, LPSTR min, LPSTR max);

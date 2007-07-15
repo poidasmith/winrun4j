@@ -19,12 +19,9 @@
 class JNI 
 {
 public:
-	static int StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[] );
-	static int RunMainClass( TCHAR* mainClass, TCHAR* progArgs[] );
-	static int CleanupVM();
-	static JNIEnv* GetJNIEnv();
-
-private:
+	static void ClearJavaException(JNIEnv* env);
+	static int RunMainClass( JNIEnv* env, TCHAR* mainClass, TCHAR* progArgs[] );
+	static const char* CallJavaStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
 	static jstring NewJavaString(JNIEnv *env, TCHAR * str);
 	static jobjectArray CreateRunArgs( JNIEnv *env, TCHAR * args[] );
 };

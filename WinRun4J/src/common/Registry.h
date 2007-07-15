@@ -8,17 +8,15 @@
  *     Peter Smith
  *******************************************************************************/
 
-#ifndef CLASSPATH_H
-#define CLASSPATH_H
+#ifndef REGISTRY_H
+#define REGISTRY_H
 
 #include <windows.h>
-#include "INI.h"
+#include "../common/INI.h"
 
-#define CLASS_PATH ":classpath"
-#define CLASS_PATH_ARG "-Djava.class.path="
-
-struct Classpath {
-	static void BuildClassPath(dictionary *ini, TCHAR** args, int& count);
+class Registry {
+public:
+	static void RegisterNatives(JNIEnv* env);
 };
 
-#endif // CLASSPATH_H
+#endif // REGISTRY_H

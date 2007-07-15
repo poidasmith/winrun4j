@@ -8,9 +8,10 @@
  *     Peter Smith
  *******************************************************************************/
 
+#include <jni.h>
 #include "VM.h"
-#include "Log.h"
-#include "INI.h"
+#include "../common/Log.h"
+#include "../common/INI.h"
 
 // Dictionary key
 #define VM_LOCATION_KEY "VM:Location"
@@ -22,6 +23,20 @@
 
 // VM Version keys
 #define MAX_VER
+
+static JavaVM *jvm = 0;
+static JNIEnv *env = 0;
+
+typedef jint (JNICALL *JNI_createJavaVM)(JavaVM **pvm, JNIEnv **env, void *args);
+
+
+JNIEnv* VM::GetJNIEnv()
+{
+	if(!jvm) return NULL;
+	JNIEnv* env = 0;
+	jvm->GetEnv((void **) &env, JNI_VERSION_1_1);
+	return env;
+}
 
 char* VM::FindJavaVMLibrary(dictionary *ini)
 {
@@ -204,3 +219,64 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 		}
 	}
 }
+
+int VM::StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[] )
+{
+	int i;
+	int numVMArgs = -1;
+	HMODULE jniLibrary;
+	JNI_createJavaVM createJavaVM;
+	JavaVMInitArgs init_args;
+	JavaVMOption * options;
+	
+	jniLibrary = LoadLibrary(libPath);
+	if(jniLibrary == NULL) {
+		Log::Info("ERROR: Could not load library: %s\n", libPath);
+		return -1; /*error*/
+	}
+
+	createJavaVM = (JNI_createJavaVM)GetProcAddress(jniLibrary, "JNI_CreateJavaVM");
+	if(createJavaVM == NULL) {
+		Log::Info("ERROR: Could not find JNI_CreateJavaVM function\n");
+		return -1; /*error*/
+	}
+	
+	/* count the vm args */
+	while(vmArgs[++numVMArgs] != NULL) {}
+	
+	options = (JavaVMOption*) malloc((numVMArgs) * sizeof(JavaVMOption));
+	for(i = 0; i < numVMArgs; i++){
+		options[i].optionString = _strdup(vmArgs[i]);
+		options[i].extraInfo = 0;
+	}
+		
+	init_args.version = JNI_VERSION_1_2;
+	init_args.options = options;
+	init_args.nOptions = numVMArgs;
+	init_args.ignoreUnrecognized = JNI_TRUE;
+	
+	int result = createJavaVM(&jvm, &env, &init_args);
+
+	/* toNarrow allocated new strings, free them */
+	for(i = 0; i < numVMArgs; i++){
+		free( options[i].optionString );
+	}
+	free(options);
+
+	return result;
+}
+
+int VM::CleanupVM() 
+{
+	if (jvm == 0 || env == 0)
+		return 1;
+
+	if (env->ExceptionOccurred()) 
+	{
+		env->ExceptionDescribe();
+		env->ExceptionClear();
+	}
+
+	return jvm->DestroyJavaVM();
+}
+

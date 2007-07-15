@@ -9,6 +9,9 @@
  *******************************************************************************/
 
 #include "WinRun4J.h"
+#include "run/SplashScreen.h"
+#include "run/Shell.h"
+#include "common/Registry.h"
 
 using namespace std;
 
@@ -22,56 +25,6 @@ void WinRun4J::SetWorkingDirectory(dictionary* ini)
 		// Now set working directory to specified (this allows for a relative working directory)
 		SetCurrentDirectory(dir);
 	} 
-}
-
-
-void WinRun4J::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index)
-{
-	int i = 0;
-	TCHAR entryName[MAX_PATH];
-	while(true) {
-		sprintf_s(entryName, sizeof(entryName), "%s.%d", keyName, i+1);
-		TCHAR* entry = iniparser_getstr(ini, entryName);
-		if(entry != NULL) {
-			entries[index++] = _strdup(entry);
-		}
-		i++;
-		if(i > 10 && entry == NULL) {
-			break;
-		}
-	}
-	entries[index] = NULL;
-}
-
-/* The ini filename is in the same directory as the executable and called the same (except with ini at the end). */
-dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
-{
-	TCHAR filename[MAX_PATH], inifile[MAX_PATH], filedir[MAX_PATH];
-	GetModuleFileName(hInstance, filename, sizeof(filename));
-	strcpy_s(inifile, sizeof(inifile), filename);
-	strcpy_s(filedir, sizeof(filedir), filename);
-	int len = strlen(inifile);
-	// It is assumed the executable ends with "exe"
-	inifile[len - 1] = 'i';
-	inifile[len - 2] = 'n';
-	inifile[len - 3] = 'i';
-	dictionary* ini = iniparser_load(inifile);
-	iniparser_setstr(ini, MODULE_NAME, filename);
-	iniparser_setstr(ini, MODULE_INI, inifile);
-	Log::Info("Module Name: %s\n", filename);
-	Log::Info("Module INI: %s\n", inifile);
-
-	// strip off filename to get module directory
-	for(int i = len - 1; i >= 0; i--) {
-		if(filedir[i] == '\\') {
-			filedir[i] = 0;
-			break;
-		}
-	}
-	iniparser_setstr(ini, MODULE_DIR, filedir);
-	Log::Info("Module Dir: %s\n", filedir);
-
-	return ini;
 }
 
 bool WinRun4J::StrTrimInChars(LPSTR trimChars, char c)
@@ -153,7 +106,17 @@ void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count)
 	count++;
 }
 
-int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+#ifdef CONSOLE
+int main(int argc, char* argv[])
+{
+	LPSTR lpCmdLine = 0;
+#else
+int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
+{
+#endif
+	int argc = 0;
+	char** argv = 0;
+
 	// Initialise the logger using std streams
 	Log::Init(hInstance, NULL, NULL);
 
@@ -164,7 +127,8 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		return 0;
 	}
 
-	dictionary* ini = WinRun4J::LoadIniFile(hInstance);
+	// Load the INI file based on module name
+	dictionary* ini = INI::LoadIniFile(hInstance);
 	if(ini == NULL) {
 		MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
 		Log::Close();
@@ -173,6 +137,9 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	// Now initialise the logger using std streams + specified log dir
 	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL));
+
+	// Display the splash screen if present
+	SplashScreen::ShowSplashImage(hInstance, ini);
 
 	// Attempt to find an appropriate java VM
 	char* vmlibrary = VM::FindJavaVMLibrary(ini);
@@ -188,7 +155,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	// Collect the VM args from the INI file
 	TCHAR *vmargs[MAX_PATH];
 	int vmargsCount = 0;
-	WinRun4J::GetNumberedKeysFromIni(ini, VM_ARG, vmargs, vmargsCount);
+	INI::GetNumberedKeysFromIni(ini, VM_ARG, vmargs, vmargsCount);
 
 	// Build up the classpath and add to vm args
 	Classpath::BuildClassPath(ini, vmargs, vmargsCount);
@@ -204,7 +171,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	// Collect the program arguments from the INI file
 	TCHAR *progargs[MAX_PATH];
 	int progargsCount = 0;
-	WinRun4J::GetNumberedKeysFromIni(ini, PROG_ARG, progargs, progargsCount);
+	INI::GetNumberedKeysFromIni(ini, PROG_ARG, progargs, progargsCount);
 
 	// Add the args from commandline
 	WinRun4J::ParseCommandLine(lpCmdLine, progargs, progargsCount);
@@ -236,13 +203,19 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	}
 
 	// Start the VM
-	if(JNI::StartJavaVM(vmlibrary, vmargs) != 0) {
+	if(VM::StartJavaVM(vmlibrary, vmargs) != 0) {
 		Log::Error("Error starting java VM\n");
 		return 1;
 	}
 
+	// Register native methods
+	INI::RegisterNatives(VM::GetJNIEnv());
+	SplashScreen::RegisterNatives(VM::GetJNIEnv());
+	Registry::RegisterNatives(VM::GetJNIEnv());
+	Shell::RegisterNatives(VM::GetJNIEnv());
+
 	// Run the main class
-	JNI::RunMainClass(iniparser_getstr(ini, MAIN_CLASS), progargs);
+	JNI::RunMainClass(VM::GetJNIEnv(), iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
 	// Free vm args
 	for(int i = 0; i < vmargsCount; i++) {
@@ -254,11 +227,8 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		free(progargs[i]);
 	}
 
-	// Free ini file
-	iniparser_freedict(ini);
-
 	// Close VM (This will block until all non-daemon java threads finish).
-	int result = JNI::CleanupVM();
+	int result = VM::CleanupVM();
 
 	// Close the log
 	Log::Close();

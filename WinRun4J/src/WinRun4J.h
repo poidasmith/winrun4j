@@ -8,6 +8,9 @@
  *     Peter Smith
  *******************************************************************************/
 
+#ifndef WINRUN4J_H
+#define WINRUN4J_H
+
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,22 +18,23 @@
 #include <string>
 #include <commctrl.h>
 
-#include "INI.h"
-#include "JNI.h"
-#include "Icon.h"
-#include "Log.h"
-#include "VM.h"
-#include "Classpath.h"
+#include "common/Log.h"
+#include "common/INI.h"
+#include "common/Dictionary.h"
+#include "common/Icon.h"
+#include "java/JNI.h"
+#include "java/VM.h"
+#include "java/Classpath.h"
 
 class WinRun4J
 {
 public:
 	static void SetWorkingDirectory(dictionary* ini);
-	static void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index);
-	static dictionary* LoadIniFile(HINSTANCE hInstance);
 	static void ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count);
 
 private:
 	static bool StrTrimInChars(LPSTR trimChars, char c);
 	static void StrTrim(LPSTR str, LPSTR trimChars);
 };
+
+#endif // WINRUN4J_H

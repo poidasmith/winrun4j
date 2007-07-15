@@ -15,21 +15,9 @@
  *******************************************************************************/
 
 #include "JNI.h"
-#include "Log.h"
+#include "../common/Log.h"
 
-static JavaVM *jvm = 0;
-static JNIEnv *env = 0;
-
-typedef jint (JNICALL *JNI_createJavaVM)(JavaVM **pvm, JNIEnv **env, void *args);
-
-JNIEnv* JNI::GetJNIEnv()
-{
-	JNIEnv* env = 0;
-	jvm->GetEnv((void **) &env, JNI_VERSION_1_1);
-	return env;
-}
-
-jstring JNI::NewJavaString(JNIEnv *env, TCHAR * str)
+jstring JNI::NewJavaString( JNIEnv *env, TCHAR * str )
 {
 	jstring newString = NULL;
 	int length = strlen(str);
@@ -94,53 +82,8 @@ jobjectArray JNI::CreateRunArgs( JNIEnv *env, TCHAR * args[] )
 	return stringArray;
 }
 
-int JNI::StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[] )
-{
-	int i;
-	int numVMArgs = -1;
-	HMODULE jniLibrary;
-	JNI_createJavaVM createJavaVM;
-	JavaVMInitArgs init_args;
-	JavaVMOption * options;
-	
-	jniLibrary = LoadLibrary(libPath);
-	if(jniLibrary == NULL) {
-		Log::Info("ERROR: Could not load library: %s\n", libPath);
-		return -1; /*error*/
-	}
 
-	createJavaVM = (JNI_createJavaVM)GetProcAddress(jniLibrary, "JNI_CreateJavaVM");
-	if(createJavaVM == NULL) {
-		Log::Info("ERROR: Could not find JNI_CreateJavaVM function\n");
-		return -1; /*error*/
-	}
-	
-	/* count the vm args */
-	while(vmArgs[++numVMArgs] != NULL) {}
-	
-	options = (JavaVMOption*) malloc((numVMArgs) * sizeof(JavaVMOption));
-	for(i = 0; i < numVMArgs; i++){
-		options[i].optionString = _strdup(vmArgs[i]);
-		options[i].extraInfo = 0;
-	}
-		
-	init_args.version = JNI_VERSION_1_2;
-	init_args.options = options;
-	init_args.nOptions = numVMArgs;
-	init_args.ignoreUnrecognized = JNI_TRUE;
-	
-	int result = createJavaVM(&jvm, &env, &init_args);
-
-	/* toNarrow allocated new strings, free them */
-	for(i = 0; i < numVMArgs; i++){
-		free( options[i].optionString );
-	}
-	free(options);
-
-	return result;
-}
-
-int JNI::RunMainClass( TCHAR* mainClass, TCHAR* progArgs[] )
+int JNI::RunMainClass( JNIEnv* env, TCHAR* mainClass, TCHAR* progArgs[] )
 {
 	/* JNI reflection */
 	jclass mainClassCls = NULL;			/* The Main class to load */
@@ -167,16 +110,25 @@ int JNI::RunMainClass( TCHAR* mainClass, TCHAR* progArgs[] )
 	return 0;
 }
 
-int JNI::CleanupVM() 
+const char* JNI::CallJavaStringMethod( JNIEnv* env, jclass clazz, jobject obj, char* name )
 {
-	if (jvm == 0 || env == 0)
-		return 1;
+	jmethodID methodID = env->GetMethodID(clazz, name, "()Ljava/lang/String;");
+	if(methodID == NULL) {
+		Log::SetLastError("Could not find '%s' method", name);
+		return NULL;
+	}
+	jstring str = (jstring) env->CallObjectMethod(obj, methodID);
+	if(str == NULL) {
+		return NULL;
+	}
+	jboolean iscopy = false;
+	return env->GetStringUTFChars(str, &iscopy);
+}
 
-	if (env->ExceptionOccurred()) 
-	{
-		env->ExceptionDescribe();
+// Clear JNI exception
+void JNI::ClearJavaException(JNIEnv* env)
+{
+	if(env && env->ExceptionCheck()) {
 		env->ExceptionClear();
 	}
-
-	return jvm->DestroyJavaVM();
 }
