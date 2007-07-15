@@ -15,10 +15,12 @@
 			<p class="section-content">
 				WinRun4j is a java launcher for windows. It provides an alternative to javaw.exe and provides the following benefits:
 				<ul>
-					<li>Use of an INI file for specifying classpath, main class, vm args, program args.</li>
+					<li>Uses an INI file for specifying classpath, main class, vm args, program args.</li>
 					<li>Custom executable name that appears in task manager.</li>
 					<li>Additional VM args for (eg.) more flexible memory use.</li>
 					<li>Built-in icon replacer for custom icon.</li>
+					<li>Built-in pre-VM splash screen with auto-hide.</li>
+					<li>JNI link to access INI file and splash screen.
 				</ul>
 				WinRun4J is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
 			</p>
@@ -35,9 +37,8 @@
 				<div class="section-heading">V0.0.3</div>
 				<ul>
 				<li>Added JNI access to INI file contents.
-				<li>Added splash screen capabilities.
-				<li>Added JNI access to the registry.
-				<li>Added JNI access to shell features.
+				<li>Added splash screen with auto-hide.
+				<li>Added JNI access to the splash screen.
 				</ul>
 			</p>
 			<p class="section-content">
@@ -126,8 +127,23 @@
 						<td>log.level</td>
 						<td>Specify the logging level. One of "info", "warning", "error", "none".</td>
 					</tr>
+					<tr>
+						<td>splash.image</td>
+						<td>The name of the splash image file to display (This can be gif, jpg or bmp).
+						<br/><br/>
+						This will auto-hide itself when it detects the first application window.</td>
+					</tr>
 				</table>
 			</p>
+		</p>
+		<p class="section">
+			<div class="section-title">JNI Library</div>
+			<p>
+			The javadoc for the JNI library can be found <a href="javadoc/index.html">here</a>.
+			</p>
+		</p>
+		<p class="section">
+			<div class="section-title">Examples</div>
 			<p>
 				An example INI file (included in the download) is:
 				<pre>

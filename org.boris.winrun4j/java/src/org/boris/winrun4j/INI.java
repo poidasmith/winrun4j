@@ -1,7 +1,6 @@
 package org.boris.winrun4j;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -29,12 +28,12 @@ public class INI {
      *
      * @return Map.
      */
-    public static Map<String, String> getProperties() {
-        Map<String, String> props = new HashMap();
+    public static Properties getProperties() {
+        Properties props = new Properties();
         String[] keys = getPropertyKeys();
 
-        for (String key : keys) {
-            props.put(key, getProperty(key));
+        for (int i = 0; i < keys.length; i++) {
+            props.put(keys[i], getProperty(keys[i]));
         }
 
         return props;
