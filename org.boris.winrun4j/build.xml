@@ -1,0 +1,55 @@
+<project name="build" default="build">
+	
+	<property name="release.dir" value="C:/Development/Releases/"/>
+	<property name="release.name" value="winrun4J"/>
+	<property name="release.version" value="V0.0.3"/>
+	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/winrun4j"/>
+	
+	<target name="build">
+		<mkdir dir="${deploy.dir}"/>
+		<mkdir dir="${deploy.dir}/bin"/>
+		<copy todir="${deploy.dir}/bin" file="C:/Development/winrun4J/build/WinRun4J-Release/WinRun4J.exe"/>
+		<copy todir="${deploy.dir}/bin" file="C:/Development/winrun4J/bin/WinRun4J.ini"/>
+		<copy todir="${deploy.dir}/bin" file="C:/Development/winrun4J/bin/SplashScreen.gif"/>
+		<mkdir dir="${deploy.dir}/src"/>
+		<mkdir dir="build"/>
+		<javac debug="off" srcdir="java/src" destdir="build"/>
+		<jar destfile="${deploy.dir}/bin/WinRun4J.jar">
+			<fileset dir="build">
+				<include name="**/*.class"/>
+			</fileset>
+		</jar>
+		<jar destfile="${deploy.dir}/src/WinRun4J-src.jar">
+			<fileset dir="java/src">
+				<include name="**/*.java"/>
+			</fileset>
+		</jar>
+		<delete dir="build"/>
+		<mkdir dir="build"/>
+		<javac debug="off" srcdir="../org.boris.winrun4j.test/java/src" destdir="build"/>
+		<jar destfile="${deploy.dir}/bin/WinRun4JTest.jar">
+			<fileset dir="build">
+				<include name="**/*.class"/>
+			</fileset>
+			<fileset dir="../org.boris.winrun4j.test/java/src">
+				<include name="**/*.java"/>
+			</fileset>
+		</jar>
+		<delete dir="build"/>
+		<jar destfile="${deploy.dir}/src/WinRun4J-cppsrc.zip">
+			<fileset dir="C:/Development/winrun4j">
+				<include name="**/*.cpp"/>
+				<include name="**/*.h"/>
+				<include name="**/*.vcproj"/>
+				<include name="**/*.sln"/>
+				<exclude name="xlcall.h"/>
+			</fileset>
+		</jar>
+		<zip destfile="${release.dir}/${release.name}-${release.version}.zip">
+			<fileset dir="${release.dir}/${release.name}-${release.version}">
+				<include name="**/*"/>
+			</fileset>
+		</zip>
+		<delete dir="${release.dir}/${release.name}-${release.version}"/>
+	</target>
+</project>
