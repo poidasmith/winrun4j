@@ -2,7 +2,7 @@
 	
 	<property name="release.dir" value="C:/Development/Releases/"/>
 	<property name="release.name" value="winrun4J"/>
-	<property name="release.version" value="V0.0.3"/>
+	<property name="release.version" value="0.0.4"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/winrun4j"/>
 	
 	<target name="build">
@@ -28,7 +28,9 @@
 		</jar>
 		<delete dir="build"/>
 		<mkdir dir="build"/>
-		<javac debug="off" srcdir="../org.boris.winrun4j.test/java/src" destdir="build"/>
+		<javac debug="off" srcdir="../org.boris.winrun4j.test/java/src" destdir="build">
+			<classpath path="bin"/>
+		</javac>
 		<jar destfile="${deploy.dir}/bin/WinRun4JTest.jar">
 			<fileset dir="build">
 				<include name="**/*.class"/>
@@ -53,5 +55,7 @@
 			</fileset>
 		</zip>
 		<delete dir="${release.dir}/${release.name}-${release.version}"/>
+		<mkdir dir="C:/Development/winrun4j-javadoc"/>
+		<javadoc sourcepath="java/src" destdir="C:/Development/winrun4j-javadoc"/>
 	</target>
 </project>

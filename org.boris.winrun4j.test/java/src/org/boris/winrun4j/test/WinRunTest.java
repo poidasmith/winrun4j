@@ -8,6 +8,9 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import org.boris.winrun4j.INI;
+import org.boris.winrun4j.SplashScreen;
+
 
 public class WinRunTest {
     public static void main(String[] args) throws Exception {
@@ -35,6 +38,7 @@ public class WinRunTest {
             sb.append("\n");
         }
         sb.append("\n\nINI Properties\n=============\n\n");
+        p = INI.getProperties();
         for(Iterator i = p.keySet().iterator(); i.hasNext(); ) {
             String k = (String) i.next();
             sb.append(k);
@@ -47,7 +51,8 @@ public class WinRunTest {
         frame.setSize(500, 500);
         frame.setLocation(30, 30);
         Thread.sleep(5000); // for the splash screen
-        frame.show();
+        SplashScreen.close();
+        frame.setVisible(true);
         System.out.println("Testing stdout stream redirection from Java");
         System.err.println("Testing stderr stream redirection from Java");
     }
