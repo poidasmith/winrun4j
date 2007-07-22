@@ -87,7 +87,7 @@ jstring INI::GetKey(JNIEnv* env, jobject self, jstring key)
 	}
 }
 
-void INI::RegisterNatives(JNIEnv *env)
+bool INI::RegisterNatives(JNIEnv *env)
 {
 	jclass clazz;
 	JNINativeMethod methods[2];
@@ -96,7 +96,7 @@ void INI::RegisterNatives(JNIEnv *env)
 		Log::Warning("org.boris.WinRun4J not found in classpath\n");
 		if(env->ExceptionOccurred())
 			env->ExceptionClear();
-		return;
+		return false;
 	}
 	methods[0].fnPtr = GetKeys;
 	methods[0].name = "getPropertyKeys";
@@ -105,5 +105,7 @@ void INI::RegisterNatives(JNIEnv *env)
 	methods[1].name = "getProperty";
 	methods[1].signature = "(Ljava/lang/String;)Ljava/lang/String;";
 	env->RegisterNatives(clazz, methods, 2);
+
+	return true;
 }
 

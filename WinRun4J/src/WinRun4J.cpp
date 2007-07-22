@@ -9,8 +9,8 @@
  *******************************************************************************/
 
 #include "WinRun4J.h"
-#include "run/SplashScreen.h"
-#include "run/Shell.h"
+#include "launcher/SplashScreen.h"
+#include "launcher/Shell.h"
 #include "common/Registry.h"
 
 using namespace std;

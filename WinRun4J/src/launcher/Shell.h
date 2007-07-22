@@ -16,7 +16,7 @@
 
 class Shell {
 public:
-	static void RegisterNatives(JNIEnv* env);
+	static bool RegisterNatives(JNIEnv* env);
 };
 
 #endif // SHELL_H

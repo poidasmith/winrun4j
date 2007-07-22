@@ -35,7 +35,7 @@ class INI
 public:
 	static void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index);
 	static dictionary* LoadIniFile(HINSTANCE hInstance);
-	static void RegisterNatives(JNIEnv *env);
+	static bool RegisterNatives(JNIEnv *env);
 
 private:
 	static bool StrTrimInChars(LPSTR trimChars, char c);

@@ -10,6 +10,7 @@
 
 #include "Shell.h"
 
-void Shell::RegisterNatives(JNIEnv *env)
+bool Shell::RegisterNatives(JNIEnv *env)
 {
+	return false;
 }
