@@ -51,10 +51,6 @@ void Log::RedirectIOToConsole()
 	fp = _fdopen( hConHandle, "w" );
 	*stderr = *fp;
 	setvbuf( stderr, NULL, _IONBF, 0 );
-
-	// make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog
-	// point to console as well
-	ios::sync_with_stdio();
 }
 
 void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)

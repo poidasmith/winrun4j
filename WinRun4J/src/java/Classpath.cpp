@@ -10,28 +10,26 @@
 
 #include "Classpath.h"
 #include "../common/Log.h"
-#include <string>
-
-using namespace std;
+#include "../common/Dictionary.h"
 
 char* MakeClassPathEntry(TCHAR* dirend, TCHAR* path, TCHAR* filename)
 {
 	TCHAR file[MAX_PATH];
 	file[0] = 0;
 	if(dirend != NULL) {
-		strcat_s(file, sizeof(file), path);
-		strcat_s(file, sizeof(file), "\\");
+		strcat(file, path);
+		strcat(file, "\\");
 	} 
 
-	strcat_s(file, sizeof(file), filename);
-	return _strdup(file);
+	strcat(file, filename);
+	return strdup(file);
 }
 
 void ExpandClassPathEntry(TCHAR** entries, int& index, TCHAR* entry)
 {
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind = INVALID_HANDLE_VALUE;
-	TCHAR* path = _strdup(entry);
+	TCHAR* path = strdup(entry);
 
 	TCHAR* dirend = strrchr(path, '\\');
 	if(dirend == NULL) {
@@ -69,7 +67,7 @@ void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, int& count)
 	TCHAR* entry = NULL;
 	TCHAR entryName[MAX_PATH];
 	while(true) {
-		sprintf_s(entryName, sizeof(entryName), "%s.%d", CLASS_PATH, i+1);
+		sprintf(entryName, "%s.%d", CLASS_PATH, i+1);
 		entry = iniparser_getstr(ini, entryName);
 		if(entry != NULL) {
 			ExpandClassPathEntry(entries, index, entry);
@@ -80,20 +78,27 @@ void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, int& count)
 		}
 	}
 
-	string classpath = "";
+	char* classpath = NULL;
 	for(int i = 0; i < index; i++) {
-		classpath += entries[i];
-		classpath += ";";
+		char* temp = (char *) malloc(sizeof(TCHAR)*(strlen(entries[i]) + 1) + (classpath == NULL ? 1 : sizeof(TCHAR)*(strlen(classpath) + 2)));
+		temp[0] = 0;
+		if(classpath != NULL) {
+			lstrcat(temp, classpath);
+			lstrcat(temp, ";");
+			free(classpath);
+		}
+		lstrcat(temp, entries[i]);
+		classpath = temp;
 		free(entries[i]);
 	}
 
-	TCHAR *built = _strdup(classpath.c_str());
+	TCHAR *built = strdup(classpath == NULL ? "" : classpath);
 
 	// Add classpath
 	Log::Info("Generated Classpath: %s\n", built);
-	TCHAR* cpArg = (TCHAR *) malloc(sizeof(TCHAR)*classpath.size() + sizeof(TCHAR)*strlen(CLASS_PATH_ARG) + 1);
-	strcpy(cpArg, CLASS_PATH_ARG);
-	strcat(cpArg, classpath.c_str());
+	TCHAR* cpArg = (TCHAR *) malloc(sizeof(TCHAR)*(strlen(classpath) + 1) + sizeof(TCHAR)*(strlen(CLASS_PATH_ARG) + 1));
+	lstrcpy(cpArg, CLASS_PATH_ARG);
+	lstrcat(cpArg, built);
 	args[count++] = cpArg;
 
 	// Now set the working directory back

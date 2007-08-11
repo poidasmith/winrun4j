@@ -11,7 +11,7 @@
 #ifndef VM_H
 #define VM_H
 
-#include <windows.h>
+#include "../common/Runtime.h"
 #include <jni.h>
 #include "../common/INI.h"
 
@@ -20,10 +20,13 @@
 #define VM_VERSION ":vm.version"
 #define VM_VERSION_MIN ":vm.version.min"
 
-// VM keys
+// VM heap keys
 #define HEAP_SIZE_MAX_PERCENT ":vm.heapsize.max.percent"
 #define HEAP_SIZE_MIN_PERCENT ":vm.heapsize.min.percent"
 #define HEAP_SIZE_PREFERRED ":vm.heapsize.preferred"
+
+// General VM keys
+#define VM_LOCATION ":vm.location"
 
 // VM args
 #define VM_ARG_HEAPSIZE "-Xmx"

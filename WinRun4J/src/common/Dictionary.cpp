@@ -8,13 +8,9 @@ iniparser is distributed under an MIT license.
 
 */
 
-
 #include "Dictionary.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <windows.h>
+#define strlen lstrlen
 
 #define MAXVALSZ	1024
 #define DICTMINSZ	128
@@ -161,7 +157,7 @@ void dictionary_set(dictionary * d, char * key, char * val)
 					/* Found a value: modify and return */
 					if (d->val[i]!=NULL)
 						free(d->val[i]);
-                    d->val[i] = val ? _strdup(val) : NULL ;
+                    d->val[i] = val ? strdup(val) : NULL ;
                     /* Value has been modified: return */
 					return ;
 				}
@@ -189,8 +185,8 @@ void dictionary_set(dictionary * d, char * key, char * val)
         }
     }
 	/* Copy key */
-	d->key[i]  = _strdup(key);
-    d->val[i]  = val ? _strdup(val) : NULL ;
+	d->key[i]  = strdup(key);
+    d->val[i]  = val ? strdup(val) : NULL ;
 	d->hash[i] = hash;
 	d->n ++ ;
 	return ;
@@ -641,5 +637,4 @@ char * strstrip(char * s)
 
 	return (char*)l ;
 }
-
 

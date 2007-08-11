@@ -13,6 +13,8 @@
 #include "launcher/Shell.h"
 #include "common/Registry.h"
 
+#define ERROR_MESSAGES_JAVA_NOT_FOUND "ErrorMessages:java.not.found"
+
 using namespace std;
 
 void WinRun4J::SetWorkingDirectory(dictionary* ini)
@@ -86,7 +88,7 @@ void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count)
 				arg[k] = lpCmdLine[j];
 			}
 			arg[k] = 0;
-			args[count] = _strdup(arg);
+			args[count] = strdup(arg);
 			StrTrim(args[count], " ");
 			StrTrim(args[count], "\"");
 			count++;
@@ -147,7 +149,8 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	// Attempt to find an appropriate java VM
 	char* vmlibrary = VM::FindJavaVMLibrary(ini);
 	if(!vmlibrary) {
-		MessageBox(NULL, "Failed to find Java VM.", "Startup Error", 0);
+		char* javaNotFound = iniparser_getstr(ini, ERROR_MESSAGES_JAVA_NOT_FOUND);
+		MessageBox(NULL, (javaNotFound == NULL ? "Failed to find Java VM." : javaNotFound), "Startup Error", 0);
 		Log::Close();
 		return 1;
 	}

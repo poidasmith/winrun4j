@@ -8,15 +8,6 @@
  *     Peter Smith
  *******************************************************************************/
 
-#ifndef REGISTRY_H
-#define REGISTRY_H
-
 #include "Runtime.h"
-#include "INI.h"
 
-class Registry {
-public:
-	static void RegisterNatives(JNIEnv* env);
-};
 
-#endif // REGISTRY_H

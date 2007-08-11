@@ -8,15 +8,15 @@
  *     Peter Smith
  *******************************************************************************/
 
-#ifndef REGISTRY_H
-#define REGISTRY_H
+#ifndef RUNTIME_H
+#define RUNTIME_H
 
-#include "Runtime.h"
-#include "INI.h"
+#define WIN32_LEAN_MEAN
+#include <windows.h>
 
-class Registry {
-public:
-	static void RegisterNatives(JNIEnv* env);
-};
+#ifdef NDEBUG
+#pragma comment(linker, "/FILEALIGN:0x200")
+#pragma comment(linker, "/ALIGN:0x200")
+#endif
 
-#endif // REGISTRY_H
+#endif 

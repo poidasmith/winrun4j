@@ -361,6 +361,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\common\Runtime.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\launcher\Shell.cpp"
 				>
 			</File>
@@ -412,6 +416,10 @@
 			</File>
 			<File
 				RelativePath="..\src\resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\common\Runtime.h"
 				>
 			</File>
 			<File

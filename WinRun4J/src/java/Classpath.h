@@ -11,7 +11,7 @@
 #ifndef CLASSPATH_H
 #define CLASSPATH_H
 
-#include <windows.h>
+#include "../common/Runtime.h"
 #include "../common/INI.h"
 
 #define CLASS_PATH ":classpath"

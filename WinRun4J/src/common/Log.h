@@ -11,7 +11,7 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include <windows.h>
+#include "Runtime.h"
 
 enum LoggingLevel { info = 0, warning, error, none };
 

@@ -11,7 +11,7 @@
 #ifndef JNI_UTILS_H
 #define JNI_UTILS_H
 
-#include <windows.h>
+#include "../common/Runtime.h"
 #include <stdio.h>
 #include <string.h>
 #include <jni.h>

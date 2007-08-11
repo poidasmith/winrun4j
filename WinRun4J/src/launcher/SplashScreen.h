@@ -11,7 +11,7 @@
 #ifndef SPLASH_SCREEN_H
 #define SPLASH_SCREEN_H
 
-#include <windows.h>
+#include "../common/Runtime.h"
 #include "../common/INI.h"
 #include <jni.h>
 

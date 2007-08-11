@@ -11,7 +11,7 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-#include <windows.h>
+#include "../common/Runtime.h"
 #include <jni.h>
 
 class Shell {

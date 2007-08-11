@@ -9,7 +9,7 @@
 *******************************************************************************/
 
 #include "Registry.h"
-#include "../common/Log.h"
+#include "Log.h"
 
 void Registry::RegisterNatives(JNIEnv *env)
 {

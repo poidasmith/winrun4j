@@ -30,12 +30,12 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 	while(progArgs[argc++] != NULL);
 
 	// Create the run args
-	jobjectArray args = env->NewObjectArray(argc, stringClass, NULL);
-	for(int i = 0; i < argc; i++) {
+	jobjectArray args = env->NewObjectArray(argc - 1, stringClass, NULL);
+	for(int i = 0; i < argc - 1; i++) {
 		env->SetObjectArrayElement(args, i, env->NewStringUTF(progArgs[i]));
 	}
 
-	jmethodID mainMethod = env->GetMethodID(mainClass, "main", "([Ljava/lang/String;)V");
+	jmethodID mainMethod = env->GetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
 	if(mainMethod == NULL) {
 		Log::SetLastError("Could not find main method.");
 		return false;
@@ -43,6 +43,8 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 
 	env->CallStaticVoidMethod(mainClass, mainMethod, args);
 	ClearJavaException(env);
+
+	return true;
 }
 
 const char* JNI::CallJavaStringMethod( JNIEnv* env, jclass clazz, jobject obj, char* name )

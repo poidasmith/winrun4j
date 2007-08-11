@@ -11,8 +11,8 @@
 #ifndef INI_H
 #define INI_H
 
+#include "Runtime.h"
 #include "Dictionary.h"
-#include <windows.h>
 #include <jni.h>
 
 // Internal keys

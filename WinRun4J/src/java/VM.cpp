@@ -8,7 +8,6 @@
  *     Peter Smith
  *******************************************************************************/
 
-#include <jni.h>
 #include "VM.h"
 #include "../common/Log.h"
 #include "../common/INI.h"
@@ -40,6 +39,15 @@ JNIEnv* VM::GetJNIEnv()
 
 char* VM::FindJavaVMLibrary(dictionary *ini)
 {
+	char* vmLocation = iniparser_getstr(ini, VM_LOCATION);
+	if(vmLocation != NULL)
+	{
+		// Check if file is valid
+		HMODULE module = LoadLibrary(vmLocation);
+		if(module != NULL)
+			return vmLocation;
+	}
+
 	return GetJavaVMLibrary(iniparser_getstr(ini, VM_VERSION), iniparser_getstr(ini, VM_VERSION_MIN), iniparser_getstr(ini, VM_VERSION_MAX));
 }
 
@@ -205,7 +213,7 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 	if(MinHeapSizePercentStr != NULL) {
 		double percent = atof(MinHeapSizePercentStr);
 		if(percent < 0 || percent > 100) {
-			Log::Error("Error with heap size percent. Should be between 0 and 100.\n");
+			Log::Warning("Error with heap size percent. Should be between 0 and 100.\n");
 		} else {
 			Log::Info("Percent is: %f\n", percent);
 			Log::Info("Avail Phys: %dm\n", availMax);
@@ -231,13 +239,13 @@ int VM::StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[] )
 	
 	jniLibrary = LoadLibrary(libPath);
 	if(jniLibrary == NULL) {
-		Log::Info("ERROR: Could not load library: %s\n", libPath);
+		Log::Error("ERROR: Could not load library: %s\n", libPath);
 		return -1; /*error*/
 	}
 
 	createJavaVM = (JNI_createJavaVM)GetProcAddress(jniLibrary, "JNI_CreateJavaVM");
 	if(createJavaVM == NULL) {
-		Log::Info("ERROR: Could not find JNI_CreateJavaVM function\n");
+		Log::Error("ERROR: Could not find JNI_CreateJavaVM function\n");
 		return -1; /*error*/
 	}
 	

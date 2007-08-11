@@ -11,7 +11,7 @@
 #ifndef ICON_H
 #define ICON_H
 
-#include <windows.h>
+#include "Runtime.h"
 #include <stdio.h>
 
 typedef struct 

@@ -11,7 +11,7 @@
 #ifndef WINRUN4J_H
 #define WINRUN4J_H
 
-#include <windows.h>
+#include "common/Runtime.h"
 #include <stdio.h>
 #include <string.h>
 #include <jni.h>

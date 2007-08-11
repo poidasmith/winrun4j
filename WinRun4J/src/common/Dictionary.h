@@ -10,9 +10,8 @@ iniparser is distributed under an MIT license.
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
 
+#include "Runtime.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 typedef struct _dictionary_ {
 	int				n ;		/** Number of entries in dictionary */
@@ -61,6 +60,5 @@ char * strupc(char * s);
 char * strskp(char * s);
 char * strcrop(char * s);
 char * strstrip(char * s) ;
-
 
 #endif // DICTIONARY_H
