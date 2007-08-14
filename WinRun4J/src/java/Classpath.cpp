@@ -31,6 +31,12 @@ void ExpandClassPathEntry(TCHAR** entries, int& index, TCHAR* entry)
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 	TCHAR* path = strdup(entry);
 
+	// Add special check for "." in classpath
+	if(strcmp(path, ".") == 0) {
+		entries[index++] = path;
+		return;
+	}
+
 	TCHAR* dirend = strrchr(path, '\\');
 	if(dirend == NULL) {
 		dirend = strrchr(path, '/');
