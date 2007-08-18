@@ -133,7 +133,7 @@ void Log::Close()
 // Set the error
 void Log::SetLastError(const char* format, ...)
 {
-	JNI::ClearJavaException(VM::GetJNIEnv());
+	JNI::ClearException(VM::GetJNIEnv());
 	g_error = true;
 	va_list args;
 	va_start(args, format);

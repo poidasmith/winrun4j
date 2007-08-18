@@ -19,10 +19,12 @@
 class JNI 
 {
 public:
-	static void ClearJavaException(JNIEnv* env);
+	static void ClearException(JNIEnv* env);
+	static char* GetExceptionMessage(JNIEnv* env);
 	static bool RunMainClass( JNIEnv* env, TCHAR* mainClass, TCHAR* progArgs[] );
-	static const char* CallJavaStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
-	static jstring NewJavaString(JNIEnv *env, TCHAR * str);
+	static char* CallStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
+	static const bool CallBooleanMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
+	static jstring NewString(JNIEnv *env, TCHAR * str);
 	static jobjectArray CreateRunArgs( JNIEnv *env, TCHAR * args[] );
 };
 

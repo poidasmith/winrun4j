@@ -42,12 +42,12 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 	}
 
 	env->CallStaticVoidMethod(mainClass, mainMethod, args);
-	ClearJavaException(env);
+	ClearException(env);
 
 	return true;
 }
 
-const char* JNI::CallJavaStringMethod( JNIEnv* env, jclass clazz, jobject obj, char* name )
+char* JNI::CallStringMethod( JNIEnv* env, jclass clazz, jobject obj, char* name )
 {
 	jmethodID methodID = env->GetMethodID(clazz, name, "()Ljava/lang/String;");
 	if(methodID == NULL) {
@@ -60,15 +60,42 @@ const char* JNI::CallJavaStringMethod( JNIEnv* env, jclass clazz, jobject obj, c
 		return NULL;
 	}
 
+	if(env->ExceptionCheck()) {
+		Log::SetLastError("Error calling %s method: %s", name, GetExceptionMessage(env));
+		return NULL;
+	}
+
 	jboolean iscopy = false;
-	return env->GetStringUTFChars(str, &iscopy);
+	const char* chars = env->GetStringUTFChars(str, &iscopy);
+	char* tmp = strdup(chars);
+	env->ReleaseStringUTFChars(str, chars);
+	return tmp;
+}
+
+const bool JNI::CallBooleanMethod( JNIEnv* env, jclass clazz, jobject obj, char* name )
+{
+	jmethodID methodID = env->GetMethodID(clazz, name, "()Z");
+	if(methodID == NULL) {
+		Log::SetLastError("Could not find '%s' method", name);
+		return NULL;
+	}
+
+	return env->CallBooleanMethod(obj, methodID);
 }
 
 // Clear JNI exception
-void JNI::ClearJavaException(JNIEnv* env)
+void JNI::ClearException(JNIEnv* env)
 {
 	if(env && env->ExceptionOccurred()) {
 		env->ExceptionDescribe();
 		env->ExceptionClear();
+	}
+}
+
+char* JNI::GetExceptionMessage(JNIEnv* env)
+{
+	jthrowable thr = env->ExceptionOccurred();
+	if(thr != NULL) {
+		return CallStringMethod(env, env->GetObjectClass(thr), thr, "getMessage");
 	}
 }
