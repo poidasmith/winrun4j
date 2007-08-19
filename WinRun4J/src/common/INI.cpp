@@ -87,13 +87,17 @@ jstring INI::GetKey(JNIEnv* env, jobject self, jstring key)
 	}
 }
 
-bool INI::RegisterNatives(JNIEnv *env)
+bool INI::RegisterNatives(JNIEnv *env, bool useExcel)
 {
 	jclass clazz;
 	JNINativeMethod methods[2];
-	clazz = env->FindClass("org/boris/winrun4j/INI");
+	if(useExcel) {
+		clazz = env->FindClass("org/excel4j/INI");
+	} else {
+		clazz = env->FindClass("org/boris/winrun4j/INI");
+	}
 	if(clazz == NULL) {
-		Log::Warning("org.boris.WinRun4J not found in classpath\n");
+		Log::Warning("INI class not found in classpath\n");
 		if(env->ExceptionOccurred())
 			env->ExceptionClear();
 		return false;
