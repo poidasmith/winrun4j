@@ -30,7 +30,7 @@ class WinRun4J
 {
 public:
 	static void SetWorkingDirectory(dictionary* ini);
-	static void ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count);
+	static void ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, bool includeFirst = false);
 
 private:
 	static bool StrTrimInChars(LPSTR trimChars, char c);

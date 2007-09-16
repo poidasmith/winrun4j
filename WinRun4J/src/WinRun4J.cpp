@@ -11,6 +11,8 @@
 #include "WinRun4J.h"
 #include "launcher/SplashScreen.h"
 #include "launcher/Shell.h"
+#include "launcher/DDE.h"
+#include "launcher/Service.h"
 #include "common/Registry.h"
 
 #define ERROR_MESSAGES_JAVA_NOT_FOUND "ErrorMessages:java.not.found"
@@ -67,7 +69,7 @@ void WinRun4J::StrTrim(LPSTR str, LPSTR trimChars)
 	}
 }
 
-void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count)
+void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, bool includeFirst)
 {
 	StrTrim(lpCmdLine, " ");
 	int len = strlen(lpCmdLine);
@@ -77,35 +79,74 @@ void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count)
 
 	int start = 0;
 	bool quote = false;
+	bool first = true;
 	TCHAR arg[4096];
 	for(int i = 0; i < len; i++) {
 		char c = lpCmdLine[i];
 		if(c == '\"') {
 			quote = !quote;
 		} else if(!quote && c == ' ') {
-			int k = 0;
-			for(int j = start; j < i; j++, k++) {
-				arg[k] = lpCmdLine[j];
+			if(!first || includeFirst) {
+				int k = 0;
+				for(int j = start; j < i; j++, k++) {
+					arg[k] = lpCmdLine[j];
+				}
+				arg[k] = 0;
+				args[count] = strdup(arg);
+				StrTrim(args[count], " ");
+				StrTrim(args[count], "\"");
+				count++;
 			}
-			arg[k] = 0;
-			args[count] = strdup(arg);
-			StrTrim(args[count], " ");
-			StrTrim(args[count], "\"");
-			count++;
 			start = i;
+			first = false;
 		}
 	}
 
 	// Add the last one
-	int k = 0;
-	for(int j = start; j < len; j++, k++) {
-		arg[k] = lpCmdLine[j];
+	if(!first || includeFirst) {
+		int k = 0;
+		for(int j = start; j < len; j++, k++) {
+			arg[k] = lpCmdLine[j];
+		}
+		arg[k] = 0;
+		args[count] = _strdup(arg);
+		StrTrim(args[count], " ");
+		StrTrim(args[count], "\"");
+		count++;
 	}
-	arg[k] = 0;
-	args[count] = _strdup(arg);
-	StrTrim(args[count], " ");
-	StrTrim(args[count], "\"");
-	count++;
+}
+
+void DoBuiltInCommand(LPSTR lpCmdLine)
+{
+	// Check for SetIcon util request
+	if(strncmp(lpCmdLine, "--WinRun4J:SetIcon", 20) == 0) {
+		Icon::SetExeIcon(lpCmdLine);
+		return;
+	}
+
+	// Check for RegisterDDE util request
+	if(strncmp(lpCmdLine, "--WinRun4J:RegisterDDE", 23) == 0) {
+		DDE::Register(lpCmdLine);
+		return;
+	}
+
+	// Check for UnregisterDDE util request
+	if(strncmp(lpCmdLine, "--WinRun4J:UnregisterDDE", 25) == 0) {
+		DDE::Unregister(lpCmdLine);
+		return;
+	}
+
+	// Check for Register Service util request
+	if(strncmp(lpCmdLine, "--WinRun4J:RegisterService", 27) == 0) {
+		Service::Register(lpCmdLine);
+		return;
+	}
+
+	// Check for Unregister Service util request
+	if(strncmp(lpCmdLine, "--WinRun4J:UnregisterService", 29) == 0) {
+		Service::Unregister(lpCmdLine);
+		return;
+	}
 }
 
 #ifdef CONSOLE
@@ -119,12 +160,13 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	int argc = 0;
 	char** argv = 0;
 #endif
+
 	// Initialise the logger using std streams
 	Log::Init(hInstance, NULL, NULL);
 
-	// Check for seticon util request
-	if(strncmp(lpCmdLine, "--seticon", 9) == 0) {
-		Icon::SetExeIcon(lpCmdLine);
+	// Check for Builtin commands
+	if(strncmp(lpCmdLine, "--WinRun4J:", 11) == 0) {
+		DoBuiltInCommand(lpCmdLine);
 		Log::Close();
 		return 0;
 	}

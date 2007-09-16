@@ -323,6 +323,85 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Release64|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
+				WholeProgramOptimization="true"
+				ExceptionHandling="0"
+				BufferSecurityCheck="false"
+				RuntimeTypeInfo="false"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\vc80.pdb"
+				XMLDocumentationFileName="$(IntDir)\"
+				CallingConvention="2"
+				CompileAs="2"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				ResourceOutputFileName="$(IntDir)/$(InputName).res"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/LTCG"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
+				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
+				IgnoreAllDefaultLibraries="false"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				ManifestResourceFile="$(IntDir)\$(TargetFileName).embed.manifest.res"
+				DependencyInformationFile="$(IntDir)\mt.dep"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -334,6 +413,10 @@
 			>
 			<File
 				RelativePath="..\src\java\Classpath.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\launcher\DDE.cpp"
 				>
 			</File>
 			<File
@@ -365,6 +448,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\launcher\Service.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\launcher\Shell.cpp"
 				>
 			</File>
@@ -388,6 +475,10 @@
 			>
 			<File
 				RelativePath="..\src\java\Classpath.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\launcher\DDE.h"
 				>
 			</File>
 			<File
@@ -420,6 +511,10 @@
 			</File>
 			<File
 				RelativePath="..\src\common\Runtime.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\launcher\Service.h"
 				>
 			</File>
 			<File
