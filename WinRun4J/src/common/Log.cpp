@@ -88,13 +88,23 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 	}
 }
 
-#define LOG_IT               \
-	va_list args;            \
-	va_start(args, format);  \
-	vprintf(format, args);   \
-	fflush(stdout);          \
-	fflush(stderr);          \
-	va_end(args);
+#ifdef DEBUG_LOG						
+#define LOG_IT						\
+	char tmp[1024];					\
+	va_list args;					\
+	va_start(args, format);			\
+	vsprintf(tmp, format, args);	\
+	OutputDebugString(tmp);			\
+	va_end(args);					
+#else
+#define LOG_IT						\
+	va_list args;					\
+	va_start(args, format);			\
+	vprintf(format, args);			\
+	fflush(stdout);					\
+	fflush(stderr);					\
+	va_end(args);					
+#endif
 
 void Log::SetLevel(LoggingLevel logingLevel) 
 {

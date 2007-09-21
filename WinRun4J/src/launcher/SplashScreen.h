@@ -16,6 +16,7 @@
 #include <jni.h>
 
 #define SPLASH_IMAGE ":splash.image"
+#define SPLASH_DISABLE_AUTOHIDE ":splash.autohide"
 
 class SplashScreen {
 public:

@@ -42,6 +42,7 @@
 				AdditionalOptions="/c"
 				Optimization="0"
 				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="DEBUG_LOG"
 				ExceptionHandling="0"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"

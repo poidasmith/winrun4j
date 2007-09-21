@@ -11,125 +11,141 @@
 #include "Registry.h"
 #include "Log.h"
 
-jlong Registry::CreateKeyHandle(JNIEnv* env, jobject self, jstring keyPath)
+jlong Registry::OpenKey(JNIEnv* env, jobject self, jlong rootKey, jstring subKey)
 {
-	return 0;
+	jboolean iscopy = false;
+	const char* sk = subKey == NULL ? 0 : env->GetStringUTFChars(subKey, &iscopy);
+	HKEY key;
+
+	LONG result = RegOpenKeyEx((HKEY) rootKey, sk, 0, KEY_ALL_ACCESS, &key);
+
+	if(subKey) env->ReleaseStringUTFChars(subKey, sk);
+
+	if(result == ERROR_SUCCESS) {
+		return (jlong) key;	
+	} else {
+		return 0;
+	}
 }
 
-jarray Registry::GetSubKeys(JNIEnv* env, jobject self, jlong handle)
+void Registry::CloseKey(JNIEnv* env, jobject self, jlong handle)
 {
-	return 0;
+	RegCloseKey((HKEY) handle);
 }
 
-jlong Registry::GetSubKey(JNIEnv* env, jobject self, jlong handle, jstring name)
+jobjectArray Registry::GetSubKeyNames(JNIEnv* env, jobject self, jlong handle)
 {
-	return 0;
+	DWORD keyCount = 0;
+	LONG result = RegQueryInfoKey((HKEY) handle, NULL, NULL, NULL, &keyCount, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+	if(result != ERROR_SUCCESS) {
+		return NULL;
+	}
+
+	char tmp[MAX_PATH];
+
+	jclass clazz = env->FindClass("java/lang/String");
+	jobjectArray arr = env->NewObjectArray(keyCount, clazz, NULL);
+
+	for(int i = 0; i < keyCount; i++) {
+		DWORD size = MAX_PATH;
+		RegEnumKeyEx((HKEY) handle, i, tmp, &size, 0, 0, 0, 0);	
+		env->SetObjectArrayElement(arr, i, env->NewStringUTF(tmp));
+	}
+
+	return arr;
 }
 
-jarray Registry::GetValues(JNIEnv* env, jobject self, jlong handle)
+jobjectArray Registry::GetValueNames(JNIEnv* env, jobject self, jlong handle)
 {
-	return 0;
-}
+	DWORD valueCount = 0;
+	LONG result = RegQueryInfoKey((HKEY) handle, NULL, NULL, NULL, NULL, NULL, &valueCount, NULL, NULL, NULL, NULL, NULL);
+	if(result != ERROR_SUCCESS) {
+		return NULL;
+	}
 
-jlong Registry::GetValue(JNIEnv* env, jobject self, jlong handle, jstring name)
-{
-	return 0;
-}
+	char tmp[MAX_PATH];
 
-jstring Registry::GetKeyName(JNIEnv* env, jobject self, jlong handle)
-{
-	return 0;
-}
+	jclass clazz = env->FindClass("java/lang/String");
+	jobjectArray arr = env->NewObjectArray(valueCount, clazz, NULL);
 
-jlong Registry::GetParent(JNIEnv* env, jobject self, jlong handle)
-{
-	return 0;
-}
+	for(int i = 0; i < valueCount; i++) {
+		DWORD size = MAX_PATH;
+		RegEnumValue((HKEY) handle, i, tmp, &size, 0, 0, 0, 0);	
+		env->SetObjectArrayElement(arr, i, env->NewStringUTF(tmp));
+	}
 
-jlong Registry::CreateSubKey(JNIEnv* env, jobject self, jlong handle, jstring name)
-{
-	return 0;
-}
-
-jlong Registry::CreateValue(JNIEnv* env, jobject self, jlong handle, jstring name)
-{
-	return 0;
+	return arr;
 }
 
 void Registry::DeleteKey(JNIEnv* env, jobject self, jlong handle)
 {
 }
 
-jstring Registry::GetValueName(JNIEnv* env, jobject self, jlong parent, jlong handle)
+void Registry::DeleteValue(JNIEnv* env, jobject self, jlong parent, jstring name)
+{
+}
+
+jint Registry::GetType(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
 	return 0;
 }
 
-jint Registry::GetType(JNIEnv* env, jobject self, jlong parent, jlong handle)
+jstring Registry::GetString(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
 	return 0;
 }
 
-void Registry::DeleteValue(JNIEnv* env, jobject self, jlong parent, jlong handle)
-{
-}
-
-jstring Registry::GetString(JNIEnv* env, jobject self, jlong parent, jlong handle)
+jarray Registry::GetBinary(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
 	return 0;
 }
 
-jarray Registry::GetBinary(JNIEnv* env, jobject self, jlong parent, jlong handle)
+jlong Registry::GetDoubleWord(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
 	return 0;
 }
 
-jlong Registry::GetDoubleWord(JNIEnv* env, jobject self, jlong parent, jlong handle)
+jlong Registry::GetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
 	return 0;
 }
 
-jlong Registry::GetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jlong handle)
+jlong Registry::GetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
 	return 0;
 }
 
-jlong Registry::GetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jlong handle)
+jstring Registry::GetExpandedString(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
 	return 0;
 }
 
-jstring Registry::GetExpandedString(JNIEnv* env, jobject self, jlong parent, jlong handle)
+jobjectArray Registry::GetMultiString(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
 	return 0;
 }
 
-jobjectArray Registry::GetMultiString(JNIEnv* env, jobject self, jlong parent, jlong handle)
-{
-	return 0;
-}
-
-void Registry::SetString(JNIEnv* env, jobject self, jlong parent, jlong handle, jstring value)
+void Registry::SetString(JNIEnv* env, jobject self, jlong parent, jstring name, jstring value)
 {
 }
 
-void Registry::SetBinary(JNIEnv* env, jobject self, jlong parent, jlong handle, jarray value)
+void Registry::SetBinary(JNIEnv* env, jobject self, jlong parent, jstring name, jarray value)
 {
 }
 
-void Registry::SetDoubleWord(JNIEnv* env, jobject self, jlong parent, jlong handle, jlong value)
+void Registry::SetDoubleWord(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value)
 {
 }
 
-void Registry::SetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jlong handle, jlong value)
+void Registry::SetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value)
 {
 }
 
-void Registry::SetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jlong handle, jlong value)
+void Registry::SetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value)
 {
 }
 
-void Registry::SetMultiString(JNIEnv* env, jobject self, jlong parent, jlong handle, jobjectArray value)
+void Registry::SetMultiString(JNIEnv* env, jobject self, jlong parent, jstring name, jobjectArray value)
 {
 }
 

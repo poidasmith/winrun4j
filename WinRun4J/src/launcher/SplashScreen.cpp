@@ -18,6 +18,7 @@ static HBITMAP g_hBitmap = NULL;
 static int g_width = 0;
 static int g_height = 0;
 static bool g_closeWindow = false;
+static bool g_disableAutohide = false;
 
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -38,7 +39,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam)
 		WINDOWINFO wi;
 		wi.cbSize = sizeof(WINDOWINFO);
 		GetWindowInfo(hWnd, &wi);
-		if((wi.dwStyle & WS_DISABLED) == 0) {
+		if((wi.dwStyle & WS_VISIBLE) != 0) {
 			g_closeWindow = true;
 		}
 	}
@@ -50,7 +51,7 @@ DWORD WINAPI SplashWindowThreadProc(LPVOID lpParam)
 	SplashScreen::CreateSplashWindow((HINSTANCE) lpParam);
 
 	while(true) {
-		EnumWindows((WNDENUMPROC)EnumWindowsProc, NULL);
+		if(!g_disableAutohide) EnumWindows((WNDENUMPROC)EnumWindowsProc, NULL);
 		if(g_closeWindow) break;
 		Sleep(50);
 	}
@@ -132,6 +133,12 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 	char* image = iniparser_getstr(ini, SPLASH_IMAGE);
 	if(image == NULL) {
 		return;
+	}
+
+	// Check for autohide disable flag
+	char* disableAutohide = iniparser_getstr(ini, SPLASH_DISABLE_AUTOHIDE);
+	if(disableAutohide != NULL && strcmp(disableAutohide, "true") == 0) {
+		g_disableAutohide = true;
 	}
 
 	g_hBitmap = LoadImageBitmap(ini, image);

@@ -28,7 +28,9 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
+#ifndef CONSOLE
 1                       ICON                    "../WinRun4J.ico"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //

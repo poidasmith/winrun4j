@@ -116,7 +116,7 @@ void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, bool 
 	}
 }
 
-void DoBuiltInCommand(LPSTR lpCmdLine)
+void WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 {
 	// Check for SetIcon util request
 	if(strncmp(lpCmdLine, "--WinRun4J:SetIcon", 20) == 0) {
@@ -125,14 +125,14 @@ void DoBuiltInCommand(LPSTR lpCmdLine)
 	}
 
 	// Check for RegisterDDE util request
-	if(strncmp(lpCmdLine, "--WinRun4J:RegisterDDE", 23) == 0) {
-		DDE::Register(lpCmdLine);
+	if(strncmp(lpCmdLine, "--WinRun4J:RegisterFileAssociations", 23) == 0) {
+		DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
 		return;
 	}
 
 	// Check for UnregisterDDE util request
-	if(strncmp(lpCmdLine, "--WinRun4J:UnregisterDDE", 25) == 0) {
-		DDE::Unregister(lpCmdLine);
+	if(strncmp(lpCmdLine, "--WinRun4J:UnregisterFileAssociations", 25) == 0) {
+		DDE::UnregisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
 		return;
 	}
 
@@ -149,11 +149,29 @@ void DoBuiltInCommand(LPSTR lpCmdLine)
 	}
 }
 
+dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
+{
+	dictionary* ini = INI::LoadIniFile(hInstance);
+	if(ini == NULL) {
+		MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
+		Log::Close();
+		return NULL;
+	}
+
+	return ini;
+}
+
+
 #ifdef CONSOLE
 int main(int argc, char* argv[])
 {
-	LPSTR lpCmdLine = 0;
-	HINSTANCE hInstance = 0;
+	char lpCmdLine[4096];
+	for(int i = 0; i < argc; i++) {
+		strcat(lpCmdLine, "\"");
+		strcat(lpCmdLine, argv[i]);
+		strcat(lpCmdLine, "\" ");
+	}
+	HINSTANCE hInstance = (HINSTANCE) GetModuleHandle(NULL);
 #else
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
 {
@@ -166,16 +184,14 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	// Check for Builtin commands
 	if(strncmp(lpCmdLine, "--WinRun4J:", 11) == 0) {
-		DoBuiltInCommand(lpCmdLine);
+		WinRun4J::DoBuiltInCommand(hInstance, lpCmdLine);
 		Log::Close();
 		return 0;
 	}
 
 	// Load the INI file based on module name
-	dictionary* ini = INI::LoadIniFile(hInstance);
+	dictionary* ini = WinRun4J::LoadIniFile(hInstance);
 	if(ini == NULL) {
-		MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
-		Log::Close();
 		return 1;
 	}
 
@@ -253,14 +269,17 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		return 1;
 	}
 
+	JNIEnv* env = VM::GetJNIEnv();
+
 	// Register native methods
-	INI::RegisterNatives(VM::GetJNIEnv());
-	SplashScreen::RegisterNatives(VM::GetJNIEnv());
-	Registry::RegisterNatives(VM::GetJNIEnv());
-	Shell::RegisterNatives(VM::GetJNIEnv());
+	INI::RegisterNatives(env);
+	SplashScreen::RegisterNatives(env);
+	Registry::RegisterNatives(env);
+	Shell::RegisterNatives(env);
+	DDE::Initialize(env, ini);
 
 	// Run the main class
-	JNI::RunMainClass(VM::GetJNIEnv(), iniparser_getstr(ini, MAIN_CLASS), progargs);
+	JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
 	// Free vm args
 	for(int i = 0; i < vmargsCount; i++) {
@@ -277,6 +296,9 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	// Close the log
 	Log::Close();
+
+	// Unitialize DDE
+	DDE::Uninitialize();
 
 	return result;
 }

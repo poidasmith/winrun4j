@@ -12,12 +12,25 @@
 #define DDE_H
 
 #include "../common/Runtime.h"
+#include "../common/INI.h"
+#include <jni.h>
 
 class DDE
 {
 public:
-	static void Register(LPSTR lpCmdLine);
-	static void Unregister(LPSTR lpCmdLine);
+	// Lifecycle
+	static bool Initialize(JNIEnv* env, dictionary* ini);
+	static void Uninitialize();
+
+	// Registration helpers
+	static void RegisterFileAssociations(dictionary* ini, LPSTR lpCmdLine);
+	static void UnregisterFileAssociations(dictionary* ini, LPSTR lpCmdLine);
+
+	// Execute
+	static void Execute(LPSTR lpExecuteStr);
+
+private:
+	static bool RegisterNatives(JNIEnv* env);
 };
 
 #endif // DDE_H

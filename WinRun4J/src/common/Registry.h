@@ -20,34 +20,30 @@ public:
 
 private:
 	// Key methods
-	jlong CreateKeyHandle(JNIEnv* env, jobject self, jstring keyPath);
-	jarray GetSubKeys(JNIEnv* env, jobject self, jlong handle);
-	jlong GetSubKey(JNIEnv* env, jobject self, jlong handle, jstring name);
-	jarray GetValues(JNIEnv* env, jobject self, jlong handle);
-	jlong GetValue(JNIEnv* env, jobject self, jlong handle, jstring name);
-	jstring GetKeyName(JNIEnv* env, jobject self, jlong handle);
-	jlong GetParent(JNIEnv* env, jobject self, jlong handle);
+	jlong OpenKey(JNIEnv* env, jobject self, jlong rootKey, jstring keyPath);
+	void CloseKey(JNIEnv* env, jobject self, jlong handle);
+	jobjectArray GetSubKeyNames(JNIEnv* env, jobject self, jlong handle);
+	jobjectArray GetValueNames(JNIEnv* env, jobject self, jlong handle);
 	jlong CreateSubKey(JNIEnv* env, jobject self, jlong handle, jstring name);
 	jlong CreateValue(JNIEnv* env, jobject self, jlong handle, jstring name);
 	void DeleteKey(JNIEnv* env, jobject self, jlong handle);
+	void DeleteValue(JNIEnv* env, jobject self, jlong parent, jstring name);
 
 	// Value methods
-	jstring GetValueName(JNIEnv* env, jobject self, jlong parent, jlong handle);
-	jint GetType(JNIEnv* env, jobject self, jlong parent, jlong handle);
-	void DeleteValue(JNIEnv* env, jobject self, jlong parent, jlong handle);
-	jstring GetString(JNIEnv* env, jobject self, jlong parent, jlong handle);
-	jarray GetBinary(JNIEnv* env, jobject self, jlong parent, jlong handle);
-	jlong GetDoubleWord(JNIEnv* env, jobject self, jlong parent, jlong handle);
-	jlong GetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jlong handle);
-	jlong GetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jlong handle);
-	jstring GetExpandedString(JNIEnv* env, jobject self, jlong parent, jlong handle);
-	jobjectArray GetMultiString(JNIEnv* env, jobject self, jlong parent, jlong handle);
-	void SetString(JNIEnv* env, jobject self, jlong parent, jlong handle, jstring value);
-	void SetBinary(JNIEnv* env, jobject self, jlong parent, jlong handle, jarray value);
-	void SetDoubleWord(JNIEnv* env, jobject self, jlong parent, jlong handle, jlong value);
-	void SetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jlong handle, jlong value);
-	void SetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jlong handle, jlong value);
-	void SetMultiString(JNIEnv* env, jobject self, jlong parent, jlong handle, jobjectArray value);
+	jint GetType(JNIEnv* env, jobject self, jlong parent, jstring name);
+	jstring GetString(JNIEnv* env, jobject self, jlong parent, jstring name);
+	jarray GetBinary(JNIEnv* env, jobject self, jlong parent, jstring name);
+	jlong GetDoubleWord(JNIEnv* env, jobject self, jlong parent, jstring name);
+	jlong GetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jstring name);
+	jlong GetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jstring name);
+	jstring GetExpandedString(JNIEnv* env, jobject self, jlong parent, jstring name);
+	jobjectArray GetMultiString(JNIEnv* env, jobject self, jlong parent, jstring name);
+	void SetString(JNIEnv* env, jobject self, jlong parent, jstring name, jstring value);
+	void SetBinary(JNIEnv* env, jobject self, jlong parent, jstring name, jarray value);
+	void SetDoubleWord(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value);
+	void SetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value);
+	void SetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value);
+	void SetMultiString(JNIEnv* env, jobject self, jlong parent, jstring name, jobjectArray value);
 };
 
 #endif // REGISTRY_H
