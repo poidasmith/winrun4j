@@ -9,7 +9,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
 import org.boris.winrun4j.INI;
-import org.boris.winrun4j.SplashScreen;
 
 
 public class WinRunTest {
@@ -50,8 +49,7 @@ public class WinRunTest {
         frame.getContentPane().add(new JScrollPane(text));
         frame.setSize(500, 500);
         frame.setLocation(30, 30);
-        Thread.sleep(5000); // for the splash screen
-        SplashScreen.close();
+        //Thread.sleep(5000); // for the splash screen
         frame.setVisible(true);
         System.out.println("Testing stdout stream redirection from Java");
         System.err.println("Testing stderr stream redirection from Java");
