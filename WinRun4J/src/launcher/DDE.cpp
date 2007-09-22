@@ -20,6 +20,10 @@ static char g_execute[MAX_PATH];
 static jclass g_class;
 static jmethodID g_methodID;
 
+// INI keys
+#define DDE_CLASS ":dde.class"
+#define DDE_ENABLED ":dde.enabled"
+
 LRESULT CALLBACK DdeMainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -36,9 +40,6 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HDDEDATA hsz1,
 		case XTYP_EXECUTE: {
 			DdeGetData(hdata, (LPBYTE) g_execute, MAX_PATH, 0); 
 			DDE::Execute(g_execute);
-			break;
-		case XTYP_ADVSTART:
-			return (HDDEDATA) 1;
 			break;
 	   }
 	}
@@ -67,7 +68,10 @@ DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
 {
 	// Register Window
 	DDE::RegisterWindow((HINSTANCE) lpParam);
-	DDE::RegisterDDE();
+	
+	bool initDde = DDE::RegisterDDE();
+	if(!initDde)
+		return 1;
 
 	// Create window
 	g_hWnd = CreateWindowEx(
@@ -92,11 +96,16 @@ DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
 
 bool DDE::Initialize(HINSTANCE hInstance, JNIEnv* env, dictionary* ini)
 {
+	// Check for enabled flag
+	char* ddeEnabled = iniparser_getstr(ini, DDE_ENABLED);
+	if(ddeEnabled != NULL && strcmp("false", ddeEnabled) == 0)
+		return false;
+
 	// Create Thread to manage the window
 	CreateThread(0, 0, DdeWindowThreadProc, (LPVOID) hInstance, 0, 0);
 
 	// Attach JNI methods
-	return RegisterNatives(env);
+	return RegisterNatives(env, ini);
 }
 
 void DDE::Uninitialize()
@@ -139,9 +148,10 @@ void DDE::RegisterWindow(HINSTANCE hInstance)
 	}
 }
 
-bool DDE::RegisterNatives(JNIEnv* env)
+bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 {
-	g_class = env->FindClass("org/boris/winrun4j/DDE");
+	char* ddeClassName = iniparser_getstr(ini, DDE_CLASS);
+	g_class = env->FindClass(ddeClassName == NULL ? "org/boris/winrun4j/DDE" : ddeClassName);
 	if(g_class == NULL) {
 		Log::SetLastError("Could not find DDE class.");
 		return false;

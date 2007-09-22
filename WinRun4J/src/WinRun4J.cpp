@@ -151,6 +151,8 @@ void WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 
 dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
 {
+	g_hInstance = hInstance;
+
 	dictionary* ini = INI::LoadIniFile(hInstance);
 	if(ini == NULL) {
 		MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
@@ -160,7 +162,6 @@ dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
 
 	return ini;
 }
-
 
 #ifdef CONSOLE
 int main(int argc, char* argv[])
@@ -276,7 +277,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	SplashScreen::RegisterNatives(env);
 	Registry::RegisterNatives(env);
 	Shell::RegisterNatives(env);
-	DDE::Initialize(hInstance, env, ini);
+	bool ddeInit = DDE::Initialize(hInstance, env, ini);
 
 	// Run the main class
 	JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
@@ -298,7 +299,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	Log::Close();
 
 	// Unitialize DDE
-	DDE::Uninitialize();
+	if(ddeInit) DDE::Uninitialize();
 
 	return result;
 }

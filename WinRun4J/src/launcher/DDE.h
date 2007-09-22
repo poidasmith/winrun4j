@@ -32,7 +32,7 @@ public:
 	static void Execute(LPSTR lpExecuteStr);
 
 private:
-	static bool RegisterNatives(JNIEnv* env);
+	static bool RegisterNatives(JNIEnv* env, dictionary* ini);
 };
 
 #endif // DDE_H
