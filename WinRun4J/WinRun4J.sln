@@ -5,8 +5,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinRun4J", "build\WinRun4J.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExcelAddin4J", "build\ExcelAddin4J.vcproj", "{E893B191-8498-45E8-B866-555E1F874468}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestService", "TestService\TestService.vcproj", "{0264B352-8452-4102-80A2-F81534F775B2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - Console|Win32 = Debug - Console|Win32
@@ -36,16 +34,6 @@ Global
 		{E893B191-8498-45E8-B866-555E1F874468}.Release|Win32.Build.0 = Release|Win32
 		{E893B191-8498-45E8-B866-555E1F874468}.Release64|Win32.ActiveCfg = Release64|Win32
 		{E893B191-8498-45E8-B866-555E1F874468}.Release64|Win32.Build.0 = Release64|Win32
-		{0264B352-8452-4102-80A2-F81534F775B2}.Debug - Console|Win32.ActiveCfg = Debug|Win32
-		{0264B352-8452-4102-80A2-F81534F775B2}.Debug - Console|Win32.Build.0 = Debug|Win32
-		{0264B352-8452-4102-80A2-F81534F775B2}.Debug|Win32.ActiveCfg = Debug|Win32
-		{0264B352-8452-4102-80A2-F81534F775B2}.Debug|Win32.Build.0 = Debug|Win32
-		{0264B352-8452-4102-80A2-F81534F775B2}.Release - Console|Win32.ActiveCfg = Release|Win32
-		{0264B352-8452-4102-80A2-F81534F775B2}.Release - Console|Win32.Build.0 = Release|Win32
-		{0264B352-8452-4102-80A2-F81534F775B2}.Release|Win32.ActiveCfg = Release|Win32
-		{0264B352-8452-4102-80A2-F81534F775B2}.Release|Win32.Build.0 = Release|Win32
-		{0264B352-8452-4102-80A2-F81534F775B2}.Release64|Win32.ActiveCfg = Release|Win32
-		{0264B352-8452-4102-80A2-F81534F775B2}.Release64|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

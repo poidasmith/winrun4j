@@ -1,5 +1,6 @@
 package org.boris.winrun4j;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -26,6 +27,10 @@ public class DDE {
      * @param command.
      */
     public static void execute(String command) {
-        System.out.println("Execute: " + command);
+        Iterator i = fileAssociationListeners.iterator();
+        while(i.hasNext()) {
+            FileAssociationListener listener = (FileAssociationListener) i.next();
+            listener.execute(command);
+        }
     }
 }

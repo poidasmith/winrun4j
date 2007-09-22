@@ -12,12 +12,18 @@
 #include "../common/Log.h"
 #include "../java/VM.h"
 
+static HWND g_hWnd;
 static DWORD g_pidInst = 0;
 static HSZ g_serverName = 0;
 static HSZ g_topic = 0;
 static char g_execute[MAX_PATH];
 static jclass g_class;
 static jmethodID g_methodID;
+
+LRESULT CALLBACK DdeMainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
 
 HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HDDEDATA hsz1,
     HDDEDATA hsz2, HDDEDATA hdata, HDDEDATA dwData1, HDDEDATA dwData2)
@@ -31,16 +37,19 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HDDEDATA hsz1,
 			DdeGetData(hdata, (LPBYTE) g_execute, MAX_PATH, 0); 
 			DDE::Execute(g_execute);
 			break;
+		case XTYP_ADVSTART:
+			return (HDDEDATA) 1;
+			break;
 	   }
 	}
 
 	return 0;
 }
 
-bool DDE::Initialize(JNIEnv* env, dictionary* ini)
+bool DDE::RegisterDDE()
 {
 	// Startup DDE library
-	UINT result = DdeInitialize(&g_pidInst, (PFNCALLBACK) DdeCallback, APPCMD_FILTERINITS, 0);
+	UINT result = DdeInitialize(&g_pidInst, (PFNCALLBACK) &DdeCallback, 0, 0);
 	if(result != DMLERR_NO_ERROR) {
 		Log::Error("Unable to initialize DDE: %d", result);
 		return false;
@@ -51,6 +60,40 @@ bool DDE::Initialize(JNIEnv* env, dictionary* ini)
 
 	// Register the server
 	DdeNameService(g_pidInst, g_serverName, NULL, DNS_REGISTER);
+
+}
+
+DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
+{
+	// Register Window
+	DDE::RegisterWindow((HINSTANCE) lpParam);
+	DDE::RegisterDDE();
+
+	// Create window
+	g_hWnd = CreateWindowEx(
+		0, 
+		"WinRun4J.DDEWndClass", 
+		"WinRun4J.DDEWindow", 
+		0, 
+		0, 0,
+		0, 0, 
+		NULL, NULL, NULL, NULL);
+
+	// Listen for messages
+	MSG msg;
+	while (GetMessage (&msg, NULL, 0, 0))
+	{
+		TranslateMessage (&msg);
+		DispatchMessage (&msg);
+	}
+
+	return 0;
+}
+
+bool DDE::Initialize(HINSTANCE hInstance, JNIEnv* env, dictionary* ini)
+{
+	// Create Thread to manage the window
+	CreateThread(0, 0, DdeWindowThreadProc, (LPVOID) hInstance, 0, 0);
 
 	// Attach JNI methods
 	return RegisterNatives(env);
@@ -71,6 +114,29 @@ void DDE::Execute(LPSTR lpExecuteStr)
 	jstring str = 0;
 	if(lpExecuteStr) str = env->NewStringUTF(lpExecuteStr);
 	env->CallStaticVoidMethod(g_class, g_methodID, str);
+}
+
+void DDE::RegisterWindow(HINSTANCE hInstance)
+{
+	// Create window class for splash image
+	WNDCLASSEX wcx;
+	wcx.cbSize = sizeof(wcx);
+	wcx.style = CS_BYTEALIGNCLIENT | CS_BYTEALIGNWINDOW;
+	wcx.lpfnWndProc = DdeMainWndProc;
+	wcx.cbClsExtra = 0;
+	wcx.cbWndExtra = DLGWINDOWEXTRA;
+	wcx.hInstance = hInstance;
+	wcx.hIcon = 0;
+	wcx.hCursor = ::LoadCursor(NULL, IDC_WAIT);
+	wcx.hbrBackground = (HBRUSH)::GetStockObject(LTGRAY_BRUSH);
+	wcx.lpszMenuName = 0;
+	wcx.lpszClassName = "WinRun4J.DDEWndClass";
+	wcx.hIconSm = 0;
+
+	if(!RegisterClassEx(&wcx)) {
+		Log::Error("Could not register DDE window class\n");
+		return;
+	}
 }
 
 bool DDE::RegisterNatives(JNIEnv* env)

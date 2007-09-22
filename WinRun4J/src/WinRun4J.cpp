@@ -276,7 +276,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	SplashScreen::RegisterNatives(env);
 	Registry::RegisterNatives(env);
 	Shell::RegisterNatives(env);
-	DDE::Initialize(env, ini);
+	DDE::Initialize(hInstance, env, ini);
 
 	// Run the main class
 	JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);

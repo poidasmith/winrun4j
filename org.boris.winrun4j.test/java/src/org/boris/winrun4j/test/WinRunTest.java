@@ -8,6 +8,8 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import org.boris.winrun4j.DDE;
+import org.boris.winrun4j.FileAssociationListener;
 import org.boris.winrun4j.INI;
 
 
@@ -27,7 +29,12 @@ public class WinRunTest {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         StringBuffer sb = new StringBuffer();
-        JTextPane text = new JTextPane();
+        for(int i = 0; i < args.length; i++) {
+            sb.append(args[i]);
+            sb.append("\n");
+        }
+        sb.append("\n\n");
+        final JTextPane text = new JTextPane();
         Properties p = System.getProperties();
         for(Iterator i = p.keySet().iterator(); i.hasNext(); ) {
             String k = (String) i.next();
@@ -53,5 +60,11 @@ public class WinRunTest {
         frame.setVisible(true);
         System.out.println("Testing stdout stream redirection from Java");
         System.err.println("Testing stderr stream redirection from Java");
+        
+        // Add fileassociation listern
+        DDE.addFileAssocationListener(new FileAssociationListener() {
+            public void execute(String cmdLine) {
+                text.setText(cmdLine + "\n" + text.getText());
+            }});
     }
 }

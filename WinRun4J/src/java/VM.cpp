@@ -33,7 +33,7 @@ JNIEnv* VM::GetJNIEnv()
 {
 	if(!jvm) return NULL;
 	JNIEnv* env = 0;
-	jvm->GetEnv((void **) &env, JNI_VERSION_1_1);
+	jvm->AttachCurrentThread((void**) &env, NULL);
 	return env;
 }
 

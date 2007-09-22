@@ -19,8 +19,10 @@ class DDE
 {
 public:
 	// Lifecycle
-	static bool Initialize(JNIEnv* env, dictionary* ini);
+	static bool Initialize(HINSTANCE hInstance, JNIEnv* env, dictionary* ini);
 	static void Uninitialize();
+	static bool RegisterDDE();
+	static void RegisterWindow(HINSTANCE hInstance);
 
 	// Registration helpers
 	static void RegisterFileAssociations(dictionary* ini, LPSTR lpCmdLine);
