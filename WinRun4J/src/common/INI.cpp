@@ -46,6 +46,8 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance)
 	dictionary* ini = iniparser_load(inifile);
 	iniparser_setstr(ini, MODULE_NAME, filename);
 	iniparser_setstr(ini, MODULE_INI, inifile);
+
+	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL));
 	Log::Info("Module Name: %s\n", filename);
 	Log::Info("Module INI: %s\n", inifile);
 

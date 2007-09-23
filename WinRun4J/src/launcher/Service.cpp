@@ -10,6 +10,10 @@
 
 #include "Service.h"
 
+void ServiceStart(DWORD argc, LPTSTR *argv)
+{
+}
+
 void Service::Register(LPSTR lpCmdLine)
 {
 }

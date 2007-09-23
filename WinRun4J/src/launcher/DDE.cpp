@@ -151,7 +151,16 @@ void DDE::RegisterWindow(HINSTANCE hInstance)
 bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 {
 	char* ddeClassName = iniparser_getstr(ini, DDE_CLASS);
-	g_class = env->FindClass(ddeClassName == NULL ? "org/boris/winrun4j/DDE" : ddeClassName);
+	if(ddeClassName != NULL) {
+		int strl = strlen(ddeClassName);
+		for(int i = 0; i < strl; i++) {
+			if(ddeClassName[i] == '.')
+				ddeClassName[i] = '/';
+		}
+		g_class = env->FindClass(ddeClassName);
+	} else {
+		g_class = env->FindClass("org/boris/winrun4j/DDE");
+	}
 	if(g_class == NULL) {
 		Log::SetLastError("Could not find DDE class.");
 		return false;

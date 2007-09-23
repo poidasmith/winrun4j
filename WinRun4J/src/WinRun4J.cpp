@@ -151,8 +151,6 @@ void WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 
 dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
 {
-	g_hInstance = hInstance;
-
 	dictionary* ini = INI::LoadIniFile(hInstance);
 	if(ini == NULL) {
 		MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);

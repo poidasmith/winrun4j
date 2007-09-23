@@ -69,11 +69,15 @@ typedef struct
 struct Icon {
 	static void SetExeIcon(LPSTR commandLine);
 	static bool SetIcon(LPSTR exeFile, LPSTR iconFile);
+	static bool AddIcon(LPSTR exeFile, LPSTR iconFile);
+	static bool RemoveIcon(LPSTR exeFile, int index);
+	static bool RemoveIcons(LPSTR exeFile);
 
 private:	
 	static void CopyToRandomAndRun() ;
 	static void DeleteRandomFile(LPSTR commandLine);
 	static void SetIcon(LPSTR commandLine);
+	static bool LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, GRPICONHEADER*& pGrpHeader);
 };
 
 #endif // ICON_UTILS_H

@@ -20,6 +20,7 @@
 #define MODULE_INI "WinRun4J:ModuleIni"
 #define MODULE_BASE "WinRun4J:ModuleBaseName"
 #define MODULE_DIR "WinRun4J:ModuleDir"
+#define INI_DIR "WinRun4J:IniDir"
 
 // Ini keys
 #define WORKING_DIR ":working.directory"
