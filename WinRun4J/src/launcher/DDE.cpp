@@ -61,7 +61,7 @@ bool DDE::RegisterDDE()
 
 	// Register the server
 	DdeNameService(g_pidInst, g_serverName, NULL, DNS_REGISTER);
-
+	return false;
 }
 
 DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)

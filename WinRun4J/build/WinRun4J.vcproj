@@ -247,8 +247,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release - Console|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)-$(ConfigurationName)"
 			ConfigurationType="1"
 			>
 			<Tool
@@ -293,7 +293,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\$(ProjectName)c.exe"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
 				IgnoreAllDefaultLibraries="false"
 			/>
