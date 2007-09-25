@@ -211,6 +211,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				ResourceOutputFileName=""
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -285,7 +286,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				ResourceOutputFileName="$(IntDir)/$(InputName).res"
+				ResourceOutputFileName=""
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -425,6 +426,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\launcher\EventLog.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\common\Icon.cpp"
 				>
 			</File>
@@ -484,6 +489,10 @@
 			</File>
 			<File
 				RelativePath="..\src\common\Dictionary.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\launcher\EventLog.h"
 				>
 			</File>
 			<File

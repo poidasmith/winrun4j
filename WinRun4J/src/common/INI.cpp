@@ -59,12 +59,18 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance)
 		}
 	}
 	iniparser_setstr(ini, MODULE_DIR, filedir);
+	iniparser_setstr(ini, INI_DIR, filedir);
 	Log::Info("Module Dir: %s\n", filedir);
 
 	// Store a reference to be used by JNI functions
 	g_ini = ini;
 
 	return ini;
+}
+
+dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
+{
+	return NULL;
 }
 
 jobjectArray INI::GetKeys(JNIEnv* env, jobject self)

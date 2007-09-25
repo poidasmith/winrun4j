@@ -23,7 +23,7 @@ static const WORD MAX_CONSOLE_LINES = 500;
 static BOOL haveInit = FALSE;
 static BOOL haveConsole = FALSE;
 static FILE* fp = NULL;
-static LoggingLevel level = LoggingLevel::none; 
+static LoggingLevel level = none; 
 static bool g_error = false;
 static char g_errorText[MAX_PATH];
 
@@ -32,22 +32,22 @@ typedef BOOL (__stdcall *FPTR_AttachConsole) ( DWORD );
 void Log::RedirectIOToConsole()
 {
 	// redirect unbuffered STDOUT to the console
-	long lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
-	int hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+	HANDLE lStdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	int hConHandle = _open_osfhandle((long) lStdHandle, _O_TEXT);
 	FILE* fp = _fdopen( hConHandle, "w" );
 	*stdout = *fp;
 	setvbuf( stdout, NULL, _IONBF, 0 );
 
 	// redirect unbuffered STDIN to the console
-	lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
-	hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+	lStdHandle = GetStdHandle(STD_INPUT_HANDLE);
+	hConHandle = _open_osfhandle((long) lStdHandle, _O_TEXT);
 	fp = _fdopen( hConHandle, "r" );
 	*stdin = *fp;
 	setvbuf( stdin, NULL, _IONBF, 0 );
 
 	// redirect unbuffered STDERR to the console
-	lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
-	hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+	lStdHandle = GetStdHandle(STD_ERROR_HANDLE);
+	hConHandle = _open_osfhandle((long) lStdHandle, _O_TEXT);
 	fp = _fdopen( hConHandle, "w" );
 	*stderr = *fp;
 	setvbuf( stderr, NULL, _IONBF, 0 );
@@ -56,15 +56,15 @@ void Log::RedirectIOToConsole()
 void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 {
 	if(loglevel == NULL) {
-		level = LoggingLevel::info;
+		level = info;
 	} else if(strcmp(loglevel,"none") == 0) {
-		level = LoggingLevel::none;
+		level = none;
 	} else if(strcmp(loglevel, "info") == 0) {
-		level = LoggingLevel::info;
+		level = info;
 	} else if(strcmp(loglevel, "warning") == 0) {
-		level = LoggingLevel::warning;
+		level = warning;
 	} else if(strcmp(loglevel, "error")) {
-		level = LoggingLevel::error;
+		level = error;
 	}
 
 	if(!haveInit) {
@@ -114,21 +114,21 @@ void Log::SetLevel(LoggingLevel logingLevel)
 
 void Log::Info(const char* format, ...)
 {
-	if(level <= LoggingLevel::info) {
+	if(level <= info) {
 		LOG_IT
 	}
 }
 
 void Log::Warning(const char* format, ...)
 {
-	if(level <= LoggingLevel::warning) {
+	if(level <= warning) {
 		LOG_IT
 	}
 }
 
 void Log::Error(const char* format, ...)
 {
-	if(level <= LoggingLevel::error) {
+	if(level <= error) {
 		LOG_IT
 	}
 }

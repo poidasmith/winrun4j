@@ -13,18 +13,24 @@
 #include "launcher/Shell.h"
 #include "launcher/DDE.h"
 #include "launcher/Service.h"
+#include "launcher/EventLog.h"
 #include "common/Registry.h"
 
 #define ERROR_MESSAGES_JAVA_NOT_FOUND "ErrorMessages:java.not.found"
 
 using namespace std;
 
+static TCHAR *vmargs[MAX_PATH];
+static int vmargsCount = 0;
+static TCHAR *progargs[MAX_PATH];
+static int progargsCount = 0;
+
 void WinRun4J::SetWorkingDirectory(dictionary* ini)
 {
 	char* dir = iniparser_getstr(ini, WORKING_DIR);
 	if(dir != NULL) {
 		// First set the current directory to the module directory
-		SetCurrentDirectory(iniparser_getstr(ini, MODULE_DIR));
+		SetCurrentDirectory(iniparser_getstr(ini, INI_DIR));
 
 		// Now set working directory to specified (this allows for a relative working directory)
 		SetCurrentDirectory(dir);
@@ -116,44 +122,55 @@ void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, bool 
 	}
 }
 
-void WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
+int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 {
 	// Check for SetIcon util request
 	if(strncmp(lpCmdLine, "--WinRun4J:SetIcon", 20) == 0) {
 		Icon::SetExeIcon(lpCmdLine);
-		return;
+		return 0;
 	}
 
 	// Check for RegisterDDE util request
 	if(strncmp(lpCmdLine, "--WinRun4J:RegisterFileAssociations", 23) == 0) {
 		DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
-		return;
+		return 0;
 	}
 
 	// Check for UnregisterDDE util request
 	if(strncmp(lpCmdLine, "--WinRun4J:UnregisterFileAssociations", 25) == 0) {
 		DDE::UnregisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
-		return;
+		return 0;
 	}
 
 	// Check for Register Service util request
 	if(strncmp(lpCmdLine, "--WinRun4J:RegisterService", 27) == 0) {
 		Service::Register(lpCmdLine);
-		return;
+		return 0;
 	}
 
 	// Check for Unregister Service util request
 	if(strncmp(lpCmdLine, "--WinRun4J:UnregisterService", 29) == 0) {
 		Service::Unregister(lpCmdLine);
-		return;
+		return 0;
 	}
+
+	if(strncmp(lpCmdLine, "--WinRun4J:ExecuteINI", 23) == 0) {
+		return WinRun4J::ExecuteINI(hInstance, lpCmdLine);
+	}
+
+	Log::Error("Unrecognized command: %s", lpCmdLine);
+	return 1;
 }
 
 dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
 {
 	dictionary* ini = INI::LoadIniFile(hInstance);
 	if(ini == NULL) {
+#ifdef CONSOLE
+		Log::Error("Failed to find or load ini file.");
+#else
 		MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
+#endif
 		Log::Close();
 		return NULL;
 	}
@@ -161,48 +178,8 @@ dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
 	return ini;
 }
 
-#ifdef CONSOLE
-int main(int argc, char* argv[])
+int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 {
-	char lpCmdLine[4096];
-	for(int i = 0; i < argc; i++) {
-		strcat(lpCmdLine, "\"");
-		strcat(lpCmdLine, argv[i]);
-		strcat(lpCmdLine, "\" ");
-	}
-	HINSTANCE hInstance = (HINSTANCE) GetModuleHandle(NULL);
-#else
-int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
-{
-	int argc = 0;
-	char** argv = 0;
-#endif
-
-	// Initialise the logger using std streams
-	Log::Init(hInstance, NULL, NULL);
-
-	// Check for Builtin commands
-	if(strncmp(lpCmdLine, "--WinRun4J:", 11) == 0) {
-		WinRun4J::DoBuiltInCommand(hInstance, lpCmdLine);
-		Log::Close();
-		return 0;
-	}
-
-	// Load the INI file based on module name
-	dictionary* ini = WinRun4J::LoadIniFile(hInstance);
-	if(ini == NULL) {
-		return 1;
-	}
-
-	// Set the current working directory if specified
-	WinRun4J::SetWorkingDirectory(ini);
-
-	// Now initialise the logger using std streams + specified log dir
-	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL));
-
-	// Display the splash screen if present
-	SplashScreen::ShowSplashImage(hInstance, ini);
-
 	// Attempt to find an appropriate java VM
 	char* vmlibrary = VM::FindJavaVMLibrary(ini);
 	if(!vmlibrary) {
@@ -213,8 +190,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	}
 
 	// Collect the VM args from the INI file
-	TCHAR *vmargs[MAX_PATH];
-	int vmargsCount = 0;
 	INI::GetNumberedKeysFromIni(ini, VM_ARG, vmargs, vmargsCount);
 
 	// Build up the classpath and add to vm args
@@ -229,8 +204,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	}
 
 	// Collect the program arguments from the INI file
-	TCHAR *progargs[MAX_PATH];
-	int progargsCount = 0;
 	INI::GetNumberedKeysFromIni(ini, PROG_ARG, progargs, progargsCount);
 
 	// Add the args from commandline
@@ -268,18 +241,11 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		return 1;
 	}
 
-	JNIEnv* env = VM::GetJNIEnv();
+	return 0;
+}
 
-	// Register native methods
-	INI::RegisterNatives(env);
-	SplashScreen::RegisterNatives(env);
-	Registry::RegisterNatives(env);
-	Shell::RegisterNatives(env);
-	bool ddeInit = DDE::Initialize(hInstance, env, ini);
-
-	// Run the main class
-	JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
-	
+void WinRun4J::FreeArgs()
+{
 	// Free vm args
 	for(int i = 0; i < vmargsCount; i++) {
 		free(vmargs[i]);
@@ -289,9 +255,63 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	for(int i = 0; i < progargsCount; i++) {
 		free(progargs[i]);
 	}
+}
+
+int WinRun4J::ExecuteINI(HINSTANCE hInstance, LPSTR lpCmdLine)
+{
+	TCHAR *tmpProgargs[MAX_PATH];
+	int tmpProgargsCount = 0;
+	ParseCommandLine(lpCmdLine, tmpProgargs, tmpProgargsCount, false);
+
+	// The first arg should be the ini file
+	if(tmpProgargsCount == 0) {
+		Log::Error("INI file not specified");
+		return 1;
+	}
+
+	dictionary* ini = INI::LoadIniFile(hInstance, tmpProgargs[0]);
+
+	return 1;
+}
+
+
+int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
+{
+	// Set the current working directory if specified
+	WinRun4J::SetWorkingDirectory(ini);
+
+	// Now initialise the logger using std streams + specified log dir
+	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL));
+
+	// Display the splash screen if present
+	SplashScreen::ShowSplashImage(hInstance, ini);
+
+	// Start vm
+	int result = WinRun4J::StartVM(lpCmdLine, ini);
+	if(result) {
+		return result;
+	}
+
+	JNIEnv* env = VM::GetJNIEnv();
+
+	// Register native methods
+	INI::RegisterNatives(env);
+	SplashScreen::RegisterNatives(env);
+	Registry::RegisterNatives(env);
+	Shell::RegisterNatives(env);
+	EventLog::RegisterNatives(env);
+
+	// Startup DDE if requested
+	bool ddeInit = DDE::Initialize(hInstance, env, ini);
+
+	// Run the main class
+	JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
+	
+	// Free the args memory
+	WinRun4J::FreeArgs();
 
 	// Close VM (This will block until all non-daemon java threads finish).
-	int result = VM::CleanupVM();
+	result = VM::CleanupVM();
 
 	// Close the log
 	Log::Close();
@@ -300,5 +320,41 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	if(ddeInit) DDE::Uninitialize();
 
 	return result;
+}
+
+#ifdef CONSOLE
+int main(int argc, char* argv[])
+{
+	char lpCmdLine[4096];
+	for(int i = 0; i < argc; i++) {
+		strcat(lpCmdLine, "\"");
+		strcat(lpCmdLine, argv[i]);
+		strcat(lpCmdLine, "\" ");
+	}
+	HINSTANCE hInstance = (HINSTANCE) GetModuleHandle(NULL);
+#else
+int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
+{
+	int argc = 0;
+	char** argv = 0;
+#endif
+
+	// Initialise the logger using std streams
+	Log::Init(hInstance, NULL, NULL);
+
+	// Check for Builtin commands
+	if(strncmp(lpCmdLine, "--WinRun4J:", 11) == 0) {
+		WinRun4J::DoBuiltInCommand(hInstance, lpCmdLine);
+		Log::Close();
+		return 0;
+	}
+
+	// Load the INI file based on module name
+	dictionary* ini = WinRun4J::LoadIniFile(hInstance);
+	if(ini == NULL) {
+		return 1;
+	}
+	
+	return WinRun4J::ExecuteINI(hInstance, ini, lpCmdLine);
 }
 

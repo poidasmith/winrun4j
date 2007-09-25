@@ -36,6 +36,7 @@ class INI
 public:
 	static void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index);
 	static dictionary* LoadIniFile(HINSTANCE hInstance);
+	static dictionary* LoadIniFile(HINSTANCE hInstance, LPSTR inifile);
 	static bool RegisterNatives(JNIEnv *env, bool useExcel = false);
 
 private:
