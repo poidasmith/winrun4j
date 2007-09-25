@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="java/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.winrun4j"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.equinox.launcher"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
