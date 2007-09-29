@@ -9,4 +9,7 @@ public interface Service {
     boolean canShutdown();
     boolean canStop();
     boolean getName();
+    void start() throws ServiceException;
+    void stop() throws ServiceException;
+    void pause() throws ServiceException;
 }
