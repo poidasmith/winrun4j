@@ -12,14 +12,14 @@
 
 #ifdef TINY
 
-extern "C" char * _cdecl strdup(const char *s)
+extern "C" char * _cdecl strdup(const char *str)
 {
     char *r;
 
-    if ((r = (char *)malloc(strlen(s) + 1)) == NULL) {
+    if ((r = (char *)malloc(strlen(str) + 1)) == NULL) {
 		return 0;
     }
-    strcpy (r, s);
+    strcpy (r, str);
     return r;
 }
 
@@ -28,56 +28,61 @@ extern "C" char * _cdecl strcat(char *dest, const char *source)
 	return 0;
 }
 
-extern "C" int _cdecl strcmp(const char *s1, const char *s2)
+extern "C" int _cdecl strcmp(const char *str1, const char *str2)
 {
 	return 0;
 }
 
-extern "C" size_t _cdecl strlen(const char *s)
+extern "C" size_t _cdecl strlen(const char *str)
 {
-	return lstrlen(s);
+	return lstrlen(str);
 }
 
-extern "C" void _cdecl sprintf_s(char *_Str, const char *_Fmt, ...)
+extern "C" void _cdecl sprintf_s(char *str, const char *fmt, ...)
 {
 }
 
-extern "C" const char * _cdecl strrchr(const char *_Str, int _Ch)
-{
-	return 0;
-}
-
-extern "C" const char * _cdecl strchr(const char *_Str, int _Ch)
+extern "C" const char * _cdecl strrchr(const char *str, int ch)
 {
 	return 0;
 }
 
-extern "C" char * _cdecl strcpy(char *_Dest, const char *_Source)
+extern "C" const char * _cdecl strchr(const char *str, int ch)
 {
 	return 0;
 }
 
-extern "C" errno_t _cdecl strcpy_s(char *_Dst, rsize_t _DstSize, const char *_Src)
+extern "C" char * _cdecl strcpy(char *dest, const char *source)
 {
 	return 0;
 }
 
-extern "C" char * _cdecl _strdup(const char *_Src)
+extern "C" errno_t _cdecl strcpy_s(char *dest, rsize_t size, const char *source)
 {
+	strcpy(dest, source);
 	return 0;
 }
 
-extern "C" double _cdecl atof(const char *_String)
+extern "C" char * _cdecl _strdup(const char *src)
+{
+	return strdup(src);
+}
+
+extern "C" double _cdecl atof(const char *str)
 {
 	return 0.;
 }
 
-extern "C" int _cdecl strncmp(const char *_Str1, const char *_Str2, size_t _MaxCount)
+extern "C" int _cdecl strncmp(const char *str1, const char *str2, size_t count)
 {
+	for(int i = 0; i < count; i++) {
+		if(str1[i] != str2[i])
+			return str1[i] - str2[i];
+	}
 	return 0;
 }
 
-extern "C" void * _cdecl memcpy(void *_Dst, const void *_Src, size_t _Size)
+extern "C" void * _cdecl memcpy(void *dest, const void *source, size_t size)
 {
 	return 0;
 }
