@@ -9,28 +9,38 @@
  *******************************************************************************/
 
 #include "Runtime.h"
+#include <stdio.h>
 
 #ifdef TINY
 
 extern "C" char * _cdecl strdup(const char *str)
 {
     char *r;
-
-    if ((r = (char *)malloc(strlen(str) + 1)) == NULL) {
+    if ((r = (char *)malloc(strlen(str) + 1)) == NULL)
 		return 0;
-    }
-    strcpy (r, str);
-    return r;
+    return strcpy (r, str);
 }
 
 extern "C" char * _cdecl strcat(char *dest, const char *source)
 {
-	return 0;
+	return lstrcat(dest, source);
 }
 
 extern "C" int _cdecl strcmp(const char *str1, const char *str2)
 {
-	return 0;
+	int len1 = strlen(str1);
+	int len2 = strlen(str2);
+	for(int i = 0; i < len1 && i < len2; i++) {
+		if(str1[i] != str2[i])
+			return str1[i] - str2[i];
+	}
+	if(len1 > len2) {
+		return -1;
+	} else if(len2 > len1) {
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 extern "C" size_t _cdecl strlen(const char *str)
@@ -38,23 +48,26 @@ extern "C" size_t _cdecl strlen(const char *str)
 	return lstrlen(str);
 }
 
-extern "C" void _cdecl sprintf_s(char *str, const char *fmt, ...)
-{
-}
-
 extern "C" const char * _cdecl strrchr(const char *str, int ch)
 {
+	for(int i = strlen(str) - 1; i >= 0; i--) 
+		if(str[i] == ch)
+			return &str[i];
 	return 0;
 }
 
 extern "C" const char * _cdecl strchr(const char *str, int ch)
 {
+	int len = strlen(str);
+	for(int i = 0; i < len; i++)
+		if(str[i] == ch)
+			return &str[i];
 	return 0;
 }
 
 extern "C" char * _cdecl strcpy(char *dest, const char *source)
 {
-	return 0;
+	return lstrcpy(dest, source);
 }
 
 extern "C" errno_t _cdecl strcpy_s(char *dest, rsize_t size, const char *source)
@@ -84,11 +97,13 @@ extern "C" int _cdecl strncmp(const char *str1, const char *str2, size_t count)
 
 extern "C" void * _cdecl memcpy(void *dest, const void *source, size_t size)
 {
-	return 0;
+	CopyMemory(dest, source, size);
+	return dest;
 }
 
-extern "C" void _cdecl fclose()
+extern "C" int _cdecl fclose(FILE *stream)
 {
+	return CloseHandle(stream);
 }
 
 extern "C" int _cdecl isdigit(int c)
@@ -101,12 +116,12 @@ extern "C" int _cdecl isspace(int c)
 	return 0;
 }
 
-extern "C" int _cdecl fgets(int c)
+extern "C" char* _cdecl fgets(char *str, int n, FILE *stream)
 {
 	return 0;
 }
 
-extern "C" int _cdecl fopen(int c)
+extern "C" FILE* _cdecl fopen(const char* filename, const char* mode)
 {
 	return 0;
 }
@@ -118,7 +133,7 @@ extern "C" int _cdecl _chkstk(int c)
 
 extern "C" int _cdecl tolower(int c)
 {
-	return 0;
+	return (int) CharLower((LPSTR) c);
 }
 
 extern "C" void * _cdecl memset(void *dst, int val, size_t size)
@@ -126,9 +141,9 @@ extern "C" void * _cdecl memset(void *dst, int val, size_t size)
 	return 0;
 }
 
-extern "C" int _cdecl vsprintf_s(int c)
+extern "C" int _cdecl vsprintf_s(char *buffer, size_t sizeInBytes, const char *format, va_list argptr)
 {
-	return 0;
+	return vsprintf(buffer, format, argptr);
 }
 
 extern "C" char * _cdecl strtok(char *str, const char *delim)
@@ -141,7 +156,7 @@ extern "C" int _cdecl _ftol_sse(int c)
 	return 0;
 }
 
-extern "C" int _cdecl _fdopen(int c)
+extern "C" FILE* _cdecl _fdopen(int fd, const char *mode)
 {
 	return 0;
 }
@@ -151,7 +166,7 @@ extern "C" int _cdecl _open_osfhandle(int c)
 	return 0;
 }
 
-extern "C" int _cdecl freopen(int c)
+extern "C" FILE* _cdecl freopen(const char* filename, const char* mode, FILE* filea)
 {
 	return 0;
 }
@@ -161,14 +176,14 @@ extern "C" long _cdecl strtol(const char *str, char **endptr, int radix)
 	return 0;
 }
 
-extern "C" int _cdecl sscanf(int c)
+extern "C" int _cdecl sscanf(const char* src, const char* format, ...)
 {
 	return 0;
 }
 
 extern "C" int _cdecl toupper(int c)
 {
-	return 0;
+	return (int) CharUpper((LPSTR) c);
 }
 
 extern "C" int _cdecl rand()
@@ -181,33 +196,35 @@ extern "C" int _cdecl _fltused()
 	return 0;
 }
 
-extern "C" int _cdecl fprintf()
+extern "C" int _cdecl fprintf(FILE* file, const char *format, ...)
 {
-	return 0;
+	va_list args;
+	va_start(args, format);
+	return wsprintf((LPSTR) format, args);
 }
 
-extern "C" int _cdecl vprintf()
+extern "C" int _cdecl vprintf(const char *format, va_list argptr)
 {
-	return 0;
+	return printf(format, argptr);
 }
 
 extern "C" void _cdecl srand(unsigned int seed)
 {
 }
 
-extern "C" int _cdecl setvbuf()
+extern "C" int _cdecl setvbuf(FILE* file, char* buf, int mode, size_t size)
 {
 	return 0;
 }
 
-extern "C" int _cdecl fflush()
+extern "C" int _cdecl fflush(FILE* file)
 {
 	return 0;
 }
 
-extern "C" int _cdecl vsprintf()
+extern "C" int _cdecl vsprintf(char *buffer, const char *format, va_list argptr)
 {
-	return 0;
+	return wvsprintf(buffer, format, argptr);
 }
 
 extern "C" int _cdecl _ftol2_sse()
@@ -215,7 +232,7 @@ extern "C" int _cdecl _ftol2_sse()
 	return 0;
 }
 
-extern "C" int _cdecl __iob_func()
+extern "C" FILE* _cdecl __iob_func()
 {
 	return 0;
 }
