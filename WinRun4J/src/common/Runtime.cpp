@@ -21,6 +21,56 @@ extern "C" char * _cdecl strdup(const char *str)
     return strcpy (r, str);
 }
 
+extern "C" errno_t _cdecl strcpy_s(char *dest, rsize_t size, const char *source)
+{
+	strcpy(dest, source);
+	return 0;
+}
+
+extern "C" char * _cdecl _strdup(const char *src)
+{
+	return strdup(src);
+}
+
+extern "C" int _cdecl vsprintf_s(char *buffer, size_t sizeInBytes, const char *format, va_list argptr)
+{
+	return vsprintf(buffer, format, argptr);
+}
+
+extern "C" int _cdecl _ftol_sse(int c)
+{
+	return 0;
+}
+
+extern "C" int _cdecl setvbuf(FILE* file, char* buf, int mode, size_t size)
+{
+	return 0;
+}
+
+extern "C" int _cdecl _ftol2_sse()
+{
+	return 0;
+}
+
+extern "C" FILE* _cdecl __iob_func()
+{
+	return 0;
+}
+
+extern "C" FILE* _cdecl _fdopen(int fd, const char *mode)
+{
+	return 0;
+}
+
+extern "C" int _cdecl _open_osfhandle(int c)
+{
+	return 0;
+}
+
+#endif 
+
+#ifdef TINY_DEPRECATED
+
 extern "C" char * _cdecl strcat(char *dest, const char *source)
 {
 	return lstrcat(dest, source);
@@ -70,17 +120,6 @@ extern "C" char * _cdecl strcpy(char *dest, const char *source)
 	return lstrcpy(dest, source);
 }
 
-extern "C" errno_t _cdecl strcpy_s(char *dest, rsize_t size, const char *source)
-{
-	strcpy(dest, source);
-	return 0;
-}
-
-extern "C" char * _cdecl _strdup(const char *src)
-{
-	return strdup(src);
-}
-
 extern "C" double _cdecl atof(const char *str)
 {
 	return 0.;
@@ -118,12 +157,30 @@ extern "C" int _cdecl isspace(int c)
 
 extern "C" char* _cdecl fgets(char *str, int n, FILE *stream)
 {
+	ReadFile(
 	return 0;
 }
 
 extern "C" FILE* _cdecl fopen(const char* filename, const char* mode)
 {
-	return 0;
+	DWORD desiredAccess;
+	DWORD shareMode;
+	switch(*mode) {
+		case 'a':
+			desiredAccess = FILE_WRITE_DATA;
+			shareMode = FILE_SHARE_WRITE;
+			break;
+		case 'w':
+			desiredAccess = FILE_WRITE_DATA;
+			shareMode = FILE_SHARE_WRITE;
+			break;
+		case 'r':
+			desiredAccess = FILE_READ_DATA;
+			shareMode = FILE_SHARE_READ;
+			break;
+	}
+	HANDLE hFile = CreateFile(filename, desiredAccess, shareMode, 0, 0, 0, 0);
+	return hFile;
 }
 
 extern "C" int _cdecl _chkstk(int c)
@@ -141,27 +198,7 @@ extern "C" void * _cdecl memset(void *dst, int val, size_t size)
 	return 0;
 }
 
-extern "C" int _cdecl vsprintf_s(char *buffer, size_t sizeInBytes, const char *format, va_list argptr)
-{
-	return vsprintf(buffer, format, argptr);
-}
-
 extern "C" char * _cdecl strtok(char *str, const char *delim)
-{
-	return 0;
-}
-
-extern "C" int _cdecl _ftol_sse(int c)
-{
-	return 0;
-}
-
-extern "C" FILE* _cdecl _fdopen(int fd, const char *mode)
-{
-	return 0;
-}
-
-extern "C" int _cdecl _open_osfhandle(int c)
 {
 	return 0;
 }
@@ -212,11 +249,6 @@ extern "C" void _cdecl srand(unsigned int seed)
 {
 }
 
-extern "C" int _cdecl setvbuf(FILE* file, char* buf, int mode, size_t size)
-{
-	return 0;
-}
-
 extern "C" int _cdecl fflush(FILE* file)
 {
 	return 0;
@@ -225,16 +257,6 @@ extern "C" int _cdecl fflush(FILE* file)
 extern "C" int _cdecl vsprintf(char *buffer, const char *format, va_list argptr)
 {
 	return wvsprintf(buffer, format, argptr);
-}
-
-extern "C" int _cdecl _ftol2_sse()
-{
-	return 0;
-}
-
-extern "C" FILE* _cdecl __iob_func()
-{
-	return 0;
 }
 
 #endif 

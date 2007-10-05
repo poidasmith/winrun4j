@@ -230,7 +230,7 @@ void dictionary_unset(dictionary * d, char * key)
 void dictionary_setint(dictionary * d, char * key, int val)
 {
 	char	sval[MAXVALSZ];
-	sprintf_s(sval, sizeof(sval), "%d", val);
+	sprintf(sval, "%d", val);
 	dictionary_set(d, key, sval);
 }
 
@@ -239,7 +239,7 @@ void dictionary_setint(dictionary * d, char * key, int val)
 void dictionary_setdouble(dictionary * d, char * key, double val)
 {
 	char	sval[MAXVALSZ];
-	sprintf_s(sval, sizeof(sval), "%g", val);
+	sprintf(sval, "%g", val);
 	dictionary_set(d, key, sval);
 }
 
