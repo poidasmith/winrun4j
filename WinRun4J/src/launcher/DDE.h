@@ -21,7 +21,7 @@ public:
 	// Lifecycle
 	static bool Initialize(HINSTANCE hInstance, JNIEnv* env, dictionary* ini);
 	static void Uninitialize();
-	static bool RegisterDDE();
+	static bool RegisterDDE(dictionary* ini);
 	static void RegisterWindow(HINSTANCE hInstance);
 
 	// Registration helpers

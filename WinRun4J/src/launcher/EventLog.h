@@ -17,6 +17,9 @@
 class EventLog {
 public:
 	static bool RegisterNatives(JNIEnv* env);
+
+private:
+	static bool Report(JNIEnv* env, jobject self, jstring source, jint type, jstring msg);
 };
 
 #endif // EVENTLOG_H

@@ -12,6 +12,7 @@
 #include "../common/Log.h"
 #include "../java/VM.h"
 
+static dictionary* g_ini;
 static HWND g_hWnd;
 static DWORD g_pidInst = 0;
 static HSZ g_serverName = 0;
@@ -23,6 +24,8 @@ static jmethodID g_methodID;
 // INI keys
 #define DDE_CLASS ":dde.class"
 #define DDE_ENABLED ":dde.enabled"
+#define DDE_SERVER_NAME ":dde.server.name"
+#define DDE_TOPIC ":dde.topic"
 
 LRESULT CALLBACK DdeMainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -47,7 +50,7 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HDDEDATA hsz1,
 	return 0;
 }
 
-bool DDE::RegisterDDE()
+bool DDE::RegisterDDE(dictionary* ini)
 {
 	// Startup DDE library
 	UINT result = DdeInitialize(&g_pidInst, (PFNCALLBACK) &DdeCallback, 0, 0);
@@ -69,7 +72,7 @@ DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
 	// Register Window
 	DDE::RegisterWindow((HINSTANCE) lpParam);
 	
-	bool initDde = DDE::RegisterDDE();
+	bool initDde = DDE::RegisterDDE(g_ini);
 	if(!initDde)
 		return 1;
 
@@ -97,8 +100,9 @@ DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
 bool DDE::Initialize(HINSTANCE hInstance, JNIEnv* env, dictionary* ini)
 {
 	// Check for enabled flag
+	g_ini = ini;
 	char* ddeEnabled = iniparser_getstr(ini, DDE_ENABLED);
-	if(ddeEnabled != NULL || strcmp("true", ddeEnabled) != 0)
+	if(ddeEnabled == NULL || strcmp("true", ddeEnabled) != 0)
 		return false;
 
 	// Create Thread to manage the window

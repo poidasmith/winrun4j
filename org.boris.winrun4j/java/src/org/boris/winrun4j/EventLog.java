@@ -11,5 +11,5 @@ public class EventLog {
     public static final int AUDIT_SUCCESS = 0x0008;
     public static final int AUDIT_FAILURE = 0x0010;
 
-    public static native void report(String source, int type, String msg);
+    public static native boolean report(String source, int type, String msg);
 }

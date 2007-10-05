@@ -9,6 +9,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
 import org.boris.winrun4j.DDE;
+import org.boris.winrun4j.EventLog;
 import org.boris.winrun4j.FileAssociationListener;
 import org.boris.winrun4j.INI;
 
@@ -60,6 +61,8 @@ public class WinRunTest {
         frame.setVisible(true);
         System.out.println("Testing stdout stream redirection from Java");
         System.err.println("Testing stderr stream redirection from Java");
+        
+        EventLog.report("WinRun4J Test", EventLog.INFORMATION, "A test information log");
         
         // Add fileassociation listern
         DDE.addFileAssocationListener(new FileAssociationListener() {
