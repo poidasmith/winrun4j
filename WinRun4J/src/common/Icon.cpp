@@ -61,7 +61,7 @@ void Icon::SetIcon(LPSTR commandLine)
 	// Create command line for deleting random file
 	TCHAR random[MAX_PATH], cmd[MAX_PATH];
 	GetModuleFileName(NULL, random, MAX_PATH);
-	sprintf_s(cmd, MAX_PATH, "%s %s %s", filename, DELETE_EXE_CMD, random);
+	sprintf(cmd, "%s %s %s", filename, DELETE_EXE_CMD, random);
 
 	// Now delete the random exe
 	STARTUPINFO si;
@@ -80,8 +80,8 @@ void Icon::CopyToRandomAndRun()
 	GetModuleFileName(NULL, filename, sizeof(filename));
 	srand(GetTickCount());
 	int r = rand();
-	sprintf_s(random, MAX_PATH, "%s.%d.exe", filename, r);
-	sprintf_s(cmdline, MAX_PATH, "%s %s %s", random, SET_ICON_CMD, filename);
+	sprintf(random, "%s.%d.exe", filename, r);
+	sprintf(cmdline, "%s %s %s", random, SET_ICON_CMD, filename);
 	if(!CopyFile(filename, random, true)) {
 		return;
 	}

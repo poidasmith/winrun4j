@@ -185,7 +185,7 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 			sizeMeg = availMax;
 		}
 		TCHAR sizeArg[MAX_PATH];
-		sprintf_s(sizeArg, MAX_PATH, "-Xmx%um", sizeMeg);
+		sprintf(sizeArg, "-Xmx%um", sizeMeg);
 		args[count++] = strdup(sizeArg);
 	}
 
@@ -203,7 +203,7 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 				size = overallMax;
 			}
 			TCHAR sizeArg[MAX_PATH];
-			sprintf_s(sizeArg, MAX_PATH, "-Xmx%um", size);
+			sprintf(sizeArg, "-Xmx%um", size);
 			args[count++] = strdup(sizeArg);
 		}
 	}
@@ -222,7 +222,7 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 				size = overallMax;
 			}
 			TCHAR sizeArg[MAX_PATH];
-			sprintf_s(sizeArg, MAX_PATH, "-Xms%um", size);
+			sprintf(sizeArg, "-Xms%um", size);
 			args[count++] = strdup(sizeArg);
 		}
 	}

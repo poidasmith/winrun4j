@@ -18,7 +18,7 @@ void INI::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entrie
 	int i = 0;
 	TCHAR entryName[MAX_PATH];
 	while(true) {
-		sprintf_s(entryName, sizeof(entryName), "%s.%d", keyName, i+1);
+		sprintf(entryName, "%s.%d", keyName, i+1);
 		TCHAR* entry = iniparser_getstr(ini, entryName);
 		if(entry != NULL) {
 			entries[index++] = _strdup(entry);
