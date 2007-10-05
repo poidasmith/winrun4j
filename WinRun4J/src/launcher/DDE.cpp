@@ -98,7 +98,7 @@ bool DDE::Initialize(HINSTANCE hInstance, JNIEnv* env, dictionary* ini)
 {
 	// Check for enabled flag
 	char* ddeEnabled = iniparser_getstr(ini, DDE_ENABLED);
-	if(ddeEnabled != NULL && strcmp("false", ddeEnabled) == 0)
+	if(ddeEnabled != NULL || strcmp("true", ddeEnabled) != 0)
 		return false;
 
 	// Create Thread to manage the window
