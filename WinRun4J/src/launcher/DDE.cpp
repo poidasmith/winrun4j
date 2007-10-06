@@ -60,7 +60,7 @@ bool DDE::RegisterDDE()
 	}
 
 	// Check for app/topic override
-	char* appName = iniparser_getstr(g_ini, DDE_APPNAME);
+	char* appName = iniparser_getstr(g_ini, DDE_SERVER_NAME);
 	char* topic = iniparser_getstr(g_ini, DDE_TOPIC);
 
 	g_serverName = DdeCreateStringHandle(g_pidInst, appName == NULL ? "WinRun4J" : appName, CP_WINANSI);
