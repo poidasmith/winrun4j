@@ -157,3 +157,66 @@ const char* Log::GetLastError()
 {
 	return g_error ? g_errorText : NULL;
 }
+
+bool Log::RegisterNatives(JNIEnv* env)
+{
+	// Register Log functions
+	jclass clazz = env->FindClass("org/boris/winrun4j/Log");
+	if(clazz == NULL) {
+		Log::SetLastError("Could not find Log class");
+		return false;
+	}
+	
+	JNINativeMethod nm[3];
+	nm[0].name = "log";
+	nm[0].signature = "(ILjava/lang/String;)V";
+	nm[0].fnPtr = Log::LogJ;
+	nm[1].name = "setLastError";
+	nm[1].signature = "(Ljava/lang/String;)V";
+	nm[1].fnPtr = Log::SetLastErrorJ;
+	nm[2].name = "getLastError";
+	nm[2].signature = "()Ljava/lang/String;";
+	nm[2].fnPtr = Log::GetLastErrorJ;
+	env->RegisterNatives(clazz, nm, 3);
+
+	if(env->ExceptionCheck()) {
+		Log::SetLastError(JNI::GetExceptionMessage(env));
+		return false;
+	}
+	
+	return true;
+}
+
+void JNICALL Log::LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str)
+{
+	if(str == NULL)
+		return;
+
+	jboolean iscopy = false;
+	const char* format = env->GetStringUTFChars(str, &iscopy);
+	if(level <= jlevel) {
+		LOG_IT
+	}
+}
+
+void JNICALL Log::SetLastErrorJ(JNIEnv* env, jobject self, jstring str)
+{
+	if(str == NULL)
+		return;
+
+	jboolean iscopy = false;
+	if(env->ExceptionOccurred())
+		env->ExceptionClear();
+	const char* chars = env->GetStringUTFChars(str, &iscopy);
+	Log::SetLastError(chars);
+	env->ReleaseStringUTFChars(str, chars); 
+}
+
+jstring JNICALL Log::GetLastErrorJ(JNIEnv* env, jobject self)
+{
+	const char* err = Log::GetLastError();
+	if(err == NULL)
+		return NULL;
+	else
+		return env->NewStringUTF(err);
+}

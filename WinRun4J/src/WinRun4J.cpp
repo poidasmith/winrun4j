@@ -295,6 +295,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	JNIEnv* env = VM::GetJNIEnv();
 
 	// Register native methods
+	Log::RegisterNatives(env);
 	INI::RegisterNatives(env);
 	SplashScreen::RegisterNatives(env);
 	Registry::RegisterNatives(env);

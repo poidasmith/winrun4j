@@ -228,7 +228,7 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 	}
 }
 
-int VM::StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[] )
+int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[])
 {
 	int i;
 	int numVMArgs = -1;

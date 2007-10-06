@@ -230,6 +230,8 @@
 				AdditionalDependencies="../lib/wcrt.lib"
 				OutputFile="$(OutDir)\$(ProjectName)c.exe"
 				IgnoreAllDefaultLibraries="true"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
 				SubSystem="1"
 			/>
 			<Tool

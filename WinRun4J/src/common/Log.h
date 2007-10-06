@@ -12,6 +12,7 @@
 #define LOG_H
 
 #include "Runtime.h"
+#include <jni.h>
 
 enum LoggingLevel { info = 0, warning, error, none };
 
@@ -23,13 +24,17 @@ struct Log {
 	static void Error(const char* format, ...);
 	static void Close();
 
-	// Used for excel error function
+	// Used for JNI
+	static bool RegisterNatives(JNIEnv* env);
 	static void SetLastError(const char* format, ...);
 	static const char* GetLastError();
 
 private:
 	static void LogIt(const char* format, ...);
 	static void RedirectIOToConsole();
+	static void JNICALL LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str);
+	static void JNICALL SetLastErrorJ(JNIEnv* env, jobject self, jstring str);
+	static jstring JNICALL GetLastErrorJ(JNIEnv* env, jobject self);
 };
 
 #endif // LOG_H

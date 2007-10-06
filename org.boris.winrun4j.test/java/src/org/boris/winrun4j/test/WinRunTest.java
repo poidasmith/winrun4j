@@ -12,6 +12,7 @@ import org.boris.winrun4j.DDE;
 import org.boris.winrun4j.EventLog;
 import org.boris.winrun4j.FileAssociationListener;
 import org.boris.winrun4j.INI;
+import org.boris.winrun4j.Log;
 
 
 public class WinRunTest {
@@ -53,16 +54,23 @@ public class WinRunTest {
             sb.append(p.getProperty((String) k));
             sb.append("\n");
         }
+        
+        Log.info("INFO: test1\n");
+        Log.warning("WARN: test2\n");
+        Log.error("ERR: test3\n");
+        EventLog.report("WinRun4J Test", EventLog.INFORMATION, "A test information log");
+        Log.setLastError("Last Error Test");
+        sb.append(Log.getLastError());
+        
+        
         text.setText(sb.toString());
         frame.getContentPane().add(new JScrollPane(text));
         frame.setSize(500, 500);
         frame.setLocation(30, 30);
-        //Thread.sleep(5000); // for the splash screen
+        Thread.sleep(5000); // for the splash screen
         frame.setVisible(true);
         System.out.println("Testing stdout stream redirection from Java");
         System.err.println("Testing stderr stream redirection from Java");
-        
-        EventLog.report("WinRun4J Test", EventLog.INFORMATION, "A test information log");
         
         // Add fileassociation listern
         DDE.addFileAssocationListener(new FileAssociationListener() {
