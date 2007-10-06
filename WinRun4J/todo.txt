@@ -16,10 +16,8 @@ items for V0.1
 
 
 - 64-bit VM version
-- Console version
 - Windows Service version (should be the same executable instead of main.class we have service.class in the INI)
 - need a set of "variables" to use in the INI file:
-    - should allow environment variables like %TEMP%
     - also allow known variables like ${MODULE_DIR}
 
 - Add WinRun4J --DDERegister / --SetItcon. might want to change this to 
@@ -80,17 +78,6 @@ file.1.description=AVI Video File
 
 - provide a nice registry API 
 - maybe split out registry API into DLL (+ other useful functions eg. Win324J.dll)
-- allow adding of NTEventLog entries
-
-
-
-- DDE example for eclipse:
-    - This will registry icon against appropriate eclipse version
-    - It will only have access to the launcher/osgi startup jar probably so
-      it will have to search for actual jar via some mechanism
-    - Need a plugin to fire this opening of a file (maybe)
-    - We should be able to register against available editors in eclipse
-
 
 
 ==== XLL4J ================================================================================================
