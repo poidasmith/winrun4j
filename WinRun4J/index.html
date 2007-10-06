@@ -1,90 +1,59 @@
 <html>
-<head>
-	<title>WinRun4J</title>
-	<link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon">
-	<link rel="stylesheet" href="style.css" type="text/css" />
-</head>
-<body>
+	<head>
+		<title>WinRun4J</title>
+		<link rel="shortcut icon" href="http://winrun4j.sourceforge.net/favicon.ico" type="image/vnd.microsoft.icon">
+		<link rel="stylesheet" href="style.css" type="text/css">
+		<meta name="description" content="Configurable java launcher for windows">
+		<meta name="keywords" content="java, launcher, windows, icon, splash, screen, memory, open source">
+		<meta http-equiv="pragma" content="no-cache">
+	</head>
+	<body>
+		
 	<div id="heading">
-		<div class="title"><img src="WinRun4J.gif"/>WinRun4j</div>
+		<div class="title"><img src="WinRun4J.gif">WinRun4j</div>
 		<div class="subtitle">Configurable Java Launcher for Windows</div>
 	</div>
+	
 	<div id="content">
 		<p class="section">
-			<div class="section-title">About</div>
+			</p><div class="section-title">About</div>
 			<p class="section-content">
-				WinRun4j is a java launcher for windows. It provides an alternative to javaw.exe and provides the following benefits:
-				<ul>
+				WinRun4j is a java launcher for windows. It is an alternative to javaw.exe and provides the following benefits:
+				</p><ul>
 					<li>Uses an INI file for specifying classpath, main class, vm args, program args.</li>
 					<li>Custom executable name that appears in task manager.</li>
-					<li>Additional VM args for (eg.) more flexible memory use.</li>
+					<li>Additional JVM args for (eg.) more flexible memory use.</li>
 					<li>Built-in icon replacer for custom icon.</li>
-					<li>Built-in pre-VM splash screen with auto-hide.</li>
-					<li>JNI link to access INI file and splash screen.
-					<li>DDE support (file assocation) for windows explorer</li>
-					<li>Multiple icons in a file.
-					<li>Console version.
-					<li>Windows Registry JNI API.
-					<li>NT Event log JNI API.
-					<li>Windows NT Service wrapper.
+					<li>Pre-JVM splash screen with auto-hide.</li>
+					<li>DDE implementation for file assocations.</li>
+					<li>Windows service wrapper.</li>
+					<li>Windows EventLog API</li> 
+					<li>Console version</li>
+					<li>JNI library for INI access, splash screen, logger, registry, shell.</li>
 				</ul>
 				WinRun4J is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
-			</p>
-		</p>
+			<p></p>
+		<p></p>
 		<p class="section">
-			<div class="section-title">Download</div>
+			</p><div class="section-title">Download</div>
 			<p class="section-content">
 			The latest <a href="https://sourceforge.net/project/showfiles.php?group_id=195634">download</a> is available from the Project Page.
 			</p>
-		</p>
+		<p></p>
 		<p class="section">
-			<div class="section-title">Change History</div>
-			<p class="section-content">
-				<div class="section-heading">V0.0.3</div>
-				<ul>
-				<li>Added JNI access to INI file contents.
-				<li>Added splash screen with auto-hide.
-				<li>Added JNI access to the splash screen.
-				</ul>
-			</p>
-			<p class="section-content">
-				<div class="section-heading">V0.0.3</div>
-				<ul>
-				<li>Added JNI access to INI file contents.
-				<li>Added splash screen with auto-hide.
-				<li>Added JNI access to the splash screen.
-				</ul>
-			</p>
-			<p class="section-content">
-				<div class="section-heading">V0.0.2</div>
-				<ul>
-				<li>Added VM version arguments to allow specification of minimum version, maximum version or exact version.
-				<li>Add VM proportional heap size argument.
-				<li>Added logging level.
-				<li>Improved icon changer (no rename required).
-				</ul>
-			</p>
-			<p class="section-content">
-				<div class="section-heading">V0.0.1</div>
-				<ul>
-				<li>Initial release.
-				</ul>
-			</p>
-		</p>
-		<p class="section">
-			<div class="section-title">Usage</div>
+			</p><div class="section-title">Usage</div>
 			<p class="section-content">
 			The launcher is designed to be used as follows:
-			<p>
-				<ol>
+			</p><p>
+				</p><ol>
 					<li>Copy WinRun4J.exe to [YourApp].exe</li>
 					<li>Create [YourApp].ini (in the same directory)</li>
 					<li>Customize [YourApp].ini (see the table below for information)</li>
 					<li>Create [YourApp].ico (in the same directory)</li>
-					<li>Run [YourApp].exe --seticon (this will inject your icon into the executable).</li>
+					<li>Run [YourApp].exe --WinRun4J:SetIcon (this will inject your icon into the executable).</li>
 					<li>Launch [YourApp].exe</li>
 				</ol>
-			</p>
+			<p></p>
 			<p>
 				The INI file accepts the following settings:
 				<table>
@@ -118,8 +87,16 @@
 						<td>Specify an exact version to use (eg. 1.5.0_07).</td>
 					</tr>
 					<tr>
+						<td>vm.location</td>
+						<td>Specify the location of the JVM dll you want to use. This is useful when you package
+						    your own JRE with your app.</td>
+					</tr>
+					<tr>
 						<td>vm.heapsize.max.percent</td>
-						<td>Specify a proportion of the available physical memory to use (ie. relates to -Xmx arg). For example, vm.heapsize.max.percent=75. Note that this will use the maximum memory possible.</td>
+						<td>Specify
+a proportion of the available physical memory to use (ie. relates to
+-Xmx arg). For example, vm.heapsize.max.percent=75. Note that this will
+use the maximum memory possible.</td>
 					</tr>
 					<tr>
 						<td>vm.heapsize.min.percent</td>
@@ -127,61 +104,123 @@
 					</tr>
 					<tr>
 						<td>vm.heapsize.preferred</td>
-						<td>Specify a preferred amount (in MB) for the heap size (ie. relates to -Xmx arg). If this amount is not available it will use the maximum amount possible given the physical memory available.</td>
+						<td>Specify
+a preferred amount (in MB) for the heap size (ie. relates to -Xmx arg).
+If this amount is not available it will use the maximum amount possible
+given the physical memory available.</td>
 					</tr>
 					<tr>
 						<td>arg.1, arg.2, ..., arg.n</td>
-						<td>Program arguments. These will be sent before and command line arguments.</td>
+						<td>Program arguments. These will be sent before any command line arguments.</td>
 					</tr>
 					<tr>
 						<td>log</td>
-						<td>StdOut and StdErr will be redirected to this file (including launcher messages).</td>
+						<td>Standard out and error streams will be redirected to this file (including launcher messages).</td>
 					</tr>
 					<tr>
 						<td>log.level</td>
-						<td>Specify the logging level. One of "info", "warning", "error", "none".</td>
+						<td>Specify the logging level. One of "info", "warning", "error", "none". Default is "error".</td>
 					</tr>
 					<tr>
 						<td>splash.image</td>
 						<td>The name of the splash image file to display (This can be gif, jpg or bmp).
-						<br/><br/>
+						<br><br>
 						This will auto-hide itself when it detects the first application window.</td>
+					</tr>
+					<tr>
+						<td>splash.autohide</td>
+						<td>A flag to disable the splash screen autohide feature ("true").</td>
+					</tr>
+					<tr>
+						<td>dde.enabled</td>
+						<td>This flag needs to be set to "true" to enable DDE.</td>
+					</tr>
+					<tr>
+						<td>dde.class</td>
+						<td>Optional flag to send execute commands to your class.</td>
 					</tr>
 				</table>
 			</p>
-		</p>
+		<p></p>
 		<p class="section">
-			<div class="section-title">JNI Library</div>
+			</p><div class="section-title">JNI Library</div>
 			<p>
-			The javadoc for the JNI library can be found <a href="javadoc/index.html">here</a>.
+			The javadoc for the JNI library can be found <a href="http://winrun4j.sourceforge.net/javadoc/index.html">here</a>.
 			</p>
-		</p>
+		<p></p>
 		<p class="section">
-			<div class="section-title">Examples</div>
+			</p><div class="section-title">Examples</div>
 			<p>
 				An example INI file (included in the download) is:
-				<pre>
-classpath.1=*.jar
+				</p><pre>classpath.1=*.jar
 main.class=org.boris.winrun4j.WinRunTest
 				</pre>
-			</p>
+			<p></p>
 			<p>
 				An example INI file to run eclipse is:
-				<pre>
-working.directory=.
+				</p><pre>working.directory=.
 main.class=org.eclipse.equinox.launcher.Main
 classpath.1=plugins\org.eclipse.equinox.launcher*
-vmarg.1=-Xmx512M
 arg.1=-showsplash				
 vm.heapsize.percent=80
 				</pre>
-			</>
-		</p>
+			
+		<p></p>
+		<p class="section">
+			</p>
+			<div class="section-title">Change History</div>
+			<p class="section-content">
+				</p><div class="section-heading">V0.1.0</div>
+				<ul>
+					<li>Added DDE for file assocations.</li>
+					<li>Added Service wrapper.</li>
+					<li>Added Event Log API.</li>
+					<li>Added Registry API.</li>
+					<li>Added Shell API.</li>
+					<li>Reduced EXE size to less than 30kb (using <a href="http://wcrt.sourceforge.net">wcrt</a>).</li>
+					<li>Added console version.</li>
+				</ul>
+			<p></p>
+			<p class="section-content">
+				</p><div class="section-heading">V0.0.5</div>
+				<ul>
+				<li>Added vm.location key.
+				</li></ul>
+			<p></p>
+			<p class="section-content">
+				</p><div class="section-heading">V0.0.4</div>
+				<ul>
+				<li>Fixes splash screen window not being destroyed.
+				</li></ul>
+			<p></p>
+			<p class="section-content">
+				</p><div class="section-heading">V0.0.3</div>
+				<ul>
+				<li>Added JNI access to INI file contents.
+				</li><li>Added splash screen with auto-hide.
+				</li><li>Added JNI access to the splash screen.
+				</li></ul>
+			<p></p>
+			<p class="section-content">
+				</p><div class="section-heading">V0.0.2</div>
+				<ul>
+				<li>Added VM version arguments to allow specification of minimum version, maximum version or exact version.
+				</li><li>Add VM proportional heap size argument.
+				</li><li>Added logging level.
+				</li><li>Improved icon changer (no rename required).
+				</li></ul>
+			<p></p>
+			<p class="section-content">
+				</p><div class="section-heading">V0.0.1</div>
+				<ul>
+				<li>Initial release.
+				</li></ul>
+			<p></p>
+		<p></p>
 	</div>
 	<div id="footer">
 		<p>
 		<a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=195634&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
 		</p>
 	</div>
-</body>
-</html>
+</body></html>
