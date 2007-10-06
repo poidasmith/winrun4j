@@ -85,8 +85,8 @@ void Icon::CopyToRandomAndRun()
 	GetModuleFileName(NULL, filename, sizeof(filename));
 	srand(GetTickCount());
 	int r = rand();
-	sprintf_s(random, MAX_PATH, "%s.%d.exe", filename, r);
-	sprintf_s(cmdline, MAX_PATH, "%s %s %s", random, SET_ICON_CMD, filename);
+	sprintf(random, "%s.%d.exe", filename, r);
+	sprintf(cmdline, "%s %s %s", random, SET_ICON_CMD, filename);
 	if(!CopyFile(filename, random, true)) {
 		return;
 	}
