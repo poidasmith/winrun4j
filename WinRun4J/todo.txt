@@ -1,0 +1,120 @@
+
+==== WinRun4J ===========================================================================================
+
+items for V0.1
+- dde support (file assocation)
+- multiple icons in a file
+- console version
+- switch to disable splash screen autohide
+- registry api
+- event log api
+- use of environment variables in ini file
+- windows service support
+- eclipse dde example
+- fix for "." in classpath
+
+
+
+- 64-bit VM version
+- Console version
+- Windows Service version (should be the same executable instead of main.class we have service.class in the INI)
+- need a set of "variables" to use in the INI file:
+    - should allow environment variables like %TEMP%
+    - also allow known variables like ${MODULE_DIR}
+
+- Add WinRun4J --DDERegister / --SetItcon. might want to change this to 
+    --WinRun4J:SetIcon, 
+    --WinRun4J:AddIcon, // adds an icon to the exefile (used for file associations)
+    --WinRun4J:RemoveIcons // remove all icons
+    --WinRun4J:RegisterFileAssociations [.avi .test .hello] (if not specified then register all),
+    --WinRun4J:UnregisterFileAssociations [.avi] (if not specified then register all),
+    --WinRun4J:RegisterService,
+    --WinRun4J:UnregisterService
+    --WinRun4J:Help
+    --WinRun4J:Version
+    --WinRun4J:ExecuteINI (to allow execution of abitrary INIs)
+    --WinRun4J:AddJar
+    --WinRun4J:AddResource
+
+- maybe split out icon setter as standalone tool ?
+- add support for multiple icons and allow app to use different icon for a file association.
+- possibly add more generic DDE support (ie. add JNI interface)?
+- DDE file association:
+    - .myfile
+        * (Default) is "MyFileType"
+    - MyFileType
+        * (Default) is description
+        - DefaultIcon
+        - Shell
+            - open
+                - command
+                    * (Default) is commandline
+            - ddeexec
+                - Application
+                    * (Default) "appname"
+                - Topic
+                    * (Default) "topic"
+
+- WinRun4J DLL providing ?:
+    - excel addin API
+    - control panel applet
+    - COM server or DLL
+    
+                    
+DDE testing
+- loading from zip file doesn't work
+- multiple dde apps (possible clashes with window class, app server name and topic)
+
+- maybe allow embedding jars/resources (and then allow adding jars to classpath via special syntax).
+- maybe allow embedding of ini file 
+- maybe also allow lockdown of commands via embedding a special resource (eg. piece of data with text 'Y')
+    - this would probably create a exename.locked.exe
+- need someway of doing this for xll4j
+
+
+[FileRegistrations]
+file.1.extension=.avi
+file.1.name=AviFile
+file.1.description=AVI Video File
+
+
+- provide a nice registry API 
+- maybe split out registry API into DLL (+ other useful functions eg. Win324J.dll)
+- allow adding of NTEventLog entries
+
+
+
+- DDE example for eclipse:
+    - This will registry icon against appropriate eclipse version
+    - It will only have access to the launcher/osgi startup jar probably so
+      it will have to search for actual jar via some mechanism
+    - Need a plugin to fire this opening of a file (maybe)
+    - We should be able to register against available editors in eclipse
+
+
+
+==== XLL4J ================================================================================================
+
+
+- cleanup of cache objects in registry (via xlbitDLLFree) eg return object of type XLObjectReference.
+- handle multiple xlls (can only create one VM).
+    - few options are:
+        - handle classpaths... (limitation on vmargs)
+        - rebase dll so it doesn't share memory
+        - make a copy of the dll so it is automatically rebased
+- improve documentation/help on functions (include type information). eg "value [double]".
+- free string from call java string method
+- handle row major/column major flags for arrays. 
+- think about using/supporting annotations.
+- handle overloaded functions (maybe with Function1, Function2)
+- add ability to add excel menus/commands
+- add com layer so functions can be used from vba
+- website documentation
+- add a mechanism to ReflectAddin to allow semi-permanent Storage of returned objects (plus a clear/refresh button).
+- add function namespacing option to ini file.
+- work out how event dispatch thread will work with addin menus/commands so that SWT and swing/awt can be used.
+- find out what is wrong with optimised build
+- check compatiblity on XP
+- performance tests
+
+
