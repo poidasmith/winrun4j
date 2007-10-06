@@ -21,15 +21,20 @@
 // WinRun4J.Random.exe --seticon SetIcon WinRun4J.exe
 // WinRun4J.exe --seticon Delete WinRun4J.Random.exe 
 
-#define SET_ICON_CMD "--seticon SetIcon"
-#define DELETE_EXE_CMD "--seticon Delete"
+#define SET_ICON_CMD "--WinRun4J:SetIcon SetIcon"
+#define SET_ICON_DELETE_EXE_CMD "--WinRun4J:SetIcon Delete"
+#define ADD_ICON_CMD "--WinRun4J:AddIcon AddIcon"
+#define ADD_ICON_DELETE_EXE_CMD "--WinRun4J:AddIcon Delete"
+#define REMOVE_ICON_CMD "--WinRun4J:RemoveIcon RemoveIcon"
+#define REMOVE_ICON_DELETE_EXE_CMD "--WinRun4J:RemoveIcon Delete"
+
 
 void Icon::SetExeIcon(LPSTR commandLine)
 {
 	// Work out which operation
 	if(strncmp(commandLine, SET_ICON_CMD, strlen(SET_ICON_CMD)) == 0) {
 		SetIcon(commandLine);
-	} else if(strncmp(commandLine, DELETE_EXE_CMD, strlen(DELETE_EXE_CMD)) == 0) {
+	} else if(strncmp(commandLine, SET_ICON_DELETE_EXE_CMD, strlen(SET_ICON_DELETE_EXE_CMD)) == 0) {
 		DeleteRandomFile(commandLine);
 	} else {
 		CopyToRandomAndRun();
@@ -61,7 +66,7 @@ void Icon::SetIcon(LPSTR commandLine)
 	// Create command line for deleting random file
 	TCHAR random[MAX_PATH], cmd[MAX_PATH];
 	GetModuleFileName(NULL, random, MAX_PATH);
-	sprintf(cmd, "%s %s %s", filename, DELETE_EXE_CMD, random);
+	sprintf(cmd, "%s %s %s", filename, SET_ICON_DELETE_EXE_CMD, random);
 
 	// Now delete the random exe
 	STARTUPINFO si;
@@ -80,8 +85,8 @@ void Icon::CopyToRandomAndRun()
 	GetModuleFileName(NULL, filename, sizeof(filename));
 	srand(GetTickCount());
 	int r = rand();
-	sprintf(random, "%s.%d.exe", filename, r);
-	sprintf(cmdline, "%s %s %s", random, SET_ICON_CMD, filename);
+	sprintf_s(random, MAX_PATH, "%s.%d.exe", filename, r);
+	sprintf_s(cmdline, MAX_PATH, "%s %s %s", random, SET_ICON_CMD, filename);
 	if(!CopyFile(filename, random, true)) {
 		return;
 	}
@@ -139,7 +144,7 @@ bool Icon::LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, G
 {
 	HANDLE hFile = CreateFile(TEXT(iconFile), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(hFile == INVALID_HANDLE_VALUE) {
-		Log::Error("ERROR: Could not open icon file\n");
+		Log::Error("ERROR: Could not open icon file: %s\n", iconFile);
 		return false;
 	}
 

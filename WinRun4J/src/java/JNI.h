@@ -25,7 +25,7 @@ public:
 	static char* CallStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
 	static const bool CallBooleanMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
 	static jstring NewString(JNIEnv *env, TCHAR * str);
-	static jobjectArray CreateRunArgs( JNIEnv *env, TCHAR * args[] );
+	static jobjectArray CreateRunArgs(JNIEnv *env, TCHAR* args[]);
 };
 
 #endif // JNI_UTILS_H

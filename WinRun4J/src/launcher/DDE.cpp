@@ -12,7 +12,7 @@
 #include "../common/Log.h"
 #include "../java/VM.h"
 
-static dictionary* g_ini;
+static dictionary* g_ini = 0;
 static HWND g_hWnd;
 static DWORD g_pidInst = 0;
 static HSZ g_serverName = 0;
@@ -50,7 +50,7 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HDDEDATA hsz1,
 	return 0;
 }
 
-bool DDE::RegisterDDE(dictionary* ini)
+bool DDE::RegisterDDE()
 {
 	// Startup DDE library
 	UINT result = DdeInitialize(&g_pidInst, (PFNCALLBACK) &DdeCallback, 0, 0);
@@ -59,8 +59,12 @@ bool DDE::RegisterDDE(dictionary* ini)
 		return false;
 	}
 
-	g_serverName = DdeCreateStringHandle(g_pidInst, "WinRun4J", CP_WINANSI);
-	g_topic = DdeCreateStringHandle(g_pidInst, "System", CP_WINANSI);    
+	// Check for app/topic override
+	char* appName = iniparser_getstr(g_ini, DDE_APPNAME);
+	char* topic = iniparser_getstr(g_ini, DDE_TOPIC);
+
+	g_serverName = DdeCreateStringHandle(g_pidInst, appName == NULL ? "WinRun4J" : appName, CP_WINANSI);
+	g_topic = DdeCreateStringHandle(g_pidInst, topic == NULL ? "System" : topic, CP_WINANSI);    
 
 	// Register the server
 	DdeNameService(g_pidInst, g_serverName, NULL, DNS_REGISTER);
@@ -72,7 +76,7 @@ DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
 	// Register Window
 	DDE::RegisterWindow((HINSTANCE) lpParam);
 	
-	bool initDde = DDE::RegisterDDE(g_ini);
+	bool initDde = DDE::RegisterDDE();
 	if(!initDde)
 		return 1;
 
@@ -100,10 +104,12 @@ DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
 bool DDE::Initialize(HINSTANCE hInstance, JNIEnv* env, dictionary* ini)
 {
 	// Check for enabled flag
-	g_ini = ini;
 	char* ddeEnabled = iniparser_getstr(ini, DDE_ENABLED);
 	if(ddeEnabled == NULL || strcmp("true", ddeEnabled) != 0)
 		return false;
+
+	// Store ini file reference
+	g_ini = ini;
 
 	// Create Thread to manage the window
 	CreateThread(0, 0, DdeWindowThreadProc, (LPVOID) hInstance, 0, 0);

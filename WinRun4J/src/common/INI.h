@@ -42,6 +42,7 @@ public:
 private:
 	static bool StrTrimInChars(LPSTR trimChars, char c);
 	static void StrTrim(LPSTR str, LPSTR trimChars);
+	static void ExpandVariables(dictionary* ini);
 
 	// JNI functions
 	static jstring GetKey(JNIEnv* env, jobject self, jstring key);

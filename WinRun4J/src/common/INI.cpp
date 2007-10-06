@@ -18,7 +18,7 @@ void INI::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entrie
 	int i = 0;
 	TCHAR entryName[MAX_PATH];
 	while(true) {
-		sprintf(entryName, "%s.%d", keyName, i+1);
+		sprintf_s(entryName, sizeof(entryName), "%s.%d", keyName, i+1);
 		TCHAR* entry = iniparser_getstr(ini, entryName);
 		if(entry != NULL) {
 			entries[index++] = _strdup(entry);
@@ -43,24 +43,54 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance)
 	inifile[len - 1] = 'i';
 	inifile[len - 2] = 'n';
 	inifile[len - 3] = 'i';
+
+	return LoadIniFile(hInstance, inifile);
+}
+
+dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
+{
 	dictionary* ini = iniparser_load(inifile);
-	iniparser_setstr(ini, MODULE_NAME, filename);
+	if(ini == NULL) {
+		Log::Error("Could not load INI file: %s\n", inifile);
+		return NULL;
+	}
+
+	// Expand environment variables
+	ExpandVariables(ini);
+
 	iniparser_setstr(ini, MODULE_INI, inifile);
 
+	// Add module name to ini
+	TCHAR filename[MAX_PATH], filedir[MAX_PATH];
+	GetModuleFileName(hInstance, filename, MAX_PATH);
+	iniparser_setstr(ini, MODULE_NAME, filename);
+
+	// Log init
 	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL));
 	Log::Info("Module Name: %s\n", filename);
 	Log::Info("Module INI: %s\n", inifile);
 
 	// strip off filename to get module directory
-	for(int i = len - 1; i >= 0; i--) {
+	strcpy(filedir, filename);
+	for(int i = strlen(filename) - 1; i >= 0; i--) {
 		if(filedir[i] == '\\') {
 			filedir[i] = 0;
 			break;
 		}
 	}
 	iniparser_setstr(ini, MODULE_DIR, filedir);
-	iniparser_setstr(ini, INI_DIR, filedir);
 	Log::Info("Module Dir: %s\n", filedir);
+
+	// stip off filename to get ini directory
+	strcpy(filedir, inifile);
+	for(int i = strlen(inifile) - 1; i >= 0; i--) {
+		if(filedir[i] == '\\' || filedir[i] == '/') {
+			filedir[i] = 0;
+			break;
+		}
+	}
+	iniparser_setstr(ini, INI_DIR, filedir);
+	Log::Info("INI Dir: %s\n", filedir);
 
 	// Store a reference to be used by JNI functions
 	g_ini = ini;
@@ -68,9 +98,18 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance)
 	return ini;
 }
 
-dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
+void INI::ExpandVariables(dictionary* ini)
 {
-	return NULL;
+	char tmp[4096];
+	for(int i = 0; i < ini->size; i++) {
+		char* key = ini->key[i];
+		char* value = ini->val[i];
+		int size = ExpandEnvironmentStrings(value, tmp, 4096);
+		if(size == 0) {
+			Log::Warning("Could not expand variable: %s\n", value);
+		}
+		iniparser_setstr(ini, key, tmp);
+	}
 }
 
 jobjectArray INI::GetKeys(JNIEnv* env, jobject self)
