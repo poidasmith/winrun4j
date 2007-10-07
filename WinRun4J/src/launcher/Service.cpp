@@ -11,9 +11,17 @@
 #include "Service.h"
 #include "../common/INI.h"
 #include "../common/Log.h"
+#include "../java/JNI.h"
+#include "../java/VM.h"
 
 SERVICE_STATUS g_serviceStatus;
 SERVICE_STATUS_HANDLE g_serviceStatusHandle;
+jclass g_serviceClass;
+jobject g_serviceInstance;
+jmethodID g_controlMethod;
+jmethodID g_controlsAcceptMethod;
+jmethodID g_getNameMethod;
+jmethodID g_mainMethod;
 
 void WINAPI ServiceCtrlHandler(DWORD opCode)
 {
@@ -22,19 +30,18 @@ void WINAPI ServiceCtrlHandler(DWORD opCode)
 	switch(opCode)
 	{
 	case SERVICE_CONTROL_PAUSE:
-		Service::Pause();
+		Service::Control(opCode);
 		g_serviceStatus.dwCurrentState = SERVICE_PAUSED;
 		break;
 
 	case SERVICE_CONTROL_CONTINUE:
-		Service::Start();
+		Service::Control(opCode);
 		g_serviceStatus.dwCurrentState = SERVICE_RUNNING;
 		break;
 
 	case SERVICE_CONTROL_SHUTDOWN:
 	case SERVICE_CONTROL_STOP:
-		result = opCode == SERVICE_CONTROL_SHUTDOWN ? Service::Shutdown() : Service::Stop();
-		g_serviceStatus.dwWin32ExitCode = result;
+		g_serviceStatus.dwWin32ExitCode = Service::Control(opCode);
 		g_serviceStatus.dwCurrentState = SERVICE_STOPPED;
 		g_serviceStatus.dwCheckPoint = 0;
 		g_serviceStatus.dwWaitHint = 0;
@@ -58,33 +65,73 @@ void WINAPI ServiceStart(DWORD argc, LPTSTR *argv)
 {
 	g_serviceStatus.dwServiceType = SERVICE_WIN32;
 	g_serviceStatus.dwCurrentState = SERVICE_START_PENDING;
-	g_serviceStatus.dwControlsAccepted = 0;
-	if(Service::CanHandlePowerEvent()) g_serviceStatus.dwControlsAccepted |= SERVICE_ACCEPT_POWEREVENT;
-	if(Service::CanPauseAndContinue()) g_serviceStatus.dwControlsAccepted |= SERVICE_ACCEPT_PAUSE_CONTINUE;
-	if(Service::CanStop()) g_serviceStatus.dwControlsAccepted |= SERVICE_ACCEPT_STOP;
-	if(Service::CanShutdown()) g_serviceStatus.dwControlsAccepted |= SERVICE_ACCEPT_SHUTDOWN;
+	g_serviceStatus.dwControlsAccepted = Service::GetControlsAccepted();
 	g_serviceStatus.dwWin32ExitCode = 0;
 	g_serviceStatus.dwServiceSpecificExitCode = 0;
 	g_serviceStatus.dwWaitHint = 0;
 
-	g_serviceStatusHandle = RegisterServiceCtrlHandler(Service::GetName(), ServiceCtrlHandler);
+	// Register the service
+	g_serviceStatusHandle = RegisterServiceCtrlHandler(Service::GetName(), 
+		ServiceCtrlHandler);
 
 	if(g_serviceStatusHandle == (SERVICE_STATUS_HANDLE)0)
 	{
 		Log::Error("Error registering service control handler: %d\n", GetLastError());
 		return;
 	}
+
+	Service::Main(argc, argv);
 }
 
 int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
 {
-	char* serviceName = GetName();
+	// Initialise JNI members
+	JNIEnv* env = VM::GetJNIEnv();
+	g_serviceClass = env->FindClass(iniparser_getstr(ini, SERVICE_CLASS));
+	if(g_serviceClass == NULL) {
+		Log::Error("Could not find service class\n");
+		return 1;
+	}
+
+	g_serviceInstance = env->NewObject(g_serviceClass, env->GetMethodID(g_serviceClass, "<init>", "()V"));
+	if(g_serviceInstance == NULL) {
+		Log::Error("Could not create service class\n");
+		return 1;
+	}
+
+	g_controlMethod = env->GetMethodID(g_serviceClass, "control", "(I)V");
+	if(g_controlMethod == NULL) {
+		Log::Error("Could not find control method class\n");
+		return 1;
+	}
+
+	g_controlsAcceptMethod = env->GetMethodID(g_serviceClass, "getControlsAccepted", "()I");
+	if(g_controlsAcceptMethod == NULL) {
+		Log::Error("Could not find control getControlsAccepted class\n");
+		return 1;
+	}
+
+	g_getNameMethod = env->GetMethodID(g_serviceClass, "getName", "()Ljava/lang/String;");
+	if(g_getNameMethod == NULL) {
+		Log::Error("Could not find control getName class\n");
+		return 1;
+	}
+
+	g_mainMethod = env->GetMethodID(g_serviceClass, "main", "([Ljava/lang/String;)V");
+	if(g_mainMethod == NULL) {
+		Log::Error("Could not find control main class\n");
+		return 1;
+	}
+
+	const char* serviceName = GetName();
 	if(serviceName == NULL) {
 		Log::Error("Could not find service name\n");
 		return 1;
 	}
 	
-	SERVICE_TABLE_ENTRY dispatchTable[] = { { serviceName, ServiceStart }, { NULL, NULL } };
+	SERVICE_TABLE_ENTRY dispatchTable[] = { 
+		{ (LPSTR) serviceName, ServiceStart }, { NULL, NULL } 
+	};
 
 	if(!StartServiceCtrlDispatcher(dispatchTable)) {
 		Log::Error("Service control dispatcher error: %d\n", GetLastError());
@@ -100,47 +147,36 @@ void Service::Unregister(LPSTR lpCmdLine)
 {
 }
 
-char* Service::GetName()
+const char* Service::GetName()
 {
-	return 0;
+	JNIEnv* env = VM::GetJNIEnv();
+	jstring name = (jstring) env->CallObjectMethod(g_serviceInstance, g_getNameMethod);
+	jboolean iscopy = false;
+	return env->GetStringUTFChars(name, &iscopy);
 }
 
-bool Service::CanHandlePowerEvent()
+int Service::GetControlsAccepted()
 {
-	return false;
+	JNIEnv* env = VM::GetJNIEnv();
+	return env->CallIntMethod(g_serviceInstance, g_controlsAcceptMethod);
 }
 
-bool Service::CanPauseAndContinue()
+int Service::Control(DWORD opCode)
 {
-	return false;
+	JNIEnv* env = VM::GetJNIEnv();
+	return env->CallIntMethod(g_serviceInstance, g_controlsAcceptMethod, (jint) opCode);
 }
 
-bool Service::CanShutdown()
+int Service::Main(DWORD argc, LPSTR* argv)
 {
-	return false;
-}
+	JNIEnv* env = VM::GetJNIEnv();
 
-bool Service::CanStop()
-{
-	return false;
-}
+	// Create the run args
+	jclass stringClass = env->FindClass("java/lang/String");
+	jobjectArray args = env->NewObjectArray(argc - 1, stringClass, NULL);
+	for(int i = 0; i < argc - 1; i++) {
+		env->SetObjectArrayElement(args, i, env->NewStringUTF(argv[i]));
+	}
 
-int Service::Pause()
-{
-	return 0;
-}
-
-int Service::Start()
-{
-	return 0;
-}
-
-int Service::Stop()
-{
-	return 0;
-}
-
-int Service::Shutdown()
-{
-	return 0;
+	return env->CallIntMethod(g_serviceInstance, g_mainMethod, args);
 }

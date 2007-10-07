@@ -24,12 +24,13 @@
 
 // Ini keys
 #define WORKING_DIR ":working.directory"
-#define MAIN_CLASS ":main.class"
 #define LOG_FILE ":log"
 #define LOG_LEVEL ":log.level"
 #define CLASS_PATH ":classpath"
 #define VM_ARG ":vmarg"
 #define PROG_ARG ":arg"
+#define MAIN_CLASS ":main.class"
+#define SERVICE_CLASS ":service.class"
 
 class INI
 {

@@ -19,19 +19,13 @@ class Service
 public:
 	static void Register(LPSTR lpCmdLine);
 	static void Unregister(LPSTR lpCmdLine);
-	int static Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[]);
+	static int Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[]);
 
 	// Internal methods
-	static int Initialize();
-	static int Pause();
-	static int Start();
-	static int Stop();
-	static int Shutdown();
-	static char* GetName();
-	static bool CanHandlePowerEvent();
-	static bool CanPauseAndContinue();
-	static bool CanStop();
-	static bool CanShutdown();
+	static const char* GetName();
+	static int GetControlsAccepted();
+	static int Control(DWORD opCode);
+	static int Main(DWORD argc, LPSTR* argv);
 };
 
 #endif // SERVICE_H

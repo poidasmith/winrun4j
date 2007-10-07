@@ -218,8 +218,13 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	vmargs[vmargsCount] = NULL;
 	progargs[progargsCount] = NULL;
 
-	// Fix main class - ie. replace x.y.z with x/y/z for use in jni
 	char* mainClass = iniparser_getstr(ini, MAIN_CLASS);
+
+	// If we don't have a main class we might have a service class
+	if(mainClass == NULL)
+		mainClass = iniparser_getstr(ini, SERVICE_CLASS);
+
+	// Fix main class - ie. replace x.y.z with x/y/z for use in jni
 	if(mainClass != NULL) {
 		int len = strlen(mainClass);
 		for(int i = 0; i < len; i++) {
@@ -305,8 +310,12 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	// Startup DDE if requested
 	bool ddeInit = DDE::Initialize(hInstance, env, ini);
 
-	// Run the main class
-	JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
+	// Run the main class (or service class)
+	char* serviceCls = iniparser_getstr(ini, SERVICE_CLASS);
+	if(serviceCls != NULL)
+		Service::Run(hInstance, ini, progargsCount, progargs);
+	else
+		JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
 	// Free the args memory
 	WinRun4J::FreeArgs();
