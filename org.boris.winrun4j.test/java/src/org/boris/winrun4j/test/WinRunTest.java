@@ -55,13 +55,15 @@ public class WinRunTest {
             sb.append("\n");
         }
         
+        // Test logger
         Log.info("INFO: test1\n");
         Log.warning("WARN: test2\n");
         Log.error("ERR: test3\n");
-        EventLog.report("WinRun4J Test", EventLog.INFORMATION, "A test information log");
         Log.setLastError("Last Error Test");
-        sb.append(Log.getLastError());
+        sb.append("\nLast Error:" + Log.getLastError() + "\n");
         
+        // Test event log
+        EventLog.report("WinRun4J Test", EventLog.INFORMATION, "A test information log");
         
         text.setText(sb.toString());
         frame.getContentPane().add(new JScrollPane(text));
