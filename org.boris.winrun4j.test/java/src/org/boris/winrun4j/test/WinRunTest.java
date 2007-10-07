@@ -67,7 +67,7 @@ public class WinRunTest {
         frame.getContentPane().add(new JScrollPane(text));
         frame.setSize(500, 500);
         frame.setLocation(30, 30);
-        Thread.sleep(5000); // for the splash screen
+        //Thread.sleep(5000); // for the splash screen
         frame.setVisible(true);
         System.out.println("Testing stdout stream redirection from Java");
         System.err.println("Testing stderr stream redirection from Java");
