@@ -8,7 +8,7 @@ import org.boris.winrun4j.ServiceException;
 /**
  * A basic service.
  */
-public class ServiceTest implements Service, Runnable {
+public class ServiceTest implements Service {
     private int returnCode = 0;
     private boolean shutdown = false;
     
@@ -17,7 +17,7 @@ public class ServiceTest implements Service, Runnable {
      */
     public int doRequest(int request) throws ServiceException {
         switch(request) {
-        case SERVICE_ACCEPT_SHUTDOWN:
+        case SERVICE_CONTROL_SHUTDOWN:
             shutdown = true;
             break;
         }
@@ -42,25 +42,6 @@ public class ServiceTest implements Service, Runnable {
      * @see org.boris.winrun4j.Service#main(java.lang.String[])
      */
     public int main(String[] args) throws ServiceException {
-        Thread t = new Thread(this);
-        t.setDaemon(true);
-        t.start();
-        
-        try {
-            synchronized(this) {
-                wait();
-            }
-        } catch (Exception e) {
-            throw new ServiceException(e);
-        }
-        
-        return returnCode;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Runnable#run()
-     */
-    public void run() {
         while(!shutdown) {
             try {
                 Thread.sleep(60000);
@@ -69,5 +50,7 @@ public class ServiceTest implements Service, Runnable {
             
             EventLog.report("WinRun4J Test Service", EventLog.INFORMATION, "Ping");
         }
+        
+        return returnCode;
     }
 }
