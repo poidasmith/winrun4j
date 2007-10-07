@@ -17,8 +17,8 @@
 //  3. replace the icon of the original filename
 //  4. execute the original to delete the random filename
 
-// WinRun4J.exe --seticon
-// WinRun4J.Random.exe --seticon SetIcon WinRun4J.exe
+// WinRun4J.exe --WinRun4J:SetIcon
+// WinRun4J.Random.exe --WinRun4J:SetIcon SetIcon WinRun4J.exe
 // WinRun4J.exe --seticon Delete WinRun4J.Random.exe 
 
 #define SET_ICON_CMD "--WinRun4J:SetIcon SetIcon"
@@ -37,7 +37,7 @@ void Icon::SetExeIcon(LPSTR commandLine)
 	} else if(strncmp(commandLine, SET_ICON_DELETE_EXE_CMD, strlen(SET_ICON_DELETE_EXE_CMD)) == 0) {
 		DeleteRandomFile(commandLine);
 	} else {
-		CopyToRandomAndRun();
+		CopyToRandomAndRun(SET_ICON_CMD);
 	}
 }
 
@@ -79,14 +79,14 @@ void Icon::SetIcon(LPSTR commandLine)
 }
 
 // Create a random filename based on original and call set icon on this executable
-void Icon::CopyToRandomAndRun() 
+void Icon::CopyToRandomAndRun(LPSTR command) 
 {
 	TCHAR filename[MAX_PATH], random[MAX_PATH], cmdline[MAX_PATH];
 	GetModuleFileName(NULL, filename, sizeof(filename));
 	srand(GetTickCount());
 	int r = rand();
 	sprintf(random, "%s.%d.exe", filename, r);
-	sprintf(cmdline, "%s %s %s", random, SET_ICON_CMD, filename);
+	sprintf(cmdline, "%s %s %s", random, command, filename);
 	if(!CopyFile(filename, random, true)) {
 		return;
 	}
@@ -193,12 +193,9 @@ bool Icon::AddIcon(LPSTR exeFile, LPSTR iconFile)
 	return false;
 }
 
-bool Icon::RemoveIcon(LPSTR exeFile, int index)
-{
-	return false;
-}
-
 bool Icon::RemoveIcons(LPSTR exeFile)
 {
 	return false;
 }
+
+
