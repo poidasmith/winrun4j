@@ -24,6 +24,7 @@ static jmethodID g_methodID;
 // INI keys
 #define DDE_CLASS ":dde.class"
 #define DDE_ENABLED ":dde.enabled"
+#define DDE_WINDOW_CLASS ":dde.window.class"
 #define DDE_SERVER_NAME ":dde.server.name"
 #define DDE_TOPIC ":dde.topic"
 
@@ -80,11 +81,13 @@ DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
 	if(!initDde)
 		return 1;
 
+	char* clsName = iniparser_getstr(g_ini, DDE_WINDOW_CLASS);
+
 	// Create window
 	g_hWnd = CreateWindowEx(
 		0, 
 		"WinRun4J.DDEWndClass", 
-		"WinRun4J.DDEWindow", 
+		clsName == NULL ? "WinRun4J.DDEWndClass" : clsName, 
 		0, 
 		0, 0,
 		0, 0, 
@@ -149,7 +152,8 @@ void DDE::RegisterWindow(HINSTANCE hInstance)
 	wcx.hCursor = ::LoadCursor(NULL, IDC_WAIT);
 	wcx.hbrBackground = (HBRUSH)::GetStockObject(LTGRAY_BRUSH);
 	wcx.lpszMenuName = 0;
-	wcx.lpszClassName = "WinRun4J.DDEWndClass";
+	char* clsName = iniparser_getstr(g_ini, DDE_WINDOW_CLASS);
+	wcx.lpszClassName = clsName == NULL ? "WinRun4J.DDEWndClass" : clsName;
 	wcx.hIconSm = 0;
 
 	if(!RegisterClassEx(&wcx)) {

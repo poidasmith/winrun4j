@@ -188,14 +188,98 @@ bool Icon::LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, G
 	return true;
 }
 
+void Icon::AddExeIcon(LPSTR commandLine)
+{
+	// Work out which operation
+	if(strncmp(commandLine, ADD_ICON_CMD, strlen(ADD_ICON_CMD)) == 0) {
+		SetIcon(commandLine);
+	} else if(strncmp(commandLine, ADD_ICON_DELETE_EXE_CMD, strlen(ADD_ICON_DELETE_EXE_CMD)) == 0) {
+		DeleteRandomFile(commandLine);
+	} else {
+		CopyToRandomAndRun(ADD_ICON_CMD);
+	}
+}
+
 bool Icon::AddIcon(LPSTR exeFile, LPSTR iconFile)
 {
+	// Read icon file
+	ICONHEADER* pHeader;
+	ICONIMAGE** pIcons;
+	GRPICONHEADER* pGrpHeader;
+	bool res = LoadIcon(iconFile, pHeader, pIcons, pGrpHeader);
+	if(!res) {
+		return false;
+	}
+
+	HMODULE hModule = GetModuleHandle(exeFile);
+	if(hModule == NULL) {
+		return false;
+	}
+	
+	// Find next resource id
+	int nextId = FindNextId(hModule);
+
+	// Copy in resources
+	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
+
+	// Copy in icon group resource
+	UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(nextId++), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+		pGrpHeader, sizeof(WORD)*3+pHeader->count*sizeof(GRPICONENTRY));
+
+	// Copy in icons
+	for(int i = 0; i < pHeader->count; i++) {
+		UpdateResource(hUpdate, RT_ICON, MAKEINTRESOURCE(i + nextId + 1), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+			pIcons[i + nextId], pHeader->entries[i + nextId].bytesInRes);
+	}
+
+	// Commit the changes
+	EndUpdateResource(hUpdate, FALSE);
+
 	return false;
+}
+
+void Icon::RemoveExeIcons(LPSTR commandLine)
+{
+	// Work out which operation
+	if(strncmp(commandLine, REMOVE_ICON_CMD, strlen(REMOVE_ICON_CMD)) == 0) {
+		RemoveIcons(commandLine);
+	} else if(strncmp(commandLine, REMOVE_ICON_DELETE_EXE_CMD, strlen(REMOVE_ICON_DELETE_EXE_CMD)) == 0) {
+		DeleteRandomFile(commandLine);
+	} else {
+		CopyToRandomAndRun(REMOVE_ICON_CMD);
+	}
 }
 
 bool Icon::RemoveIcons(LPSTR exeFile)
 {
+	HMODULE hModule = GetModuleHandle(exeFile);
+	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
+
+	for(int i = 1; ; i++) {
+		HRSRC hsrc = FindResource(hModule, MAKEINTRESOURCE(i), RT_GROUP_ICON);
+		if(hsrc != NULL) {
+			UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(i), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 0, 0);
+		} else {
+			hsrc = FindResource(hModule, MAKEINTRESOURCE(i), RT_ICON);
+			if(hsrc != NULL) {
+				UpdateResource(hUpdate, RT_ICON, MAKEINTRESOURCE(i), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 0, 0);
+			} else {
+				break;
+			}
+		}
+	}
+
 	return false;
 }
 
-
+int Icon::FindNextId(HMODULE hModule)
+{
+	for(int i = 1; ; i++) {
+		HRSRC hsrc = FindResource(hModule, MAKEINTRESOURCE(i), RT_GROUP_ICON);
+		if(hsrc == NULL) {
+			hsrc = FindResource(hModule, MAKEINTRESOURCE(i), RT_ICON);
+		}
+		if(hsrc == NULL)
+			return i;
+	}
+}

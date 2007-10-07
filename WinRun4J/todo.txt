@@ -33,6 +33,7 @@ items for V0.1
     --WinRun4J:ExecuteINI (to allow execution of abitrary INIs)
     --WinRun4J:AddJar
     --WinRun4J:AddResource
+    --WinRun4J:RemoveAllResources (remove all embedded resources including icons, jar, etc..)
 
 - maybe split out icon setter as standalone tool ?
 - add support for multiple icons and allow app to use different icon for a file association.

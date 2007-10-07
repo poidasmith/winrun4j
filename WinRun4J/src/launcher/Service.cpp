@@ -31,8 +31,9 @@ void WINAPI ServiceCtrlHandler(DWORD opCode)
 		g_serviceStatus.dwCurrentState = SERVICE_RUNNING;
 		break;
 
+	case SERVICE_CONTROL_SHUTDOWN:
 	case SERVICE_CONTROL_STOP:
-		result = Service::Stop();
+		result = opCode == SERVICE_CONTROL_SHUTDOWN ? Service::Shutdown() : Service::Stop();
 		g_serviceStatus.dwWin32ExitCode = result;
 		g_serviceStatus.dwCurrentState = SERVICE_STOPPED;
 		g_serviceStatus.dwCheckPoint = 0;

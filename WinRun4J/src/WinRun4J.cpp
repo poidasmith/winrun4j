@@ -326,18 +326,11 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 #ifdef CONSOLE
 int main(int argc, char* argv[])
 {
-	char lpCmdLine[4096];
-	for(int i = 0; i < argc; i++) {
-		strcat(lpCmdLine, "\"");
-		strcat(lpCmdLine, argv[i]);
-		strcat(lpCmdLine, "\" ");
-	}
+	char* lpCmdLine = GetCommandLine();
 	HINSTANCE hInstance = (HINSTANCE) GetModuleHandle(NULL);
 #else
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
 {
-	int argc = 0;
-	char** argv = 0;
 #endif
 
 	// Initialise the logger using std streams
