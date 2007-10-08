@@ -207,7 +207,7 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	INI::GetNumberedKeysFromIni(ini, PROG_ARG, progargs, progargsCount);
 
 	// Add the args from commandline
-	WinRun4J::ParseCommandLine(lpCmdLine, progargs, progargsCount);
+	WinRun4J::ParseCommandLine(lpCmdLine, progargs, progargsCount, true);
 
 	// Log the commandline args
 	for(int i = 0; i < progargsCount; i++) {
@@ -330,22 +330,6 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	if(ddeInit) DDE::Uninitialize();
 
 	return result;
-}
-
-LPSTR StripArg0(LPSTR lpCmdLine)
-{
-	int len = strlen(lpCmdLine);
-	bool found = false;
-	int i = 0;
-	for(; i < len; i++) {
-		char c = lpCmdLine[i];
-		if(c == '\"') {
-			found = !found;
-		} else if(c == ' ') {
-			if(!found) break;
-		}
-	}
-	return i == len ? &lpCmdLine[i] : &lpCmdLine[i + 1];
 }
 
 #ifdef CONSOLE

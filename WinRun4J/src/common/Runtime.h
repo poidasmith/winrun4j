@@ -19,4 +19,7 @@
 #pragma comment(linker, "/ALIGN:0x200")
 #endif
 
+extern LPSTR _cdecl StripArg0(LPSTR lpCmdLine);
+extern size_t _cdecl FindNextArg(LPSTR lpCmdLine, size_t start, size_t len);
+
 #endif 

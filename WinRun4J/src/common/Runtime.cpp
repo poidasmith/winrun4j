@@ -11,6 +11,30 @@
 #include "Runtime.h"
 #include <stdio.h>
 
+extern LPSTR _cdecl StripArg0(LPSTR lpCmdLine)
+{
+	int len = strlen(lpCmdLine);
+	int point = FindNextArg(lpCmdLine, 0, len);
+
+	return &lpCmdLine[point];
+}
+
+extern size_t _cdecl FindNextArg(LPSTR lpCmdLine, size_t start, size_t len)
+{
+	bool found = false;
+
+	for(; start < len; start++) {
+		char c = lpCmdLine[start];
+		if(c == '\"') {
+			found = !found;
+		} else if(c == ' ') {
+			if(!found) break;
+		}
+	}
+	return start == len ? start : start + 1;
+}
+
+
 #ifdef TINY
 
 extern "C" char * _cdecl strdup(const char *str)

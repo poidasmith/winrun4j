@@ -139,12 +139,34 @@ int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
 	}
 }
 
+// We expect the commandline to be "--WinRun4J:RegisterService <name> <display>"
 void Service::Register(LPSTR lpCmdLine)
 {
+	TCHAR name[MAX_PATH], display[MAX_PATH], path[MAX_PATH];
+	int len = strlen(lpCmdLine);
+	int iname = FindNextArg(lpCmdLine, 0, len);
+	int idisp = FindNextArg(lpCmdLine, iname, len);
+	strncpy(name, &lpCmdLine[iname], idisp - iname);
+	strcpy(display, &lpCmdLine[idisp]);
+	GetModuleFileName(NULL, path, MAX_PATH);
+	SC_HANDLE h = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
+	SC_HANDLE s = CreateService(h, name, display, SERVICE_ALL_ACCESS, 
+		SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START,
+		SERVICE_ERROR_NORMAL, path, NULL, NULL, NULL, NULL, NULL);
+	CloseServiceHandle(s);
+	CloseServiceHandle(h);
 }
 
+// We expect the commandline to be "--WinRun4J:UnregisterService <name>"
 void Service::Unregister(LPSTR lpCmdLine)
 {
+	TCHAR name[MAX_PATH];
+	int len = strlen(lpCmdLine);
+	int iname = FindNextArg(lpCmdLine, 0, len);
+	strcpy(name, &lpCmdLine[iname]);
+	SC_HANDLE h = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
+	SC_HANDLE s = OpenService(h, name, SC_MANAGER_ALL_ACCESS);
+	DeleteService(s);
 }
 
 const char* Service::GetName()
