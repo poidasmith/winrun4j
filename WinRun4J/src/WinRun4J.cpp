@@ -332,15 +332,32 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	return result;
 }
 
+LPSTR StripArg0(LPSTR lpCmdLine)
+{
+	int len = strlen(lpCmdLine);
+	bool found = false;
+	int i = 0;
+	for(; i < len; i++) {
+		char c = lpCmdLine[i];
+		if(c == '\"') {
+			found = !found;
+		} else if(c == ' ') {
+			if(!found) break;
+		}
+	}
+	return i == len ? &lpCmdLine[i] : &lpCmdLine[i + 1];
+}
+
 #ifdef CONSOLE
 int main(int argc, char* argv[])
 {
-	char* lpCmdLine = GetCommandLine();
+	LPSTR lpCmdLine = StripArg0(GetCommandLine());
 	HINSTANCE hInstance = (HINSTANCE) GetModuleHandle(NULL);
 #else
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
 {
 #endif
+	lpCmdLine = StripArg0(GetCommandLine());
 
 	// Initialise the logger using std streams
 	Log::Init(hInstance, NULL, NULL);

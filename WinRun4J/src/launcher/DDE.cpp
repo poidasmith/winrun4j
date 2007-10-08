@@ -33,8 +33,8 @@ LRESULT CALLBACK DdeMainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HDDEDATA hsz1,
-    HDDEDATA hsz2, HDDEDATA hdata, HDDEDATA dwData1, HDDEDATA dwData2)
+HDDEDATA CALLBACK DdeCallback(UINT uType, UINT /*uFmt*/, HCONV /*hconv*/, HDDEDATA hsz1,
+    HDDEDATA hsz2, HDDEDATA hdata, HDDEDATA /*dwData1*/, HDDEDATA /*dwData2*/)
 {
 	switch (uType)
 	{     
@@ -86,8 +86,8 @@ DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
 	// Create window
 	g_hWnd = CreateWindowEx(
 		0, 
-		"WinRun4J.DDEWndClass", 
 		clsName == NULL ? "WinRun4J.DDEWndClass" : clsName, 
+		"WinRun4J.DDEWindow", 
 		0, 
 		0, 0,
 		0, 0, 
