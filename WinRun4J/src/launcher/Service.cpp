@@ -21,6 +21,7 @@ jobject g_serviceInstance;
 jmethodID g_controlMethod;
 jmethodID g_controlsAcceptMethod;
 jmethodID g_getNameMethod;
+jmethodID g_getDescriptionMethod;
 jmethodID g_mainMethod;
 
 void WINAPI ServiceCtrlHandler(DWORD opCode)
@@ -83,7 +84,7 @@ void WINAPI ServiceStart(DWORD argc, LPTSTR *argv)
 	Service::Main(argc, argv);
 }
 
-int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
+int Service::Initialise(dictionary* ini)
 {
 	// Initialise JNI members
 	JNIEnv* env = VM::GetJNIEnv();
@@ -117,18 +118,34 @@ int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
 		return 1;
 	}
 
+	g_getDescriptionMethod = env->GetMethodID(g_serviceClass, "getDescription", "()Ljava/lang/String;");
+	if(g_getNameMethod == NULL) {
+		Log::Error("Could not find control getDescription class\n");
+		return 1;
+	}
+
 	g_mainMethod = env->GetMethodID(g_serviceClass, "main", "([Ljava/lang/String;)V");
 	if(g_mainMethod == NULL) {
 		Log::Error("Could not find control main class\n");
 		return 1;
 	}
 
+	return 0;
+}
+
+int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
+{
+	int result = Initialise(ini);
+	if(result != 0) {
+		return result;
+	}
+	
 	const char* serviceName = GetName();
 	if(serviceName == NULL) {
 		Log::Error("Could not find service name\n");
 		return 1;
 	}
-	
+
 	SERVICE_TABLE_ENTRY dispatchTable[] = { 
 		{ (LPSTR) serviceName, ServiceStart }, { NULL, NULL } 
 	};
@@ -137,42 +154,57 @@ int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
 		Log::Error("Service control dispatcher error: %d\n", GetLastError());
 		return 2;
 	}
+
+	return 0;
 }
 
-// We expect the commandline to be "--WinRun4J:RegisterService <name> <display>"
-void Service::Register(LPSTR lpCmdLine)
+// We expect the commandline to be "--WinRun4J:RegisterService"
+int Service::Register(dictionary* ini)
 {
-	TCHAR name[MAX_PATH], display[MAX_PATH], path[MAX_PATH];
-	int len = strlen(lpCmdLine);
-	int iname = FindNextArg(lpCmdLine, 0, len);
-	int idisp = FindNextArg(lpCmdLine, iname, len);
-	strncpy(name, &lpCmdLine[iname], idisp - iname);
-	strcpy(display, &lpCmdLine[idisp]);
+	int result = Initialise(ini);
+	if(result != 0) {
+		return result;
+	}
+
+	TCHAR path[MAX_PATH];
 	GetModuleFileName(NULL, path, MAX_PATH);
 	SC_HANDLE h = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
-	SC_HANDLE s = CreateService(h, name, display, SERVICE_ALL_ACCESS, 
+	SC_HANDLE s = CreateService(h, GetName(), GetDescription(), SERVICE_ALL_ACCESS, 
 		SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START,
 		SERVICE_ERROR_NORMAL, path, NULL, NULL, NULL, NULL, NULL);
 	CloseServiceHandle(s);
 	CloseServiceHandle(h);
+
+	return 0;
 }
 
-// We expect the commandline to be "--WinRun4J:UnregisterService <name>"
-void Service::Unregister(LPSTR lpCmdLine)
+// We expect the commandline to be "--WinRun4J:UnregisterService"
+int Service::Unregister(dictionary* ini)
 {
-	TCHAR name[MAX_PATH];
-	int len = strlen(lpCmdLine);
-	int iname = FindNextArg(lpCmdLine, 0, len);
-	strcpy(name, &lpCmdLine[iname]);
+	int result = Initialise(ini);
+	if(result != 0) {
+		return result;
+	}
+
 	SC_HANDLE h = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
-	SC_HANDLE s = OpenService(h, name, SC_MANAGER_ALL_ACCESS);
+	SC_HANDLE s = OpenService(h, GetName(), SC_MANAGER_ALL_ACCESS);
 	DeleteService(s);
+	
+	return 0;
 }
 
 const char* Service::GetName()
 {
 	JNIEnv* env = VM::GetJNIEnv();
 	jstring name = (jstring) env->CallObjectMethod(g_serviceInstance, g_getNameMethod);
+	jboolean iscopy = false;
+	return env->GetStringUTFChars(name, &iscopy);
+}
+
+const char* Service::GetDescription()
+{
+	JNIEnv* env = VM::GetJNIEnv();
+	jstring name = (jstring) env->CallObjectMethod(g_serviceInstance, g_getDescriptionMethod);
 	jboolean iscopy = false;
 	return env->GetStringUTFChars(name, &iscopy);
 }

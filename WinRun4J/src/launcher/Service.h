@@ -17,15 +17,20 @@
 class Service
 {
 public:
-	static void Register(LPSTR lpCmdLine);
-	static void Unregister(LPSTR lpCmdLine);
+	static int Register(dictionary* ini);
+	static int Unregister(dictionary* ini);
 	static int Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[]);
 
 	// Internal methods
 	static const char* GetName();
+	static const char* GetDescription();
 	static int GetControlsAccepted();
 	static int Control(DWORD opCode);
 	static int Main(DWORD argc, LPSTR* argv);
+
+private:
+	static int Initialise(dictionary* ini);
+	
 };
 
 #endif // SERVICE_H

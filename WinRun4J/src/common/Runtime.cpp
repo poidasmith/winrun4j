@@ -11,6 +11,11 @@
 #include "Runtime.h"
 #include <stdio.h>
 
+extern bool _cdecl StartsWith(LPSTR str, LPSTR substr)
+{
+	return strncmp(str, substr, strlen(substr)) == 0;
+}
+
 extern LPSTR _cdecl StripArg0(LPSTR lpCmdLine)
 {
 	int len = strlen(lpCmdLine);

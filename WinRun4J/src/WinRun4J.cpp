@@ -125,36 +125,42 @@ void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, bool 
 int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 {
 	// Check for SetIcon util request
-	if(strncmp(lpCmdLine, "--WinRun4J:SetIcon", 20) == 0) {
+	if(StartsWith(lpCmdLine, "--WinRun4J:SetIcon")) {
 		Icon::SetExeIcon(lpCmdLine);
 		return 0;
 	}
 
 	// Check for RegisterDDE util request
-	if(strncmp(lpCmdLine, "--WinRun4J:RegisterFileAssociations", 23) == 0) {
+	if(StartsWith(lpCmdLine, "--WinRun4J:RegisterFileAssociations")) {
 		DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
 		return 0;
 	}
 
 	// Check for UnregisterDDE util request
-	if(strncmp(lpCmdLine, "--WinRun4J:UnregisterFileAssociations", 25) == 0) {
+	if(StartsWith(lpCmdLine, "--WinRun4J:UnregisterFileAssociations")) {
 		DDE::UnregisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
 		return 0;
 	}
 
 	// Check for Register Service util request
-	if(strncmp(lpCmdLine, "--WinRun4J:RegisterService", 27) == 0) {
-		Service::Register(lpCmdLine);
+	if(StartsWith(lpCmdLine, "--WinRun4J:RegisterService")) {
+		dictionary* ini = INI::LoadIniFile(hInstance);
+		if(ini == NULL) 
+			return 1;
+		Service::Register(ini);
 		return 0;
 	}
 
 	// Check for Unregister Service util request
-	if(strncmp(lpCmdLine, "--WinRun4J:UnregisterService", 29) == 0) {
-		Service::Unregister(lpCmdLine);
+	if(StartsWith(lpCmdLine, "--WinRun4J:UnregisterService")) {
+		dictionary* ini = INI::LoadIniFile(hInstance);
+		if(ini == NULL) 
+			return 1;
+		Service::Unregister(ini);
 		return 0;
 	}
 
-	if(strncmp(lpCmdLine, "--WinRun4J:ExecuteINI", 23) == 0) {
+	if(StartsWith(lpCmdLine, "--WinRun4J:ExecuteINI")) {
 		return WinRun4J::ExecuteINI(hInstance, lpCmdLine);
 	}
 
