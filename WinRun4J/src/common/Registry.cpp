@@ -31,11 +31,16 @@ jlong Registry::OpenKey(JNIEnv* env, jobject self, jlong rootKey, jstring subKey
 
 void Registry::CloseKey(JNIEnv* env, jobject self, jlong handle)
 {
+	if(handle == 0)
+		return;
 	RegCloseKey((HKEY) handle);
 }
 
 jobjectArray Registry::GetSubKeyNames(JNIEnv* env, jobject self, jlong handle)
 {
+	if(handle == 0)
+		return 0;
+
 	DWORD keyCount = 0;
 	LONG result = RegQueryInfoKey((HKEY) handle, NULL, NULL, NULL, &keyCount, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 	if(result != ERROR_SUCCESS) {
@@ -58,8 +63,11 @@ jobjectArray Registry::GetSubKeyNames(JNIEnv* env, jobject self, jlong handle)
 
 jobjectArray Registry::GetValueNames(JNIEnv* env, jobject self, jlong handle)
 {
+	if(handle == 0)
+		return 0;
+
 	DWORD valueCount = 0;
-	LONG result = RegQueryInfoKey((HKEY) handle, NULL, NULL, NULL, NULL, NULL, &valueCount, NULL, NULL, NULL, NULL, NULL);
+	LONG result = RegQueryInfoKey((HKEY) handle, NULL, NULL, NULL, NULL, NULL, NULL, &valueCount, NULL, NULL, NULL, NULL);
 	if(result != ERROR_SUCCESS) {
 		return NULL;
 	}
@@ -86,13 +94,36 @@ void Registry::DeleteValue(JNIEnv* env, jobject self, jlong parent, jstring name
 {
 }
 
-jint Registry::GetType(JNIEnv* env, jobject self, jlong parent, jstring name)
+jlong Registry::GetType(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
-	return 0;
+	if(parent == 0)
+		return 0;
+
+	jboolean iscopy = false;
+	const char* str = env->GetStringUTFChars(name, &iscopy);
+	DWORD type = 0;
+	LONG result = RegQueryValueEx((HKEY) parent, str, NULL, &type, NULL, NULL);
+	env->ReleaseStringUTFChars(name, str);
+	if(result == ERROR_SUCCESS)
+		return type;
+	else 
+		return 0;
 }
 
 jstring Registry::GetString(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
+	if(parent == 0)
+		return 0;
+
+	jboolean iscopy = false;
+	const char* str = env->GetStringUTFChars(name, &iscopy);
+	DWORD type = 0;
+	LONG result = RegQueryValueEx((HKEY) parent, str, NULL, &type, NULL, NULL);
+	env->ReleaseStringUTFChars(name, str);
+	if(result == ERROR_SUCCESS)
+		return type;
+	else 
+		return 0;
 	return 0;
 }
 
@@ -196,7 +227,7 @@ bool Registry::RegisterNatives(JNIEnv *env)
 	methods[10].signature = "(J)[Ljava/lang/String;";
 	methods[11].fnPtr = GetType;
 	methods[11].name = "getType";
-	methods[11].signature = "(JLjava/lang/String;)I";
+	methods[11].signature = "(JLjava/lang/String;)J";
 	methods[12].fnPtr = GetValueNames;
 	methods[12].name = "getValueNames";
 	methods[12].signature = "(J)[Ljava/lang/String;";

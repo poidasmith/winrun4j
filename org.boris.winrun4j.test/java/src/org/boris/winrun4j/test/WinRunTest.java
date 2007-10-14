@@ -68,9 +68,9 @@ public class WinRunTest {
         
         // Test registry
         sb.append("Registry Test\n");
-        RegistryKey key = new RegistryKey(RegistryKey.HKEY_CURRENT_USER, null);
+        RegistryKey key = new RegistryKey(RegistryKey.HKEY_CURRENT_USER, "Control Panel\\Appearance\\Schemes");
         key.open();
-        String[] names = key.getSubKeyNames();
+        String[] names = key.getValueNames();
         for(int i = 0; i < names.length; i++) {
             sb.append(names[i]);
             sb.append("\n");

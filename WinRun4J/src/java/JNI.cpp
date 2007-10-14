@@ -95,6 +95,7 @@ void JNI::ClearException(JNIEnv* env)
 char* JNI::GetExceptionMessage(JNIEnv* env)
 {
 	jthrowable thr = env->ExceptionOccurred();
+	env->ExceptionClear();
 	if(thr != NULL) {
 		return CallStringMethod(env, env->GetObjectClass(thr), thr, "getMessage");
 	}

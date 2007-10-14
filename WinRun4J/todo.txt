@@ -105,4 +105,15 @@ file.1.description=AVI Video File
 - check compatiblity on XP
 - performance tests
 
+==== JNI ================================================================================================
+
+Native Type 	Java Language Type 	Description 		Type signature
+unsigned char 	jboolean 			unsigned 8 bits 	Z
+signed char 	jbyte 				signed 8 bits 		B
+unsigned short 	jchar 				unsigned 16 bits 	C
+short 			jshort 				signed 16 bits 		S
+long 			jint 				signed 32 bits 		I
+long long		jlong 				signed 64 bits 		J
+float 			jfloat 				32 bits 			F
+double 			jdouble 			64 bits 			D
 

@@ -30,7 +30,7 @@ private:
 	static void DeleteValue(JNIEnv* env, jobject self, jlong parent, jstring name);
 
 	// Value methods
-	static jint GetType(JNIEnv* env, jobject self, jlong parent, jstring name);
+	static jlong GetType(JNIEnv* env, jobject self, jlong parent, jstring name);
 	static jstring GetString(JNIEnv* env, jobject self, jlong parent, jstring name);
 	static jarray GetBinary(JNIEnv* env, jobject self, jlong parent, jstring name);
 	static jlong GetDoubleWord(JNIEnv* env, jobject self, jlong parent, jstring name);

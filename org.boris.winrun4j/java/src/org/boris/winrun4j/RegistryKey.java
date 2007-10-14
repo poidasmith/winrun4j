@@ -146,7 +146,7 @@ public class RegistryKey {
      *
      * @return int.
      */
-    public int getType(String name) {
+    public long getType(String name) {
         return getType(handle, name);
     }
 
@@ -342,7 +342,7 @@ public class RegistryKey {
      *
      * @return long.
      */
-    private native int getType(long parent, String name);
+    private native long getType(long parent, String name);
 
     /**
      * Delets the key.
