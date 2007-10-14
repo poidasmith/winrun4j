@@ -13,6 +13,7 @@ import org.boris.winrun4j.EventLog;
 import org.boris.winrun4j.FileAssociationListener;
 import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Log;
+import org.boris.winrun4j.RegistryKey;
 
 
 public class WinRunTest {
@@ -64,6 +65,17 @@ public class WinRunTest {
         
         // Test event log
         EventLog.report("WinRun4J Test", EventLog.INFORMATION, "A test information log");
+        
+        // Test registry
+        sb.append("Registry Test\n");
+        RegistryKey key = new RegistryKey(RegistryKey.HKEY_CURRENT_USER, null);
+        key.open();
+        String[] names = key.getSubKeyNames();
+        for(int i = 0; i < names.length; i++) {
+            sb.append(names[i]);
+            sb.append("\n");
+        }
+        key.close();
         
         text.setText(sb.toString());
         frame.getContentPane().add(new JScrollPane(text));

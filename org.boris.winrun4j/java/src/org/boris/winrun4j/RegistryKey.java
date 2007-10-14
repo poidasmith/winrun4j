@@ -189,7 +189,7 @@ public class RegistryKey {
      * @return long.
      */
     public long getDoubleWordLittleEndian(String name) {
-        return getDoubleWorldLittleEndian(handle, name);
+        return getDoubleWordLittleEndian(handle, name);
     }
 
     /**
@@ -200,7 +200,7 @@ public class RegistryKey {
      * @return long.
      */
     public long getDoubleWordBigEndian(String name) {
-        return getDoubleWorldBigndian(handle, name);
+        return getDoubleWordBigEndian(handle, name);
     }
 
     /**
@@ -390,7 +390,7 @@ public class RegistryKey {
      *
      * @return long.
      */
-    private native long getDoubleWorldLittleEndian(long parent, String name);
+    private native long getDoubleWordLittleEndian(long parent, String name);
 
     /**
      * Gets the value.
@@ -400,7 +400,7 @@ public class RegistryKey {
      *
      * @return long.
      */
-    private native long getDoubleWorldBigndian(long parent, String name);
+    private native long getDoubleWordBigEndian(long parent, String name);
 
     /**
      * Gets the value.

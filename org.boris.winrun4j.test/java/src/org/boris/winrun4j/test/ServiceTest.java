@@ -35,7 +35,14 @@ public class ServiceTest implements Service {
      * @see org.boris.winrun4j.Service#getName()
      */
     public String getName() {
-        return "WinRun4J Test Service";
+        return "Boris Inc. Function Server";
+    }
+
+    /* (non-Javadoc)
+     * @see org.boris.winrun4j.Service#getDescription()
+     */
+    public String getDescription() {
+        return "A warehouse for functions to be invoked from excel.";
     }
 
     /* (non-Javadoc)
