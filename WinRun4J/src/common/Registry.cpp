@@ -10,6 +10,7 @@
 
 #include "Registry.h"
 #include "Log.h"
+#include "../java/JNI.h"
 
 jlong Registry::OpenKey(JNIEnv* env, jobject self, jlong rootKey, jstring subKey)
 {
@@ -151,5 +152,81 @@ void Registry::SetMultiString(JNIEnv* env, jobject self, jlong parent, jstring n
 
 bool Registry::RegisterNatives(JNIEnv *env)
 {
+	jclass clazz = env->FindClass("org/boris/winrun4j/RegistryKey");
+	if(clazz == NULL) {
+		Log::Warning("Could not find RegistryKey class\n");
+		if(env->ExceptionOccurred())
+			env->ExceptionClear();
+		return false;
+	}
+
+	JNINativeMethod methods[20];
+	methods[0].fnPtr = CloseKey;
+	methods[0].name = "closeKeyHandle";
+	methods[0].signature = "(J)V";
+	methods[1].fnPtr = DeleteKey;
+	methods[1].name = "deleteKey";
+	methods[1].signature = "(J)V";
+	methods[2].fnPtr = DeleteValue;
+	methods[2].name = "deleteValue";
+	methods[2].signature = "(JLjava/lang/String;)V";
+	methods[3].fnPtr = GetBinary;
+	methods[3].name = "getBinary";
+	methods[3].signature = "(JLjava/lang/String;)[B";
+	methods[4].fnPtr = GetDoubleWord;
+	methods[4].name = "getDoubleWord";
+	methods[4].signature = "(JLjava/lang/String;)J";
+	methods[5].fnPtr = GetDoubleWordBigEndian;
+	methods[5].name = "getDoubleWordBigEndian";
+	methods[5].signature = "(JLjava/lang/String;)J";
+	methods[6].fnPtr = GetDoubleWordLittleEndian;
+	methods[6].name = "getDoubleWordLittleEndian";
+	methods[6].signature = "(JLjava/lang/String;)J";
+	methods[7].fnPtr = GetExpandedString;
+	methods[7].name = "getExpandedString";
+	methods[7].signature = "(JLjava/lang/String;)Ljava/lang/String";
+	methods[8].fnPtr = GetMultiString;
+	methods[8].name = "getMultiString";
+	methods[8].signature = "(JLjava/lang/String;)[Ljava/lang/String";
+	methods[9].fnPtr = GetString;
+	methods[9].name = "getString";
+	methods[9].signature = "(JLjava/lang/String;)Ljava/lang/String";
+	methods[10].fnPtr = GetSubKeyNames;
+	methods[10].name = "getSubKeyNames";
+	methods[10].signature = "(JLjava/lang/String;)Ljava/lang/String";
+	methods[11].fnPtr = GetType;
+	methods[11].name = "getType";
+	methods[11].signature = "(JLjava/lang/String;)J";
+	methods[12].fnPtr = GetValueNames;
+	methods[12].name = "getValueNames";
+	methods[12].signature = "(J)[Ljava/lang/String";
+	methods[13].fnPtr = OpenKey;
+	methods[13].name = "openKeyHandle";
+	methods[13].signature = "(JLjava/lang/String;)J";
+	methods[14].fnPtr = SetBinary;
+	methods[14].name = "setBinary";
+	methods[14].signature = "(JLjava/lang/String;[B)V";
+	methods[15].fnPtr = SetDoubleWord;
+	methods[15].name = "setDoubleWord";
+	methods[15].signature = "(JLjava/lang/String;J)V";
+	methods[16].fnPtr = SetDoubleWordBigEndian;
+	methods[16].name = "setDoubleWordBigEndian";
+	methods[16].signature = "(JLjava/lang/String;J)V";
+	methods[17].fnPtr = SetDoubleWordLittleEndian;
+	methods[17].name = "setDoubleWordLittleEndian";
+	methods[17].signature = "(JLjava/lang/String;J)V";
+	methods[18].fnPtr = SetMultiString;
+	methods[18].name = "setMultiString";
+	methods[18].signature = "(JLjava/lang/String;[Ljava/lang/String;)V";
+	methods[19].fnPtr = SetString;
+	methods[19].name = "setString";
+	methods[19].signature = "(JLjava/lang/String;Ljava/lang/String;)V";
+	
+	env->RegisterNatives(clazz, methods, 20);
+	if(env->ExceptionOccurred()) {
+		char* msg = JNI::GetExceptionMessage(env);
+		Log::Error(msg);
+		env->ExceptionClear();
+	}
 	return true;
 }

@@ -46,6 +46,17 @@ public class RegistryKey {
     }
 
     /**
+     * Creates a new RegistryKey object.
+     *
+     * @param parent.
+     * @param path.
+     */
+    public RegistryKey(RegistryKey parent, String path) {
+        this.parent = parent.handle;
+        this.name = path;
+    }
+
+    /**
      * Opens the key.
      *
      * @return boolean.
@@ -72,7 +83,7 @@ public class RegistryKey {
     public boolean isOpen() {
         return handle != 0;
     }
-    
+
     /**
      * Gets the subkeys for this key.
      *
@@ -130,7 +141,7 @@ public class RegistryKey {
 
     /**
      * Gets the type of a value.
-     * 
+     *
      * @param name.
      *
      * @return int.
@@ -138,10 +149,10 @@ public class RegistryKey {
     public int getType(String name) {
         return getType(handle, name);
     }
-    
+
     /**
      * Gets a string.
-     * 
+     *
      * @param name.
      */
     public String getString(String name) {
@@ -150,7 +161,7 @@ public class RegistryKey {
 
     /**
      * Gets a binary value.
-     * 
+     *
      * @param name.
      *
      * @return byte[].
@@ -161,7 +172,7 @@ public class RegistryKey {
 
     /**
      * Gets a DWORD.
-     * 
+     *
      * @param name.
      *
      * @return long.
@@ -172,7 +183,7 @@ public class RegistryKey {
 
     /**
      * Gets a value.
-     * 
+     *
      * @param name.
      *
      * @return long.
@@ -183,7 +194,7 @@ public class RegistryKey {
 
     /**
      * Gets a value.
-     * 
+     *
      * @param name.
      *
      * @return long.
@@ -194,7 +205,7 @@ public class RegistryKey {
 
     /**
      * Gets a value.
-     * 
+     *
      * @param name.
      *
      * @return String.
@@ -205,7 +216,7 @@ public class RegistryKey {
 
     /**
      * Gets a value.
-     * 
+     *
      * @param name.
      *
      * @return String[].
@@ -445,8 +456,7 @@ public class RegistryKey {
      * @param name.
      * @param value.
      */
-    private native void setDoubleWordLittleEndian(long parent, String name,
-        long dword);
+    private native void setDoubleWordLittleEndian(long parent, String name, long dword);
 
     /**
      * Sets the value.
@@ -455,8 +465,7 @@ public class RegistryKey {
      * @param name.
      * @param value.
      */
-    private native void setDoubleWordBigEndian(long parent, String name,
-        long dword);
+    private native void setDoubleWordBigEndian(long parent, String name, long dword);
 
     /**
      * Sets the value.
