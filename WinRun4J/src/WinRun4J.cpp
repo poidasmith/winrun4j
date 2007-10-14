@@ -155,7 +155,7 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 		}
 	}
 	if(mainClass == NULL) {
-		Log::Error("ERROR: no main class specified\n");
+		Log::Error("No main class specified\n");
 		return 1;
 	} else {
 		Log::Info("Main Class: %s\n", mainClass);
@@ -199,7 +199,6 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, LPSTR lpCmdLine)
 
 	return 1;
 }
-
 
 int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 {
