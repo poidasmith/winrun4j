@@ -38,6 +38,13 @@ public interface Service {
     public String getName();
 
     /**
+     * Get the description of the service.
+     *
+     * @return String.
+     */
+    public String getDescription();
+
+    /**
      * Get the functions accepted.
      *
      * @return int.
