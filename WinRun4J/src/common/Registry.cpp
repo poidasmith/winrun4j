@@ -88,10 +88,19 @@ jobjectArray Registry::GetValueNames(JNIEnv* env, jobject self, jlong handle)
 
 void Registry::DeleteKey(JNIEnv* env, jobject self, jlong handle)
 {
+	if(handle != 0)
+		RegDeleteKey((HKEY) handle, 0);
 }
 
 void Registry::DeleteValue(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
+	if(parent == 0)
+		return;
+
+	jboolean iscopy = false;
+	const char* str = env->GetStringUTFChars(name, &iscopy);
+	RegDeleteValue((HKEY) parent, str);
+	env->ReleaseStringUTFChars(name, str);
 }
 
 jlong Registry::GetType(JNIEnv* env, jobject self, jlong parent, jstring name)
@@ -118,22 +127,43 @@ jstring Registry::GetString(JNIEnv* env, jobject self, jlong parent, jstring nam
 	jboolean iscopy = false;
 	const char* str = env->GetStringUTFChars(name, &iscopy);
 	DWORD type = 0;
-	LONG result = RegQueryValueEx((HKEY) parent, str, NULL, &type, NULL, NULL);
+	TCHAR buffer[4096];
+	DWORD len = 4096;
+	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) buffer, &len);
 	env->ReleaseStringUTFChars(name, str);
 	if(result == ERROR_SUCCESS)
-		return type;
+		return env->NewStringUTF((char *) buffer);
 	else 
 		return 0;
-	return 0;
 }
 
-jarray Registry::GetBinary(JNIEnv* env, jobject self, jlong parent, jstring name)
+jbyteArray Registry::GetBinary(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
-	return 0;
+	if(parent == 0)
+		return 0;
+
+	jboolean iscopy = false;
+	const char* str = env->GetStringUTFChars(name, &iscopy);
+	DWORD type = 0;
+	TCHAR buffer[4096];
+	DWORD len = 4096;
+	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) buffer, &len);
+	env->ReleaseStringUTFChars(name, str);
+	if(result == ERROR_SUCCESS) {
+		jbyteArray arr = env->NewByteArray(len);
+		env->SetByteArrayRegion(arr, 0, len, (jbyte *)buffer);
+		return arr;
+	}
+	else 
+		return 0;
 }
 
 jlong Registry::GetDoubleWord(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
+	if(parent == 0)
+		return 0;
+
+
 	return 0;
 }
 

@@ -32,7 +32,7 @@ private:
 	// Value methods
 	static jlong GetType(JNIEnv* env, jobject self, jlong parent, jstring name);
 	static jstring GetString(JNIEnv* env, jobject self, jlong parent, jstring name);
-	static jarray GetBinary(JNIEnv* env, jobject self, jlong parent, jstring name);
+	static jbyteArray GetBinary(JNIEnv* env, jobject self, jlong parent, jstring name);
 	static jlong GetDoubleWord(JNIEnv* env, jobject self, jlong parent, jstring name);
 	static jlong GetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jstring name);
 	static jlong GetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jstring name);
