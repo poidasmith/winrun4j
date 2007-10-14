@@ -37,91 +37,6 @@ void WinRun4J::SetWorkingDirectory(dictionary* ini)
 	} 
 }
 
-bool WinRun4J::StrTrimInChars(LPSTR trimChars, char c)
-{
-	unsigned int len = strlen(trimChars);
-	for(unsigned int i = 0; i < len; i++) {
-		if(c == trimChars[i]) {
-			return true;
-		}
-	}
-	return false;
-}
-
-void WinRun4J::StrTrim(LPSTR str, LPSTR trimChars)
-{
-	unsigned int start = 0;
-	unsigned int end = strlen(str) - 1;
-	for(unsigned int i = 0; i < end; i++) {
-		char c = str[i];
-		if(!StrTrimInChars(trimChars, c)) {
-			start = i;
-			break;
-		}
-	}
-	for(int i = end; i >= 0; i--) {
-		char c = str[i];
-		if(!StrTrimInChars(trimChars, c)) {
-			end = i;
-			break;
-		}
-	}
-	if(start != 0 || end != strlen(str) - 1) {
-		int k = 0;
-		for(unsigned int i = start; i <= end; i++, k++) {
-			str[k] = str[i];
-		}
-		str[k] = 0;
-	}
-}
-
-void WinRun4J::ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, bool includeFirst)
-{
-	StrTrim(lpCmdLine, " ");
-	int len = strlen(lpCmdLine);
-	if(len == 0) {
-		return;
-	}
-
-	int start = 0;
-	bool quote = false;
-	bool first = true;
-	TCHAR arg[4096];
-	for(int i = 0; i < len; i++) {
-		char c = lpCmdLine[i];
-		if(c == '\"') {
-			quote = !quote;
-		} else if(!quote && c == ' ') {
-			if(!first || includeFirst) {
-				int k = 0;
-				for(int j = start; j < i; j++, k++) {
-					arg[k] = lpCmdLine[j];
-				}
-				arg[k] = 0;
-				args[count] = strdup(arg);
-				StrTrim(args[count], " ");
-				StrTrim(args[count], "\"");
-				count++;
-			}
-			start = i;
-			first = false;
-		}
-	}
-
-	// Add the last one
-	if(!first || includeFirst) {
-		int k = 0;
-		for(int j = start; j < len; j++, k++) {
-			arg[k] = lpCmdLine[j];
-		}
-		arg[k] = 0;
-		args[count] = _strdup(arg);
-		StrTrim(args[count], " ");
-		StrTrim(args[count], "\"");
-		count++;
-	}
-}
-
 int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 {
 	// Check for SetIcon util request
@@ -213,7 +128,7 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	INI::GetNumberedKeysFromIni(ini, PROG_ARG, progargs, progargsCount);
 
 	// Add the args from commandline
-	WinRun4J::ParseCommandLine(lpCmdLine, progargs, progargsCount, true);
+	ParseCommandLine(lpCmdLine, progargs, progargsCount, true);
 
 	// Log the commandline args
 	for(int i = 0; i < progargsCount; i++) {

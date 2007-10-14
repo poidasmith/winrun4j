@@ -30,7 +30,6 @@ class WinRun4J
 {
 public:
 	static void SetWorkingDirectory(dictionary* ini);
-	static void ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, bool includeFirst = false);
 	static int DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine);
 	static dictionary* LoadIniFile(HINSTANCE hInstance);
 	static int StartVM(LPSTR lpCmdLine, dictionary* ini);
@@ -39,8 +38,6 @@ public:
 	static int ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine);
 
 private:
-	static bool StrTrimInChars(LPSTR trimChars, char c);
-	static void StrTrim(LPSTR str, LPSTR trimChars);
 
 };
 
