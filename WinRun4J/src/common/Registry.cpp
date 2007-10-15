@@ -113,6 +113,7 @@ jlong Registry::GetType(JNIEnv* env, jobject self, jlong parent, jstring name)
 	DWORD type = 0;
 	LONG result = RegQueryValueEx((HKEY) parent, str, NULL, &type, NULL, NULL);
 	env->ReleaseStringUTFChars(name, str);
+
 	if(result == ERROR_SUCCESS)
 		return type;
 	else 
@@ -131,6 +132,7 @@ jstring Registry::GetString(JNIEnv* env, jobject self, jlong parent, jstring nam
 	DWORD len = 4096;
 	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) buffer, &len);
 	env->ReleaseStringUTFChars(name, str);
+
 	if(result == ERROR_SUCCESS)
 		return env->NewStringUTF((char *) buffer);
 	else 
@@ -149,6 +151,7 @@ jbyteArray Registry::GetBinary(JNIEnv* env, jobject self, jlong parent, jstring 
 	DWORD len = 4096;
 	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) buffer, &len);
 	env->ReleaseStringUTFChars(name, str);
+
 	if(result == ERROR_SUCCESS) {
 		jbyteArray arr = env->NewByteArray(len);
 		env->SetByteArrayRegion(arr, 0, len, (jbyte *)buffer);
@@ -163,48 +166,141 @@ jlong Registry::GetDoubleWord(JNIEnv* env, jobject self, jlong parent, jstring n
 	if(parent == 0)
 		return 0;
 
+	jboolean iscopy = false;
+	const char* str = env->GetStringUTFChars(name, &iscopy);
+	DWORD type = 0;
+	DWORD value = 0;
+	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) &value, NULL);
+	env->ReleaseStringUTFChars(name, str);
 
-	return 0;
+	if(result == ERROR_SUCCESS)
+		return value;
+	else 
+		return 0;
 }
 
 jlong Registry::GetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
-	return 0;
+	if(parent == 0)
+		return 0;
+
+	jboolean iscopy = false;
+	const char* str = env->GetStringUTFChars(name, &iscopy);
+	DWORD type = 0;
+	DWORD value = 0;
+	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) &value, NULL);
+	env->ReleaseStringUTFChars(name, str);
+
+	if(result == ERROR_SUCCESS)
+		return value;
+	else 
+		return 0;
 }
 
 jlong Registry::GetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
-	return 0;
+	if(parent == 0)
+		return 0;
+
+	jboolean iscopy = false;
+	const char* str = env->GetStringUTFChars(name, &iscopy);
+	DWORD type = 0;
+	DWORD value = 0;
+	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) &value, NULL);
+	env->ReleaseStringUTFChars(name, str);
+
+	if(result == ERROR_SUCCESS)
+		return value;
+	else 
+		return 0;
 }
 
 jstring Registry::GetExpandedString(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
-	return 0;
+	if(parent == 0)
+		return 0;
+
+	jboolean iscopy = false;
+	const char* str = env->GetStringUTFChars(name, &iscopy);
+	DWORD type = 0;
+	TCHAR buffer[4096];
+	DWORD len = 4096;
+	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) buffer, &len);
+	env->ReleaseStringUTFChars(name, str);
+
+	if(result == ERROR_SUCCESS)
+		return env->NewStringUTF((char *) buffer);
+	else 
+		return 0;
 }
 
 jobjectArray Registry::GetMultiString(JNIEnv* env, jobject self, jlong parent, jstring name)
 {
-	return 0;
+	if(parent == 0)
+		return 0;
+
+	jboolean iscopy = false;
+	const char* str = env->GetStringUTFChars(name, &iscopy);
+	DWORD type = 0;
+	TCHAR buffer[4096];
+	DWORD len = 4096;
+	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) buffer, &len);
+	env->ReleaseStringUTFChars(name, str);
+
+	if(result == ERROR_SUCCESS) {
+		return 0; // TODO convert result
+	}
+	else 
+		return 0;
 }
 
 void Registry::SetString(JNIEnv* env, jobject self, jlong parent, jstring name, jstring value)
 {
+	if(parent == 0) return;
+	jboolean iscopy = false;
+	const char* nameStr = env->GetStringUTFChars(name, &iscopy);
+	const char* valueStr = env->GetStringUTFChars(value, &iscopy);
+	RegSetValue((HKEY) parent, nameStr, REG_SZ, valueStr, strlen(valueStr));
+	env->ReleaseStringUTFChars(name, nameStr);
+	env->ReleaseStringUTFChars(value, valueStr);
 }
 
 void Registry::SetBinary(JNIEnv* env, jobject self, jlong parent, jstring name, jarray value)
 {
+	if(parent == 0) return;
+	jboolean iscopy = false;
+	const char* nameStr = env->GetStringUTFChars(name, &iscopy);
+	void* data = env->GetPrimitiveArrayCritical(value, &iscopy);
+	RegSetValueEx((HKEY) parent, nameStr, 0, REG_BINARY, (const BYTE*) data, env->GetArrayLength(value));
+	env->ReleasePrimitiveArrayCritical(value, data, 0);
+	env->ReleaseStringUTFChars(name, nameStr);
 }
 
 void Registry::SetDoubleWord(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value)
 {
+	if(parent == 0) return;
+	jboolean iscopy = false;
+	const char* nameStr = env->GetStringUTFChars(name, &iscopy);
+	RegSetValueEx((HKEY) parent, nameStr, 0, REG_DWORD, (const BYTE*) &value, sizeof(DWORD));
+	env->ReleaseStringUTFChars(name, nameStr);
 }
 
 void Registry::SetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value)
 {
+	if(parent == 0) return;
+	jboolean iscopy = false;
+	const char* nameStr = env->GetStringUTFChars(name, &iscopy);
+	RegSetValueEx((HKEY) parent, nameStr, 0, REG_DWORD_LITTLE_ENDIAN, (const BYTE*) &value, sizeof(DWORD));
+	env->ReleaseStringUTFChars(name, nameStr);
 }
 
 void Registry::SetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value)
 {
+	if(parent == 0) return;
+	jboolean iscopy = false;
+	const char* nameStr = env->GetStringUTFChars(name, &iscopy);
+	RegSetValueEx((HKEY) parent, nameStr, 0, REG_DWORD_BIG_ENDIAN, (const BYTE*) &value, sizeof(DWORD));
+	env->ReleaseStringUTFChars(name, nameStr);
 }
 
 void Registry::SetMultiString(JNIEnv* env, jobject self, jlong parent, jstring name, jobjectArray value)
