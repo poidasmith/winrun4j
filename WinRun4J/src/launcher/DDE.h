@@ -15,6 +15,14 @@
 #include "../common/INI.h"
 #include <jni.h>
 
+struct DDEInfo
+{
+	dictionary* ini;
+	char* extension;
+	char* name;
+	char* description;
+};
+
 class DDE
 {
 public:
@@ -33,6 +41,9 @@ public:
 
 private:
 	static bool RegisterNatives(JNIEnv* env, dictionary* ini);
+	static void EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, void (*CallbackFunc)(DDEInfo&));
+	static void RegisterFileAssociation(DDEInfo&);
+	static void UnregisterFileAssociation(DDEInfo&);
 };
 
 #endif // DDE_H
