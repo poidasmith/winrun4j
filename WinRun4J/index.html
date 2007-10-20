@@ -16,7 +16,7 @@
 	
 	<div id="content">
 		<p class="section">
-			</p><div class="section-title">About</div>
+			<div class="section-title">About</div>
 			<p class="section-content">
 				WinRun4j is a java launcher for windows. It is an alternative to javaw.exe and provides the following benefits:
 				</p><ul>
@@ -33,18 +33,19 @@
 				</ul>
 				WinRun4J is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
 			<p></p>
-		<p></p>
+		</p>
 		<p class="section">
-			</p><div class="section-title">Download</div>
+			<div class="section-title">Download</div>
 			<p class="section-content">
 			The latest <a href="https://sourceforge.net/project/showfiles.php?group_id=195634">download</a> is available from the Project Page.
 			</p>
-		<p></p>
+		</p>
 		<p class="section">
-			</p><div class="section-title">Usage</div>
+			<div class="section-title">Usage</div>
 			<p class="section-content">
 			The launcher is designed to be used as follows:
-			</p><p>
+			</p>
+			<p>
 				</p><ol>
 					<li>Copy WinRun4J.exe to [YourApp].exe</li>
 					<li>Create [YourApp].ini (in the same directory)</li>
@@ -53,7 +54,7 @@
 					<li>Run [YourApp].exe --WinRun4J:SetIcon (this will inject your icon into the executable).</li>
 					<li>Launch [YourApp].exe</li>
 				</ol>
-			<p></p>
+			</p>
 			<p>
 				The INI file accepts the following settings:
 				<table>
@@ -67,7 +68,7 @@
 						<td>Classpath entries. These will be relative to the working directory above. They can be wildcards (eg. *.jar)</td>
 					</tr>
 					<tr>
-						<td>main.class</td>
+						<td>main.class or service.class</td>
 						<td>This is the java class that will be run</td>
 					</tr>
 					<tr>
@@ -144,15 +145,15 @@ given the physical memory available.</td>
 					</tr>
 				</table>
 			</p>
-		<p></p>
+		</p>
 		<p class="section">
-			</p><div class="section-title">JNI Library</div>
+			<div class="section-title">JNI Library</div>
 			<p>
 			The javadoc for the JNI library can be found <a href="http://winrun4j.sourceforge.net/javadoc/index.html">here</a>.
 			</p>
-		<p></p>
+		</p>
 		<p class="section">
-			</p><div class="section-title">Examples</div>
+			<div class="section-title">Examples</div>
 			<p>
 				An example INI file (included in the download) is:
 				</p><pre>classpath.1=*.jar
@@ -168,9 +169,111 @@ arg.1=-showsplash
 vm.heapsize.percent=80
 				</pre>
 			
-		<p></p>
-		<p class="section">
 			</p>
+		</p>
+		<p class="section"/>
+			<div class="section-title">Eclipse DDE Example</div>
+			<p>
+			The download includes an alternative launcher for Eclipse that enables DDE. This allows
+			the user to double-click on a (eg.) java file in Windows explorer and have the file
+			open in the currently opened workspace.
+			</p>
+			<p>
+			To setup this example:
+			<ol>
+			<li>In your eclipse directory rename eclipse.exe to eclipse.exe.old and rename eclipse.ini to eclipse.ini.old.
+			<li>Copy WinRun4J.exe, EcliseDDE.jar, eclipse.ico and eclipse.ini from to downloaded zip file to your eclipse directory.
+			<li>Rename WinRun4J.exe to eclipse.exe.
+			<li>Run eclipse.exe --WinRun4J:SetIcon. This will change the exectable icon to the eclipse icon.
+			<li>Run eclipse.exe --WinRun4J:RegisterFileAssocations. This will register java files to be associated with eclipse.
+			</ol>
+			You should now be able to double-click on java files in Windows.
+			</p>
+			<p>
+			The following shows the INI file setup:<br/>
+<pre>
+working.directory=.
+main.class=org.boris.winrun4j.EclipseDDE
+classpath.1=EclipseDDE.jar
+classpath.2=plugins\org.eclipse.equinox.launcher*
+vmarg.1=-Xmx512M
+vmarg.2=-XX:MaxPermSpace=256M
+arg.1=-showsplash
+dde.enabled=true
+dde.class=org.boris.winrun4j.EclipseDDE
+
+[FileAssociations]
+file.1.extension=.java
+file.1.name=EclipseJavaFile
+file.1.description=Java Source File
+
+</pre>
+			</p>
+		</p>
+		<p class="section"/>
+			<div class="section-title"><a name="service"> </a>Service Example</div>
+			<p>
+			The download contains a simple example of a windows service. Its only function is to
+			log to the Windows Event Log every five minutes. To run the example:
+			<ol>
+			<li>Create a test directory C:/test.
+			<li>Copy WinRun4Jc.exe to C:/test and rename to service.exe.
+			<li>Copy service.ini to C:/test.
+			<li>Run service.exe --WinRun4J:RegisterService. 
+			<li>To start the service run service.exe --WinRun4J:StartService.
+			<li>To stop the service run service.exe --WinRun4J:StopService.
+			</ol>
+			</p>
+			<p>
+			The following shows the included example of a basic Service implementation.<br/>
+<pre>
+package org.boris.winrun4j.test;
+
+import org.boris.winrun4j.*;
+
+public class ServiceTest implements Service {
+    private int returnCode = 0;
+    private boolean shutdown = false;
+    
+    public int doRequest(int request) throws ServiceException {
+        switch(request) {
+        case SERVICE_CONTROL_SHUTDOWN:
+            shutdown = true;
+            break;
+        }
+        return 0;
+    }
+
+    public int getControlsAccepted() {
+        return SERVICE_ACCEPT_SHUTDOWN;
+    }
+
+    public String getName() {
+        return "WinRun4J Test Service";
+    }
+
+    public String getDescription() {
+        return "An example service using WinRun4J.";
+    }
+
+    public int main(String[] args) throws ServiceException {
+        while(!shutdown) {
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+            }
+            
+            EventLog.report("WinRun4J Test Service", EventLog.INFORMATION, "Hello World!");
+        }
+        
+        return returnCode;
+    }
+}
+
+</pre>
+			</p>
+		</p>
+		<p class="section">
 			<div class="section-title">Change History</div>
 			<p class="section-content">
 				</p><div class="section-heading">V0.1.0</div>
@@ -180,7 +283,7 @@ vm.heapsize.percent=80
 					<li>Added Event Log API.</li>
 					<li>Added Registry API.</li>
 					<li>Added Shell API.</li>
-					<li>Reduced EXE size to less than 30kb (using <a href="http://wcrt.sourceforge.net">wcrt</a>).</li>
+					<li>Reduced EXE size (using <a href="http://wcrt.sourceforge.net">wcrt</a>).</li>
 					<li>Added console version.</li>
 					<li>Environment variables can be used in INI file (eg. %TEMP%).</li>
 				</ul>
@@ -220,11 +323,12 @@ vm.heapsize.percent=80
 				<li>Initial release.
 				</li></ul>
 			<p></p>
-		<p></p>
+		</p>
 	</div>
 	<div id="footer">
 		<p>
 		<a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=195634&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
 		</p>
 	</div>
-</body></html>
+</body>
+</html>
