@@ -67,11 +67,11 @@ public class WinRunTest {
         EventLog.report("WinRun4J Test", EventLog.INFORMATION, "A test information log");
         
         // Test registry
-        sb.append("Registry Test\n");
+        sb.append("\n\nRegistry Test\n=============\n\n");
         RegistryKey key = new RegistryKey(RegistryKey.HKEY_CURRENT_USER, "Control Panel\\Appearance\\Schemes");
         key.open();
         String[] names = key.getValueNames();
-        for(int i = 0; i < names.length; i++) {
+        for(int i = 0; i < names.length && i < 5; i++) {
             sb.append(names[i]);
             sb.append("\n");
         }

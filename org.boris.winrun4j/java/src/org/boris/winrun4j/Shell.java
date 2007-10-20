@@ -1,4 +1,10 @@
 package org.boris.winrun4j;
-public class Shell {
 
+/**
+ * Provides access to basic shell features.
+ * - application file association
+ * - enumerate drives
+ * - 
+ */
+public class Shell {
 }

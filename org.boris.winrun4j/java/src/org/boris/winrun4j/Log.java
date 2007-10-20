@@ -32,7 +32,7 @@ public class Log {
     }
 
     /**
-     * Sets the error string, which can be retrieve via [Addin]_GetLastError() function.
+     * Sets the error string.
      *
      * @param error.
      */

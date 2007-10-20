@@ -55,7 +55,6 @@ public class DDEMain extends Main {
             else if (e.getTargetException() instanceof Exception)
                 throw (Exception) e.getTargetException();
             else
-                //could be a subclass of Throwable!
                 throw e;
         }
     }

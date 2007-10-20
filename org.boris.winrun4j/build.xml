@@ -1,7 +1,7 @@
 <project name="WinRun4J" default="build">
 	
 	<property name="release.dir" value="C:/Development/Releases/"/>
-	<property name="src.dir" value="C:/Development/winrun4j"/>
+	<property name="src.dir" value="D:\eclipse\workspace3.1\WinRun4J"/>
 	<property name="release.name" value="winrun4J"/>
 	<property name="release.version" value="0.1.0"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/winrun4j"/>
@@ -10,9 +10,9 @@
 		<mkdir dir="${deploy.dir}"/>
 		<mkdir dir="${deploy.dir}/bin"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release/WinRun4J.exe"/>
-		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release-Console/WinRun4Jc.exe"/>
+		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release - Console/WinRun4Jc.exe"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/bin/WinRun4J.ini"/>
-		<copy todir="${deploy.dir}/bin" file="${src.dir}/bin/SplashScreen.gif"/>
+		<copy todir="${deploy.dir}/bin" file="${src.dir}/SplashScreen.gif"/>
 		<copy todir="${deploy.dir}" file="${src.dir}/cpl-v10.html"/>
 		<copy todir="${deploy.dir}" file="${src.dir}/epl-v10.html"/>
 		<mkdir dir="${deploy.dir}/src"/>
@@ -71,6 +71,6 @@
 		</zip>
 		<delete dir="${release.dir}/${release.name}-${release.version}"/>
 		<mkdir dir="C:/Development/winrun4j-javadoc"/>
-		<javadoc sourcepath="java/src" destdir="C:/Development/winrun4j-javadoc"/>
+		<javadoc sourcepath="java/src" packagenames="*" destdir="C:/Development/winrun4j-javadoc"/>
 	</target>
 </project>
