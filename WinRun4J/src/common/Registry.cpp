@@ -130,7 +130,7 @@ jstring Registry::GetString(JNIEnv* env, jobject self, jlong parent, jstring nam
 	DWORD type = 0;
 	TCHAR buffer[4096];
 	DWORD len = 4096;
-	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) buffer, &len);
+	LONG result = RegQueryValueEx((HKEY) parent, str, 0, &type, (LPBYTE) buffer, &len);
 	env->ReleaseStringUTFChars(name, str);
 
 	if(result == ERROR_SUCCESS)
@@ -149,7 +149,7 @@ jbyteArray Registry::GetBinary(JNIEnv* env, jobject self, jlong parent, jstring 
 	DWORD type = 0;
 	TCHAR buffer[4096];
 	DWORD len = 4096;
-	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) buffer, &len);
+	LONG result = RegQueryValueEx((HKEY) parent, str, 0, &type, (LPBYTE) buffer, &len);
 	env->ReleaseStringUTFChars(name, str);
 
 	if(result == ERROR_SUCCESS) {
@@ -170,7 +170,7 @@ jlong Registry::GetDoubleWord(JNIEnv* env, jobject self, jlong parent, jstring n
 	const char* str = env->GetStringUTFChars(name, &iscopy);
 	DWORD type = 0;
 	DWORD value = 0;
-	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) &value, NULL);
+	LONG result = RegQueryValueEx((HKEY) parent, str, 0, &type, (LPBYTE) &value, NULL);
 	env->ReleaseStringUTFChars(name, str);
 
 	if(result == ERROR_SUCCESS)
@@ -188,7 +188,7 @@ jlong Registry::GetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong paren
 	const char* str = env->GetStringUTFChars(name, &iscopy);
 	DWORD type = 0;
 	DWORD value = 0;
-	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) &value, NULL);
+	LONG result = RegQueryValueEx((HKEY) parent, str, 0, &type, (LPBYTE) &value, NULL);
 	env->ReleaseStringUTFChars(name, str);
 
 	if(result == ERROR_SUCCESS)
@@ -206,7 +206,7 @@ jlong Registry::GetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, 
 	const char* str = env->GetStringUTFChars(name, &iscopy);
 	DWORD type = 0;
 	DWORD value = 0;
-	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) &value, NULL);
+	LONG result = RegQueryValueEx((HKEY) parent, str, 0, &type, (LPBYTE) &value, NULL);
 	env->ReleaseStringUTFChars(name, str);
 
 	if(result == ERROR_SUCCESS)
@@ -225,7 +225,7 @@ jstring Registry::GetExpandedString(JNIEnv* env, jobject self, jlong parent, jst
 	DWORD type = 0;
 	TCHAR buffer[4096];
 	DWORD len = 4096;
-	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) buffer, &len);
+	LONG result = RegQueryValueEx((HKEY) parent, str, 0, &type, (LPBYTE) buffer, &len);
 	env->ReleaseStringUTFChars(name, str);
 
 	if(result == ERROR_SUCCESS)
@@ -244,7 +244,7 @@ jobjectArray Registry::GetMultiString(JNIEnv* env, jobject self, jlong parent, j
 	DWORD type = 0;
 	TCHAR buffer[4096];
 	DWORD len = 4096;
-	LONG result = RegGetValue((HKEY) parent, NULL, str, 0, &type, (PVOID) buffer, &len);
+	LONG result = RegQueryValueEx((HKEY) parent, str, 0, &type, (LPBYTE) buffer, &len);
 	env->ReleaseStringUTFChars(name, str);
 
 	if(result == ERROR_SUCCESS) {
