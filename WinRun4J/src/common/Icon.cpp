@@ -45,9 +45,19 @@ void Icon::SetIcon(LPSTR commandLine)
 {
 	// Assume the ico is named "appname.ico"
 	TCHAR filename[MAX_PATH], iconfile[MAX_PATH];
-	
+	GetFilenames(commandLine, filename, iconfile);	
+
+	// Now set the icon
+	SetIcon(filename, iconfile);
+
+	// Now delete the random file
+	RunDeleteRandom(filename, SET_ICON_DELETE_EXE_CMD);
+}
+
+void Icon::GetFilenames(LPSTR commandLine, LPSTR filename, LPSTR iconfile)
+{
 	// Extract original file from commandline
-	strcpy_s(filename, MAX_PATH, &commandLine[18]);
+	strcpy_s(filename, MAX_PATH, &commandLine[27]);
 
 	// Make icon filename
 	strcpy_s(iconfile, MAX_PATH, filename);
@@ -59,14 +69,14 @@ void Icon::SetIcon(LPSTR commandLine)
 	Log::Info("Setting icon file...\n");
 	Log::Info("Icon File: %s\n", iconfile);
 	Log::Info("Exe File: %s\n", filename);
+}
 
-	// Now set the icon
-	SetIcon(filename, iconfile);
-
+void Icon::RunDeleteRandom(LPSTR filename, LPSTR command)
+{
 	// Create command line for deleting random file
 	TCHAR random[MAX_PATH], cmd[MAX_PATH];
 	GetModuleFileName(NULL, random, MAX_PATH);
-	sprintf(cmd, "%s %s %s", filename, SET_ICON_DELETE_EXE_CMD, random);
+	sprintf(cmd, "%s %s %s", filename, command, random);
 
 	// Now delete the random exe
 	STARTUPINFO si;
@@ -103,9 +113,9 @@ void Icon::CopyToRandomAndRun(LPSTR command)
 // Delete the random filename
 void Icon::DeleteRandomFile(LPSTR cmdLine)
 {
-	TCHAR filename[MAX_PATH];
-	strcpy_s(filename, MAX_PATH, &cmdLine[17]);
-	DeleteFile(filename);
+	cmdLine = StripArg0(cmdLine);
+	cmdLine = StripArg0(cmdLine);
+	DeleteFile(cmdLine);
 }
 
 // Set icon on original exe file
@@ -192,13 +202,27 @@ void Icon::AddExeIcon(LPSTR commandLine)
 {
 	// Work out which operation
 	if(strncmp(commandLine, ADD_ICON_CMD, strlen(ADD_ICON_CMD)) == 0) {
-		SetIcon(commandLine);
+		AddIcon(commandLine);
 	} else if(strncmp(commandLine, ADD_ICON_DELETE_EXE_CMD, strlen(ADD_ICON_DELETE_EXE_CMD)) == 0) {
 		DeleteRandomFile(commandLine);
 	} else {
 		CopyToRandomAndRun(ADD_ICON_CMD);
 	}
 }
+
+void Icon::AddIcon(LPSTR commandLine)
+{
+	// Assume the ico is named "appname.ico"
+	TCHAR filename[MAX_PATH], iconfile[MAX_PATH];
+	GetFilenames(commandLine, filename, iconfile);	
+
+	// Now set the icon
+	AddIcon(filename, iconfile);
+
+	// Now delete the random file
+	RunDeleteRandom(filename, ADD_ICON_DELETE_EXE_CMD);
+}
+
 
 bool Icon::AddIcon(LPSTR exeFile, LPSTR iconFile)
 {
@@ -211,16 +235,11 @@ bool Icon::AddIcon(LPSTR exeFile, LPSTR iconFile)
 		return false;
 	}
 
-	HMODULE hModule = GetModuleHandle(exeFile);
-	if(hModule == NULL) {
-		return false;
-	}
-	
-	// Find next resource id
-	int nextId = FindNextId(hModule);
-
 	// Copy in resources
 	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
+
+	// Find next resource id
+	int nextId = FindNextId(NULL);
 
 	// Copy in icon group resource
 	UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(nextId++), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
@@ -229,7 +248,7 @@ bool Icon::AddIcon(LPSTR exeFile, LPSTR iconFile)
 	// Copy in icons
 	for(int i = 0; i < pHeader->count; i++) {
 		UpdateResource(hUpdate, RT_ICON, MAKEINTRESOURCE(i + nextId + 1), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
-			pIcons[i + nextId], pHeader->entries[i + nextId].bytesInRes);
+			pIcons[i], pHeader->entries[i].bytesInRes);
 	}
 
 	// Commit the changes
@@ -250,17 +269,30 @@ void Icon::RemoveExeIcons(LPSTR commandLine)
 	}
 }
 
-bool Icon::RemoveIcons(LPSTR exeFile)
+void Icon::RemoveIcons(LPSTR commandLine)
 {
-	HMODULE hModule = GetModuleHandle(exeFile);
+	// Assume the ico is named "appname.ico"
+	TCHAR filename[MAX_PATH], iconfile[MAX_PATH];
+	GetFilenames(commandLine, filename, iconfile);	
+
+	// Now set the icon
+	RemoveIconResources(filename);
+
+	// Now delete the random file
+	RunDeleteRandom(filename, REMOVE_ICON_DELETE_EXE_CMD);
+}
+
+bool Icon::RemoveIconResources(LPSTR exeFile)
+{
+	DebugBreak();
 	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
 
 	for(int i = 1; ; i++) {
-		HRSRC hsrc = FindResource(hModule, MAKEINTRESOURCE(i), RT_GROUP_ICON);
+		HRSRC hsrc = FindResource((HMODULE) hUpdate, MAKEINTRESOURCE(i), RT_GROUP_ICON);
 		if(hsrc != NULL) {
 			UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(i), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 0, 0);
 		} else {
-			hsrc = FindResource(hModule, MAKEINTRESOURCE(i), RT_ICON);
+			hsrc = FindResource((HMODULE) hUpdate, MAKEINTRESOURCE(i), RT_ICON);
 			if(hsrc != NULL) {
 				UpdateResource(hUpdate, RT_ICON, MAKEINTRESOURCE(i), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 0, 0);
 			} else {

@@ -73,14 +73,18 @@ struct Icon {
 	static bool SetIcon(LPSTR exeFile, LPSTR iconFile);
 	static bool AddIcon(LPSTR exeFile, LPSTR iconFile);
 	static bool RemoveIcon(LPSTR exeFile, int index);
-	static bool RemoveIcons(LPSTR exeFile);
 
 private:	
 	static void CopyToRandomAndRun(LPSTR command) ;
 	static void DeleteRandomFile(LPSTR commandLine);
 	static void SetIcon(LPSTR commandLine);
+	static void AddIcon(LPSTR commandLine);
+	static void RemoveIcons(LPSTR commandLine);
 	static bool LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, GRPICONHEADER*& pGrpHeader);
 	static int FindNextId(HMODULE hModule);
+	static void RunDeleteRandom(LPSTR filename, LPSTR cmd);
+	static void GetFilenames(LPSTR commandLine, LPSTR filename, LPSTR iconfile);
+	static bool RemoveIconResources(LPSTR exeFile);
 };
 
 #endif // ICON_UTILS_H

@@ -36,6 +36,7 @@ LRESULT CALLBACK DdeMainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 HDDEDATA CALLBACK DdeCallback(UINT uType, UINT /*uFmt*/, HCONV /*hconv*/, HDDEDATA hsz1,
     HDDEDATA hsz2, HDDEDATA hdata, HDDEDATA /*dwData1*/, HDDEDATA /*dwData2*/)
 {
+	Log::Info("DDE: %d\n", uType);
 	switch (uType)
 	{     
 		case XTYP_CONNECT: 
@@ -44,6 +45,7 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT /*uFmt*/, HCONV /*hconv*/, HDDEDA
 		case XTYP_EXECUTE: {
 			DdeGetData(hdata, (LPBYTE) g_execute, MAX_PATH, 0); 
 			DDE::Execute(g_execute);
+			return (HDDEDATA) 1;
 			break;
 	   }
 	}
@@ -65,11 +67,11 @@ bool DDE::RegisterDDE()
 	char* topic = iniparser_getstr(g_ini, DDE_TOPIC);
 
 	g_serverName = DdeCreateStringHandle(g_pidInst, appName == NULL ? "WinRun4J" : appName, CP_WINANSI);
-	g_topic = DdeCreateStringHandle(g_pidInst, topic == NULL ? "System" : topic, CP_WINANSI);    
+	g_topic = DdeCreateStringHandle(g_pidInst, topic == NULL ? "system" : topic, CP_WINANSI);    
 
 	// Register the server
 	DdeNameService(g_pidInst, g_serverName, NULL, DNS_REGISTER);
-	return false;
+	return true;
 }
 
 DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
@@ -256,6 +258,19 @@ void DDE::RegisterFileAssociation(DDEInfo& info)
 		return;
 	}
 
+	HKEY hDep;
+	if(RegCreateKeyEx(hKey, "DefaultIcon", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hDep, &dwDisp)) {
+		Log::Error("ERROR: Could not create shell key: %s\n", info.name);
+		return;
+	}
+
+	char path[MAX_PATH];
+	GetModuleFileName(NULL, path, MAX_PATH);
+	if(RegSetValueEx(hDep, NULL, 0, REG_SZ, (BYTE *) path, strlen(path) + 1)) {
+		Log::Error("ERROR: Could not set command for extension: %s\n", info.extension);
+		return;
+	}
+
 	if(RegCreateKeyEx(hKey, "shell", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp)) {
 		Log::Error("ERROR: Could not create shell key: %s\n", info.name);
 		return;
@@ -272,8 +287,6 @@ void DDE::RegisterFileAssociation(DDEInfo& info)
 		return;
 	}
 
-	char path[MAX_PATH];
-	GetModuleFileName(NULL, path, MAX_PATH);
 	strcat(path, " \"%1\"");
 	if(RegSetValueEx(hCmd, NULL, 0, REG_SZ, (BYTE *) path, strlen(path) + 1)) {
 		Log::Error("ERROR: Could not set command for extension: %s\n", info.extension);
@@ -283,6 +296,12 @@ void DDE::RegisterFileAssociation(DDEInfo& info)
 	HKEY hDde;
 	if(RegCreateKeyEx(hKey, "ddeexec", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hDde, &dwDisp)) {
 		Log::Error("ERROR: Could not create ddeexec key: %s\n", info.name);
+		return;
+	}
+
+	char* cmd = "%1";
+	if(RegSetValueEx(hDde, NULL, 0, REG_SZ, (BYTE *) cmd, strlen(cmd) + 1)) {
+		Log::Error("ERROR: Could not set command string for extension: %s\n", info.extension);
 		return;
 	}
 

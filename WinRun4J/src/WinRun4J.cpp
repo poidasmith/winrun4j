@@ -45,6 +45,18 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 		return 0;
 	}
 
+	// Check for AddIcon util request
+	if(StartsWith(lpCmdLine, "--WinRun4J:AddIcon")) {
+		Icon::AddExeIcon(lpCmdLine);
+		return 0;
+	}
+
+	// Check for DeleteIcon util request
+	if(StartsWith(lpCmdLine, "--WinRun4J:RemoveIcon")) {
+		Icon::RemoveExeIcons(lpCmdLine);
+		return 0;
+	}
+
 	// Check for RegisterDDE util request
 	if(StartsWith(lpCmdLine, "--WinRun4J:RegisterFileAssociations")) {
 		DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);

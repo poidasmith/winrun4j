@@ -167,17 +167,30 @@ extern "C" int _cdecl _ftol2_sse()
 
 extern "C" FILE* _cdecl __iob_func()
 {
-	return 0;
+	static FILE _iob[3] = {
+	  { NULL, 0, NULL, 0, 0, 0, 0 },
+	  { NULL, 0, NULL, 0, 1, 0, 0 },
+	  { NULL, 0, NULL, 0, 2, 0, 0 }
+	};
+
+	return _iob;
 }
 
 extern "C" FILE* _cdecl _fdopen(int fd, const char *mode)
 {
-	return 0;
+	FILE* ret = new FILE;
+	ret->_file = fd;
+	ret->_base = 0;
+	ret->_cnt = 0;
+	ret->_ptr = NULL;
+	ret->_flag = _IOREAD | _IOWRT;
+
+	return ret;
 }
 
 extern "C" int _cdecl _open_osfhandle(int c)
 {
-	return 0;
+	return c;
 }
 
 #endif 

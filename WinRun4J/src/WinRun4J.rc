@@ -1,6 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
-//#include "resource."
+#include "resource."
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -28,9 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-#ifndef CONSOLE
 1                       ICON                    "../WinRun4J.ico"
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -38,8 +36,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 //
 
 1 VERSIONINFO
- FILEVERSION 0,0,0,5
- PRODUCTVERSION 0,0,0,5
+ FILEVERSION 0,0,1,0
+ PRODUCTVERSION 0,0,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -55,9 +53,9 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "WinRun4J Application Launcher"
-            VALUE "FileVersion", "0, 0, 0, 5"
+            VALUE "FileVersion", "0, 0, 1, 0"
             VALUE "OriginalFilename", "WinRun4J.exe"
-            VALUE "ProductVersion", "0, 0, 0, 5"
+            VALUE "ProductVersion", "0, 0, 1, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -81,6 +79,11 @@ END
 3 TEXTINCLUDE 
 BEGIN
     "\r\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
 END
 
 #endif    // APSTUDIO_INVOKED

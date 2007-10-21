@@ -67,6 +67,7 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 		level = error;
 	}
 
+#ifndef CONSOLE
 	if(!haveInit) {
 		// Attempt to attach to parent console (if function is present)
 		HMODULE hModule = GetModuleHandle("kernel32");
@@ -79,7 +80,9 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 				printf("\n\n");
 			}
 		}
+		haveInit = TRUE;
 	}
+#endif
 
 	// If there is a log file specified redirect std streams to this file
 	if(logfile != NULL) {
