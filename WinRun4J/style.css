@@ -1,65 +1,66 @@
-body, td, th
+.section-content, BODY, TD, TH
 {
-	color: 666666;
+	color: #666666;
 	font-family: arial;
 	font-size: 12px;
 	text-align: left;
+	padding-top: 10px;
 }
 .title
 {
-	font-size:28px;
-	color:1393c0;
+	font-size: 28px;
+	color: #1393c0;
 }
 .subtitle
 {
-	font-size:20px;
-	color:BBBBBB
+	font-size: 20px;
+	color: #BBBBBB;
 }
 .section-title
 {
-	font-size:15px;
-	color:006090;
+	padding-top: 10px;
+	border-top: 1px solid #cccccc;
+	font-size: 15px;
+	color: #006090;
+}
+.section
+{
+	padding-top: 10px;
 }
 .section-heading
 {
-	font-size:13px;
-	color:666666;
+	font-size: 13px;
+	color: #666666;
 }
-a 
+A 
 {
-	color:1393c0;
-	text-decoration:none;
-	font-size:12px
+	color: #1393c0;
+	text-decoration: none;
+	font-size: 12px;
 }
-a:hover 
+A:hover 
 {
-	color:1393c0;
-	text-decoration:underline
+	color: #1393c0;
+	text-decoration: underline;
 }
-table,tr,td,th
+TABLE, TR, TD, TH
 {
-	border-collapse:collapse;
-	border:1px solid;
-	border-color:BBBBBB;
-	padding:5px;
+	border-collapse: collapse;
+	border: 1px solid;
+	border-color: #BBBBBB;
+	padding: 5px;
 }
-
-body
+BODY
 {
-		width:700px;
-		margin-right:auto;
-		margin-left:auto;
-		margin-top:10px;
-		padding:0px;
-		text-align:left;
+	width: 750px;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 10px;
+	padding: 0px;
+	text-align: left;
 }
-
-.section
+.footer
 {
-	border-bottom:1px solid #cccccc;
-}
-#footer
-{
-	border-top:1px solid #cccccc;
+	border-top: 1px solid #cccccc;
 }
 
