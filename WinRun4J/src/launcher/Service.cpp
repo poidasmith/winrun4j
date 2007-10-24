@@ -13,6 +13,7 @@
 #include "../common/Log.h"
 #include "../java/JNI.h"
 #include "../java/VM.h"
+#include "../WinRun4J.h"
 
 SERVICE_STATUS g_serviceStatus;
 SERVICE_STATUS_HANDLE g_serviceStatusHandle;
@@ -64,6 +65,7 @@ void WINAPI ServiceCtrlHandler(DWORD opCode)
 
 void WINAPI ServiceStart(DWORD argc, LPTSTR *argv)
 {
+	DebugBreak();
 	g_serviceStatus.dwServiceType = SERVICE_WIN32;
 	g_serviceStatus.dwCurrentState = SERVICE_START_PENDING;
 	g_serviceStatus.dwControlsAccepted = Service::GetControlsAccepted();
@@ -88,6 +90,10 @@ int Service::Initialise(dictionary* ini)
 {
 	// Initialise JNI members
 	JNIEnv* env = VM::GetJNIEnv();
+	if(env == NULL) {
+		env = 
+	}
+
 	g_serviceClass = env->FindClass(iniparser_getstr(ini, SERVICE_CLASS));
 	if(g_serviceClass == NULL) {
 		Log::Error("Could not find service class\n");
@@ -161,6 +167,7 @@ int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
 // We expect the commandline to be "--WinRun4J:RegisterService"
 int Service::Register(dictionary* ini)
 {
+	DebugBreak();
 	int result = Initialise(ini);
 	if(result != 0) {
 		return result;
@@ -181,6 +188,7 @@ int Service::Register(dictionary* ini)
 // We expect the commandline to be "--WinRun4J:UnregisterService"
 int Service::Unregister(dictionary* ini)
 {
+	DebugBreak();
 	int result = Initialise(ini);
 	if(result != 0) {
 		return result;

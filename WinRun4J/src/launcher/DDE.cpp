@@ -36,7 +36,6 @@ LRESULT CALLBACK DdeMainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 HDDEDATA CALLBACK DdeCallback(UINT uType, UINT /*uFmt*/, HCONV /*hconv*/, HDDEDATA hsz1,
     HDDEDATA hsz2, HDDEDATA hdata, HDDEDATA /*dwData1*/, HDDEDATA /*dwData2*/)
 {
-	Log::Info("DDE: %d\n", uType);
 	switch (uType)
 	{     
 		case XTYP_CONNECT: 

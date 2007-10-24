@@ -28,7 +28,6 @@ static JNIEnv *env = 0;
 
 typedef jint (JNICALL *JNI_createJavaVM)(JavaVM **pvm, JNIEnv **env, void *args);
 
-
 JNIEnv* VM::GetJNIEnv()
 {
 	if(!jvm) return NULL;
@@ -153,10 +152,10 @@ int Version::Compare(Version& other)
 
 void Version::Parse(LPSTR version)
 {
-	strcpy_s(VersionStr, MAX_PATH, version);
+	strcpy(VersionStr, version);
 	int index = 0;
 	TCHAR v[MAX_PATH];
-	strcpy_s(v, MAX_PATH, version);
+	strcpy(v, version);
 	char* output = strtok(v, "._");
 	while(output != NULL) {
 		VersionPart[index++] = atoi(output);

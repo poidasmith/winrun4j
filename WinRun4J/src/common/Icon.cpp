@@ -57,10 +57,12 @@ void Icon::SetIcon(LPSTR commandLine)
 void Icon::GetFilenames(LPSTR commandLine, LPSTR filename, LPSTR iconfile)
 {
 	// Extract original file from commandline
-	strcpy_s(filename, MAX_PATH, &commandLine[27]);
+	commandLine = StripArg0(commandLine);
+	commandLine = StripArg0(commandLine);
+	strcpy(filename, commandLine);
 
 	// Make icon filename
-	strcpy_s(iconfile, MAX_PATH, filename);
+	strcpy(iconfile, filename);
 	int len = strlen(filename);
 	iconfile[len - 1] = 'o';
 	iconfile[len - 2] = 'c';
@@ -239,7 +241,7 @@ bool Icon::AddIcon(LPSTR exeFile, LPSTR iconFile)
 	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
 
 	// Find next resource id
-	int nextId = FindNextId(NULL);
+	int nextId = FindNextId((HMODULE) hUpdate);
 
 	// Copy in icon group resource
 	UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(nextId++), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
@@ -284,23 +286,21 @@ void Icon::RemoveIcons(LPSTR commandLine)
 
 bool Icon::RemoveIconResources(LPSTR exeFile)
 {
-	DebugBreak();
 	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
 
-	for(int i = 1; ; i++) {
+	for(int i = 1; i < 1000; i++) {
 		HRSRC hsrc = FindResource((HMODULE) hUpdate, MAKEINTRESOURCE(i), RT_GROUP_ICON);
 		if(hsrc != NULL) {
 			UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(i), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 0, 0);
-		} else {
-			hsrc = FindResource((HMODULE) hUpdate, MAKEINTRESOURCE(i), RT_ICON);
-			if(hsrc != NULL) {
-				UpdateResource(hUpdate, RT_ICON, MAKEINTRESOURCE(i), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 0, 0);
-			} else {
-				break;
-			}
-		}
+		} 
+
+		hsrc = FindResource((HMODULE) hUpdate, MAKEINTRESOURCE(i), RT_ICON);
+		if(hsrc != NULL) {
+			UpdateResource(hUpdate, RT_ICON, MAKEINTRESOURCE(i), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 0, 0);
+		} 
 	}
 
+	EndUpdateResource(hUpdate, FALSE);
 	return false;
 }
 

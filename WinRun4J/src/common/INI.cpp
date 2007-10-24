@@ -36,8 +36,8 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance)
 {
 	TCHAR filename[MAX_PATH], inifile[MAX_PATH], filedir[MAX_PATH];
 	GetModuleFileName(hInstance, filename, sizeof(filename));
-	strcpy_s(inifile, sizeof(inifile), filename);
-	strcpy_s(filedir, sizeof(filedir), filename);
+	strcpy(inifile, filename);
+	strcpy(filedir, filename);
 	int len = strlen(inifile);
 	// It is assumed the executable ends with "exe"
 	inifile[len - 1] = 'i';

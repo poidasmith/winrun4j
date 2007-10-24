@@ -178,7 +178,7 @@ extern "C" FILE* _cdecl __iob_func()
 
 extern "C" FILE* _cdecl _fdopen(int fd, const char *mode)
 {
-	FILE* ret = new FILE;
+	FILE* ret = (FILE *) sizeof(FILE);
 	ret->_file = fd;
 	ret->_base = 0;
 	ret->_cnt = 0;

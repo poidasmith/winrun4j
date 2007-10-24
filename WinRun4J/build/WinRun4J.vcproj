@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/c"
 				Optimization="0"
-				AdditionalIncludeDirectories=""
+				AdditionalIncludeDirectories="DEBUG_LOG"
 				PreprocessorDefinitions="DEBUG_LOG,TINY"
 				ExceptionHandling="0"
 				BufferSecurityCheck="false"
@@ -212,7 +212,7 @@
 				BufferSecurityCheck="false"
 				WarningLevel="4"
 				DebugInformationFormat="3"
-				CallingConvention="2"
+				CallingConvention="0"
 				CompileAs="2"
 			/>
 			<Tool
