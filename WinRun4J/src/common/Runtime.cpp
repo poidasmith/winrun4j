@@ -126,6 +126,16 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, b
 
 #ifdef TINY
 
+extern "C" void * __cdecl malloc(size_t size)
+{
+    return HeapAlloc( GetProcessHeap(), 0, size );
+}
+
+extern "C" void __cdecl free(void * p)
+{
+    HeapFree( GetProcessHeap(), 0, p );
+}
+
 extern "C" char * _cdecl strdup(const char *str)
 {
     char *r;
@@ -134,15 +144,15 @@ extern "C" char * _cdecl strdup(const char *str)
     return strcpy (r, str);
 }
 
+extern "C" char * _cdecl _strdup(const char *src)
+{
+	return strdup(src);
+}
+
 extern "C" errno_t _cdecl strcpy_s(char *dest, rsize_t size, const char *source)
 {
 	strcpy(dest, source);
 	return 0;
-}
-
-extern "C" char * _cdecl _strdup(const char *src)
-{
-	return strdup(src);
 }
 
 extern "C" int _cdecl vsprintf_s(char *buffer, size_t sizeInBytes, const char *format, va_list argptr)
