@@ -144,12 +144,8 @@ import org.excel4j.reflect.ReflectAddin;
 /**
  * A very basic excel addin.
  */
-public class Example1 extends ReflectAddin {
-    /**
-     * A basic excel function.
-     *
-     * @return String.
-     */
+public class Example1 extends ReflectAddin 
+{
     public String MyFunc() {
         return "Hello World!";
     }
@@ -162,16 +158,36 @@ addin.class=org.excel4j.test.Example1
 </pre>
             </div>
         </div>
-        <div class="section">
-            <div class="section-title">Change History</div>
-            <div class="section-content">
-                <div class="section-heading">V0.0.1</div>
-                <ul>
-                    <li>Initial release.</li>
-                </ul>
-            </div>
+        The excel sheet would then look like this:<br/>
+        <img src="example1.jpg" border="0"/>
         </div>
-    </div>
+        <div class="section">
+            <div class="section-title">Example - Working With Arrays</div>
+            <div class="section-content">
+    
+<pre>
+package org.excel4j.test;
+
+import org.excel4j.reflect.ReflectAddin;
+
+/**
+ * An example using arrays.
+ */
+public class Example2 extends ReflectAddin
+{
+    public double MyExampleSum(double[][] vals) {
+        double result = 0;
+
+        for(int i = 0; i < vals.length; i++) {
+            for(int j = 0; j < vals[i].length; j++) {
+                result += vals[i][j];
+            }
+        }
+
+        return result;
+    }
+}
+</pre>
         <div class="section">
             <div class="section-title">Example - Working With Objects</div>
             <div class="section-content">
@@ -183,6 +199,15 @@ addin.class=org.excel4j.test.Example1
             </div>
         </div>
     </div>
+        <div class="section">
+            <div class="section-title">Change History</div>
+            <div class="section-content">
+                <div class="section-heading">V0.0.1</div>
+                <ul>
+                    <li>Initial release.</li>
+                </ul>
+            </div>
+        </div>
     <div id="footer">
         <p>
             <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=195634&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>

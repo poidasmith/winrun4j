@@ -91,7 +91,7 @@ int Service::Initialise(dictionary* ini)
 	// Initialise JNI members
 	JNIEnv* env = VM::GetJNIEnv();
 	if(env == NULL) {
-		env = 
+		return 1;
 	}
 
 	g_serviceClass = env->FindClass(iniparser_getstr(ini, SERVICE_CLASS));
