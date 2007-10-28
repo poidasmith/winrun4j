@@ -101,8 +101,6 @@ file.1.description=AVI Video File
 - add a mechanism to ReflectAddin to allow semi-permanent Storage of returned objects (plus a clear/refresh button).
 - add function namespacing option to ini file.
 - work out how event dispatch thread will work with addin menus/commands so that SWT and swing/awt can be used.
-- find out what is wrong with optimised build
-- check compatiblity on XP
 - performance tests
 
 ==== JNI ================================================================================================

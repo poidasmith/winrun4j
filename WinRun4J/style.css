@@ -43,6 +43,14 @@ a:hover
 	color: #1393c0;
 	text-decoration: underline;
 }
+pre
+{
+    border: 1px solid;
+    border-color: #BBBBBB;
+    margin: 20px;
+    padding: 5px;
+    background-color: #f0f0f0;
+}
 table, tr, td, th
 {
 	border-collapse: collapse;
