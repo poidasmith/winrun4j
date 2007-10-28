@@ -40,7 +40,7 @@
         <div class="section">
             <div class="section-title">Download</div>
             <div class="section-content">
-                The latest <a href="https://sourceforge.net/project/showfiles.php?group_id=195634">download</a> is available from the Project Page.
+                The latest <a href="http://sourceforge.net/project/showfiles.php?group_id=198992">download</a> is available from the Project Page.
             </div>
         </div>
         <div class="section">
@@ -110,10 +110,6 @@ If this amount is not available it will use the maximum amount possible
 given the physical memory available.</td>
                     </tr>
                     <tr>
-                        <td>arg.1, arg.2, ..., arg.n</td>
-                        <td>Program arguments. These will be sent before any command line arguments.</td>
-                    </tr>
-                    <tr>
                         <td>log</td>
                         <td>Standard out and error streams will be redirected to this file (including launcher messages).</td>
                     </tr>
@@ -164,7 +160,7 @@ addin.class=org.excel4j.test.Example1
         <div class="section">
             <div class="section-title">Example - Working With Arrays</div>
             <div class="section-content">
-    
+            The reflection framework can perform conversion from references to arrays:    
 <pre>
 package org.excel4j.test;
 
@@ -188,14 +184,44 @@ public class Example2 extends ReflectAddin
     }
 }
 </pre>
+		The excel sheet would then look like this:<br/>
+		<img src="example2.jpg" border="0"/>
+		</div>
         <div class="section">
             <div class="section-title">Example - Working With Objects</div>
             <div class="section-content">
-            The addin framework allows you to pass around Java objects to and from functions.
+            The reflection framework allows you to pass around Java objects to and from functions.
             This is achieved via ID references (strings) and a cache. An example of this is:
 <pre>
+package org.excel4j.test;
 
+import org.excel4j.reflect.ReflectAddin;
+
+/**
+ * An example using objects.
+ */
+public class Example3 extends ReflectAddin 
+{
+    public static class Test {
+        String a, b;
+    }
+    
+    public Test CreateTest() {
+        Test a = new Test();
+        a.a = "Hello";
+        a.b = "World!";
+        return a;
+    }
+    
+    public String[][] DumpTest(Test t) {
+        return new String[][] {
+                { "A", t.a },
+                { "B", t.b }};
+    }
+}
 </pre>
+		The excel sheet would then look like this:<br/>
+		<img src="example3.jpg" border="0"/>
             </div>
         </div>
     </div>
