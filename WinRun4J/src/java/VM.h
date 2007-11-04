@@ -50,13 +50,15 @@ struct VM {
 	static char* FindJavaVMLibrary(dictionary *ini);
 	static void ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count);
 	static char* GetJavaVMLibrary(LPSTR version, LPSTR min, LPSTR max);
-	static int StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[] );
+	static int StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[], bool attemptAttach = false );
 	static int CleanupVM();
 	static JNIEnv* GetJNIEnv();
 	
 public:
 	static Version* FindVersion(Version* versions, DWORD numVersions, LPSTR version, LPSTR min, LPSTR max);
 	static void FindVersions(Version* versions, DWORD* numVersions);
+	static void InjectVMID();
+	static bool IsMatchingVMID();
 };
 
 #endif // VM_UTILS_H

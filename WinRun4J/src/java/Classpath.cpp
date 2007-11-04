@@ -12,48 +12,75 @@
 #include "../common/Log.h"
 #include "../common/Dictionary.h"
 
-char* MakeClassPathEntry(TCHAR* dirend, TCHAR* path, TCHAR* filename)
+void ExpandClassPathEntry(char* arg, char** result, int* current, int max)
 {
-	TCHAR file[MAX_PATH];
-	file[0] = 0;
-	if(dirend != NULL) {
-		strcat(file, path);
-		strcat(file, "\\");
-	} 
-
-	strcat(file, filename);
-	return strdup(file);
-}
-
-void ExpandClassPathEntry(TCHAR** entries, int& index, TCHAR* entry)
-{
-	WIN32_FIND_DATA FindFileData;
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-	TCHAR* path = strdup(entry);
-
-	// Add special check for "." in classpath
-	if(strcmp(path, ".") == 0) {
-		entries[index++] = path;
+	// Check for too many results
+	if(*current >= max) {
 		return;
 	}
 
-	TCHAR* dirend = strrchr(path, '\\');
-	if(dirend == NULL) {
-		dirend = strrchr(path, '/');
-	}
-	if(dirend != NULL) {
-		path[dirend - path] = 0;
-	}
-	
-	hFind = FindFirstFile(entry, &FindFileData);
-	if(hFind != INVALID_HANDLE_VALUE) {
-		entries[index++] = MakeClassPathEntry(dirend, path, FindFileData.cFileName);
-		while(FindNextFile(hFind, &FindFileData) != 0) {
-			entries[index++] = MakeClassPathEntry(dirend, path, FindFileData.cFileName);
+	// Convert to full path
+	char fullpath[MAX_PATH];
+	GetFullPathName(arg, MAX_PATH, fullpath, NULL);
+	WIN32_FIND_DATA fd;
+
+	// Check for special case - where we don't have a wildcard
+	if(strchr(arg, '*') == NULL) {
+		if(FindFirstFile(fullpath, &fd) != INVALID_HANDLE_VALUE) {
+			result[*current] = strdup(fullpath);
+			(*current)++;
+			return;
 		}
 	}
 
-	free(path);
+	int len = strlen(fullpath);
+	int prev = 0;
+	bool hasStar = false;
+	char search[MAX_PATH];
+	for(int i = 0; i <= len; i++) {
+		if(fullpath[i] == '/' || fullpath[i] == '\\' || fullpath[i] == 0) {
+			if(hasStar) {
+				// Temp set end of string to be current position
+				fullpath[i] = 0;
+				HANDLE h = FindFirstFile(fullpath, &fd);
+				if(h == INVALID_HANDLE_VALUE) {
+					return;
+				} else {
+					if(strcmp(fd.cFileName, ".") != 0 && strcmp(fd.cFileName, "..") != 0) {
+						if(prev != 0) fullpath[prev] = 0;
+						strcpy(search, fullpath);
+						if(prev != 0) fullpath[prev] = '/';
+						strcat(search, "/");
+						strcat(search, fd.cFileName);
+						if(i < len - 1)	{
+							strcat(search, "/");
+							strcat(search, &fullpath[i + 1]);
+						}
+						ExpandClassPathEntry(search, result, current, max);
+					}
+					while(FindNextFile(h, &fd) != 0) {
+						if(strcmp(fd.cFileName, ".") != 0 && strcmp(fd.cFileName, "..") != 0) {
+							if(prev != 0) fullpath[prev] = 0;
+							strcpy(search, fullpath);
+							if(prev != 0) fullpath[prev] = '/';
+							strcat(search, "/");
+							strcat(search, fd.cFileName);
+							if(i < len - 1)	{
+								strcat(search, "/");
+								strcat(search, &fullpath[i + 1]);
+							}
+							ExpandClassPathEntry(search, result, current, max);
+						}
+					}
+					return;
+				}
+			} 
+			hasStar = false;
+			prev = i;
+		} else if(fullpath[i] == '*') {
+			hasStar = true;
+		}
+	}
 }
 
 // Build up the classpath entry from the ini file list
@@ -76,7 +103,7 @@ void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, int& count)
 		sprintf(entryName, "%s.%d", CLASS_PATH, i+1);
 		entry = iniparser_getstr(ini, entryName);
 		if(entry != NULL) {
-			ExpandClassPathEntry(entries, index, entry);
+			ExpandClassPathEntry(entry, entries, &index, MAX_PATH);
 		}
 		i++;
 		if(i > 10 && entry == NULL) {
