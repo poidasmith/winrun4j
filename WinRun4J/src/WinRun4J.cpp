@@ -174,7 +174,7 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	}
 
 	// Start the VM
-	if(VM::StartJavaVM(vmlibrary, vmargs) != 0) {
+	if(VM::StartJavaVM(vmlibrary, vmargs, NULL) != 0) {
 		Log::Error("Error starting java VM\n");
 		return 1;
 	}

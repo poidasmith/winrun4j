@@ -23,6 +23,7 @@
 // VM Version keys
 #define MAX_VER
 
+static HINSTANCE g_hInstance = 0;
 static JavaVM *jvm = 0;
 static JNIEnv *env = 0;
 
@@ -181,15 +182,18 @@ void VM::InjectVMID()
 		return;
 	}
 
-	jmethodID meth = env->GetMethodID(cls, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+	jmethodID meth = env->GetStaticMethodID(cls, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
 	if(meth == NULL) {
 		return;
 	}
 
 	char moduleName[MAX_PATH];
-	GetModuleFileName(NULL, moduleName, MAX_PATH);
+	GetModuleFileName(g_hInstance, moduleName, MAX_PATH);
 
 	env->CallStaticObjectMethod(cls, meth, env->NewStringUTF("XLL4J.ModuleName"), env->NewStringUTF(moduleName));
+	if(env->ExceptionCheck()) {
+		env->ExceptionClear();
+	}
 }
 
 bool VM::IsMatchingVMID()
@@ -203,13 +207,13 @@ bool VM::IsMatchingVMID()
 		return false;
 	}
 
-	jmethodID meth = env->GetMethodID(cls, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
+	jmethodID meth = env->GetStaticMethodID(cls, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
 	if(meth == NULL) {
 		return false;
 	}
 
 	char moduleName[MAX_PATH];
-	GetModuleFileName(NULL, moduleName, MAX_PATH);
+	GetModuleFileName(g_hInstance, moduleName, MAX_PATH);
 
 	jstring str = (jstring) env->CallStaticObjectMethod(cls, meth, env->NewStringUTF("XLL4J.ModuleName"));
 
@@ -284,8 +288,9 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 	}
 }
 
-int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], bool attemptAttach)
+int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool attemptAttach)
 {
+	g_hInstance = hInstance;
 	HMODULE jniLibrary = LoadLibrary(libPath);
 	if(jniLibrary == NULL) {
 		Log::Error("ERROR: Could not load library: %s\n", libPath);
@@ -348,8 +353,7 @@ int VM::CleanupVM()
 	if (jvm == 0 || env == 0)
 		return 1;
 
-	if (env->ExceptionOccurred()) 
-	{
+	if (env->ExceptionOccurred()) {
 		env->ExceptionDescribe();
 		env->ExceptionClear();
 	}
