@@ -93,7 +93,7 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 
 #ifdef DEBUG_LOG						
 #define LOG_IT						\
-	char tmp[1024];					\
+	char tmp[4096];					\
 	va_list args;					\
 	va_start(args, format);			\
 	vsprintf(tmp, format, args);	\
@@ -101,9 +101,11 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 	va_end(args);					
 #else
 #define LOG_IT						\
+	char tmp[4096];					\
 	va_list args;					\
 	va_start(args, format);			\
-	vprintf(format, args);			\
+	vsprintf(tmp, format, args);	\
+	puts(tmp);                      \
 	fflush(stdout);					\
 	fflush(stderr);					\
 	va_end(args);					
