@@ -83,6 +83,10 @@ file.1.description=AVI Video File
 
 ==== XLL4J ================================================================================================
 
+- handle large classpath entries
+- better error handling (eg. report actual exception)
+- handle relative jar in same directory for classpath
+- attach to current vm if matching
 
 - cleanup of cache objects in registry (via xlbitDLLFree) eg return object of type XLObjectReference.
 - handle multiple xlls (can only create one VM).
@@ -94,14 +98,29 @@ file.1.description=AVI Video File
 - free string from call java string method
 - handle row major/column major flags for arrays. 
 - think about using/supporting annotations.
-- handle overloaded functions (maybe with Function1, Function2)
+- handle overloaded functions (match the input args to the function args)
 - add ability to add excel menus/commands
 - add com layer so functions can be used from vba
-- website documentation
 - add a mechanism to ReflectAddin to allow semi-permanent Storage of returned objects (plus a clear/refresh button).
 - add function namespacing option to ini file.
 - work out how event dispatch thread will work with addin menus/commands so that SWT and swing/awt can be used.
 - performance tests
+
+- make the object registry cache a WeakHashMap. This should free up memory when required...
+- XLObjectConvert.convertArray need to swap Object[][]
+- change registry to use weak hash map
+- try to read in an object array (either from reference for return from function) and convert into object
+- free vm library in CleanupVM method.
+- check that XLArray.asArray is valid (eg. Excel might be freeing memory there)
+- date is a double with jan 01 1900 00:000 = 0, each day is 1.
+- write csv parser to attempt a parse on objects read in.
+- create a table class:
+	- support filtering (eg. "notional","<x")
+	- support aggregation fields
+	- support GetDistinctValue(columnname)
+	- support join on multiple tables
+	- support filter callback routine
+
 
 ==== JNI ================================================================================================
 

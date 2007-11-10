@@ -63,10 +63,10 @@
                 <include name="**/*.java"/>
             </fileset>
         </jar>
-		<copy todir="${deploy.dir}/bin/" file="../WinRun4J/test/eclipse.ico"/>
-		<copy todir="${deploy.dir}/bin/" file="../WinRun4J/test/eclipse.ini"/>
-		<copy todir="${deploy.dir}/bin/" file="../WinRun4J/test/service.ini"/>
-		<copy todir="${deploy.dir}/bin/" file="../WinRun4J/test/EclipseFile.ico"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/eclipse.ico"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/eclipse.ini"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/service.ini"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/EclipseFile.ico"/>
 		<delete dir="build"/>
 		<zip destfile="${release.dir}/${release.name}-${release.version}.zip">
 			<fileset dir="${release.dir}/${release.name}-${release.version}">

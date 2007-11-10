@@ -71,10 +71,6 @@
 						<td>This is the java class that will be run</td>
 					</tr>
 					<tr>
-						<td>service.class</td>
-						<td>This is the java class that will be run (for a service)</td>
-					</tr>
-					<tr>
 						<td>vmarg.1, vmarg.2, ..., vmarg.n</td>
 						<td>Java VM args. These will be passed on to the VM.</td>
 					</tr>
@@ -145,6 +141,14 @@ given the physical memory available.</td>
 					<tr>
 						<td>dde.server.name, dde.topic, dde.window.class</td>
 						<td>Override the DDE server name, topic and window class.</td>
+					</tr>
+					<tr>
+						<td>service.class</td>
+						<td>This is the java class that will be run (for a service)</td>
+					</tr>
+					<tr>
+						<td>service.id</td>
+						<td>This is the ID of the service (used for registration)</td>
 					</tr>
 				</table>
 			</div>
@@ -276,6 +280,16 @@ public class ServiceTest implements Service {
         return returnCode;
     }
 }
+</pre>
+		The INI file for this service looks like this:
+<pre>
+service.class=org.boris.winrun4j.test.ServiceTest
+service.id=ServiceTest
+classpath.1=*.jar
+
+vmarg.1=-Xdebug
+vmarg.2=-Xnoagent
+vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 </pre>
 			</div>
 		</div>
