@@ -21,11 +21,14 @@ public class DDEMain extends Main {
         Reflection.invoke(this, "processConfiguration");
         Reflection.invoke(this, "getInstallLocation");
         URL[] bootPath = getBootPath(bootLocation);
-        Reflection.invoke(this, "setupJNI", bootPath);
-        if (Boolean.FALSE.equals(Reflection.invoke(this, "checkVersion", System.getProperty("java.version"), System.getProperty("osgi.requiredJavaVersion")))) //$NON-NLS-1$
+        Reflection.invoke(this, "setupJNI", new Object[] {bootPath});
+        if (Boolean.FALSE.equals(
+                Reflection.invoke(this, "checkVersion", 
+                        System.getProperty("java.version"), 
+                        System.getProperty("osgi.requiredJavaVersion", "")))) //$NON-NLS-1$
             return;
         setSecurityPolicy(bootPath);
-        Reflection.invoke(this, "handleSplash", bootPath);
+        Reflection.invoke(this, "handleSplash", new Object[] {bootPath});
         beforeFwkInvocation();
         invokeFramework(passThruArgs, bootPath);
     }

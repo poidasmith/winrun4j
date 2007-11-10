@@ -71,7 +71,17 @@ public class Reflection {
                     types[i] = args[i].getClass();
                 }
             }
-            Method m = o.getClass().getDeclaredMethod(methodName, types);
+            Class c = o.getClass();
+            Method m = null;
+            while(true) {
+                try {
+                    m = c.getDeclaredMethod(methodName, types);
+                    break;
+                } catch (Exception e) {
+                    c = c.getSuperclass();
+                    if(c == null) break;
+                }
+            }
             m.setAccessible(true);
             
             return m.invoke(o, args);
