@@ -31,6 +31,11 @@ static JNIEnv *env = 0;
 typedef jint (JNICALL *JNI_createJavaVM)(JavaVM **pvm, JNIEnv **env, void *args);
 typedef jint (JNICALL *JNI_getCreatedJavaVMs)(JavaVM **vmBuf, jsize bufLen, jsize *nVMs);
 
+JavaVM* VM::GetJavaVM()
+{
+	return jvm;
+}
+
 JNIEnv* VM::GetJNIEnv()
 {
 	if(!jvm) return NULL;
