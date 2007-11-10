@@ -17,6 +17,7 @@ public class ServiceTest implements Service {
      */
     public int doRequest(int request) throws ServiceException {
         switch(request) {
+        case SERVICE_CONTROL_STOP:
         case SERVICE_CONTROL_SHUTDOWN:
             shutdown = true;
             break;
@@ -28,7 +29,7 @@ public class ServiceTest implements Service {
      * @see org.boris.winrun4j.Service#getControlsAccepted()
      */
     public int getControlsAccepted() {
-        return SERVICE_ACCEPT_SHUTDOWN;
+        return SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
     }
 
     /* (non-Javadoc)
@@ -49,13 +50,15 @@ public class ServiceTest implements Service {
      * @see org.boris.winrun4j.Service#main(java.lang.String[])
      */
     public int main(String[] args) throws ServiceException {
+        int count = 0;
         while(!shutdown) {
             try {
-                Thread.sleep(60000);
+                Thread.sleep(6000);
             } catch (InterruptedException e) {
             }
             
-            EventLog.report("WinRun4J Test Service", EventLog.INFORMATION, "Ping");
+            if(++count % 10 == 0) 
+                EventLog.report("WinRun4J Test Service", EventLog.INFORMATION, "Ping");
         }
         
         return returnCode;
