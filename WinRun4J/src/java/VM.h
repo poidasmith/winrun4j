@@ -53,6 +53,7 @@ struct VM {
 	static int StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool attemptAttach = false );
 	static int CleanupVM();
 	static JNIEnv* GetJNIEnv();
+	static void DetachCurrentThread();
 	
 public:
 	static Version* FindVersion(Version* versions, DWORD numVersions, LPSTR version, LPSTR min, LPSTR max);

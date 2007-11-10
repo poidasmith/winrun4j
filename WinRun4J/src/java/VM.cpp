@@ -24,6 +24,7 @@
 #define MAX_VER
 
 static HINSTANCE g_hInstance = 0;
+static HMODULE g_jniLibrary = 0;
 static JavaVM *jvm = 0;
 static JNIEnv *env = 0;
 
@@ -36,6 +37,11 @@ JNIEnv* VM::GetJNIEnv()
 	JNIEnv* env = 0;
 	jvm->AttachCurrentThread((void**) &env, NULL);
 	return env;
+}
+
+void VM::DetachCurrentThread()
+{
+	if(jvm) jvm->DetachCurrentThread();
 }
 
 char* VM::FindJavaVMLibrary(dictionary *ini)
@@ -291,19 +297,19 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool attemptAttach)
 {
 	g_hInstance = hInstance;
-	HMODULE jniLibrary = LoadLibrary(libPath);
-	if(jniLibrary == NULL) {
+	g_jniLibrary = LoadLibrary(libPath);
+	if(g_jniLibrary == NULL) {
 		Log::Error("ERROR: Could not load library: %s\n", libPath);
 		return -1; 
 	}
 
-	JNI_createJavaVM createJavaVM = (JNI_createJavaVM)GetProcAddress(jniLibrary, "JNI_CreateJavaVM");
+	JNI_createJavaVM createJavaVM = (JNI_createJavaVM)GetProcAddress(g_jniLibrary, "JNI_CreateJavaVM");
 	if(createJavaVM == NULL) {
 		Log::Error("ERROR: Could not find JNI_CreateJavaVM function\n");
 		return -1; 
 	}
 
-	JNI_getCreatedJavaVMs getCreatedJavaVMs = (JNI_getCreatedJavaVMs)GetProcAddress(jniLibrary, "JNI_GetCreatedJavaVMs");
+	JNI_getCreatedJavaVMs getCreatedJavaVMs = (JNI_getCreatedJavaVMs)GetProcAddress(g_jniLibrary, "JNI_GetCreatedJavaVMs");
 	if(getCreatedJavaVMs == NULL) {
 		Log::Error("ERROR: Could not find JNI_GetCreatedJavaVMs function\n");
 		return -1; 
@@ -314,7 +320,7 @@ int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool a
 	if(attemptAttach) {
 		jsize num = 0;
 		int res = getCreatedJavaVMs(&jvm, 1, &num);
-		if(res == 0 && IsMatchingVMID())
+		if(res == 0 && jvm != 0 && IsMatchingVMID())
 			return 0;
 	}
 	
@@ -350,14 +356,24 @@ int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool a
 
 int VM::CleanupVM() 
 {
-	if (jvm == 0 || env == 0)
+	if (jvm == 0 || env == 0) {
+		FreeLibrary(g_jniLibrary);
 		return 1;
+	}
 
-	if (env->ExceptionOccurred()) {
+	JNIEnv* env = VM::GetJNIEnv();
+
+	if (env && env->ExceptionOccurred()) {
 		env->ExceptionDescribe();
 		env->ExceptionClear();
 	}
 
-	return jvm->DestroyJavaVM();
+	int result = jvm->DestroyJavaVM();
+	if(g_jniLibrary) {
+		FreeLibrary(g_jniLibrary);
+		g_jniLibrary = 0;
+	}
+
+	return result;
 }
 
