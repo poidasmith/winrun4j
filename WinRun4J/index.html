@@ -27,7 +27,7 @@
 						<li>Built-in icon replacer for custom icon.</li>
 						<li>Pre-JVM splash screen with auto-hide.</li>
 						<li>DDE implementation for file assocations.</li>
-						<li>Windows service wrapper.</li>
+						<li>Windows NT Service wrapper.</li>
 						<li>Windows EventLog API</li> 
 						<li>Console version</li>
 						<li>JNI library for INI access, splash screen, logger, registry, shell.</li>
@@ -67,8 +67,12 @@
 						<td>Classpath entries. These will be relative to the working directory above. They can be wildcards (eg. *.jar)</td>
 					</tr>
 					<tr>
-						<td>main.class or service.class</td>
+						<td>main.class</td>
 						<td>This is the java class that will be run</td>
+					</tr>
+					<tr>
+						<td>service.class</td>
+						<td>This is the java class that will be run (for a service)</td>
 					</tr>
 					<tr>
 						<td>vmarg.1, vmarg.2, ..., vmarg.n</td>
@@ -238,6 +242,7 @@ public class ServiceTest implements Service {
     public int doRequest(int request) throws ServiceException {
         switch(request) {
         case SERVICE_CONTROL_SHUTDOWN:
+        case SERVICE_CONTROL_STOP:
             shutdown = true;
             break;
         }
@@ -245,7 +250,7 @@ public class ServiceTest implements Service {
     }
 
     public int getControlsAccepted() {
-        return SERVICE_ACCEPT_SHUTDOWN;
+        return SERVICE_ACCEPT_SHUTDOWN | SERVICE_ACCEPT_STOP;
     }
 
     public String getName() {
@@ -257,13 +262,15 @@ public class ServiceTest implements Service {
     }
 
     public int main(String[] args) throws ServiceException {
+        int count = 0;
         while(!shutdown) {
             try {
-                Thread.sleep(60000);
+                Thread.sleep(6000);
             } catch (InterruptedException e) {
             }
             
-            EventLog.report("WinRun4J Test Service", EventLog.INFORMATION, "Hello World!");
+            if(++count % 10 == 0) 
+                EventLog.report("WinRun4J Test Service", EventLog.INFORMATION, "Ping");
         }
         
         return returnCode;
@@ -275,51 +282,40 @@ public class ServiceTest implements Service {
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
-				<div class="section-heading">V0.1.0</div>
+				V0.1.0
 				<ul>
 					<li>Added DDE for file assocations (with Eclipse java file association example).</li>
 					<li>Added Service wrapper.</li>
 					<li>Added Event Log API.</li>
 					<li>Added Registry API.</li>
-					<li>Added Shell API.</li>
 					<li>Reduced EXE size (using <a href="http://wcrt.sourceforge.net">wcrt</a>).</li>
 					<li>Added console version.</li>
 					<li>Environment variables can be used in INI file (eg. %TEMP%).</li>
 					<li>Fix for "." in classpath</li>
 					<li>Flag to disable splash screen autohide</li>
 				</ul>
-			</div>
-			<div class="section-content">
-				<div class="section-heading">V0.0.5</div>
+				V0.0.5
 				<ul>
 					<li>Added vm.location key.</li>
 				</ul>
-			</div>
-			<div class="section-content">
-				<div class="section-heading">V0.0.4</div>
+				V0.0.4
 				<ul>
 					<li>Fixes splash screen window not being destroyed.</li>
 				</ul>
-			</div>
-			<div class="section-content">
-				<div class="section-heading">V0.0.3</div>
+				V0.0.3
 				<ul>
 					<li>Added JNI access to INI file contents.</li>
 					<li>Added splash screen with auto-hide.</li>
 					<li>Added JNI access to the splash screen.</li>
 				</ul>
-			</div>
-			<div class="section-content">
-				<div class="section-heading">V0.0.2</div>
+				V0.0.2
 				<ul>
 					<li>Added VM version arguments to allow specification of minimum version, maximum version or exact version.</li>
 					<li>Add VM proportional heap size argument.</li>
 					<li>Added logging level.</li>
 					<li>Improved icon changer (no rename required).</li>
 				</ul>
-			</div>
-			<div class="section-content">
-				<div class="section-heading">V0.0.1</div>
+				V0.0.1
 				<ul>
 					<li>Initial release.</li>
 				</ul>
