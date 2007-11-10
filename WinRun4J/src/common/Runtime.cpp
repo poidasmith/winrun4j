@@ -188,7 +188,7 @@ extern "C" FILE* _cdecl __iob_func()
 
 extern "C" FILE* _cdecl _fdopen(int fd, const char *mode)
 {
-	FILE* ret = (FILE *) sizeof(FILE);
+	FILE* ret = (FILE *) malloc(sizeof(FILE));
 	ret->_file = fd;
 	ret->_base = 0;
 	ret->_cnt = 0;
