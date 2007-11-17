@@ -3,7 +3,7 @@
 	<property name="release.dir" value="C:/Development/Releases/"/>
 	<property name="src.dir" value="D:\eclipse\workspace3.1\WinRun4J"/>
 	<property name="release.name" value="winrun4J"/>
-	<property name="release.version" value="0.1.0"/>
+	<property name="release.version" value="0.1.2"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/winrun4j"/>
 	
 	<target name="build">
@@ -11,6 +11,7 @@
 		<mkdir dir="${deploy.dir}/bin"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release/WinRun4J.exe"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release - Console/WinRun4Jc.exe"/>
+		<copy tofile="${deploy.dir}/bin/WinRun4J64.exe" file="${src.dir}/x64/release64/WinRun4J.exe"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/test/WinRun4J.ini"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/SplashScreen.gif"/>
 		<copy todir="${deploy.dir}" file="${src.dir}/cpl-v10.html"/>
@@ -43,7 +44,7 @@
 		</jar>
 		<delete dir="build"/>
 		<jar destfile="${deploy.dir}/src/WinRun4J-cppsrc.zip">
-			<fileset dir="C:/Development/winrun4j">
+			<fileset dir="${src.dir}">
 				<include name="**/*.cpp"/>
 				<include name="**/*.h"/>
 				<include name="**/*.vcproj"/>
@@ -66,6 +67,7 @@
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/eclipse.ico"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/eclipse.ini"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/service.ini"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/WinRun4Jc.ini"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/EclipseFile.ico"/>
 		<delete dir="build"/>
 		<zip destfile="${release.dir}/${release.name}-${release.version}.zip">
