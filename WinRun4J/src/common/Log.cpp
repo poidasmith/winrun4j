@@ -116,6 +116,12 @@ void Log::SetLevel(LoggingLevel logingLevel)
 	level = logingLevel;
 }
 
+void Log::LogIt(LoggingLevel loggingLevel, const char* format, ...)
+{
+	if(level <= loggingLevel) {
+		LOG_IT
+	}
+}
 
 void Log::Info(const char* format, ...)
 {
@@ -199,9 +205,7 @@ void JNICALL Log::LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str)
 
 	jboolean iscopy = false;
 	const char* format = env->GetStringUTFChars(str, &iscopy);
-	if(level <= jlevel) {
-		LOG_IT
-	}
+	LogIt((LoggingLevel) jlevel, format);
 }
 
 void JNICALL Log::SetLastErrorJ(JNIEnv* env, jobject self, jstring str)

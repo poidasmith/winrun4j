@@ -1,5 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
+#include "resource."
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -35,8 +36,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 //
 
 1 VERSIONINFO
- FILEVERSION 0,0,1,0
- PRODUCTVERSION 0,0,1,0
+ FILEVERSION 0,0,1,2
+ PRODUCTVERSION 0,0,1,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -52,9 +53,9 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "WinRun4J Application Launcher"
-            VALUE "FileVersion", "0, 0, 1, 0"
+            VALUE "FileVersion", "0, 0, 1, 2"
             VALUE "OriginalFilename", "WinRun4J.exe"
-            VALUE "ProductVersion", "0, 0, 1, 0"
+            VALUE "ProductVersion", "0, 0, 1, 2"
         END
     END
     BLOCK "VarFileInfo"

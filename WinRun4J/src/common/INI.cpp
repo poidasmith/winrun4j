@@ -34,10 +34,9 @@ void INI::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entrie
 /* The ini filename is in the same directory as the executable and called the same (except with ini at the end). */
 dictionary* INI::LoadIniFile(HINSTANCE hInstance)
 {
-	TCHAR filename[MAX_PATH], inifile[MAX_PATH], filedir[MAX_PATH];
+	TCHAR filename[MAX_PATH], inifile[MAX_PATH];
 	GetModuleFileName(hInstance, filename, sizeof(filename));
 	strcpy(inifile, filename);
-	strcpy(filedir, filename);
 	int len = strlen(inifile);
 	// It is assumed the executable ends with "exe"
 	inifile[len - 1] = 'i';
