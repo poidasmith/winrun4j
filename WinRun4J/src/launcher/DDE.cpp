@@ -18,8 +18,8 @@ static DWORD g_pidInst = 0;
 static HSZ g_serverName = 0;
 static HSZ g_topic = 0;
 static char g_execute[MAX_PATH];
-static jclass g_class;
-static jmethodID g_methodID;
+static jclass g_class = 0;
+static jmethodID g_methodID = 0;
 
 // INI keys
 #define DDE_CLASS ":dde.class"
@@ -41,6 +41,8 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT /*uFmt*/, HCONV /*hconv*/, HDDEDA
 		case XTYP_CONNECT: 
 			if(hsz2 == (HDDEDATA) g_serverName && hsz1 == (HDDEDATA) g_topic)
 			 	return (HDDEDATA) 1;
+			break;
+
 		case XTYP_EXECUTE: {
 			DdeGetData(hdata, (LPBYTE) g_execute, MAX_PATH, 0); 
 			DDE::Execute(g_execute);
@@ -134,6 +136,10 @@ void DDE::Uninitialize()
 void DDE::Execute(LPSTR lpExecuteStr)
 {
 	JNIEnv* env = VM::GetJNIEnv();
+	if(env == NULL) return;
+	if(g_class == NULL) return;
+	if(g_methodID == NULL) return;
+
 	jstring str = 0;
 	if(lpExecuteStr) str = env->NewStringUTF(lpExecuteStr);
 	env->CallStaticVoidMethod(g_class, g_methodID, str);
@@ -340,3 +346,4 @@ void DDE::UnregisterFileAssociations(dictionary* ini, LPSTR lpCmdLine)
 {
 	EnumFileAssocations(ini, lpCmdLine, UnregisterFileAssociation);
 }
+
