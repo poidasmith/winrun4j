@@ -148,10 +148,10 @@ bool INI::RegisterNatives(JNIEnv *env, bool useExcel)
 			env->ExceptionClear();
 		return false;
 	}
-	methods[0].fnPtr = GetKeys;
+	methods[0].fnPtr = (void*) GetKeys;
 	methods[0].name = "getPropertyKeys";
 	methods[0].signature = "()[Ljava/lang/String;";
-	methods[1].fnPtr = GetKey;
+	methods[1].fnPtr = (void*) GetKey;
 	methods[1].name = "getProperty";
 	methods[1].signature = "(Ljava/lang/String;)Ljava/lang/String;";
 	env->RegisterNatives(clazz, methods, 2);

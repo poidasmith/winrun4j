@@ -20,6 +20,10 @@ static HSZ g_topic = 0;
 static char g_execute[MAX_PATH];
 static jclass g_class = 0;
 static jmethodID g_methodID = 0;
+static bool g_ready = 0;
+static LPSTR *g_buffer = NULL;
+static int g_buffer_ix = 0;
+static int g_buffer_siz = 0;
 
 // INI keys
 #define DDE_CLASS ":dde.class"
@@ -140,9 +144,49 @@ void DDE::Execute(LPSTR lpExecuteStr)
 	if(g_class == NULL) return;
 	if(g_methodID == NULL) return;
 
-	jstring str = 0;
-	if(lpExecuteStr) str = env->NewStringUTF(lpExecuteStr);
-	env->CallStaticVoidMethod(g_class, g_methodID, str);
+	if (g_ready) {
+		if (g_class != NULL) {
+			Log::Info("DDE Execute: %s\n", lpExecuteStr);
+			jstring str = 0;
+			if(lpExecuteStr) str = env->NewStringUTF(lpExecuteStr);
+			env->CallStaticVoidMethod(g_class, g_methodID, str);
+
+			if(env->ExceptionOccurred()) {
+				env->ExceptionDescribe();
+				env->ExceptionClear();
+			}
+		}
+	} else {
+		/* Allocate a copy of the string */
+		LPSTR buffered = (LPSTR) malloc(MAX_PATH);
+		strcpy(buffered, lpExecuteStr);
+
+		if (g_buffer == NULL) {
+			/* Create buffer */
+			g_buffer_siz = 10;
+			g_buffer = (LPSTR*) malloc(sizeof(LPSTR) * g_buffer_siz);
+		} else if (g_buffer_ix >= g_buffer_siz) {
+			/* Enlarge buffer */
+			g_buffer_siz += 10;
+			LPSTR *new_buffer = (LPSTR*) malloc(sizeof(LPSTR) * g_buffer_siz);
+			memcpy(new_buffer, g_buffer, sizeof(LPSTR) * g_buffer_ix);
+			free(g_buffer);
+			g_buffer = new_buffer;
+		}
+		g_buffer[g_buffer_ix++] = buffered;
+	}
+}
+
+void DDE::Ready() {
+	g_ready = 1;
+	
+	for (int i = 0; i < g_buffer_ix; i++) {
+		LPSTR lpExecuteStr = g_buffer[i];
+		DDE::Execute(lpExecuteStr);
+		free(lpExecuteStr);
+	}
+	free(g_buffer);
+	g_buffer = NULL;
 }
 
 void DDE::RegisterWindow(HINSTANCE hInstance)

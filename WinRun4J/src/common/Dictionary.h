@@ -12,6 +12,7 @@ iniparser is distributed under an MIT license.
 
 #include "Runtime.h"
 #include <stdio.h>
+#include <ctype.h>
 
 typedef struct _dictionary_ {
 	int				n ;		/** Number of entries in dictionary */

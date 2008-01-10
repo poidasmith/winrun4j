@@ -17,6 +17,7 @@
 #include "common/Registry.h"
 
 #define ERROR_MESSAGES_JAVA_NOT_FOUND "ErrorMessages:java.not.found"
+#define ERROR_MESSAGES_JAVA_START_FAILED "ErrorMessages:java.failed"
 
 using namespace std;
 
@@ -175,7 +176,10 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 
 	// Start the VM
 	if(VM::StartJavaVM(vmlibrary, vmargs, NULL) != 0) {
-		Log::Error("Error starting java VM\n");
+		Log::Error("Error starting Java VM\n");
+		char* javaFailed = iniparser_getstr(ini, ERROR_MESSAGES_JAVA_START_FAILED);
+		MessageBox(NULL, (javaFailed == NULL ? "Error starting Java VM." : javaFailed), "Startup Error", 0);
+		Log::Close();
 		return 1;
 	}
 
@@ -248,6 +252,8 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 		Service::Run(hInstance, ini, progargsCount, progargs);
 	else
 		JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
+	
+	if (ddeInit) DDE::Ready();
 	
 	// Free the args memory
 	WinRun4J::FreeArgs();

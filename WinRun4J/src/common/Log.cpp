@@ -181,13 +181,13 @@ bool Log::RegisterNatives(JNIEnv* env)
 	JNINativeMethod nm[3];
 	nm[0].name = "log";
 	nm[0].signature = "(ILjava/lang/String;)V";
-	nm[0].fnPtr = Log::LogJ;
+	nm[0].fnPtr = (void*) Log::LogJ;
 	nm[1].name = "setLastError";
 	nm[1].signature = "(Ljava/lang/String;)V";
-	nm[1].fnPtr = Log::SetLastErrorJ;
+	nm[1].fnPtr = (void*) Log::SetLastErrorJ;
 	nm[2].name = "getLastError";
 	nm[2].signature = "()Ljava/lang/String;";
-	nm[2].fnPtr = Log::GetLastErrorJ;
+	nm[2].fnPtr = (void*) Log::GetLastErrorJ;
 	env->RegisterNatives(clazz, nm, 3);
 
 	if(env->ExceptionCheck()) {

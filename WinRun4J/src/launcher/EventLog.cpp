@@ -22,7 +22,7 @@ bool EventLog::RegisterNatives(JNIEnv *env)
 	}
 
 	JNINativeMethod methods[1];
-	methods[0].fnPtr = Report;
+	methods[0].fnPtr = (void*) Report;
 	methods[0].name = "report";
 	methods[0].signature = "(Ljava/lang/String;ILjava/lang/String;)Z";
 	env->RegisterNatives(clazz, methods, 1);

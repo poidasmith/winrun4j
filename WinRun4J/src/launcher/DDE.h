@@ -31,6 +31,7 @@ public:
 	static void Uninitialize();
 	static bool RegisterDDE();
 	static void RegisterWindow(HINSTANCE hInstance);
+	static void Ready();
 
 	// Registration helpers
 	static void RegisterFileAssociations(dictionary* ini, LPSTR lpCmdLine);

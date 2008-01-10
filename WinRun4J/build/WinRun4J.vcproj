@@ -993,10 +993,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\src\resource"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

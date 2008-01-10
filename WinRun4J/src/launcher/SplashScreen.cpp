@@ -222,10 +222,10 @@ void SplashScreen::RegisterNatives(JNIEnv *env)
 	}
 
 	JNINativeMethod methods[2];
-	methods[0].fnPtr = GetWindowHandle;
+	methods[0].fnPtr = (void*) GetWindowHandle;
 	methods[0].name = "getWindowHandle";
 	methods[0].signature = "()J";
-	methods[1].fnPtr = Close;
+	methods[1].fnPtr = (void*) Close;
 	methods[1].name = "close";
 	methods[1].signature = "()V";
 	env->RegisterNatives(clazz, methods, 2);
