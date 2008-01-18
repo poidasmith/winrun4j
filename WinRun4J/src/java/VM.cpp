@@ -17,6 +17,7 @@
 
 // VM Registry keys
 #define JRE_REG_PATH TEXT("Software\\JavaSoft\\Java Runtime Environment")
+#define IBM_JRE_REG_PATH TEXT("Software\\IBM\\Java2 Runtime Environment")
 #define JRE_VERSION_KEY TEXT("CurrentVersion")
 #define JRE_LIB_KEY TEXT("RuntimeLib")
 
@@ -70,8 +71,8 @@ char* VM::GetJavaVMLibrary(LPSTR version, LPSTR min, LPSTR max)
 	HKEY hKey, hVersionKey;
 
 	// Find the available versions
-	Version versions[20];
-	DWORD numVersions = 20;
+	DWORD numVersions = 255;
+	Version versions[255];
 	FindVersions(versions, &numVersions);
 
 	// Now get the appropriate version
@@ -81,7 +82,7 @@ char* VM::GetJavaVMLibrary(LPSTR version, LPSTR min, LPSTR max)
 	if(!v) return NULL;
 
 	// Now just grab the vm dll from the version
-	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_REG_PATH, 0, KEY_READ, &hKey) != ERROR_SUCCESS)
+	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, v->GetRegPath(), 0, KEY_READ, &hKey) != ERROR_SUCCESS)
 		return NULL;
 
 	if(RegOpenKeyEx(hKey, v->GetVersionStr(), 0, KEY_READ, &hVersionKey) != ERROR_SUCCESS)
@@ -122,7 +123,7 @@ Version* VM::FindVersion(Version* versions, DWORD numVersions, LPSTR version, LP
 	for(int i = 0; i < numVersions; i++) {
 		bool higher = (min == NULL || minV.Compare(versions[i]) <= 0) &&
 			(max == NULL || maxV.Compare(versions[i]) >= 0) &&
-			(maxVer == NULL || maxVer->Compare(versions[i]) <= 0);
+			(maxVer == NULL || maxVer->Compare(versions[i]) < 0);
 
 		if(higher) maxVer = &versions[i];
 	}
@@ -138,15 +139,27 @@ void VM::FindVersions(Version* versions, DWORD* numVersions)
 	DWORD size = *numVersions;
 	*numVersions = 0;
 
-	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_REG_PATH, 0, KEY_READ, &hKey) != ERROR_SUCCESS)
-		return;
+	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_REG_PATH, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+		for(; *numVersions < size; (*numVersions)++) {
+			length = MAX_PATH;
+			if(RegEnumKeyEx(hKey, *numVersions, version, &length, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+				break;
+			
+			versions[*numVersions].Parse(version);
+			versions[*numVersions].SetRegPath(JRE_REG_PATH);
+		}
+	}
 
-	for(; *numVersions < size; (*numVersions)++) {
-		length = MAX_PATH;
-		if(RegEnumKeyEx(hKey, *numVersions, version, &length, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
-			break;
-		
-		versions[*numVersions].Parse(version);
+	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, IBM_JRE_REG_PATH, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+		DWORD offset = *numVersions;
+		for(; *numVersions < size; (*numVersions)++) {
+			length = MAX_PATH;
+			if(RegEnumKeyEx(hKey, *numVersions - offset, version, &length, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+				break;
+			
+			versions[*numVersions].Parse(version);
+			versions[*numVersions].SetRegPath(IBM_JRE_REG_PATH);
+		}
 	}
 }
 

@@ -38,11 +38,14 @@ public:
 	void Parse(LPSTR version);
 	int Compare(Version& other);
 	char* GetVersionStr() { return VersionStr; }
+	char* GetRegPath() { return RegPath; }
+	void SetRegPath(char *regPath) { strcpy(RegPath, regPath); }
 
 private:
 	bool Parsed;
 	char VersionStr[MAX_PATH];
 	int VersionPart[10];
+	char RegPath[MAX_PATH];
 };
 
 // VM utilities
