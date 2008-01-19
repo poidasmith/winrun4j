@@ -227,9 +227,10 @@ file.1.description=Java Source File
 						<li>Create a test directory C:/test.</li>
 						<li>Copy WinRun4Jc.exe to C:/test and rename to service.exe.</li>
 						<li>Copy service.ini to C:/test.</li>
+						<li>Copy WinRun4JTest.jar to C:/test.</li>
 						<li>Run service.exe --WinRun4J:RegisterService. </li>
-						<li>To start the service run service.exe --WinRun4J:StartService.</li>
-						<li>To stop the service run service.exe --WinRun4J:StopService.</li>
+						<li>To start/stop the service use the control panel services console (The service name will be "WinRun4J Test Service")</li>
+						<li>To unregister run service.exe --WinRun4J:UnregisterService.</li>
 					</ol>
 				</p>
 				<p>
@@ -269,11 +270,11 @@ public class ServiceTest implements Service {
         int count = 0;
         while(!shutdown) {
             try {
-                Thread.sleep(6000);
+                Thread.sleep(60000);
             } catch (InterruptedException e) {
             }
             
-            if(++count % 10 == 0) 
+            if(++count % 5 == 0) 
                 EventLog.report("WinRun4J Test Service", EventLog.INFORMATION, "Ping");
         }
         
@@ -296,6 +297,25 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.1.4
+				<ul>
+					<li>More fixes for DDE execution on startup.</li>
+					<li>Added support for IBM JRE.</li>
+				</ul>
+				V0.1.3
+				<ul>
+					<li>Fixes for DDE execution on startup.</li>
+				</ul>
+				V0.1.2
+				<ul>
+					<li>Improvements to examples.</li>
+					<li>Experimental 64bit build.</li>
+					<li>Fix to CPP source files in package.</li>
+				</ul>
+				V0.1.1
+				<ul>
+					<li>Fixed bug in console logger.</li>
+				</ul>
 				V0.1.0
 				<ul>
 					<li>Added DDE for file assocations (with Eclipse java file association example).</li>
