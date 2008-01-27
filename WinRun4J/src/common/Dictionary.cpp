@@ -483,9 +483,7 @@ void iniparser_unset(dictionary * ini, char * entry)
     dictionary_unset(ini, strlwc(entry));
 }
 
-
-
-dictionary * iniparser_load(const char * ininame)
+dictionary * iniparser_load(char * ininame, bool isbuffer)
 {
     dictionary  *   d ;
     char        lin[ASCIILINESZ+1];
@@ -496,9 +494,13 @@ dictionary * iniparser_load(const char * ininame)
     FILE    *   ini ;
     int         lineno ;
 
-    if ((ini=fopen(ininame, "r"))==NULL) {
+    if (!isbuffer && (ini=fopen(ininame, "r"))==NULL) {
         return NULL ;
     }
+
+	if(isbuffer && !ininame) {
+		return NULL ;
+	}
 
     sec[0]=0;
 
@@ -507,7 +509,8 @@ dictionary * iniparser_load(const char * ininame)
      */
     d = dictionary_new(0);
     lineno = 0 ;
-    while (fgets(lin, ASCIILINESZ, ini)!=NULL) {
+	int pos = 0;
+	while ((isbuffer ? sgets(ininame, &pos, lin, ASCIILINESZ) : fgets(lin, ASCIILINESZ, ini))!=NULL) {
         lineno++ ;
         where = strskp(lin); /* Skip leading spaces */
         if (*where==';' || *where=='#' || *where==0)
@@ -534,7 +537,9 @@ dictionary * iniparser_load(const char * ininame)
             }
         }
     }
-    fclose(ini);
+    
+	if(!isbuffer) fclose(ini);
+
     return d ;
 }
 
@@ -638,3 +643,16 @@ char * strstrip(char * s)
 	return (char*)l ;
 }
 
+char* sgets(char* buffer, int* pos, char * line, int maxsize)
+{
+	if(buffer[*pos] == 0) return NULL;
+	int i = *pos;
+	for(; i < maxsize; i++) {
+		if(buffer[i] == '\n' || buffer[i] == 0)
+			break;
+	}
+	strncpy(line, &buffer[*pos], i - *pos - 1);
+	line[i - *pos - 1] = 0;
+	*pos = i + (buffer[i] == 0 ? 0 : 1);
+	return line;
+}

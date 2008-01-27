@@ -51,7 +51,7 @@ int iniparser_getboolean(dictionary * d, const char * key, int notfound);
 int iniparser_setstr(dictionary * ini, char * entry, char * val);
 void iniparser_unset(dictionary * ini, char * entry);
 int iniparser_find_entry(dictionary * ini, char * entry) ;
-dictionary * iniparser_load(const char * ininame);
+dictionary * iniparser_load(char * ininame, bool isbuffer = false);
 void iniparser_freedict(dictionary * d);
 
 // Strlib 
@@ -61,5 +61,6 @@ char * strupc(char * s);
 char * strskp(char * s);
 char * strcrop(char * s);
 char * strstrip(char * s) ;
+char * sgets(char* buffer, int* pos, char * line, int size) ;
 
 #endif // DICTIONARY_H
