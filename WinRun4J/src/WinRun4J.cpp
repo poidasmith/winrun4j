@@ -40,6 +40,9 @@ void WinRun4J::SetWorkingDirectory(dictionary* ini)
 
 int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 {
+	// Remove any leading whitespace
+	StrTrim(lpCmdLine, " ");
+
 	// Check for SetIcon util request
 	if(StartsWith(lpCmdLine, "--WinRun4J:SetIcon")) {
 		Icon::SetExeIcon(lpCmdLine);
@@ -306,7 +309,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	// Check for Builtin commands
 	if(IsBuiltInCommand(lpCmdLine)) {
-		StrTrim(lpCmdLine, " ");
 		WinRun4J::DoBuiltInCommand(hInstance, lpCmdLine);
 		Log::Close();
 		return 0;
