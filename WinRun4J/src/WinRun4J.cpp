@@ -270,6 +270,26 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	return result;
 }
 
+// Checks if the command is built in - strips off whitespace and quotes at the start.
+bool IsBuiltInCommand(LPSTR lpCmdLine)
+{
+	if(lpCmdLine == NULL)
+		return false;
+
+	int len = strlen(lpCmdLine);
+	int i = 0;
+	for(i = 0; i < len; i++) {
+		char c = lpCmdLine[i];
+		if(c != ' ' && c != '\"')
+			break;
+	}
+
+	if(len - i > 11)
+		return strncmp(&lpCmdLine[i], "--WinRun4J:", 11) == 0;
+	else
+		return false;
+}
+
 #ifdef CONSOLE
 int main(int argc, char* argv[])
 {
@@ -285,7 +305,8 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	Log::Init(hInstance, NULL, NULL);
 
 	// Check for Builtin commands
-	if(strncmp(lpCmdLine, "--WinRun4J:", 11) == 0) {
+	if(IsBuiltInCommand(lpCmdLine)) {
+		StrTrim(lpCmdLine, " ");
 		WinRun4J::DoBuiltInCommand(hInstance, lpCmdLine);
 		Log::Close();
 		return 0;
