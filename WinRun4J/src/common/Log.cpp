@@ -21,6 +21,7 @@ using namespace std;
 
 static const WORD MAX_CONSOLE_LINES = 500;
 static BOOL haveInit = FALSE;
+static BOOL canUseConsole = FALSE;
 static BOOL haveConsole = FALSE;
 static FILE* fp = NULL;
 static LoggingLevel level = none; 
@@ -68,16 +69,26 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 	}
 
 #ifndef CONSOLE
+	OSVERSIONINFO ver;
+	ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	BOOL result = GetVersionEx(&ver);	
+	if (result && ver.dwMajorVersion > 5 || (ver.dwMajorVersion == 5 && ver.dwMinorVersion > 0))
+		canUseConsole = TRUE;
+
 	if(!haveInit) {
-		// Attempt to attach to parent console (if function is present)
-		HMODULE hModule = GetModuleHandle("kernel32");
-		if(hModule != NULL) {
-			FPTR_AttachConsole AttachConsole = (FPTR_AttachConsole) GetProcAddress(hModule, "AttachConsole");
-			haveConsole = AttachConsole(-1);
-			if(haveConsole) {
-				AllocConsole();
-				RedirectIOToConsole();
-				printf("\n\n");
+		if(canUseConsole) {
+			// Attempt to attach to parent console (if function is present)
+			HMODULE hModule = GetModuleHandle("kernel32");
+			if(hModule != NULL) {
+				FPTR_AttachConsole AttachConsole = (FPTR_AttachConsole) GetProcAddress(hModule, "AttachConsole");
+				if(AttachConsole != NULL) {
+					haveConsole = AttachConsole(-1);
+					if(haveConsole) {
+						AllocConsole();
+						RedirectIOToConsole();
+						printf("\n\n");
+					}
+				}
 			}
 		}
 		haveInit = TRUE;
