@@ -33,6 +33,7 @@ __declspec(dllexport) HRESULT WINAPI CreateJavaVM(TCHAR* libPath, TCHAR** vmArgs
 	printf("Server Returned: %d\n", val);
 
 	ijvm->Release();
+	CoUninitialize();
 
 	return 0;
 }

@@ -25,8 +25,6 @@ public:
 
 	virtual HRESULT __stdcall QueryInterface(const IID& iid, void** ppv)
 	{
-		*ppv = NULL;
-
 		if(IsEqualIID(iid, IID_IUnknown) || IsEqualIID(iid, IID_IJNIServer)) {
 			*ppv = static_cast<IJNIServer*>(this) ; 
 		}
@@ -54,7 +52,7 @@ public:
 
 	virtual HRESULT __stdcall Test(long *pVal)
 	{
-		*pVal = 100;
+		*pVal = 1000;
 		return S_OK;
 	}
 
@@ -65,8 +63,11 @@ private:
 class JNIServerFactory : public IClassFactory 
 {
 public:
-	JNIServerFactory() : ref(1) {}
-	virtual ~JNIServerFactory() {}
+	JNIServerFactory() : ref(1), instance(new JNIServer) {}
+	virtual ~JNIServerFactory() 
+	{
+		instance->Release();
+	}
 
 	virtual HRESULT __stdcall CreateInstance(IUnknown* pUnknownOuter, const IID& iid, void** ppv) 
 	{
@@ -74,14 +75,7 @@ public:
 			return CLASS_E_NOAGGREGATION;
 		}
 
-		JNIServer* server = new JNIServer;
-		if(server == NULL)
-			return E_OUTOFMEMORY;
-
-		HRESULT hr = server->QueryInterface(iid, ppv);
-		server->Release();
-
-		return hr;
+		return instance->QueryInterface(iid, ppv);
 	}
 
 	virtual HRESULT __stdcall LockServer(BOOL bLock) 
@@ -91,8 +85,6 @@ public:
 
 	virtual HRESULT __stdcall QueryInterface(const IID& iid, void** ppv)
 	{
-		*ppv = NULL;
-
 		if(IsEqualIID(iid, IID_IUnknown) || IsEqualIID(iid, IID_IClassFactory)) {
 			*ppv = static_cast<IClassFactory*>(this) ; 
 		}
@@ -113,7 +105,6 @@ public:
 	{
 		if (InterlockedDecrement(&ref) == 0) {
 			delete this;
-			PostMessage(NULL,WM_QUIT,0,0);
 			return 0;
 		}
 		return ref;
@@ -121,6 +112,7 @@ public:
 
 private:
 	long ref;
+	JNIServer* instance;
 };
 
 int RegisterServer()
@@ -137,7 +129,6 @@ JNIServerFactory factory;
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
 {
-	//DebugBreak();
 	if (strcmp (lpCmdLine, "Register") == 0) {
 		return RegisterServer();
 	}
@@ -152,7 +143,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		return hr;
 
 	MSG msg;
-	BOOL res;
 	while (GetMessage(&msg, 0, 0, 0) > 0) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
