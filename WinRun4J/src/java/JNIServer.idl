@@ -1,0 +1,30 @@
+
+import "wtypes.idl";
+
+[
+    uuid(05FE15B4-AB13-4064-A22A-1A816059B6AE),
+    version(1.0)
+]
+library LibJNIServer
+{
+	importlib("stdole32.tlb");
+	importlib("stdole.tlb"); 
+
+	[ 
+	  uuid(05FE15B4-AB13-4064-A22A-1A816059B6AD),
+	  oleautomation 
+	]
+	interface IJNIServer : IUnknown
+	{
+		[id(1)] HRESULT Test([out] long* pVal);
+	}
+
+
+	[ uuid(05FE15B4-AB13-4064-A22A-1A816059B6AC),
+	  helpstring("JNIServer object") 
+	]
+	coclass JNIServer
+	{
+		[default] interface IJNIServer;
+	}
+}
