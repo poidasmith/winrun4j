@@ -12,7 +12,8 @@
 #define JNI_CLIENT_H
 
 #include "../common/Runtime.h"
-#include "../common/INI.h"
+#include <jni.h>
 
+__declspec(dllexport) HRESULT WINAPI CreateJavaVM(TCHAR* libPath, TCHAR** vmArgs, JavaVM** jvm);
 
 #endif // JNI_CLIENT_H

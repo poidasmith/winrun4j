@@ -12,6 +12,75 @@
 #include "Log.h"
 #include "../java/JNI.h"
 
+bool Registry::SetKeyAndValue(HKEY root, TCHAR* key, TCHAR* subkey, TCHAR* value)
+{
+	HKEY hKey;
+	char szKeyBuf[1024] ;
+
+	// Copy keyname into buffer.
+	strcpy(szKeyBuf, key) ;
+
+	// Add subkey name to buffer.
+	if (subkey != NULL) {
+		strcat(szKeyBuf, "\\") ;
+		strcat(szKeyBuf, subkey ) ;
+	}
+
+	// Create and open key and subkey.
+	long lResult = RegCreateKeyEx(root ,
+		szKeyBuf, 
+		0, NULL, REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS, NULL, 
+		&hKey, NULL) ;
+	if (lResult != ERROR_SUCCESS)
+	{
+		return FALSE ;
+	}
+
+	// Set the Value.
+	if (value != NULL)
+	{
+		RegSetValueEx(hKey, NULL, 0, REG_SZ, 
+			(BYTE *)value, 
+			DWORD( 1+strlen(value) ) 
+			) ;
+	}
+
+	RegCloseKey(hKey) ;
+	return TRUE ;
+}
+
+
+bool Registry::SetValue(HKEY root, TCHAR* key, TCHAR* entry, TCHAR* value)
+{
+	HKEY hKey;
+
+	// Create and open key and subkey.
+	long lResult = RegOpenKeyEx(root,
+		key, 
+		0, 
+		KEY_ALL_ACCESS, 
+		&hKey) ;
+	if (lResult != ERROR_SUCCESS)
+	{
+		return FALSE ;
+	}
+
+	// Set the Value.
+	if (value != NULL)
+	{
+		RegSetValueEx(hKey, entry, 0, REG_SZ, 
+			(BYTE *)value, 
+			DWORD( 1+strlen(value) )
+			) ;
+	}
+
+	RegCloseKey(hKey) ;
+
+	return TRUE;
+}
+
+#ifndef REGISTRY_UTIL_ONLY
 jlong Registry::OpenKey(JNIEnv* env, jobject self, jlong rootKey, jstring subKey)
 {
 	jboolean iscopy = false;
@@ -387,3 +456,4 @@ bool Registry::RegisterNatives(JNIEnv *env)
 	}
 	return true;
 }
+#endif

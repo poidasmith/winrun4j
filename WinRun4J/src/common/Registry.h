@@ -16,6 +16,12 @@
 
 class Registry {
 public:
+	static bool SetKeyAndValue(HKEY root, TCHAR* key, TCHAR* subkey, TCHAR* value);
+	static bool SetValue(HKEY root, TCHAR* key, TCHAR* entry, TCHAR* value);
+	static bool SetValue(HKEY root, TCHAR* key, TCHAR* entry, DWORD value);
+
+#ifndef REGISTRY_UTIL_ONLY
+public:
 	static bool RegisterNatives(JNIEnv* env);
 
 private:
@@ -44,6 +50,7 @@ private:
 	static void SetDoubleWordLittleEndian(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value);
 	static void SetDoubleWordBigEndian(JNIEnv* env, jobject self, jlong parent, jstring name, jlong value);
 	static void SetMultiString(JNIEnv* env, jobject self, jlong parent, jstring name, jobjectArray value);
+#endif
 };
 
 #endif // REGISTRY_H

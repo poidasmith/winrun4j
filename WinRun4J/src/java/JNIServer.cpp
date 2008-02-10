@@ -9,8 +9,158 @@
 *******************************************************************************/
 
 #include "../common/Runtime.h"
+#include "../../build/JNIServer_i.h"
+#include "../../build/JNIServer_i.c"
+#include <stdio.h>
 
-int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
+extern "C" int __cdecl _purecall()
 {
 	return 0;
 }
+
+class JNIServer : public IJNIServer {
+public:
+	JNIServer() : ref(1) {}
+	virtual ~JNIServer() {}
+
+	virtual HRESULT __stdcall QueryInterface(const IID& iid, void** ppv)
+	{
+		*ppv = NULL;
+
+		if(IsEqualIID(iid, IID_IUnknown) || IsEqualIID(iid, IID_IJNIServer)) {
+			*ppv = static_cast<IJNIServer*>(this) ; 
+		}
+		else {
+			*ppv = NULL ;
+			return E_NOINTERFACE ;
+		}
+		reinterpret_cast<IUnknown*>(*ppv)->AddRef() ;
+		return S_OK ;
+	}
+
+	virtual ULONG __stdcall AddRef()
+	{
+		return InterlockedIncrement(&ref);
+	}
+
+	virtual ULONG __stdcall Release()
+	{
+		if (InterlockedDecrement(&ref) == 0) {
+			delete this;
+			return 0;
+		}
+		return ref;
+	}
+
+	virtual HRESULT __stdcall Test(long *pVal)
+	{
+		*pVal = 100;
+		return S_OK;
+	}
+
+private:
+	long ref;
+};
+
+class JNIServerFactory : public IClassFactory 
+{
+public:
+	JNIServerFactory() : ref(1) {}
+	virtual ~JNIServerFactory() {}
+
+	virtual HRESULT __stdcall CreateInstance(IUnknown* pUnknownOuter, const IID& iid, void** ppv) 
+	{
+		if (pUnknownOuter != NULL)	{
+			return CLASS_E_NOAGGREGATION;
+		}
+
+		JNIServer* server = new JNIServer;
+		if(server == NULL)
+			return E_OUTOFMEMORY;
+
+		HRESULT hr = server->QueryInterface(iid, ppv);
+		server->Release();
+
+		return hr;
+	}
+
+	virtual HRESULT __stdcall LockServer(BOOL bLock) 
+	{
+		return S_OK;
+	}
+
+	virtual HRESULT __stdcall QueryInterface(const IID& iid, void** ppv)
+	{
+		*ppv = NULL;
+
+		if(IsEqualIID(iid, IID_IUnknown) || IsEqualIID(iid, IID_IClassFactory)) {
+			*ppv = static_cast<IClassFactory*>(this) ; 
+		}
+		else {
+			*ppv = NULL ;
+			return E_NOINTERFACE ;
+		}
+		reinterpret_cast<IUnknown*>(*ppv)->AddRef() ;
+		return S_OK ;
+	}
+
+	virtual ULONG __stdcall AddRef()
+	{
+		return InterlockedIncrement(&ref);
+	}
+
+	virtual ULONG __stdcall Release()
+	{
+		if (InterlockedDecrement(&ref) == 0) {
+			delete this;
+			PostMessage(NULL,WM_QUIT,0,0);
+			return 0;
+		}
+		return ref;
+	}
+
+private:
+	long ref;
+};
+
+int RegisterServer()
+{
+	return 0;
+}
+
+int UnregisterServer()
+{
+	return 0;
+}
+
+JNIServerFactory factory;
+
+int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
+{
+	//DebugBreak();
+	if (strcmp (lpCmdLine, "Register") == 0) {
+		return RegisterServer();
+	}
+	else if (strstr (lpCmdLine, "Unregister")) {
+		return UnregisterServer();
+	}
+
+	CoInitialize(0);	
+	DWORD registerId = 0;
+	HRESULT hr = CoRegisterClassObject(CLSID_JNIServer, &factory, CLSCTX_SERVER, REGCLS_SINGLEUSE, &registerId);
+	if(FAILED(hr))
+		return hr;
+
+	MSG msg;
+	BOOL res;
+	while (GetMessage(&msg, 0, 0, 0) > 0) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	CoRevokeClassObject(registerId);
+	CoUninitialize();
+
+	return 0;
+}
+
