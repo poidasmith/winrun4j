@@ -392,6 +392,9 @@ int VM::CleanupVM()
 		g_jniLibrary = 0;
 	}
 
+	env = 0;
+	jvm = 0;
+
 	return result;
 }
 

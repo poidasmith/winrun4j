@@ -9,6 +9,7 @@
 *******************************************************************************/
 
 #include "../common/Runtime.h"
+#include "../common/COMHelper.h"
 #include "../../build/JNIServer_i.h"
 #include "../../build/JNIServer_i.c"
 #include <stdio.h>
@@ -18,101 +19,13 @@ extern "C" int __cdecl _purecall()
 	return 0;
 }
 
-class JNIServer : public IJNIServer {
+class JNIServer : public COMBase<IJNIServer> {
 public:
-	JNIServer() : ref(1) {}
-	virtual ~JNIServer() {}
-
-	virtual HRESULT __stdcall QueryInterface(const IID& iid, void** ppv)
-	{
-		if(IsEqualIID(iid, IID_IUnknown) || IsEqualIID(iid, IID_IJNIServer)) {
-			*ppv = static_cast<IJNIServer*>(this) ; 
-		}
-		else {
-			*ppv = NULL ;
-			return E_NOINTERFACE ;
-		}
-		reinterpret_cast<IUnknown*>(*ppv)->AddRef() ;
-		return S_OK ;
-	}
-
-	virtual ULONG __stdcall AddRef()
-	{
-		return InterlockedIncrement(&ref);
-	}
-
-	virtual ULONG __stdcall Release()
-	{
-		if (InterlockedDecrement(&ref) == 0) {
-			delete this;
-			return 0;
-		}
-		return ref;
-	}
-
-	virtual HRESULT __stdcall Test(long *pVal)
-	{
-		*pVal = 1000;
-		return S_OK;
-	}
-
-private:
-	long ref;
-};
-
-class JNIServerFactory : public IClassFactory 
-{
-public:
-	JNIServerFactory() : ref(1), instance(new JNIServer) {}
-	virtual ~JNIServerFactory() 
-	{
-		instance->Release();
-	}
-
-	virtual HRESULT __stdcall CreateInstance(IUnknown* pUnknownOuter, const IID& iid, void** ppv) 
-	{
-		if (pUnknownOuter != NULL)	{
-			return CLASS_E_NOAGGREGATION;
-		}
-
-		return instance->QueryInterface(iid, ppv);
-	}
-
-	virtual HRESULT __stdcall LockServer(BOOL bLock) 
+	JNIServer() {}
+	virtual HRESULT __stdcall CreateJavaVM(BSTR libPath, SAFEARRAY* vmArgs, long* pJVM)
 	{
 		return S_OK;
 	}
-
-	virtual HRESULT __stdcall QueryInterface(const IID& iid, void** ppv)
-	{
-		if(IsEqualIID(iid, IID_IUnknown) || IsEqualIID(iid, IID_IClassFactory)) {
-			*ppv = static_cast<IClassFactory*>(this) ; 
-		}
-		else {
-			*ppv = NULL ;
-			return E_NOINTERFACE ;
-		}
-		reinterpret_cast<IUnknown*>(*ppv)->AddRef() ;
-		return S_OK ;
-	}
-
-	virtual ULONG __stdcall AddRef()
-	{
-		return InterlockedIncrement(&ref);
-	}
-
-	virtual ULONG __stdcall Release()
-	{
-		if (InterlockedDecrement(&ref) == 0) {
-			delete this;
-			return 0;
-		}
-		return ref;
-	}
-
-private:
-	long ref;
-	JNIServer* instance;
 };
 
 int RegisterServer()
@@ -125,7 +38,7 @@ int UnregisterServer()
 	return 0;
 }
 
-JNIServerFactory factory;
+ClassFactoryBase<JNIServer> factory;
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
 {

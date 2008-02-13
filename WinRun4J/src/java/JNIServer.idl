@@ -16,7 +16,7 @@ library LibJNIServer
 	]
 	interface IJNIServer : IUnknown
 	{
-		[id(1)] HRESULT Test([out] long* pVal);
+		[id(1)] HRESULT CreateJavaVM([in] BSTR libPath, SAFEARRAY(BSTR) vmArgs, [out] long* pJVM);
 	}
 
 
