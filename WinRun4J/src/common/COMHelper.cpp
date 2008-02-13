@@ -22,3 +22,18 @@ void FreeBSTR(BSTR bstr)
 {
 	SysFreeString(bstr);
 }
+
+SAFEARRAY* ConvertCharArrayToSafeArray(TCHAR** arr)
+{
+	return 0;
+}
+
+void FreeSafeArray(SAFEARRAY* arr)
+{
+}
+
+void ConvertBSTRToChar(BSTR bstr, char* str, int size)
+{
+	//wcscpy (wstr1, bstr);	
+	//WideCharToMultiByte (CP_ACP, 0, wstr1, -1, str, size, NULL, NULL);
+}

@@ -15,9 +15,9 @@
 
 BSTR ConvertCharToBSTR(char* str);
 void FreeBSTR(BSTR bstr);
-
-
-
+SAFEARRAY* ConvertCharArrayToSafeArray(TCHAR** arr);
+void FreeSafeArray(SAFEARRAY* arr);
+void ConvertBSTRToChar(BSTR bstr, char* str, int size);
 
 template<class T>
 class COMBase : public T {

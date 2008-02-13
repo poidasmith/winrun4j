@@ -15,26 +15,20 @@
 #include <jni.h>
 
 struct COMJavaVM {
-    jint DestroyJavaVM() {
-        return 0;
-    }
-    jint AttachCurrentThread(void **penv, void *args) {
-        return 0;
-    }
-    jint DetachCurrentThread() {
-        return 0;
-    }
-
-    jint GetEnv(void **penv, jint version) {
-        return 0;
-    }
-    jint AttachCurrentThreadAsDaemon(void **penv, void *args) {
-        return 0;
-    }
-
+    jint DestroyJavaVM();
+    jint AttachCurrentThread(void **penv, void *args);
+    jint DetachCurrentThread();
+    jint GetEnv(void **penv, jint version);
+    jint AttachCurrentThreadAsDaemon(void **penv, void *args);
 	IJNIServer* iJVM;
-	long pJVM;	
 };
+
+struct COMJNIEnv {
+	IJNIServer* iJVM;
+};
+
+COMJavaVM g_jvm;
+COMJNIEnv g_env;
 
 __declspec(dllexport) HRESULT WINAPI CreateJavaVM(TCHAR* libPath, TCHAR** vmArgs, JavaVM** jvm)
 {
@@ -42,31 +36,54 @@ __declspec(dllexport) HRESULT WINAPI CreateJavaVM(TCHAR* libPath, TCHAR** vmArgs
 	IJNIServer* iJVM = NULL;
 	HRESULT hr = CoCreateInstance(CLSID_JNIServer, NULL, CLSCTX_LOCAL_SERVER, IID_IJNIServer, (void **) &iJVM);
 	if(FAILED(hr)) {
-		printf("Failed to create instance: %x\n", hr);
 		return hr;
 	}
 
-	long pJVM = NULL;
-	hr = iJVM->CreateJavaVM(ConvertCharToBSTR(libPath), NULL, &pJVM);
+	BSTR bLibPath = ConvertCharToBSTR(libPath);
+	SAFEARRAY* sArgs = ConvertCharArrayToSafeArray(vmArgs);
+	hr = iJVM->CreateJavaVM(bLibPath, sArgs);
+	FreeBSTR(bLibPath);
+	FreeSafeArray(sArgs);
 	if(FAILED(hr)) {
-		printf("Failed to call test function: %x\n", hr);
 		return hr;
 	}
 
-	printf("CreateJavaVM call succeeded\n");
+	g_jvm.iJVM = iJVM;
+	*jvm = (JavaVM *)&g_jvm;
 
-	// Create wrapper struct over COM pointer
-	//COMJavaVM* cJVM = new COMJavaVM;
-	//cJVM->iJVM = iJVM;
-	//cJVM->pJVM = pJVM;
-	//*jvm = (JavaVM *)cJVM;
-
-	iJVM->Release();
-
-	return 0;
+	return S_OK;
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	return 1;
 }
+
+jint COMJavaVM::DestroyJavaVM()
+{
+	long result;
+	iJVM->DestroyJavaVM(&result);
+	return result;
+}
+
+jint COMJavaVM::AttachCurrentThread(void **penv, void *args)
+{
+	return 0;
+}
+
+jint COMJavaVM::DetachCurrentThread()
+{
+	return 0;
+}
+
+jint COMJavaVM::GetEnv(void **penv, jint version)
+{
+	*penv = &g_env;
+	return 0;
+}
+
+jint COMJavaVM::AttachCurrentThreadAsDaemon(void **penv, void *args)
+{
+	return 0;
+}
+
