@@ -13,6 +13,12 @@
 
 #include "Runtime.h"
 
+BSTR ConvertCharToBSTR(char* str);
+void FreeBSTR(BSTR bstr);
+
+
+
+
 template<class T>
 class COMBase : public T {
 public:

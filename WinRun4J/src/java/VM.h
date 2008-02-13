@@ -53,7 +53,7 @@ struct VM {
 	static char* FindJavaVMLibrary(dictionary *ini);
 	static void ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count);
 	static char* GetJavaVMLibrary(LPSTR version, LPSTR min, LPSTR max);
-	static int StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool attemptAttach = false );
+	static int StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool useExternal = false );
 	static int CleanupVM();
 	static JavaVM* GetJavaVM();
 	static JNIEnv* GetJNIEnv();

@@ -9,6 +9,7 @@
 *******************************************************************************/
 
 #include "JNIClient.h"
+#include "../common/COMHelper.h"
 #include "../../build/JNIServer_i.h"
 #include "../../build/JNIServer_i.c"
 #include <jni.h>
@@ -34,19 +35,6 @@ struct COMJavaVM {
 	IJNIServer* iJVM;
 	long pJVM;	
 };
-
-BSTR ConvertCharToBSTR(char* str)
-{
-	int a = lstrlenA(str);
-	BSTR bstr = SysAllocStringLen(NULL, a);
-	MultiByteToWideChar(CP_ACP, 0, str, a, bstr, a);
-	return bstr;
-}
-
-void FreeBSTR(BSTR bstr)
-{
-	SysFreeString(bstr);
-}
 
 __declspec(dllexport) HRESULT WINAPI CreateJavaVM(TCHAR* libPath, TCHAR** vmArgs, JavaVM** jvm)
 {
@@ -76,4 +64,9 @@ __declspec(dllexport) HRESULT WINAPI CreateJavaVM(TCHAR* libPath, TCHAR** vmArgs
 	iJVM->Release();
 
 	return 0;
+}
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{
+	return 1;
 }
