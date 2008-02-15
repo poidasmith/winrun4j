@@ -9,6 +9,7 @@
  *******************************************************************************/
 
 #include "VM.h"
+#include "JNIClient.h"
 #include "../common/Log.h"
 #include "../common/INI.h"
 
@@ -30,7 +31,6 @@ static JavaVM *jvm = 0;
 static JNIEnv *env = 0;
 
 typedef jint (JNICALL *JNI_createJavaVM)(JavaVM **pvm, JNIEnv **env, void *args);
-typedef jint (JNICALL *JNI_getCreatedJavaVMs)(JavaVM **vmBuf, jsize bufLen, jsize *nVMs);
 
 JavaVM* VM::GetJavaVM()
 {
@@ -195,64 +195,6 @@ void Version::Parse(LPSTR version)
 	Parsed = true;
 }
 
-void VM::InjectVMID()
-{
-	JNIEnv* env = GetJNIEnv();
-	if(env == NULL) return;
-
-	jclass cls = env->FindClass("java/lang/System");
-	if(cls == NULL) {
-		Log::SetLastError("Could not find java.lang.System class");
-		return;
-	}
-
-	jmethodID meth = env->GetStaticMethodID(cls, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
-	if(meth == NULL) {
-		return;
-	}
-
-	char moduleName[MAX_PATH];
-	GetModuleFileName(g_hInstance, moduleName, MAX_PATH);
-
-	env->CallStaticObjectMethod(cls, meth, env->NewStringUTF("XLL4J.ModuleName"), env->NewStringUTF(moduleName));
-	if(env->ExceptionCheck()) {
-		env->ExceptionClear();
-	}
-}
-
-bool VM::IsMatchingVMID()
-{
-	JNIEnv* env = GetJNIEnv();
-	if(env == NULL) return false;
-
-	jclass cls = env->FindClass("java/lang/System");
-	if(cls == NULL) {
-		Log::SetLastError("Could not find java.lang.System class");
-		return false;
-	}
-
-	jmethodID meth = env->GetStaticMethodID(cls, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
-	if(meth == NULL) {
-		return false;
-	}
-
-	char moduleName[MAX_PATH];
-	GetModuleFileName(g_hInstance, moduleName, MAX_PATH);
-
-	jstring str = (jstring) env->CallStaticObjectMethod(cls, meth, env->NewStringUTF("XLL4J.ModuleName"));
-
-	if(str == NULL)
-		return false;
-
-	jboolean iscopy = false;
-	const char* s = env->GetStringUTFChars(str, &iscopy);
-
-	int res = strcmp(moduleName, s);
-	env->ReleaseStringUTFChars(str, s);
-
-	return res == 0;
-}
-
 void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 {
 	// Extract memory size
@@ -312,8 +254,14 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 	}
 }
 
-int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool attemptAttach)
+int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool useExternal)
 {
+	if(useExternal) {
+		int result = CreateJavaVM(libPath, vmArgs, &jvm);
+		env = GetJNIEnv();
+		return result;
+	} 
+
 	g_hInstance = hInstance;
 	g_jniLibrary = LoadLibrary(libPath);
 	if(g_jniLibrary == NULL) {
@@ -327,21 +275,6 @@ int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool a
 		return -1; 
 	}
 
-	JNI_getCreatedJavaVMs getCreatedJavaVMs = (JNI_getCreatedJavaVMs)GetProcAddress(g_jniLibrary, "JNI_GetCreatedJavaVMs");
-	if(getCreatedJavaVMs == NULL) {
-		Log::Error("ERROR: Could not find JNI_GetCreatedJavaVMs function\n");
-		return -1; 
-	}
-
-	// We inject a cookie into the VM - this is used to check if the created
-	// VM is a match for the one we are attempting to create
-	if(attemptAttach) {
-		jsize num = 0;
-		int res = getCreatedJavaVMs(&jvm, 1, &num);
-		if(res == 0 && jvm != 0 && IsMatchingVMID())
-			return 0;
-	}
-	
 	// Count the vm args
 	int numVMArgs = -1;
 	while(vmArgs[++numVMArgs] != NULL) {}
@@ -364,10 +297,6 @@ int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool a
 		free( options[i].optionString );
 	}
 	free(options);
-
-	// Inject VM cookie
-	if(attemptAttach && result == 0)
-		InjectVMID();
 
 	return result;
 }

@@ -13,16 +13,22 @@
 
 #include "Runtime.h"
 
+
+// Conversion Utilities
+
 BSTR ConvertCharToBSTR(char* str);
 void FreeBSTR(BSTR bstr);
 SAFEARRAY* ConvertCharArrayToSafeArray(TCHAR** arr);
 void FreeSafeArray(SAFEARRAY* arr);
-void ConvertBSTRToChar(BSTR bstr, char* str, int size);
+char* ConvertBSTRToChar(BSTR bstr);
+TCHAR** ConvertSafeArrayToCharArray(SAFEARRAY* arr);
+
+// COM templates
 
 template<class T>
 class COMBase : public T {
 public:
-	COMBase() : ref(1) {}
+	COMBase(bool postQuitMessage = true) : ref(1), postQuit(postQuitMessage) {}
 	virtual ~COMBase() {}
 
 	virtual HRESULT __stdcall QueryInterface(const IID& iid, void** ppv)
@@ -47,7 +53,7 @@ public:
 	{
 		if (InterlockedDecrement(&ref) == 0) {
 			delete this;
-			PostMessage(NULL, WM_QUIT, 0, 0);
+			if(postQuit) PostMessage(NULL, WM_QUIT, 0, 0);
 			return 0;
 		}
 		return ref;
@@ -55,13 +61,14 @@ public:
 
 private:
 	long ref;
+	bool postQuit;
 };
 
 template <class T>
-class ClassFactoryBase : public IClassFactory 
+class ClassFactoryBase : public COMBase<IClassFactory>
 {
 public:
-	ClassFactoryBase() : ref(1) {}
+	ClassFactoryBase() : COMBase(false) {}
 	virtual ~ClassFactoryBase() {}
 
 	virtual HRESULT __stdcall CreateInstance(IUnknown* pUnknownOuter, const IID& iid, void** ppv) 
@@ -80,36 +87,6 @@ public:
 	{
 		return S_OK;
 	}
-
-	virtual HRESULT __stdcall QueryInterface(const IID& iid, void** ppv)
-	{
-		if(IsEqualIID(iid, IID_IUnknown) || IsEqualIID(iid, IID_IClassFactory)) {
-			*ppv = static_cast<IClassFactory*>(this) ; 
-		}
-		else {
-			*ppv = NULL ;
-			return E_NOINTERFACE ;
-		}
-		reinterpret_cast<IUnknown*>(*ppv)->AddRef() ;
-		return S_OK ;
-	}
-
-	virtual ULONG __stdcall AddRef()
-	{
-		return InterlockedIncrement(&ref);
-	}
-
-	virtual ULONG __stdcall Release()
-	{
-		if (InterlockedDecrement(&ref) == 0) {
-			delete this;
-			return 0;
-		}
-		return ref;
-	}
-
-private:
-	long ref;
 };
 
 #endif // COMHELPER_H

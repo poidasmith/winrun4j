@@ -62,8 +62,6 @@ struct VM {
 public:
 	static Version* FindVersion(Version* versions, DWORD numVersions, LPSTR version, LPSTR min, LPSTR max);
 	static void FindVersions(Version* versions, DWORD* numVersions);
-	static void InjectVMID();
-	static bool IsMatchingVMID();
 };
 
 #endif // VM_UTILS_H

@@ -90,10 +90,10 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 HRESULT __stdcall JNIServer::CreateJavaVM(BSTR libPath, SAFEARRAY* vmArgs)
 {
-	char path[MAX_PATH];
-	ConvertBSTRToChar(libPath, path, MAX_PATH);
-
+	char* path = ConvertBSTRToChar(libPath);
 	hModule = LoadLibrary(path);
+	delete path;
+
 	if(hModule == NULL) {
 		return E_LIBRARY_NOT_FOUND; 
 	}
@@ -103,10 +103,12 @@ HRESULT __stdcall JNIServer::CreateJavaVM(BSTR libPath, SAFEARRAY* vmArgs)
 		return E_CREATE_FUNCTION_NOT_FOUND; 
 	}
 
-	int argCount = vmArgs->cbElements;
+	TCHAR** cArgs = ConvertSafeArrayToCharArray(vmArgs);
+	int argCount = 0;
+	while(cArgs[argCount]) argCount++;
 	JavaVMOption* options = (JavaVMOption*) malloc((argCount) * sizeof(JavaVMOption));
 	for(int i = 0; i < argCount; i++){
-		//options[i].optionString = _strdup(vmArgs[i]);
+		options[i].optionString = cArgs[i];
 		options[i].extraInfo = 0;
 	}
 		
@@ -118,9 +120,7 @@ HRESULT __stdcall JNIServer::CreateJavaVM(BSTR libPath, SAFEARRAY* vmArgs)
 	
 	int result = createJavaVM(&jvm, &env, &init_args);
 
-	for(int i = 0; i < argCount; i++){
-		free( options[i].optionString );
-	}
+	delete cArgs;
 	free(options);
 
 	return result;
@@ -138,46 +138,87 @@ HRESULT __stdcall JNIServer::DestroyJavaVM(long* pResult)
 
 STDMETHOD JNIServer::FindClass(BSTR name, long *clazz)
 {
-	return E_NOTIMPL;
+	if(!jvm) return E_VM_NOT_CREATED;
+
+	char* nameStr = ConvertBSTRToChar(name);
+	*clazz = (long) env->FindClass(nameStr);
+	delete nameStr;
+
+	return S_OK;
 }
 
 STDMETHOD JNIServer::NewObjectArray(int len, long clazz, long init, long *arr)
 {
-	return E_NOTIMPL;
+	if(!jvm) return E_VM_NOT_CREATED;
+
+	*arr = (long) env->NewObjectArray(len, (jclass) clazz, (jclass) init);
+
+	return S_OK;
 }
 
 STDMETHOD JNIServer::SetObjectArrayElement(long array, int index, long val)
 {
-	return E_NOTIMPL;
+	if(!jvm) return E_VM_NOT_CREATED;
+
+	env->SetObjectArrayElement((jobjectArray) array, index, (jobject) val);
+
+	return S_OK;
 }
 
 STDMETHOD JNIServer::NewStringUTF(BSTR utf, long *str)
 {
-	return E_NOTIMPL;
+	if(!jvm) return E_VM_NOT_CREATED;
+
+	char* utfStr = ConvertBSTRToChar(utf);
+	*str = (long) env->NewStringUTF(utfStr);
+	delete utfStr;
+
+	return S_OK;
 }
 
 STDMETHOD JNIServer::GetStaticMethodID(long clazz, BSTR name, BSTR sig, long *methodID)
 {
-	return E_NOTIMPL;
+	if(!jvm) return E_VM_NOT_CREATED;
+
+	char* nameStr = ConvertBSTRToChar(name);
+	char* sigStr = ConvertBSTRToChar(sig);
+	*methodID = (long) env->GetStaticMethodID((jclass) clazz, nameStr, sigStr);
+	delete nameStr;
+	delete sigStr;
+
+	return S_OK;
 }
 
 STDMETHOD JNIServer::CallStaticVoidMethod(long clazz, long methodID, SAFEARRAY *args)
 {
+	if(!jvm) return E_VM_NOT_CREATED;
+
+	env->CallStaticVoidMethod((jclass) clazz, (jmethodID) methodID, args);	
+
 	return E_NOTIMPL;
 }
 
 STDMETHOD JNIServer::ExceptionOccurred(long *throwable)
 {
-	return E_NOTIMPL;
+	if(!jvm) return E_VM_NOT_CREATED;
+
+	*throwable = (long) env->ExceptionOccurred();
+	return S_OK;
 }
 
 STDMETHOD JNIServer::ExceptionDescribe()
 {
-	return E_NOTIMPL;
+	if(!jvm) return E_VM_NOT_CREATED;
+
+	env->ExceptionDescribe();
+	return S_OK;
 }
 
 STDMETHOD JNIServer::ExceptionClear()
 {
-	return E_NOTIMPL;
+	if(!jvm) return E_VM_NOT_CREATED;
+
+	env->ExceptionClear();
+	return S_OK;
 }
 

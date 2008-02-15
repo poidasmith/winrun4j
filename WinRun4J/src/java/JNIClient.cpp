@@ -54,10 +54,12 @@ __declspec(dllexport) HRESULT WINAPI CreateJavaVM(TCHAR* libPath, TCHAR** vmArgs
 	return S_OK;
 }
 
+#ifdef JNICLIENT_STANDALONE
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	return 1;
 }
+#endif
 
 jint COMJavaVM::DestroyJavaVM()
 {
