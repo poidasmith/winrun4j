@@ -1,4 +1,39 @@
 
+
+xll4j server
+
+- get number of functions
+- get function details (name, arg names, arg info, function info)
+- get number of commands
+- get command details 
+- invoke function
+- invoke command
+
+
+
+callback:
+- excel4
+- get version
+- set last error
+
+- use (same directory)
+	myaddin.xll 
+	myaddin.exe - automation server
+	myaddin.ini - shared args
+	
+
+ini file:
+
+- addin.class
+- vmargs (including classpath)
+- version
+
+- server clsid, server iid, xll clsid, xll iid.
+
+addin should register based on xll name and version (progid autogen).
+
+
+
 ==== WinRun4J ===========================================================================================
                    
 DDE testing
