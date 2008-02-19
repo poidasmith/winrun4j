@@ -9,7 +9,6 @@
  *******************************************************************************/
 
 #include "VM.h"
-#include "JNIClient.h"
 #include "../common/Log.h"
 #include "../common/INI.h"
 
@@ -254,14 +253,8 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 	}
 }
 
-int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance, bool useExternal)
+int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance)
 {
-	if(useExternal) {
-		int result = CreateJavaVM(libPath, vmArgs, &jvm);
-		env = GetJNIEnv();
-		return result;
-	} 
-
 	g_hInstance = hInstance;
 	g_jniLibrary = LoadLibrary(libPath);
 	if(g_jniLibrary == NULL) {

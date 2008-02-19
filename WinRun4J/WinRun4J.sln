@@ -5,9 +5,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinRun4J", "build\WinRun4J.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExcelAddin4J", "build\ExcelAddin4J.vcproj", "{E893B191-8498-45E8-B866-555E1F874468}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XLLServer", "build\JNIServer.vcproj", "{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XLLServer", "build\XLLServer.vcproj", "{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XLLTest", "build\JNITest.vcproj", "{56591922-6BB0-4561-A246-5912EA3127CE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XLLTest", "build\XLLTest.vcproj", "{56591922-6BB0-4561-A246-5912EA3127CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
