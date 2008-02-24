@@ -169,6 +169,7 @@ void Log::SetLastError(const char* format, ...)
 	g_error = true;
 	va_list args;
 	va_start(args, format);
+	Log::Error(format, args);
 	vsprintf_s(g_errorText, MAX_PATH, format, args);
 	fflush(stdout);
 	fflush(stderr);

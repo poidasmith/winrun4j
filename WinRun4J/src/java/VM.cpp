@@ -12,12 +12,11 @@
 #include "../common/Log.h"
 #include "../common/INI.h"
 
-// Dictionary key
-#define VM_LOCATION_KEY "VM:Location"
-
 // VM Registry keys
 #define JRE_REG_PATH TEXT("Software\\JavaSoft\\Java Runtime Environment")
+#define JRE_REG_PATH_WOW6432 TEXT("Software\\Wow6432Node\\JavaSoft\\Java Runtime Environment")
 #define IBM_JRE_REG_PATH TEXT("Software\\IBM\\Java2 Runtime Environment")
+#define IBM_JRE_REG_PATH_WOW6432 TEXT("Software\\Wow6432Node\\IBM\\Java2 Runtime Environment")
 #define JRE_VERSION_KEY TEXT("CurrentVersion")
 #define JRE_LIB_KEY TEXT("RuntimeLib")
 
@@ -91,6 +90,24 @@ char* VM::GetJavaVMLibrary(LPSTR version, LPSTR min, LPSTR max)
 	if(RegQueryValueEx(hVersionKey, JRE_LIB_KEY, NULL, NULL, (LPBYTE)&filename, &length) != ERROR_SUCCESS)
 		return NULL;
 
+// Add check for registry bug with sun amd64 
+#ifdef X64
+	HANDLE hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+	if(hFile == INVALID_HANDLE_VALUE) {
+		// In this case we assume the registry says "client" dir but the dll is actually
+		// only available under the "server" dir.
+		int len = strlen(filename);
+		if(len > 14 && strcmp(&filename[len - 14], "client\\jvm.dll") == 0) {
+			char replace[] = "server";
+			for(int i = 0; i < 6; i++) {
+				filename[len - 14 + i] = replace[i];
+			}
+		}
+	} else {
+		CloseHandle(hFile);
+	}
+#endif
+
 	RegCloseKey(hVersionKey);
 	RegCloseKey(hKey);
 
@@ -160,6 +177,32 @@ void VM::FindVersions(Version* versions, DWORD* numVersions)
 			versions[*numVersions].SetRegPath(IBM_JRE_REG_PATH);
 		}
 	}
+
+#ifndef X64
+	// Find the 32 bit installs on a 64 bit machine
+	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_REG_PATH_WOW6432, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+		for(; *numVersions < size; (*numVersions)++) {
+			length = MAX_PATH;
+			if(RegEnumKeyEx(hKey, *numVersions, version, &length, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+				break;
+			
+			versions[*numVersions].Parse(version);
+			versions[*numVersions].SetRegPath(JRE_REG_PATH_WOW6432);
+		}
+	}
+
+	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, IBM_JRE_REG_PATH_WOW6432, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+		DWORD offset = *numVersions;
+		for(; *numVersions < size; (*numVersions)++) {
+			length = MAX_PATH;
+			if(RegEnumKeyEx(hKey, *numVersions - offset, version, &length, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+				break;
+			
+			versions[*numVersions].Parse(version);
+			versions[*numVersions].SetRegPath(IBM_JRE_REG_PATH_WOW6432);
+		}
+	}
+#endif
 }
 
 int Version::Compare(Version& other) 

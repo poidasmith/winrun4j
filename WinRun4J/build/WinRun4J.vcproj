@@ -108,8 +108,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)-$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)-$(PlatformName)"
 			ConfigurationType="1"
 			CharacterSet="0"
 			BuildLogFile="$(IntDir)\BuildLog.htm"
@@ -135,7 +135,7 @@
 				AdditionalOptions="/c"
 				Optimization="0"
 				AdditionalIncludeDirectories="DEBUG_LOG"
-				PreprocessorDefinitions="DEBUG_LOG,TINY"
+				PreprocessorDefinitions="DEBUG_LOG,X64"
 				ExceptionHandling="0"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
@@ -160,10 +160,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="false"
-				AdditionalDependencies="../lib/wcrt.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
-				IgnoreAllDefaultLibraries="true"
+				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
@@ -280,8 +279,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)-$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)-$(PlatformName)"
 			ConfigurationType="1"
 			>
 			<Tool
@@ -305,7 +304,7 @@
 				Optimization="1"
 				FavorSizeOrSpeed="2"
 				WholeProgramOptimization="false"
-				PreprocessorDefinitions="TINY"
+				PreprocessorDefinitions="X64"
 				ExceptionHandling="0"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
@@ -328,10 +327,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG"
-				AdditionalDependencies="../lib/wcrt.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
-				IgnoreAllDefaultLibraries="true"
+				IgnoreAllDefaultLibraries="false"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -679,166 +677,6 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
-		<Configuration
-			Name="Release64|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="1"
-				FavorSizeOrSpeed="2"
-				WholeProgramOptimization="true"
-				ExceptionHandling="0"
-				BufferSecurityCheck="false"
-				RuntimeTypeInfo="false"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="$(IntDir)\vc80.pdb"
-				XMLDocumentationFileName="$(IntDir)\"
-				CallingConvention="2"
-				CompileAs="2"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				ResourceOutputFileName="$(IntDir)/$(InputName).res"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/LTCG"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
-				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
-				IgnoreAllDefaultLibraries="false"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-				ManifestResourceFile="$(IntDir)\$(TargetFileName).embed.manifest.res"
-				DependencyInformationFile="$(IntDir)\mt.dep"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release64|x64"
-			OutputDirectory="$(SolutionDir)\$(SolutionName)-$(ConfigurationName)"
-			IntermediateDirectory="$(SolutionName)-$(ConfigurationName)"
-			ConfigurationType="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="1"
-				FavorSizeOrSpeed="2"
-				WholeProgramOptimization="true"
-				ExceptionHandling="0"
-				BufferSecurityCheck="false"
-				RuntimeTypeInfo="false"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="$(IntDir)\vc80.pdb"
-				XMLDocumentationFileName="$(IntDir)\"
-				CallingConvention="2"
-				CompileAs="2"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				ResourceOutputFileName="$(IntDir)/$(InputName).res"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/LTCG"
-				OutputFile="$(IntDir)\$(ProjectName).exe"
-				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
-				IgnoreAllDefaultLibraries="false"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-				ManifestResourceFile="$(IntDir)\$(TargetFileName).embed.manifest.res"
-				DependencyInformationFile="$(IntDir)\mt.dep"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -948,10 +786,6 @@
 			</File>
 			<File
 				RelativePath="..\src\java\JNI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\java\JNIClient.h"
 				>
 			</File>
 			<File
