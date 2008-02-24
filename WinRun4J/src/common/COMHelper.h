@@ -23,6 +23,8 @@ void FreeSafeArray(SAFEARRAY* arr);
 char* ConvertBSTRToChar(BSTR bstr);
 TCHAR** ConvertSafeArrayToCharArray(SAFEARRAY* arr);
 
+// Registration Functions
+
 // COM templates
 
 template<class T>

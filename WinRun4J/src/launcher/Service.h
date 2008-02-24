@@ -30,7 +30,6 @@ public:
 
 private:
 	static int Initialise(dictionary* ini);
-	
 };
 
 #endif // SERVICE_H

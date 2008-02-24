@@ -36,9 +36,6 @@ public:
 	static void FreeArgs();
 	static int ExecuteINI(HINSTANCE hInstance, LPSTR lpCmdLine);
 	static int ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine);
-
-private:
-
 };
 
 #endif // WINRUN4J_H
