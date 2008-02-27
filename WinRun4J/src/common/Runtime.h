@@ -24,6 +24,7 @@ extern size_t _cdecl FindNextArg(LPSTR lpCmdLine, size_t start, size_t len);
 extern bool _cdecl StartsWith(LPSTR str, LPSTR substr);
 extern bool _cdecl StrTrimInChars(LPSTR trimChars, char c);
 extern void _cdecl StrTrim(LPSTR str, LPSTR trimChars);
+extern void _cdecl StrTruncate(LPSTR target, LPSTR source, size_t len);
 extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, bool includeFirst = false);
 
 #endif 

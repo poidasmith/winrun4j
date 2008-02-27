@@ -136,8 +136,10 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	VM::ExtractSpecificVMArgs(ini, vmargs, vmargsCount);
 
 	// Log the VM args
+	TCHAR argl[MAX_PATH];
 	for(int i = 0; i < vmargsCount; i++) {
-		Log::Info("vmarg.%d=%s\n", i, vmargs[i]);
+		StrTruncate(argl, vmargs[i], MAX_PATH);
+		Log::Info("vmarg.%d=%s\n", i, argl);
 	}
 
 	// Collect the program arguments from the INI file
@@ -148,7 +150,8 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 
 	// Log the commandline args
 	for(int i = 0; i < progargsCount; i++) {
-		Log::Info("arg.%d=%s\n", i, progargs[i]);
+		StrTruncate(argl, progargs[i], MAX_PATH);
+		Log::Info("arg.%d=%s\n", i, argl);
 	}
 
 	// Make sure there is a NULL at the end of the args

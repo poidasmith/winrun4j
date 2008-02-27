@@ -11,6 +11,21 @@
 #include "Runtime.h"
 #include <stdio.h>
 
+extern void _cdecl StrTruncate(LPSTR target, LPSTR source, size_t len)
+{
+	if(source == NULL) return;
+	if(strlen(source) < len) {
+		strcpy(target, source);
+		return;
+	}
+
+	int i = 0;
+	for(; i < len - 1; i++) {
+		target[i] = source[i];
+	}
+	target[i] = 0;
+}
+
 extern bool _cdecl StartsWith(LPSTR str, LPSTR substr)
 {
 	return strncmp(str, substr, strlen(substr)) == 0;

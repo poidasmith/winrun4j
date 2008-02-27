@@ -15,13 +15,13 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 {
 	jclass mainClass = env->FindClass(mainClassStr);
 	if(mainClass == NULL) {
-		Log::Error("Could not find main class");
+		Log::Error("Could not find main class\n");
 		return false;
 	}
 	
 	jclass stringClass = env->FindClass("java/lang/String");
 	if(stringClass == NULL) {
-		Log::Error("Could not find string class");
+		Log::Error("Could not find string class\n");
 		return false;
 	}
 
@@ -37,7 +37,7 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 
 	jmethodID mainMethod = env->GetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
 	if(mainMethod == NULL) {
-		Log::Error("Could not find main method.");
+		Log::Error("Could not find main method.\n");
 		return false;
 	}
 
@@ -87,6 +87,11 @@ const bool JNI::CallBooleanMethod( JNIEnv* env, jclass clazz, jobject obj, char*
 void JNI::ClearException(JNIEnv* env)
 {
 	if(env && env->ExceptionOccurred()) {
+		char* msg = JNI::GetExceptionMessage(env);
+		if(msg) {
+			Log::Error(msg);
+			free(msg);
+		}
 		env->ExceptionDescribe();
 		env->ExceptionClear();
 	}

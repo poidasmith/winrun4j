@@ -64,7 +64,7 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 		level = info;
 	} else if(strcmp(loglevel, "warning") == 0) {
 		level = warning;
-	} else if(strcmp(loglevel, "error")) {
+	} else if(strcmp(loglevel, "error") == 0) {
 		level = error;
 	}
 
@@ -104,22 +104,26 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 
 #ifdef DEBUG_LOG						
 #define LOG_IT						\
-	char tmp[4096];					\
-	va_list args;					\
-	va_start(args, format);			\
-	vsprintf(tmp, format, args);	\
-	OutputDebugString(tmp);			\
-	va_end(args);					
+	if(format) {                    \
+		char tmp[4096];				\
+		va_list args;				\
+		va_start(args, format);		\
+		vsprintf(tmp, format, args);\
+		OutputDebugString(tmp);		\
+		va_end(args);				\
+	}
 #else
 #define LOG_IT						\
-	char tmp[4096];					\
-	va_list args;					\
-	va_start(args, format);			\
-	vsprintf(tmp, format, args);	\
-	puts(tmp);                      \
-	fflush(stdout);					\
-	fflush(stderr);					\
-	va_end(args);					
+	if(format) {                    \
+		char tmp[4096];				\
+		va_list args;				\
+		va_start(args, format);		\
+		vsprintf(tmp, format, args);\
+		puts(tmp);                  \
+		fflush(stdout);				\
+		fflush(stderr);				\
+		va_end(args);				\
+	}
 #endif
 
 void Log::SetLevel(LoggingLevel logingLevel) 
