@@ -119,6 +119,7 @@ bool DDE::Initialize(HINSTANCE hInstance, JNIEnv* env, dictionary* ini)
 		return false;
 
 	// Store ini file reference
+	Log::Info("Initializing DDE\n");
 	g_ini = ini;
 
 	// Create Thread to manage the window

@@ -135,6 +135,8 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 		return;
 	}
 
+	Log::Info("Displaying splash: %s\n", image);
+
 	// Check for autohide disable flag
 	char* disableAutohide = iniparser_getstr(ini, SPLASH_DISABLE_AUTOHIDE);
 	if(disableAutohide != NULL && strcmp(disableAutohide, "true") == 0) {
@@ -143,6 +145,7 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 
 	g_hBitmap = LoadImageBitmap(ini, image);
 	if(g_hBitmap == NULL) {
+		Log::Warning("Could not load splash screen: %s\n", image);
 		return;
 	}
 
@@ -213,6 +216,7 @@ void SplashScreen::Close(JNIEnv* env, jobject self)
 
 void SplashScreen::RegisterNatives(JNIEnv *env)
 {
+	Log::Info("Registering natives for SplashScreen class\n");
 	jclass clazz = env->FindClass("org/boris/winrun4j/SplashScreen");
 	if(clazz == NULL) {
 		Log::Warning("Could not find SplashScreen class\n");

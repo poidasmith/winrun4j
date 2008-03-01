@@ -188,6 +188,7 @@ const char* Log::GetLastError()
 bool Log::RegisterNatives(JNIEnv* env)
 {
 	// Register Log functions
+	Log::Info("Registering natives for Log class\n");
 	jclass clazz = env->FindClass("org/boris/winrun4j/Log");
 	if(clazz == NULL) {
 		Log::SetLastError("Could not find Log class");

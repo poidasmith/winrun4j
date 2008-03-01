@@ -121,10 +121,13 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	char* vmlibrary = VM::FindJavaVMLibrary(ini);
 	if(!vmlibrary) {
 		char* javaNotFound = iniparser_getstr(ini, ERROR_MESSAGES_JAVA_NOT_FOUND);
+		Log::Error("Failed to find Java VM.");
 		MessageBox(NULL, (javaNotFound == NULL ? "Failed to find Java VM." : javaNotFound), "Startup Error", 0);
 		Log::Close();
 		return 1;
 	}
+
+	Log::Info("Found VM: %s\n", vmlibrary);
 
 	// Collect the VM args from the INI file
 	INI::GetNumberedKeysFromIni(ini, VM_ARG, vmargs, vmargsCount);
@@ -136,6 +139,7 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	VM::ExtractSpecificVMArgs(ini, vmargs, vmargsCount);
 
 	// Log the VM args
+	Log::Info("VM Args\n");
 	TCHAR argl[MAX_PATH];
 	for(int i = 0; i < vmargsCount; i++) {
 		StrTruncate(argl, vmargs[i], MAX_PATH);
@@ -149,6 +153,7 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	ParseCommandLine(lpCmdLine, progargs, progargsCount, true);
 
 	// Log the commandline args
+	Log::Info("Program Args\n");
 	for(int i = 0; i < progargsCount; i++) {
 		StrTruncate(argl, progargs[i], MAX_PATH);
 		Log::Info("arg.%d=%s\n", i, argl);

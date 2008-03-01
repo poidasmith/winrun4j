@@ -9,8 +9,10 @@
 *******************************************************************************/
 
 #include "Shell.h"
+#include "../common/Log.h"
 
 bool Shell::RegisterNatives(JNIEnv *env)
 {
+	Log::Info("Registering natives for Shell class\n");
 	return false;
 }

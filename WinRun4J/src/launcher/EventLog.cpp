@@ -13,6 +13,7 @@
 
 bool EventLog::RegisterNatives(JNIEnv *env)
 {
+	Log::Info("Registering natives for EventLog class\n");
 	jclass clazz = env->FindClass("org/boris/winrun4j/EventLog");
 	if(clazz == NULL) {
 		Log::Warning("Could not find EventLog class\n");

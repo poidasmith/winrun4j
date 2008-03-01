@@ -19,6 +19,8 @@ void ExpandClassPathEntry(char* arg, char** result, int* current, int max)
 		return;
 	}
 
+	Log::Info("Expanding classpath: %s\n", arg);
+
 	// Convert to full path
 	char fullpath[MAX_PATH];
 	GetFullPathName(arg, MAX_PATH, fullpath, NULL);

@@ -135,6 +135,7 @@ jstring INI::GetKey(JNIEnv* env, jobject self, jstring key)
 
 bool INI::RegisterNatives(JNIEnv *env, bool useExcel)
 {
+	Log::Info("Registering natives for INI class\n");
 	jclass clazz;
 	JNINativeMethod methods[2];
 	if(useExcel) {
