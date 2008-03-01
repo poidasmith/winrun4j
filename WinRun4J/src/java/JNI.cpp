@@ -104,4 +104,6 @@ char* JNI::GetExceptionMessage(JNIEnv* env)
 	if(thr != NULL) {
 		return CallStringMethod(env, env->GetObjectClass(thr), thr, "getMessage");
 	}
+
+	return NULL;
 }
