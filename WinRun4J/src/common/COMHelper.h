@@ -25,6 +25,9 @@ TCHAR** ConvertSafeArrayToCharArray(SAFEARRAY* arr);
 
 // Registration Functions
 
+BOOL RegisterServer();
+BOOL UnregisterServer();
+
 // COM templates
 
 template<class T>

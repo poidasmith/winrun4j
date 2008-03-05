@@ -17,6 +17,7 @@
 class Shell {
 public:
 	static bool RegisterNatives(JNIEnv* env);
+	static int CheckSingleInstance();
 };
 
 #endif // SHELL_H

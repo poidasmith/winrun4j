@@ -133,7 +133,7 @@ void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, int& count)
 	TCHAR argl[MAX_PATH];
 	StrTruncate(argl, built, MAX_PATH);
 	Log::Info("Generated Classpath: %s\n", argl);
-	TCHAR* cpArg = (TCHAR *) malloc(sizeof(TCHAR)*(strlen(classpath) + 1) + sizeof(TCHAR)*(strlen(CLASS_PATH_ARG) + 1));
+	TCHAR* cpArg = (TCHAR *) malloc(sizeof(TCHAR)*(strlen(built) + 1) + sizeof(TCHAR)*(strlen(CLASS_PATH_ARG) + 1));
 	lstrcpy(cpArg, CLASS_PATH_ARG);
 	lstrcat(cpArg, built);
 	args[count++] = cpArg;
