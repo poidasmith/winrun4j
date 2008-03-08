@@ -28,6 +28,11 @@ jmethodID g_getDescriptionMethod;
 jmethodID g_mainMethod;
 
 #define SERVICE_ID ":service.id"
+#define SERVICE_STARTUP ":service.startup"
+#define SERVICE_DEPENDENCY ":service.dependency"
+#define SERVICE_USER ":service.user"
+#define SERVICE_PWD ":service.password"
+#define SERVICE_LOAD_ORDER_GROUP ":service.loadordergroup"
 
 void WINAPI ServiceCtrlHandler(DWORD opCode)
 {
@@ -184,6 +189,40 @@ int Service::Register(dictionary* ini)
 		return result;
 	}
 
+	// Check for startup mode override
+	DWORD startupMode = SERVICE_DEMAND_START;
+	char* startup = iniparser_getstr(ini, SERVICE_STARTUP);
+	if(startup != NULL) {
+		if(strcmp(startup, "auto") == 0) {
+			startupMode = SERVICE_AUTO_START;
+			Log::Info("Service startup mode: SERVICE_AUTO_START\n");
+		} else if(strcmp(startup, "boot") == 0) {
+			startupMode = SERVICE_BOOT_START;
+			Log::Info("Service startup mode: SERVICE_BOOT_START\n");
+		} else if(strcmp(startup, "demand") == 0) {
+			startupMode = SERVICE_DEMAND_START;
+			Log::Info("Service startup mode: SERVICE_DEMAND_START\n");
+		} else if(strcmp(startup, "disabled") == 0) {
+			startupMode = SERVICE_DISABLED;
+			Log::Info("Service startup mode: SERVICE_DISABLED\n");
+		} else if(strcmp(startup, "system") == 0) {
+			startupMode = SERVICE_SYSTEM_START;
+			Log::Info("Service startup mode: SERVICE_SYSTEM_START\n");
+		} else {
+			Log::Warning("Unrecognized service startup mode: %s\n", startup);
+		}
+	}
+
+	// Check for dependencies
+	TCHAR* dependencies[MAX_PATH];
+	int depCount = 0;
+	INI::GetNumberedKeysFromIni(ini, SERVICE_DEPENDENCY, dependencies, depCount);
+	char* loadOrderGroup = iniparser_getstr(ini, SERVICE_LOAD_ORDER_GROUP);
+
+	// Check for user account
+	char* user = iniparser_getstr(ini, SERVICE_USER);
+	char* pwd = iniparser_getstr(ini, SERVICE_PWD);
+
 	TCHAR path[MAX_PATH];
 	TCHAR quotePath[MAX_PATH];
 	quotePath[0] = '\"';
@@ -193,8 +232,8 @@ int Service::Register(dictionary* ini)
 	strcat(quotePath, "\"");
 	SC_HANDLE h = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
 	SC_HANDLE s = CreateService(h, g_serviceId, GetName(), SERVICE_ALL_ACCESS, 
-		SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START,
-		SERVICE_ERROR_NORMAL, quotePath, NULL, NULL, NULL, NULL, NULL);
+		SERVICE_WIN32_OWN_PROCESS, startupMode,
+		SERVICE_ERROR_NORMAL, quotePath, loadOrderGroup, NULL, (LPCTSTR)dependencies, user, pwd);
 	CloseServiceHandle(s);
 	CloseServiceHandle(h);
 

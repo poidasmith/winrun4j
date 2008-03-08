@@ -18,7 +18,6 @@
 
 #define ERROR_MESSAGES_JAVA_NOT_FOUND "ErrorMessages:java.not.found"
 #define ERROR_MESSAGES_JAVA_START_FAILED "ErrorMessages:java.failed"
-#define SINGLE_INSTANCE_OPTION ":single.instance"
 
 using namespace std;
 
@@ -231,11 +230,8 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, LPSTR lpCmdLine)
 int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 {
 	// Check for single instance option
-	char* singleInstance = iniparser_getstr(ini, SINGLE_INSTANCE_OPTION);
-	if(singleInstance != NULL && strcmp(singleInstance, "true") == 0) {
-		if(Shell::CheckSingleInstance())
-			return 1;
-	}
+	if(Shell::CheckSingleInstance(ini))
+		return 0;
 
 	// Set the current working directory if specified
 	WinRun4J::SetWorkingDirectory(ini);

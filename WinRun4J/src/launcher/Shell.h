@@ -12,12 +12,13 @@
 #define SHELL_H
 
 #include "../common/Runtime.h"
+#include "../common/Dictionary.h"
 #include <jni.h>
 
 class Shell {
 public:
 	static bool RegisterNatives(JNIEnv* env);
-	static int CheckSingleInstance();
+	static int CheckSingleInstance(dictionary* ini);
 };
 
 #endif // SHELL_H

@@ -39,6 +39,9 @@ addin should register based on xll name and version (progid autogen).
 DDE testing
 - loading from zip file doesn't work
 
+- add a single.instance option; detect if another instance is running. if it is then bring the
+  main window (?) for the application to focus.
+  
 
 
 
@@ -48,13 +51,6 @@ DDE testing
 - support auto register
 - cleanup functions, commands, menus, toolbars on auto close
 
-- handle multiple xlls (can only create one VM).
-    - few options are:
-        - handle classpaths... (limitation on vmargs)
-        - rebase dll so it doesn't share memory
-        - make a copy of the dll so it is automatically rebased
-	- attach to current vm if matching
-- improve documentation/help on functions (include type information). eg "value [double]".
 - think about using/supporting annotations.
 - handle overloaded functions (match the input args to the function args)
 - add ability to add excel menus/commands

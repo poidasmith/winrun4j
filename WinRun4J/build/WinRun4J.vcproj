@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="false"
-				AdditionalDependencies="../lib/wcrt.lib"
+				AdditionalDependencies="../lib/wcrt.lib psapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
 				IgnoreAllDefaultLibraries="true"
@@ -160,6 +160,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="false"
+				AdditionalDependencies="psapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
 				IgnoreAllDefaultLibraries="false"
@@ -245,7 +246,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG"
-				AdditionalDependencies="../lib/wcrt.lib"
+				AdditionalDependencies="../lib/wcrt.lib psapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
 				IgnoreAllDefaultLibraries="true"
@@ -327,6 +328,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG"
+				AdditionalDependencies="psapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
 				IgnoreAllDefaultLibraries="false"
@@ -402,7 +404,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../lib/wcrt.lib"
+				AdditionalDependencies="../lib/wcrt.lib psapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName)c.exe"
 				IgnoreAllDefaultLibraries="true"
 				GenerateDebugInformation="true"
@@ -560,7 +562,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG"
-				AdditionalDependencies="../lib/wcrt.lib"
+				AdditionalDependencies="../lib/wcrt.lib psapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName)c.exe"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
 				IgnoreAllDefaultLibraries="true"

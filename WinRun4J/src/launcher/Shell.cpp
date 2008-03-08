@@ -13,11 +13,13 @@
 #include <tlhelp32.h>
 #include <psapi.h>
 
+#define SINGLE_INSTANCE_OPTION ":single.instance"
+
 BOOL CALLBACK EnumWindowsProcSingleInstance(HWND hWnd, LPARAM lParam)
 {
 	DWORD procId = 0;
 	GetWindowThreadProcessId(hWnd, &procId);
-	if(lParam == procId) {
+	if((DWORD)lParam == procId) {
 		WINDOWINFO wi;
 		wi.cbSize = sizeof(WINDOWINFO);
 		GetWindowInfo(hWnd, &wi);
@@ -29,8 +31,23 @@ BOOL CALLBACK EnumWindowsProcSingleInstance(HWND hWnd, LPARAM lParam)
 	return TRUE;
 }
 
-int Shell::CheckSingleInstance()
+int Shell::CheckSingleInstance(dictionary* ini)
 {
+	char* singleInstance = iniparser_getstr(ini, SINGLE_INSTANCE_OPTION);
+	if(singleInstance == NULL) {
+		return 0;
+	}
+
+	// Check for single instance mode
+	bool processOnly = true;
+
+	if(strcmp(singleInstance, "window") == 0)
+		processOnly = false;
+	else if(strcmp(singleInstance, "process") != 0) {
+		Log::Warning("Invalid single instance mode: %s\n", singleInstance);
+		return 0;
+	}
+
 	char thisModule[MAX_PATH];
 	DWORD thisProcessId = GetCurrentProcessId();
 	GetModuleFileName(0, thisModule, MAX_PATH);
@@ -43,6 +60,9 @@ int Shell::CheckSingleInstance()
 		GetModuleFileNameEx(hProcess, 0, otherModule, MAX_PATH);
 		CloseHandle(hProcess);
 		if(thisProcessId != e.th32ProcessID && strcmp(thisModule, otherModule) == 0) {
+			if(processOnly) {
+				return 1;
+			}
 			return !EnumWindows(EnumWindowsProcSingleInstance, e.th32ProcessID);
 		}
 		while(Process32Next(h, &e)) {
@@ -50,6 +70,9 @@ int Shell::CheckSingleInstance()
 			GetModuleFileNameEx(hProcess, 0, otherModule, MAX_PATH);
 			CloseHandle(hProcess);
 			if(thisProcessId != e.th32ProcessID && strcmp(thisModule, otherModule) == 0) {
+				if(processOnly) {
+					return 1;
+				}
 				return !EnumWindows(EnumWindowsProcSingleInstance, e.th32ProcessID);
 			}
 		}
