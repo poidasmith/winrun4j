@@ -40,6 +40,9 @@ public:
 	// Execute
 	static void Execute(LPSTR lpExecuteStr);
 
+	// Client
+    static bool NotifySingleInstance(dictionary* ini);
+
 private:
 	static bool RegisterNatives(JNIEnv* env, dictionary* ini);
 	static void EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, void (*CallbackFunc)(DDEInfo&));

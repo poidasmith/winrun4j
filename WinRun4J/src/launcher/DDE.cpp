@@ -19,7 +19,8 @@ static HSZ g_serverName = 0;
 static HSZ g_topic = 0;
 static char g_execute[MAX_PATH];
 static jclass g_class = 0;
-static jmethodID g_methodID = 0;
+static jmethodID g_executeMethodID = 0;
+static jmethodID g_activateMethodID = 0;
 static bool g_ready = 0;
 static LPSTR *g_buffer = NULL;
 static int g_buffer_ix = 0;
@@ -31,6 +32,9 @@ static int g_buffer_siz = 0;
 #define DDE_WINDOW_CLASS ":dde.window.class"
 #define DDE_SERVER_NAME ":dde.server.name"
 #define DDE_TOPIC ":dde.topic"
+
+// Single instance
+#define DDE_EXECUTE_ACTIVATE "WinRun4J.ACTIVATE"
 
 LRESULT CALLBACK DdeMainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -138,19 +142,61 @@ void DDE::Uninitialize()
 	DdeUninitialize(g_pidInst); 
 }
 
+bool DDE::NotifySingleInstance(dictionary* ini)
+{
+	g_ini = ini;
+
+	// Startup DDE library
+	UINT result = DdeInitialize(&g_pidInst, (PFNCALLBACK) &DdeCallback, 0, 0);
+	if(result != DMLERR_NO_ERROR) {
+		Log::Error("Unable to initialize DDE: %d", result);
+		return false;
+	}
+
+	// Check for app/topic override
+	char* appName = iniparser_getstr(g_ini, DDE_SERVER_NAME);
+	char* topic = iniparser_getstr(g_ini, DDE_TOPIC);
+
+	g_serverName = DdeCreateStringHandle(g_pidInst, appName == NULL ? "WinRun4J" : appName, CP_WINANSI);
+	g_topic = DdeCreateStringHandle(g_pidInst, topic == NULL ? "system" : topic, CP_WINANSI);
+
+	HCONV conv = DdeConnect(g_pidInst, g_serverName, g_topic, NULL);
+	if (conv != NULL) {
+		HDDEDATA result = DdeClientTransaction((LPBYTE)DDE_EXECUTE_ACTIVATE, strlen(DDE_EXECUTE_ACTIVATE) + 1, conv, NULL, 0, XTYP_EXECUTE, TIMEOUT_ASYNC, NULL);
+		if (result == 0) {
+			Log::Error("Failed to send DDE single instance notification");
+			return false;
+		}
+	} else{
+		Log::Error("Unable to create DDE conversation");
+	}
+
+	DDE::Uninitialize();
+	return true;
+}
+
 void DDE::Execute(LPSTR lpExecuteStr)
 {
 	JNIEnv* env = VM::GetJNIEnv();
 	if(env == NULL) return;
 	if(g_class == NULL) return;
-	if(g_methodID == NULL) return;
+	if(g_executeMethodID == NULL) return;
 
 	if (g_ready) {
 		if (g_class != NULL) {
 			Log::Info("DDE Execute: %s\n", lpExecuteStr);
-			jstring str = 0;
-			if(lpExecuteStr) str = env->NewStringUTF(lpExecuteStr);
-			env->CallStaticVoidMethod(g_class, g_methodID, str);
+
+			if (strcmp(lpExecuteStr, DDE_EXECUTE_ACTIVATE) == 0) {
+				if (g_activateMethodID != NULL) {
+					env->CallStaticVoidMethod(g_class, g_activateMethodID);
+				} else {
+					Log::Error("Ignoring DDE single instance activate message");
+				}
+			} else {
+				jstring str = 0;
+				if(lpExecuteStr) str = env->NewStringUTF(lpExecuteStr);
+				env->CallStaticVoidMethod(g_class, g_executeMethodID, str);
+			}
 
 			if(env->ExceptionOccurred()) {
 				env->ExceptionDescribe();
@@ -232,11 +278,14 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 		return false;
 	}
 
-	g_methodID = env->GetStaticMethodID(g_class, "execute", "(Ljava/lang/String;)V");
-	if(g_methodID == NULL) {
+    g_executeMethodID = env->GetStaticMethodID(g_class, "execute", "(Ljava/lang/String;)V");
+    if(g_executeMethodID == NULL) {
 		Log::SetLastError("Could not find execute method");
 		return false;
 	}
+
+    g_activateMethodID = env->GetStaticMethodID(g_class, "activate", "()V");
+
 
 	return true;
 }

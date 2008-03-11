@@ -10,6 +10,7 @@
 
 #include "Shell.h"
 #include "../common/Log.h"
+#include "DDE.h"
 #include <tlhelp32.h>
 #include <psapi.h>
 
@@ -40,10 +41,14 @@ int Shell::CheckSingleInstance(dictionary* ini)
 
 	// Check for single instance mode
 	bool processOnly = true;
+	bool dde = false;
 
 	if(strcmp(singleInstance, "window") == 0)
 		processOnly = false;
-	else if(strcmp(singleInstance, "process") != 0) {
+	else if (strcmp(singleInstance, "dde") == 0) {
+		processOnly = false;
+		dde = true;
+	} else if(strcmp(singleInstance, "process") != 0) {		
 		Log::Warning("Invalid single instance mode: %s\n", singleInstance);
 		return 0;
 	}
@@ -60,6 +65,9 @@ int Shell::CheckSingleInstance(dictionary* ini)
 		GetModuleFileNameEx(hProcess, 0, otherModule, MAX_PATH);
 		CloseHandle(hProcess);
 		if(thisProcessId != e.th32ProcessID && strcmp(thisModule, otherModule) == 0) {
+			if (dde && DDE::NotifySingleInstance(ini)) {
+				return 1;
+			}
 			if(processOnly) {
 				return 1;
 			}
@@ -70,6 +78,9 @@ int Shell::CheckSingleInstance(dictionary* ini)
 			GetModuleFileNameEx(hProcess, 0, otherModule, MAX_PATH);
 			CloseHandle(hProcess);
 			if(thisProcessId != e.th32ProcessID && strcmp(thisModule, otherModule) == 0) {
+				if (dde && DDE::NotifySingleInstance(ini)) {
+					return 1;
+				}
 				if(processOnly) {
 					return 1;
 				}
