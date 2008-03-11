@@ -217,6 +217,27 @@ int Service::Register(dictionary* ini)
 	TCHAR* dependencies[MAX_PATH];
 	int depCount = 0;
 	INI::GetNumberedKeysFromIni(ini, SERVICE_DEPENDENCY, dependencies, depCount);
+	
+	// Make dependency list
+	TCHAR* depList = NULL;
+	int depListSize = 0;
+	for(int i = 0; i < depCount; i++) {
+		depListSize += strlen(dependencies[i]) + 1;
+	}
+	if(depListSize > 0) {
+		depList = (TCHAR*) malloc(depListSize);
+		if(depList == 0) {
+			Log::Error("Could not create dependency list\n");
+			return 1;
+		}
+
+		int depPointer = (int) depList;
+		for(int i = 0; i < depCount; i++) {
+			strcpy((TCHAR*) depPointer, dependencies[i]);
+			depPointer += strlen(dependencies[i]) + 1;
+		}
+	}
+
 	char* loadOrderGroup = iniparser_getstr(ini, SERVICE_LOAD_ORDER_GROUP);
 
 	// Check for user account
@@ -233,7 +254,7 @@ int Service::Register(dictionary* ini)
 	SC_HANDLE h = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
 	SC_HANDLE s = CreateService(h, g_serviceId, GetName(), SERVICE_ALL_ACCESS, 
 		SERVICE_WIN32_OWN_PROCESS, startupMode,
-		SERVICE_ERROR_NORMAL, quotePath, loadOrderGroup, NULL, (LPCTSTR)dependencies, user, pwd);
+		SERVICE_ERROR_NORMAL, quotePath, loadOrderGroup, NULL, (LPCTSTR)depList, user, pwd);
 	CloseServiceHandle(s);
 	CloseServiceHandle(h);
 
@@ -309,7 +330,7 @@ int Service::Main(DWORD argc, LPSTR* argv)
 	// Create the run args
 	jclass stringClass = env->FindClass("java/lang/String");
 	jobjectArray args = env->NewObjectArray(argc - 1, stringClass, NULL);
-	for(int i = 0; i < argc - 1; i++) {
+	for(UINT i = 0; i < argc - 1; i++) {
 		env->SetObjectArrayElement(args, i, env->NewStringUTF(argv[i]));
 	}
 
