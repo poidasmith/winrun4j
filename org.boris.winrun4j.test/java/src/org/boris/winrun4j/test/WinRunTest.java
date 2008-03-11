@@ -17,7 +17,7 @@ import org.boris.winrun4j.RegistryKey;
 
 public class WinRunTest {
     public static void main(String[] args) throws Exception {
-        JFrame frame = new JFrame();
+        final JFrame frame = new JFrame();
         StringBuffer ab = new StringBuffer();
         ab.append("WinRun4J");
         if (args.length > 0) {
@@ -97,6 +97,7 @@ public class WinRunTest {
         DDE.addActivationListener(new ActivationListener() {
             public void activate() {
                 text.setText("Activation occurred\n" + text.getText());
+                frame.toFront();
             }
         });
     }
