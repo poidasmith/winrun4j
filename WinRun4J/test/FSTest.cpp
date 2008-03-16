@@ -10,6 +10,7 @@
 using namespace std;
 
 #include "../src/common/VTCodec.h"
+#include "../src/functionserver/Protocol.h"
 
 const size_t WIDTH = 10;
 
@@ -106,6 +107,24 @@ private:
 
 int __cdecl main()
 {
+	Protocol p("localhost", 5454);
+	VTStruct* s = new VTStruct;
+	s->add("test", new VTLong(1));
+
+	if(p.connect())
+		return 1;
+
+	p.send("Echo", s);
+	Variant* res = p.receive();
+	hexstream hs;
+	VTBinaryCodec::encode(res, hs);
+	hs.flush();
+
+	return 0;
+}
+
+int __cdecl main1()
+{
 	VTStruct* s = new VTStruct;
 	s->add("test", new VTLong(1));
 	VTCollection* coll = new VTCollection;
@@ -129,5 +148,60 @@ int __cdecl main()
 
 	//const char* c = hs.str().c_str();
 	//hexdump(c, 30);
+
+	return 0;
 }
 
+int socket_test()
+{
+	char* request = "Echo\n9\n{asdf=1;}";
+
+	WSADATA wsData;
+	int wsaret=WSAStartup(0x101, &wsData);
+	if(wsaret)
+		return 1;
+
+	SOCKET conn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if(conn==INVALID_SOCKET)
+		return 1;
+
+	hostent* hp;
+	char* servername = "localhost";
+	if(inet_addr(servername) == INADDR_NONE) {
+		hp = gethostbyname(servername);
+	}
+	else {
+		unsigned int addr = inet_addr(servername);
+		hp = gethostbyaddr((char*)&addr, sizeof(addr), AF_INET);
+	}
+
+	if(hp == NULL) {
+		closesocket(conn);
+		return 1;
+	}
+
+	struct sockaddr_in server;
+	server.sin_addr.s_addr = *((unsigned long*)hp->h_addr);
+	server.sin_family = AF_INET;
+	server.sin_port = htons(5454);
+
+	if(connect(conn, (struct sockaddr*) &server, sizeof(server))) {
+		closesocket(conn);
+		return 1;	
+	}
+
+	int res = send(conn, request, strlen(request) + 1, 0);
+
+	int y;
+	char buf[512];
+	while((y = recv(conn, buf, 512, 0)) > 0) {
+		puts(buf);
+	}
+	if(y == -1) {
+		printf("%d\n", WSAGetLastError());
+	}
+	puts("\n");
+
+	closesocket(conn);
+	WSACleanup();
+}
