@@ -7,6 +7,7 @@
 #include <ostream>
 #include <string>
 #include <sstream>
+#include <ctime>
 using namespace std;
 
 #include "../src/common/VTCodec.h"
@@ -114,11 +115,16 @@ int __cdecl main()
 	if(p.connect())
 		return 1;
 
-	p.send("Echo", s);
-	Variant* res = p.receive();
-	hexstream hs;
-	VTBinaryCodec::encode(res, hs);
-	hs.flush();
+	std::clock_t start;
+	for(int i = 0; i < 10000; i++) {
+		Variant* res = p.execute("Echo", s);
+		/*hexstream hs;
+		VTBinaryCodec::encode(res, hs);
+		hs.flush();*/
+	}
+	double elapsed = std::clock() - start;
+	elapsed /= CLOCKS_PER_SEC;
+	printf("%d\n", elapsed);
 
 	return 0;
 }
