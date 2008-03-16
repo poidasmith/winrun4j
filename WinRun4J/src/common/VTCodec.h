@@ -11,14 +11,17 @@
 #ifndef VTCODEC_H
 #define VTCODEC_H
 
-enum VTType { STRUCT, COLLECTION, STRING, DOUBLE, LONG };
+#include <vector>
+#include <map>
+
+enum VTType { VSTRUCT, VCOLLECTION, VSTRING, VDOUBLE, VLONG };
 
 class Variant {
 public:
 	explicit Variant(VTType type) : mType(type) {}
 	virtual ~Variant() {}
 
-	VTType getType() { return mType; }
+	VTType getType() const { return mType; }
 
 private:
 	VTType mType;
@@ -26,19 +29,22 @@ private:
 
 class VTString : public Variant {
 public:
-	explicit VTString(char* str);
-	virtual ~VTString();
+	explicit VTString(const char* str) : Variant(VSTRING), value(str) {}
+	virtual ~VTString() {}
 
-	char* get();
-	void set(char* str);
+	const char* get() const { return value.c_str(); } 
+	void set(char* str) { value = str; }
+
+private:
+	std::string value;
 };
 
 class VTDouble : public Variant {
 public:
-	explicit VTDouble(double d) : Variant(VTType::DOUBLE), value(d) {}
+	explicit VTDouble(double d) : Variant(VDOUBLE), value(d) {}
 	virtual ~VTDouble() {}
 
-	double get() { return value; }
+	double get() const { return value; }
 	void set(double d) { value = d; }
 
 private:
@@ -47,10 +53,10 @@ private:
 
 class VTLong : public Variant {
 public:
-	explicit VTLong(long l) : Variant(VTType::LONG), value(l) {}
+	explicit VTLong(long l) : Variant(VLONG), value(l) {}
 	virtual ~VTLong() {}
 
-	long get() { return value; }
+	long get() const { return value; }
 	void set(long l) { value = l; }
 
 private:
@@ -60,68 +66,55 @@ private:
 class VTCollection;
 class VTStruct : public Variant {
 public:
-	explicit VTStruct() : Variant(VTType::STRUCT), names(0), values(0) {}
-	virtual ~VTStruct();
+	explicit VTStruct() : Variant(VSTRUCT) {}
+	virtual ~VTStruct() {}
 
-	void add(char* name, Variant* s);
-	void add(char* name, char* s);
-	void add(char* name, double d);
-	void add(char* name, long l);
-	void add(char* name, int i);
-
-	int size();
-	char* getKey(int i);
-	Variant* get(char* name);
-	VTStruct* getStruct(char* name);
-	VTCollection* getCollection(char* name);
-	char* getString(char* name);
-	double* getDouble(char* name);
-	long* getLong(char* name);
+	size_t size() const { return values.size(); }
+	void add(const char* name, Variant* s) { values.push_back(std::make_pair(name, s)); }
+	const char* getKey(size_t i) const { return values[i].first.c_str(); }
+	const Variant* getValue(size_t i) const { return values[i].second; }
+	Variant* get(char* name) const {
+		for(size_t i = 0; i < values.size() ;i++) {
+			if(strcmp(name, values[i].first.c_str()) == 0) {
+				return values[i].second;
+			}
+		}
+		return NULL;
+	}
 
 private: 
-	char** names;
-	Variant** values;
+	std::vector<std::pair<std::string, Variant*> > values;
 };
 
 class VTCollection : public Variant {
 public:
-	explicit VTCollection() : Variant(VTType::COLLECTION), values(0) {}
+	explicit VTCollection() : Variant(VCOLLECTION) {}
 	virtual ~VTCollection() {}
 
-	void add(Variant* s);
-	void add(char* s);
-	void add(double d);
-	void add(long l);
-	void add(int i);
-
-	int size();
-	Variant* get(int i);
-	char* getString(int i);
-	double* getDouble(int i);
-	long* getLong(int i);
+	size_t size() const { return values.size(); }
+	void add(Variant* s) { values.push_back(s); }
+	Variant* get(size_t i) const { return values[i]; }
 
 private:
-	Variant** values;
+	std::vector<Variant*> values;
 };
 
-class TokenReader {
+class VTBinaryCodec {
 public:
-
-};
-
-class VTCodec {
-public:
-	static Variant* decode(char* str);
-	static char* encode(Variant* var, bool format=false);
+	static Variant* decode(std::istream& is);
+	static void encode(const Variant* var, std::ostream& os);
 
 private:
-	static VTStruct* decodeStruct(TokenReader& reader);
-	static bool decodeField(TokenReader& reader, VTStruct* s);
-	static Variant* decodeValue(TokenReader& reader, char firstChar, char endChar);
-	static Variant* decodeNumber(TokenReader& reader, char firstChar, char endChar);
-	static Variant* decodeNumber(char* str);
-	static Variant* decodeString(TokenReader& reader);
-	static VTCollection* decodeCollection(TokenReader& reader);
+	static Variant* decodeStruct(std::istream& is);
+	static Variant* decodeCollection(std::istream& is);
+	static Variant* decodeString(std::istream& is);
+	static Variant* decodeDouble(std::istream& is);
+	static Variant* decodeLong(std::istream& is);
+	static void encodeStruct(const VTStruct* v, std::ostream& os);
+	static void encodeCollection(const VTCollection* v, std::ostream& os);
+	static void encodeString(const char* v, std::ostream& os);
+	static void encodeDouble(double v, std::ostream& os);
+	static void encodeLong(long v, std::ostream& os);
 };
 
 #endif // VTCODEC_H
