@@ -115,16 +115,14 @@ int __cdecl main()
 	if(p.connect())
 		return 1;
 
-	std::clock_t start;
 	for(int i = 0; i < 10000; i++) {
 		Variant* res = p.execute("Echo", s);
+		delete res;
 		/*hexstream hs;
 		VTBinaryCodec::encode(res, hs);
 		hs.flush();*/
 	}
-	double elapsed = std::clock() - start;
-	elapsed /= CLOCKS_PER_SEC;
-	printf("%d\n", elapsed);
+	delete s;
 
 	return 0;
 }
