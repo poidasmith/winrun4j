@@ -13,7 +13,7 @@
 #include <istream>
 
 #define TYPE_EOF 1
-#define TYPE_STRUCT 2
+#define TYPE_STRUCT 0x2
 #define TYPE_COLLECTION 3
 #define TYPE_STRING 4
 #define TYPE_DOUBLE 5
@@ -22,10 +22,10 @@
 
 inline void writeDoubleWord(int value, std::ostream& os)
 {
-	os.put(value >> 24);
-	os.put(value >> 16);
-	os.put(value >> 8);
-	os.put(value);
+	os.put(value >> 24 & 0xff);
+	os.put(value >> 16 & 0xff);
+	os.put(value >> 8 & 0xff);
+	os.put(value & 0xff);
 }
 
 inline int readDoubleWord(std::istream& is) 
@@ -81,8 +81,9 @@ Variant* VTBinaryCodec::decodeCollection(std::istream& is)
 Variant* VTBinaryCodec::decodeString(std::istream& is)
 {
 	int len = readDoubleWord(is);
-	char* c = new char[len];
+	char* c = new char[len + 1];
 	is.read(c, len);
+	c[len] = 0;
 	return new VTString(c);
 }
 
@@ -93,14 +94,15 @@ Variant* VTBinaryCodec::decodeDouble(std::istream& is)
 	double val;
 	int* p = (int*)&val;
 	p[0] = v1;
-	p[2] = v2;
+	p[1] = v2;
 
 	return new VTDouble(val);
 }
 
 Variant* VTBinaryCodec::decodeLong(std::istream& is)
 {
-	return new VTLong(readDoubleWord(is) << 32 | readDoubleWord(is));
+	readDoubleWord(is);
+	return new VTLong(readDoubleWord(is));
 }
 
 void VTBinaryCodec::encode(const Variant* var, std::ostream& os)
@@ -113,20 +115,25 @@ void VTBinaryCodec::encode(const Variant* var, std::ostream& os)
 	switch(var->getType()) {
 	case VSTRUCT:
 		encodeStruct((VTStruct*)var, os);
+		break;
 	case VCOLLECTION:
 		encodeCollection((VTCollection*)var, os);
+		break;
 	case VSTRING:
 		encodeString(((VTString*)var)->get(), os);
+		break;
 	case VDOUBLE:
 		encodeDouble(((VTDouble*)var)->get(), os);
+		break;
 	case VLONG:
 		encodeLong(((VTLong*)var)->get(), os);
+		break;
 	}	
 }
 
 void VTBinaryCodec::encodeStruct(const VTStruct* v, std::ostream& os)
 {
-	os.put(TYPE_STRUCT);
+	os.put(TYPE_STRUCT & 0xff);
 	writeDoubleWord(v->size(), os);
 	for(size_t i = 0; i < v->size(); i++) {
 		encodeString(v->getKey(i), os);
@@ -162,6 +169,6 @@ void VTBinaryCodec::encodeDouble(double v, std::ostream& os)
 void VTBinaryCodec::encodeLong(long v, std::ostream& os)
 {
 	os.put(TYPE_LONG);
-	writeDoubleWord(v >> 32, os);
+	writeDoubleWord(0, os);
 	writeDoubleWord(v, os);
 }

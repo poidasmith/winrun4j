@@ -3,18 +3,20 @@
 #include <stdio.h>
 
 #include <vector>
+#include <fstream>
 #include <ostream>
 #include <string>
+#include <sstream>
 using namespace std;
 
 #include "../src/common/VTCodec.h"
 
 const size_t WIDTH = 10;
 
-void dumprow(char* buffer, size_t start, size_t length)
+void dumprow(const char* buffer, size_t start, size_t length)
 {
 	for(size_t i = 0; i < length; i++) {
-		printf("%2x ", buffer[start + i]);
+		printf("%02x ", buffer[start + i] & 0xff);
 	}
 	if(length < WIDTH) {
 		for(size_t i = 0; i < WIDTH - length; i++) {
@@ -28,7 +30,7 @@ void dumprow(char* buffer, size_t start, size_t length)
 	printf("\n");
 }
 
-void hexdump(char* buffer, size_t size)
+void hexdump(const char* buffer, size_t size)
 {
 	size_t numrows = size / WIDTH;
 	for(size_t i = 0; i < numrows; i++) {
@@ -40,11 +42,92 @@ void hexdump(char* buffer, size_t size)
 	}
 }
 
+class hexbuf : public streambuf 
+{
+public:
+	int write(const char * buffer, const int n) 
+	{ 
+		hexdump(buffer, n); 
+		return n; 
+	}
+	int read(char * buffer, const int n) 
+	{
+		return n; 
+	}
+
+protected:
+	virtual int overflow(int c) 
+	{
+		if(sync() == EOF) {
+			return EOF;
+		}
+
+		if(pbase() == 0) {
+			doallocate();
+		}
+
+		if(c != EOF) {
+			*pptr() = c;
+			pbump(1);
+		}
+
+		return 0;
+	}
+	virtual int sync(void) 
+	{
+		const int n = pptr() - pbase();
+		if(n == 0) {
+			return 0;
+		}
+		return write(pbase(), n) == n ? (pbump(-n), 0) : EOF;	
+	}
+	virtual int doallocate(void) 
+	{
+		const int size = 512;
+		char *p = (char *) malloc(size);
+		setp(p, p+size);
+		return 1;
+	}
+};
+
+class hexstream : public iostream
+{
+public:
+	hexstream() : iostream(&buf) {}
+	~hexstream() {}
+	hexbuf* rdbuf(void) const { 
+		return &buf; 
+	}
+	bool is_open() const { return true; }
+
+private:
+	mutable hexbuf buf;
+};
+
 int __cdecl main()
 {
 	VTStruct* s = new VTStruct;
 	s->add("test", new VTLong(1));
-	char* c = "1239047129038479021791273497129034712903848910237928749287432";
-	hexdump(c, strlen(c));
+	VTCollection* coll = new VTCollection;
+	coll->add(new VTString("hello there"));
+	coll->add(new VTDouble(1.2));
+	coll->add(new VTLong(232323));
+	s->add("mycoll", coll);
+	hexstream hs;
+	//stringstream hs;
+	//hs.clear();
+	VTBinaryCodec::encode(s, hs);
+	hs.flush();
+	ofstream outfile("test.dat");
+	VTBinaryCodec::encode(s, outfile);
+	outfile.close();
+	ifstream infile("test.dat");
+	Variant* ins = VTBinaryCodec::decode(infile);
+	infile.close();
+	VTBinaryCodec::encode(ins, hs);
+	hs.flush();
+
+	//const char* c = hs.str().c_str();
+	//hexdump(c, 30);
 }
 
