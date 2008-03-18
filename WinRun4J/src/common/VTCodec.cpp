@@ -30,7 +30,7 @@ inline void writeDoubleWord(int value, std::ostream& os)
 
 inline int readDoubleWord(std::istream& is) 
 {
-	return is.get() << 24 | is.get() >> 16 | is.get() >> 8 | is.get();
+	return is.get() << 24 | is.get() << 16 | is.get() << 8 | is.get();
 }
 
 Variant* VTBinaryCodec::decode(std::istream& is)
@@ -93,8 +93,8 @@ Variant* VTBinaryCodec::decodeDouble(std::istream& is)
 	int v2 = readDoubleWord(is);
 	double val;
 	int* p = (int*)&val;
-	p[0] = v1;
-	p[1] = v2;
+	p[1] = v1;
+	p[0] = v2;
 
 	return new VTDouble(val);
 }
@@ -162,8 +162,8 @@ void VTBinaryCodec::encodeDouble(double v, std::ostream& os)
 {
 	os.put(TYPE_DOUBLE);
 	int* p = (int *)&v;
-	writeDoubleWord(p[0], os);
 	writeDoubleWord(p[1], os);
+	writeDoubleWord(p[0], os);
 }
 
 void VTBinaryCodec::encodeLong(long v, std::ostream& os)
