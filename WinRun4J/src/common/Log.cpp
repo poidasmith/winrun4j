@@ -169,7 +169,9 @@ void Log::Close()
 // Set the error
 void Log::SetLastError(const char* format, ...)
 {
+#ifndef NO_JAVA
 	JNI::ClearException(VM::GetJNIEnv());
+#endif
 	g_error = true;
 	va_list args;
 	va_start(args, format);
@@ -179,6 +181,8 @@ void Log::SetLastError(const char* format, ...)
 	fflush(stderr);
 	va_end(args);
 }
+
+#ifndef NO_JAVA
 
 const char* Log::GetLastError()
 {
@@ -246,3 +250,5 @@ jstring JNICALL Log::GetLastErrorJ(JNIEnv* env, jobject self)
 	else
 		return env->NewStringUTF(err);
 }
+
+#endif

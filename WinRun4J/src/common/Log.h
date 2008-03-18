@@ -12,7 +12,9 @@
 #define LOG_H
 
 #include "Runtime.h"
+#ifndef NO_JAVA
 #include <jni.h>
+#endif
 
 enum LoggingLevel { info = 0, warning, error, none };
 
@@ -23,19 +25,23 @@ struct Log {
 	static void Warning(const char* format, ...);
 	static void Error(const char* format, ...);
 	static void Close();
-
-	// Used for JNI
-	static bool RegisterNatives(JNIEnv* env);
 	static void SetLastError(const char* format, ...);
 	static const char* GetLastError();
+
+#ifndef NO_JAVA
+	// Used for JNI
+	static bool RegisterNatives(JNIEnv* env);
+#endif
 
 private:
 	static void LogIt(LoggingLevel loggingLevel, const char* format, ...);
 	static void LogIt(const char* format, ...);
 	static void RedirectIOToConsole();
+#ifndef NO_JAVA
 	static void JNICALL LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str);
 	static void JNICALL SetLastErrorJ(JNIEnv* env, jobject self, jstring str);
 	static jstring JNICALL GetLastErrorJ(JNIEnv* env, jobject self);
+#endif
 };
 
 #endif // LOG_H
