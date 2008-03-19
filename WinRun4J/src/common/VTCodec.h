@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <map>
+#include <windows.h>
 
 enum VTType { VSTRUCT, VCOLLECTION, VSTRING, VDOUBLE, VLONG };
 

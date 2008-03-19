@@ -177,6 +177,7 @@ bool DDE::NotifySingleInstance(dictionary* ini)
 
 void DDE::Execute(LPSTR lpExecuteStr)
 {
+	DebugBreak();
 	JNIEnv* env = VM::GetJNIEnv();
 	if(env == NULL) return;
 	if(g_class == NULL) return;
@@ -286,6 +287,8 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 
     g_activateMethodID = env->GetStaticMethodID(g_class, "activate", "()V");
 
+	// Setup native method for dde callback
+	jclass readyCallbackCls = 0; //TODO
 
 	return true;
 }
