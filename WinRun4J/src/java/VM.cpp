@@ -299,10 +299,55 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance)
 {
 	g_hInstance = hInstance;
+
+	/* Find binPath where the DLLs required to launch the JVM are stored. It is two directories up from the
+	* jvm.dll in the standard Java directory layout. Specifically we require the specific copy of msvcr71.dll
+	* that is in that path to be loaded prior to loading the JVM. This follows the recommendations and discussion
+	* from http://www.duckware.com/tech/java6msvcr71.html
+	*/
+	TCHAR binPath[MAX_PATH];
+	strcpy(binPath, libPath);
+	for(int i = strlen(binPath) - 1; i >= 0; i--) {
+		if(binPath[i] == '\\') {
+			binPath[i] = 0;
+			break;
+		}
+	}
+	for(int i = strlen(binPath) - 1; i >= 0; i--) {
+		if(binPath[i] == '\\') {
+			binPath[i] = 0;
+			break;
+		}
+	}
+
+	/* Save and set current directory to the binPath and set the DLL search directory */
+	int currentDirectoryLength = GetCurrentDirectory(0, NULL);
+	TCHAR *saveCurrentDirectory = (TCHAR*)malloc(currentDirectoryLength * sizeof(TCHAR));
+	if (GetCurrentDirectory(currentDirectoryLength, saveCurrentDirectory) == 0) {
+		Log::Error("ERROR: Could not get current directory\n");
+		return -1;
+	}
+	SetCurrentDirectory(binPath);
+
+	/* Dynamic binding to SetDllDirectory() as it is only available in XP SP1+ */
+	typedef BOOL (WINAPI *LPFNSetDllDirectory)(LPCTSTR lpPathname);
+	HINSTANCE hKernel32 = GetModuleHandle("kernel32");
+	LPFNSetDllDirectory lpfnSetDllDirectory = (LPFNSetDllDirectory)GetProcAddress(hKernel32, "SetDllDirectoryA");
+	if (lpfnSetDllDirectory != NULL) {
+		lpfnSetDllDirectory(binPath);
+	}
+
+	/* Load the JVM library */
 	g_jniLibrary = LoadLibrary(libPath);
 	if(g_jniLibrary == NULL) {
 		Log::Error("ERROR: Could not load library: %s\n", libPath);
-		return -1; 
+		return -1;
+	}
+
+	/* Restore current directory and DLL search directory */
+	SetCurrentDirectory(saveCurrentDirectory);
+	if (lpfnSetDllDirectory != NULL) {
+		lpfnSetDllDirectory(NULL);
 	}
 
 	JNI_createJavaVM createJavaVM = (JNI_createJavaVM)GetProcAddress(g_jniLibrary, "JNI_CreateJavaVM");
