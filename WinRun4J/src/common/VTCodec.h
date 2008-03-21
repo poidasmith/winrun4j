@@ -15,7 +15,7 @@
 #include <map>
 #include <windows.h>
 
-enum VTType { VSTRUCT, VCOLLECTION, VSTRING, VDOUBLE, VLONG };
+enum VTType { VSTRUCT, VCOLLECTION, VSTRING, VDOUBLE, VLONG, VNULL };
 
 class Variant {
 public:
@@ -26,6 +26,12 @@ public:
 
 private:
 	VTType mType;
+};
+
+class VTNull : public Variant {
+public:
+	explicit VTNull() : Variant(VNULL) {}
+	virtual ~VTNull() {}
 };
 
 class VTString : public Variant {

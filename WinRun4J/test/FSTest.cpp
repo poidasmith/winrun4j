@@ -106,7 +106,7 @@ private:
 	mutable hexbuf buf;
 };
 
-int __cdecl main()
+int __cdecl main3()
 {
 	Protocol p("localhost", 5454);
 	VTStruct* s = new VTStruct;
@@ -127,14 +127,14 @@ int __cdecl main()
 	return 0;
 }
 
-int __cdecl main1()
+int __cdecl main()
 {
 	VTStruct* s = new VTStruct;
 	s->add("test", new VTLong(1));
 	VTCollection* coll = new VTCollection;
 	coll->add(new VTString("hello there"));
-	coll->add(new VTDouble(1.2));
-	coll->add(new VTLong(232323));
+	coll->add(new VTDouble(1.556));
+	coll->add(new VTLong(246632323));
 	s->add("mycoll", coll);
 	hexstream hs;
 	//stringstream hs;
@@ -149,6 +149,8 @@ int __cdecl main1()
 	infile.close();
 	VTBinaryCodec::encode(ins, hs);
 	hs.flush();
+
+	delete s;
 
 	//const char* c = hs.str().c_str();
 	//hexdump(c, 30);

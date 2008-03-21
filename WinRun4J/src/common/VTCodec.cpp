@@ -47,6 +47,8 @@ Variant* VTBinaryCodec::decode(std::istream& is)
 		return decodeDouble(is);
 	case TYPE_LONG:
 		return decodeLong(is);
+	case TYPE_NULL:
+		return new VTNull();
 	}
 	return NULL;
 }
@@ -128,6 +130,9 @@ void VTBinaryCodec::encode(const Variant* var, std::ostream& os)
 	case VLONG:
 		encodeLong(((VTLong*)var)->get(), os);
 		break;
+	case VNULL:
+		os.put(TYPE_NULL);
+		break; // VTNull only contains a type
 	}	
 }
 
