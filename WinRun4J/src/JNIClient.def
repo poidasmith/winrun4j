@@ -1,4 +1,0 @@
-LIBRARY	"JNIClient"
-
-EXPORTS
-	CreateJavaVM
