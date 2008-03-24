@@ -1,9 +1,9 @@
 /*******************************************************************************
 * This program and the accompanying materials
 * are made available under the terms of the Common Public License v1.0
-* which accompanies this distribution, and is available at 
+* which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/cpl-v10.html
-* 
+*
 * Contributors:
 *     Peter Smith
 *******************************************************************************/
@@ -42,21 +42,21 @@ LRESULT CALLBACK DdeMainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 }
 
 HDDEDATA CALLBACK DdeCallback(UINT uType, UINT /*uFmt*/, HCONV /*hconv*/, HDDEDATA hsz1,
-    HDDEDATA hsz2, HDDEDATA hdata, HDDEDATA /*dwData1*/, HDDEDATA /*dwData2*/)
+							  HDDEDATA hsz2, HDDEDATA hdata, HDDEDATA /*dwData1*/, HDDEDATA /*dwData2*/)
 {
 	switch (uType)
-	{     
-		case XTYP_CONNECT: 
-			if(hsz2 == (HDDEDATA) g_serverName && hsz1 == (HDDEDATA) g_topic)
-			 	return (HDDEDATA) 1;
-			break;
-
-		case XTYP_EXECUTE: {
-			DdeGetData(hdata, (LPBYTE) g_execute, MAX_PATH, 0); 
-			DDE::Execute(g_execute);
+	{
+	case XTYP_CONNECT:
+		if(hsz2 == (HDDEDATA) g_serverName && hsz1 == (HDDEDATA) g_topic)
 			return (HDDEDATA) 1;
-			break;
-	   }
+		break;
+
+	case XTYP_EXECUTE: {
+		DdeGetData(hdata, (LPBYTE) g_execute, MAX_PATH, 0);
+		DDE::Execute(g_execute);
+		return (HDDEDATA) 1;
+		break;
+					   }
 	}
 
 	return 0;
@@ -76,7 +76,7 @@ bool DDE::RegisterDDE()
 	char* topic = iniparser_getstr(g_ini, DDE_TOPIC);
 
 	g_serverName = DdeCreateStringHandle(g_pidInst, appName == NULL ? "WinRun4J" : appName, CP_WINANSI);
-	g_topic = DdeCreateStringHandle(g_pidInst, topic == NULL ? "system" : topic, CP_WINANSI);    
+	g_topic = DdeCreateStringHandle(g_pidInst, topic == NULL ? "system" : topic, CP_WINANSI);
 
 	// Register the server
 	DdeNameService(g_pidInst, g_serverName, NULL, DNS_REGISTER);
@@ -87,7 +87,7 @@ DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
 {
 	// Register Window
 	DDE::RegisterWindow((HINSTANCE) lpParam);
-	
+
 	bool initDde = DDE::RegisterDDE();
 	if(!initDde)
 		return 1;
@@ -96,12 +96,12 @@ DWORD WINAPI DdeWindowThreadProc(LPVOID lpParam)
 
 	// Create window
 	g_hWnd = CreateWindowEx(
-		0, 
-		clsName == NULL ? "WinRun4J.DDEWndClass" : clsName, 
-		"WinRun4J.DDEWindow", 
-		0, 
+		0,
+		clsName == NULL ? "WinRun4J.DDEWndClass" : clsName,
+		"WinRun4J.DDEWindow",
+		0,
 		0, 0,
-		0, 0, 
+		0, 0,
 		NULL, NULL, NULL, NULL);
 
 	// Listen for messages
@@ -126,11 +126,13 @@ bool DDE::Initialize(HINSTANCE hInstance, JNIEnv* env, dictionary* ini)
 	Log::Info("Initializing DDE\n");
 	g_ini = ini;
 
+	// Attach JNI methods
+	if (!RegisterNatives(env, ini))
+		return false;
+
 	// Create Thread to manage the window
 	CreateThread(0, 0, DdeWindowThreadProc, (LPVOID) hInstance, 0, 0);
-
-	// Attach JNI methods
-	return RegisterNatives(env, ini);
+	return true;
 }
 
 void DDE::Uninitialize()
@@ -139,7 +141,7 @@ void DDE::Uninitialize()
 	if(g_topic) DdeFreeStringHandle(g_pidInst, g_topic);
 
 	// Shutdown DDE library
-	DdeUninitialize(g_pidInst); 
+	DdeUninitialize(g_pidInst);
 }
 
 bool DDE::NotifySingleInstance(dictionary* ini)
@@ -177,7 +179,6 @@ bool DDE::NotifySingleInstance(dictionary* ini)
 
 void DDE::Execute(LPSTR lpExecuteStr)
 {
-	DebugBreak();
 	JNIEnv* env = VM::GetJNIEnv();
 	if(env == NULL) return;
 	if(g_class == NULL) return;
@@ -226,8 +227,14 @@ void DDE::Execute(LPSTR lpExecuteStr)
 }
 
 void DDE::Ready() {
+	/* Check if we're already marked ready. Ready is now called possibly from a native callback
+	* and after the main() method has executed.
+	*/
+	if (g_ready == 1)
+		return;
+
 	g_ready = 1;
-	
+
 	for (int i = 0; i < g_buffer_ix; i++) {
 		LPSTR lpExecuteStr = g_buffer[i];
 		DDE::Execute(lpExecuteStr);
@@ -235,6 +242,11 @@ void DDE::Ready() {
 	}
 	free(g_buffer);
 	g_buffer = NULL;
+}
+
+void JNICALL DDE::ReadyJ(JNIEnv* env, jobject self)
+{
+	DDE:Ready();
 }
 
 void DDE::RegisterWindow(HINSTANCE hInstance)
@@ -279,16 +291,26 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 		return false;
 	}
 
-    g_executeMethodID = env->GetStaticMethodID(g_class, "execute", "(Ljava/lang/String;)V");
-    if(g_executeMethodID == NULL) {
+	g_executeMethodID = env->GetStaticMethodID(g_class, "execute", "(Ljava/lang/String;)V");
+	if(g_executeMethodID == NULL) {
 		Log::SetLastError("Could not find execute method");
 		return false;
 	}
 
-    g_activateMethodID = env->GetStaticMethodID(g_class, "activate", "()V");
+	g_activateMethodID = env->GetStaticMethodID(g_class, "activate", "()V");
 
 	// Setup native method for dde callback
-	jclass readyCallbackCls = 0; //TODO
+	JNINativeMethod nm[1];
+	nm[0].name = "ready";
+	nm[0].signature = "()V";
+	nm[0].fnPtr = (void*) DDE::ReadyJ;
+
+	env->RegisterNatives(g_class, nm, 1);
+
+	if(env->ExceptionCheck()) {
+		env->ExceptionClear();
+		Log::Info("DDE.ready native method not found; not registering");
+	}
 
 	return true;
 }

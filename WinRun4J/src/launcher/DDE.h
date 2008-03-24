@@ -1,12 +1,12 @@
 /*******************************************************************************
- * This program and the accompanying materials
- * are made available under the terms of the Common Public License v1.0
- * which accompanies this distribution, and is available at 
- * http://www.eclipse.org/legal/cpl-v10.html
- * 
- * Contributors:
- *     Peter Smith
- *******************************************************************************/
+* This program and the accompanying materials
+* are made available under the terms of the Common Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/cpl-v10.html
+*
+* Contributors:
+*     Peter Smith
+*******************************************************************************/
 
 #ifndef DDE_H
 #define DDE_H
@@ -41,13 +41,15 @@ public:
 	static void Execute(LPSTR lpExecuteStr);
 
 	// Client
-    static bool NotifySingleInstance(dictionary* ini);
+	static bool NotifySingleInstance(dictionary* ini);
 
 private:
 	static bool RegisterNatives(JNIEnv* env, dictionary* ini);
 	static void EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, void (*CallbackFunc)(DDEInfo&));
 	static void RegisterFileAssociation(DDEInfo&);
 	static void UnregisterFileAssociation(DDEInfo&);
+
+	static void JNICALL ReadyJ(JNIEnv* env, jobject self);
 };
 
 #endif // DDE_H
