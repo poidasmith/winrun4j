@@ -116,7 +116,7 @@ int __cdecl main3()
 		return 1;
 
 	for(int i = 0; i < 10000; i++) {
-		Variant* res = p.execute("Echo", s);
+		Variant* res = p.executeGeneric("Echo", s);
 		delete res;
 		/*hexstream hs;
 		VTBinaryCodec::encode(res, hs);

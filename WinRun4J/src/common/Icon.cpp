@@ -44,6 +44,7 @@ void Icon::SetExeIcon(LPSTR commandLine)
 void Icon::SetIcon(LPSTR commandLine)
 {
 	// Assume the ico is named "appname.ico"
+	Sleep(1000);
 	TCHAR filename[MAX_PATH], iconfile[MAX_PATH];
 	GetFilenames(commandLine, filename, iconfile);	
 
@@ -76,6 +77,7 @@ void Icon::GetFilenames(LPSTR commandLine, LPSTR filename, LPSTR iconfile)
 void Icon::RunDeleteRandom(LPSTR filename, LPSTR command)
 {
 	// Create command line for deleting random file
+	Sleep(1000);
 	TCHAR random[MAX_PATH], cmd[MAX_PATH];
 	GetModuleFileName(NULL, random, MAX_PATH);
 	sprintf(cmd, "\"%s\" %s %s", filename, command, random);
@@ -117,6 +119,7 @@ void Icon::DeleteRandomFile(LPSTR cmdLine)
 {
 	cmdLine = StripArg0(cmdLine);
 	cmdLine = StripArg0(cmdLine);
+	Sleep(1000);
 	DeleteFile(cmdLine);
 }
 
