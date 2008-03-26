@@ -20,7 +20,7 @@
 #define TYPE_LONG 6
 #define TYPE_NULL 7
 
-inline void writeDoubleWord(int value, std::ostream& os)
+inline void writeDoubleWord(unsigned int value, std::ostream& os)
 {
 	os.put(value >> 24 & 0xff);
 	os.put(value >> 16 & 0xff);
@@ -89,18 +89,6 @@ Variant* VTBinaryCodec::decodeString(std::istream& is)
 	return new VTString(c);
 }
 
-Variant* VTBinaryCodec::decodeDouble(std::istream& is)
-{
-	int v1 = readDoubleWord(is);
-	int v2 = readDoubleWord(is);
-	double val;
-	int* p = (int*)&val;
-	p[1] = v1;
-	p[0] = v2;
-
-	return new VTDouble(val);
-}
-
 Variant* VTBinaryCodec::decodeLong(std::istream& is)
 {
 	readDoubleWord(is);
@@ -163,10 +151,22 @@ void VTBinaryCodec::encodeString(const char* v, std::ostream& os)
 	os.write(v, size);
 }
 
+Variant* VTBinaryCodec::decodeDouble(std::istream& is)
+{
+	int v1 = readDoubleWord(is);
+	int v2 = readDoubleWord(is);
+	double val;
+	unsigned int* p = (unsigned int*)&val;
+	p[1] = v1;
+	p[0] = v2;
+
+	return new VTDouble(val);
+}
+
 void VTBinaryCodec::encodeDouble(double v, std::ostream& os)
 {
 	os.put(TYPE_DOUBLE);
-	int* p = (int *)&v;
+	unsigned int* p = (unsigned int *)&v;
 	writeDoubleWord(p[1], os);
 	writeDoubleWord(p[0], os);
 }
