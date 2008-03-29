@@ -21,6 +21,9 @@ public class DDE {
         DDE.fileAssociationListeners.add(listener);
     }
 
+    /**
+     * To be called by the application when it is ready to receive DDE messages.
+     */
     public static native void ready();
     
     /**
