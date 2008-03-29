@@ -12,6 +12,11 @@ public class DDE {
     private static Set activationListeners = new LinkedHashSet();
 
     /**
+     * To be called by the application when it is ready to receive DDE messages.
+     */
+    public static native void ready();
+    
+    /**
      * Add a file association listener.
      * 
      * @param listener.
@@ -21,11 +26,6 @@ public class DDE {
         DDE.fileAssociationListeners.add(listener);
     }
 
-    /**
-     * To be called by the application when it is ready to receive DDE messages.
-     */
-    public static native void ready();
-    
     /**
      * Execute a command. This will be called from WinRun4J binary.
      * 
