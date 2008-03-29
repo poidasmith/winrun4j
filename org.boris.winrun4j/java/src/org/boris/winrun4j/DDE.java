@@ -21,6 +21,8 @@ public class DDE {
         DDE.fileAssociationListeners.add(listener);
     }
 
+    public static native void ready();
+    
     /**
      * Execute a command. This will be called from WinRun4J binary.
      * 
