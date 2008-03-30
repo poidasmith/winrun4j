@@ -3,7 +3,7 @@
 	<property name="release.dir" value="C:/Development/Releases/"/>
 	<property name="src.dir" value="C:\eclipse\workspace\WinRun4J"/>
 	<property name="release.name" value="winrun4J"/>
-	<property name="release.version" value="0.1.9"/>
+	<property name="release.version" value="0.1.10"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/winrun4j"/>
 	
 	<target name="build">
@@ -80,6 +80,6 @@
 		</zip>
 		<delete dir="${release.dir}/${release.name}-${release.version}"/>
 		<mkdir dir="C:/Development/winrun4j-javadoc"/>
-		<!-- <javadoc sourcepath="java/src" packagenames="*" destdir="C:/Development/winrun4j-javadoc"/> -->
+		<javadoc sourcepath="java/src" packagenames="*" destdir="C:/Development/winrun4j-javadoc"/>
 	</target>
 </project>

@@ -13,6 +13,8 @@ public class EclipseDDE {
     private static Main main = null;
     static ClassLoader loader = null;
     
+    public static native void ready();
+    
     /**
      * Launch a file. This is called from WinRun4J binary (due to dde.class setting in INI file).
      *

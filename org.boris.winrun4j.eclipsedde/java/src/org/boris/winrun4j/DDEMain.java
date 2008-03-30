@@ -51,6 +51,7 @@ public class DDEMain extends Main {
         Class clazz = EclipseDDE.loader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
         Method method = clazz.getDeclaredMethod("run", new Class[] {String[].class, Runnable.class}); //$NON-NLS-1$
         try {
+            EclipseDDE.ready();
             method.invoke(clazz, new Object[] {passThruArgs, Reflection.getField(this, "splashHandler")});
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof Error)
