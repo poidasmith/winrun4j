@@ -88,6 +88,14 @@ public:
 		}
 		return NULL;
 	}
+	const char* getString(char* name) const {
+		Variant* v = get(name);
+		return (v != NULL && v->getType() == VSTRING) ? ((VTString*) v)->get() : NULL;
+	}
+	bool getBoolean(char* name) const {
+		Variant* v = get(name);
+		return (v != NULL && v->getType() == VLONG) ? ((VTLong*) v)->get() == 1 : false;
+	}
 
 private: 
 	std::vector<std::pair<std::string, Variant*> > values;
@@ -101,6 +109,14 @@ public:
 	size_t size() const { return values.size(); }
 	void add(Variant* s) { values.push_back(s); }
 	Variant* get(size_t i) const { return values[i]; }
+	VTStruct* getStruct(size_t i) const {
+		Variant* v = get(i);
+		return (v != NULL && v->getType() == VSTRUCT) ? (VTStruct*) v : NULL;
+	}
+	const char* getString(size_t i) const {
+		Variant* v = get(i);
+		return (v != NULL && v->getType() == VSTRING) ? ((VTString*) v)->get() : NULL;
+	}
 
 private:
 	std::vector<Variant*> values;
