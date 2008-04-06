@@ -96,6 +96,10 @@ public:
 		Variant* v = get(name);
 		return (v != NULL && v->getType() == VLONG) ? ((VTLong*) v)->get() == 1 : false;
 	}
+	VTCollection* getCollection(char* name) const {
+		Variant* v = get(name);
+		return (v != NULL && v->getType() == VCOLLECTION) ? (VTCollection*) v : NULL;
+	}
 
 private: 
 	std::vector<std::pair<std::string, Variant*> > values;

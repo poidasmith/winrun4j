@@ -268,6 +268,9 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	else
 		JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
+	// Check for exception
+	JNI::ClearException();
+
 	if (ddeInit) DDE::Ready();
 	
 	// Free the args memory
