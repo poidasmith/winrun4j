@@ -3,11 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinRun4J", "build\WinRun4J.vcproj", "{B3EC7585-646E-4D0D-850E-8CD6FADB323D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExcelAddin4J", "build\ExcelAddin4J.vcproj", "{E893B191-8498-45E8-B866-555E1F874468}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FSTest", "build\FSTest.vcproj", "{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FSAddin", "build\FSAddin.vcproj", "{930CC50F-F2EF-486E-BDDB-9B6867177A4C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XLLoop", "build\XLLoop.vcproj", "{930CC50F-F2EF-486E-BDDB-9B6867177A4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,27 +31,6 @@ Global
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Release-Console|Win32.Build.0 = Debug|Win32
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Release-Console|x64.ActiveCfg = Debug|Win32
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Release-Console|x64.Build.0 = Debug|Win32
-		{E893B191-8498-45E8-B866-555E1F874468}.Debug|Win32.ActiveCfg = Debug|Win32
-		{E893B191-8498-45E8-B866-555E1F874468}.Debug|x64.ActiveCfg = Debug|Win32
-		{E893B191-8498-45E8-B866-555E1F874468}.Debug-Console|Win32.ActiveCfg = Debug|Win32
-		{E893B191-8498-45E8-B866-555E1F874468}.Debug-Console|x64.ActiveCfg = Debug|Win32
-		{E893B191-8498-45E8-B866-555E1F874468}.Release|Win32.ActiveCfg = Release|Win32
-		{E893B191-8498-45E8-B866-555E1F874468}.Release|Win32.Build.0 = Release|Win32
-		{E893B191-8498-45E8-B866-555E1F874468}.Release|x64.ActiveCfg = Release|Win32
-		{E893B191-8498-45E8-B866-555E1F874468}.Release-Console|Win32.ActiveCfg = Release|Win32
-		{E893B191-8498-45E8-B866-555E1F874468}.Release-Console|Win32.Build.0 = Release|Win32
-		{E893B191-8498-45E8-B866-555E1F874468}.Release-Console|x64.ActiveCfg = Release|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Debug|x64.ActiveCfg = Debug|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Debug-Console|Win32.ActiveCfg = Debug|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Debug-Console|Win32.Build.0 = Debug|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Debug-Console|x64.ActiveCfg = Debug|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Release|Win32.ActiveCfg = Release|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Release|Win32.Build.0 = Release|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Release|x64.ActiveCfg = Release|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Release-Console|Win32.ActiveCfg = Release|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Release-Console|Win32.Build.0 = Release|Win32
-		{52FD9A87-2C65-45D2-82D6-A5B09384AE7D}.Release-Console|x64.ActiveCfg = Release|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Debug|Win32.ActiveCfg = Debug|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Debug|Win32.Build.0 = Debug|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Debug|x64.ActiveCfg = Debug|Win32

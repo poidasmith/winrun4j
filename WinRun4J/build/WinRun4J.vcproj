@@ -693,10 +693,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\common\COMHelper.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\launcher\DDE.cpp"
 				>
 			</File>
@@ -760,10 +756,6 @@
 			>
 			<File
 				RelativePath="..\src\java\Classpath.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\common\COMHelper.h"
 				>
 			</File>
 			<File
