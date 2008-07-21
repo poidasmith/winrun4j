@@ -13,12 +13,18 @@
 #include <istream>
 
 #define TYPE_EOF 1
-#define TYPE_STRUCT 0x2
+#define TYPE_STRUCT 2
 #define TYPE_COLLECTION 3
 #define TYPE_STRING 4
-#define TYPE_DOUBLE 5
-#define TYPE_LONG 6
-#define TYPE_NULL 7
+#define TYPE_BOOLEAN 5
+#define TYPE_BYTE 6
+#define TYPE_SHORT 7
+#define TYPE_INTEGER 8
+#define TYPE_LONG 9
+#define TYPE_FLOAT 10
+#define TYPE_DOUBLE 11
+#define TYPE_BINARY 12
+#define TYPE_NULL 13
 
 inline void writeDoubleWord(unsigned int value, std::ostream& os)
 {
@@ -43,10 +49,22 @@ Variant* VTBinaryCodec::decode(std::istream& is)
 		return decodeCollection(is);
 	case TYPE_STRING:
 		return decodeString(is);
-	case TYPE_DOUBLE:
-		return decodeDouble(is);
+	case TYPE_BOOLEAN:
+		return decodeBoolean(is);
+	case TYPE_BYTE:
+		return decodeByte(is);
+	case TYPE_SHORT:
+		return decodeShort(is);
+	case TYPE_INTEGER:
+		return decodeInteger(is);
 	case TYPE_LONG:
 		return decodeLong(is);
+	case TYPE_FLOAT:
+		return decodeFloat(is);
+	case TYPE_DOUBLE:
+		return decodeDouble(is);
+	case TYPE_BINARY:
+		return decodeBinary(is);
 	case TYPE_NULL:
 		return new VTNull();
 	}
@@ -89,10 +107,62 @@ Variant* VTBinaryCodec::decodeString(std::istream& is)
 	return new VTString(c);
 }
 
+Variant* VTBinaryCodec::decodeBoolean(std::istream& is)
+{
+	return new VTByte(is.get() == 1);
+}
+
+Variant* VTBinaryCodec::decodeByte(std::istream& is)
+{
+	return new VTByte(is.get());
+}
+
+Variant* VTBinaryCodec::decodeShort(std::istream& is)
+{
+	return new VTShort(is.get() << 8 | is.get());
+}
+
+Variant* VTBinaryCodec::decodeInteger(std::istream& is)
+{
+	return new VTInteger(readDoubleWord(is));
+}
+
 Variant* VTBinaryCodec::decodeLong(std::istream& is)
 {
 	readDoubleWord(is);
 	return new VTLong(readDoubleWord(is));
+}
+
+Variant* VTBinaryCodec::decodeFloat(std::istream& is)
+{
+	int v1 = readDoubleWord(is);
+	float val;
+	unsigned int* p = (unsigned int*)&val;
+	p[0] = v1;
+
+	return new VTFloat(val);
+}
+
+Variant* VTBinaryCodec::decodeDouble(std::istream& is)
+{
+	int v1 = readDoubleWord(is);
+	int v2 = readDoubleWord(is);
+	double val;
+	unsigned int* p = (unsigned int*)&val;
+	p[1] = v1;
+	p[0] = v2;
+
+	return new VTDouble(val);
+}
+
+Variant* VTBinaryCodec::decodeBinary(std::istream& is)
+{
+	int len = readDoubleWord(is);
+	std::vector<unsigned char> data;
+	for(int i = 0; i < len; i++) {
+		data.push_back(is.get());
+	}
+	return new VTBinaryData(data);
 }
 
 void VTBinaryCodec::encode(const Variant* var, std::ostream& os)
@@ -112,11 +182,29 @@ void VTBinaryCodec::encode(const Variant* var, std::ostream& os)
 	case VSTRING:
 		encodeString(((VTString*)var)->get(), os);
 		break;
-	case VDOUBLE:
-		encodeDouble(((VTDouble*)var)->get(), os);
+	case VBOOLEAN:
+		encodeBoolean(((VTBoolean*)var)->get(), os);
+		break;
+	case VBYTE:
+		encodeByte(((VTByte*)var)->get(), os);
+		break;
+	case VSHORT:
+		encodeShort(((VTShort*)var)->get(), os);
+		break;
+	case VINTEGER:
+		encodeInteger(((VTInteger*)var)->get(), os);
 		break;
 	case VLONG:
 		encodeLong(((VTLong*)var)->get(), os);
+		break;
+	case VFLOAT:
+		encodeFloat(((VTFloat*)var)->get(), os);
+		break;
+	case VDOUBLE:
+		encodeDouble(((VTDouble*)var)->get(), os);
+		break;
+	case VBINARY:
+		encodeBinary(((VTBinaryData*)var)->get(), os);
 		break;
 	case VNULL:
 		os.put(TYPE_NULL);
@@ -151,16 +239,43 @@ void VTBinaryCodec::encodeString(const char* v, std::ostream& os)
 	os.write(v, size);
 }
 
-Variant* VTBinaryCodec::decodeDouble(std::istream& is)
+void VTBinaryCodec::encodeBoolean(bool v, std::ostream& os)
 {
-	int v1 = readDoubleWord(is);
-	int v2 = readDoubleWord(is);
-	double val;
-	unsigned int* p = (unsigned int*)&val;
-	p[1] = v1;
-	p[0] = v2;
+	os.put(TYPE_BOOLEAN);
+	os.put(v);
+}
 
-	return new VTDouble(val);
+void VTBinaryCodec::encodeByte(unsigned char v, std::ostream& os)
+{
+	os.put(TYPE_BYTE);
+	os.put(v);
+}
+
+void VTBinaryCodec::encodeShort(short v, std::ostream& os)
+{
+	os.put(TYPE_SHORT);
+	os.put(v >> 8);
+	os.put(v & 0xff);
+}
+
+void VTBinaryCodec::encodeInteger(int v, std::ostream& os)
+{
+	os.put(TYPE_INTEGER);
+	writeDoubleWord(v, os);
+}
+
+void VTBinaryCodec::encodeLong(long v, std::ostream& os)
+{
+	os.put(TYPE_LONG);
+	writeDoubleWord(0, os);
+	writeDoubleWord(v, os);
+}
+
+void VTBinaryCodec::encodeFloat(float v, std::ostream& os)
+{
+	os.put(TYPE_FLOAT);
+	unsigned int* p = (unsigned int *)&v;
+	writeDoubleWord(p[0], os);
 }
 
 void VTBinaryCodec::encodeDouble(double v, std::ostream& os)
@@ -171,9 +286,12 @@ void VTBinaryCodec::encodeDouble(double v, std::ostream& os)
 	writeDoubleWord(p[0], os);
 }
 
-void VTBinaryCodec::encodeLong(long v, std::ostream& os)
+void VTBinaryCodec::encodeBinary(const std::vector<unsigned char>& v, std::ostream& os)
 {
-	os.put(TYPE_LONG);
-	writeDoubleWord(0, os);
-	writeDoubleWord(v, os);
+	os.put(TYPE_BINARY);
+	int len = v.size();
+	writeDoubleWord(len, os);
+	for(int i = 0; i < len; i++) {
+		os.put(v[i]);
+	}
 }

@@ -15,7 +15,7 @@
 #include <map>
 #include <windows.h>
 
-enum VTType { VSTRUCT, VCOLLECTION, VSTRING, VDOUBLE, VLONG, VNULL };
+enum VTType { VSTRUCT, VCOLLECTION, VSTRING, VBOOLEAN, VBYTE, VSHORT, VINTEGER, VLONG, VFLOAT, VDOUBLE, VBINARY, VNULL };
 
 class Variant {
 public:
@@ -46,16 +46,52 @@ private:
 	std::string value;
 };
 
-class VTDouble : public Variant {
+class VTBoolean : public Variant {
 public:
-	explicit VTDouble(double d) : Variant(VDOUBLE), value(d) {}
-	virtual ~VTDouble() {}
+	explicit VTBoolean(bool b) : Variant(VBOOLEAN), value(b) {}
+	virtual ~VTBoolean() {}
 
-	double get() const { return value; }
-	void set(double d) { value = d; }
+	bool get() const { return value; }
+	void set(bool b) { value = b; }
 
 private:
-	double value;
+	bool value;
+};
+
+class VTByte : public Variant {
+public:
+	explicit VTByte(unsigned char b) : Variant(VBYTE), value(b) {}
+	virtual ~VTByte() {}
+
+	unsigned char get() const { return value; }
+	void set(unsigned char b) { value = b; }
+
+private:
+	unsigned char value;
+};
+
+class VTShort : public Variant {
+public:
+	explicit VTShort(short s) : Variant(VSHORT), value(s) {}
+	virtual ~VTShort() {}
+
+	short get() const { return value; }
+	void set(short s) { value = s; }
+
+private:
+	short value;
+};
+
+class VTInteger : public Variant {
+public:
+	explicit VTInteger(int i) : Variant(VINTEGER), value(i) {}
+	virtual ~VTInteger() {}
+
+	int get() const { return value; }
+	void set(int i) { value = i; }
+
+private:
+	int value;
 };
 
 class VTLong : public Variant {
@@ -68,6 +104,42 @@ public:
 
 private:
 	long value;
+};
+
+class VTFloat : public Variant {
+public:
+	explicit VTFloat(float f) : Variant(VFLOAT), value(f) {}
+	virtual ~VTFloat() {}
+
+	float get() const { return value; }
+	void set(float f) { value = f; }
+
+private:
+	float value;
+};
+
+class VTDouble : public Variant {
+public:
+	explicit VTDouble(double d) : Variant(VDOUBLE), value(d) {}
+	virtual ~VTDouble() {}
+
+	double get() const { return value; }
+	void set(double d) { value = d; }
+
+private:
+	double value;
+};
+
+class VTBinaryData : public Variant {
+public:
+	explicit VTBinaryData(std::vector<unsigned char> b) : Variant(VBINARY), value(b) {}
+	virtual ~VTBinaryData() {}
+
+	const std::vector<unsigned char>& get() const { return value; }
+	void set(std::vector<unsigned char> b) { value = b; }
+
+private:
+	std::vector<unsigned char> value;
 };
 
 class VTCollection;
@@ -135,13 +207,25 @@ private:
 	static Variant* decodeStruct(std::istream& is);
 	static Variant* decodeCollection(std::istream& is);
 	static Variant* decodeString(std::istream& is);
-	static Variant* decodeDouble(std::istream& is);
+	static Variant* decodeBoolean(std::istream& is);
+	static Variant* decodeByte(std::istream& is);
+	static Variant* decodeShort(std::istream& is);
+	static Variant* decodeInteger(std::istream& is);
 	static Variant* decodeLong(std::istream& is);
+	static Variant* decodeFloat(std::istream& is);
+	static Variant* decodeDouble(std::istream& is);
+	static Variant* decodeBinary(std::istream& is);
 	static void encodeStruct(const VTStruct* v, std::ostream& os);
 	static void encodeCollection(const VTCollection* v, std::ostream& os);
 	static void encodeString(const char* v, std::ostream& os);
-	static void encodeDouble(double v, std::ostream& os);
+	static void encodeBoolean(bool v, std::ostream& os);
+	static void encodeByte(unsigned char v, std::ostream& os);
+	static void encodeShort(short v, std::ostream& os);
+	static void encodeInteger(int v, std::ostream& os);
 	static void encodeLong(long v, std::ostream& os);
+	static void encodeFloat(float v, std::ostream& os);
+	static void encodeDouble(double v, std::ostream& os);
+	static void encodeBinary(const std::vector<unsigned char>& b, std::ostream& os);
 };
 
 #endif // VTCODEC_H
