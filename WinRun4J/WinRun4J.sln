@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C++ Express 2005
+# Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinRun4J", "build\WinRun4J.vcproj", "{B3EC7585-646E-4D0D-850E-8CD6FADB323D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XLLoop", "build\XLLoop.vcproj", "{930CC50F-F2EF-486E-BDDB-9B6867177A4C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ResourceEditor", "build\ResourceEditor.vcproj", "{B3EC7585-646E-4D0D-850E-7CD7FADB723D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +28,7 @@ Global
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug - Console|x64.ActiveCfg = Debug - Console|x64
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug - Console|x64.Build.0 = Debug - Console|x64
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug|Win32.Build.0 = Debug|Win32
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug|x64.ActiveCfg = Debug|x64
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug|x64.Build.0 = Debug|x64
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug-Console|Win32.ActiveCfg = Debug - Console|Win32
@@ -60,6 +63,24 @@ Global
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Release-Console|Win32.ActiveCfg = Release|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Release-Console|Win32.Build.0 = Release|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Release-Console|x64.ActiveCfg = Release|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Debug - Console|Win32.ActiveCfg = Debug - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Debug - Console|Win32.Build.0 = Debug - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Debug - Console|x64.ActiveCfg = Debug - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Debug|Win32.ActiveCfg = Debug - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Debug|Win32.Build.0 = Debug - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Debug|x64.ActiveCfg = Debug - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Debug-Console|Win32.ActiveCfg = Debug - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Debug-Console|Win32.Build.0 = Debug - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Debug-Console|x64.ActiveCfg = Debug - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Release - Console|Win32.ActiveCfg = Release - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Release - Console|Win32.Build.0 = Release - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Release - Console|x64.ActiveCfg = Release - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Release|Win32.ActiveCfg = Release - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Release|Win32.Build.0 = Release - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Release|x64.ActiveCfg = Release - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Release-Console|Win32.ActiveCfg = Release - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Release-Console|Win32.Build.0 = Release - Console|Win32
+		{B3EC7585-646E-4D0D-850E-7CD7FADB723D}.Release-Console|x64.ActiveCfg = Release - Console|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

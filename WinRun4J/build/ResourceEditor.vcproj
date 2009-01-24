@@ -2,28 +2,26 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="XLLoop"
-	ProjectGUID="{930CC50F-F2EF-486E-BDDB-9B6867177A4C}"
-	RootNamespace="FSAddin"
-	Keyword="Win32Proj"
+	Name="ResourceEditor"
+	ProjectGUID="{B3EC7585-646E-4D0D-850E-7CD7FADB723D}"
+	RootNamespace="ResourceEditor"
 	>
 	<Platforms>
 		<Platform
 			Name="Win32"
+		/>
+		<Platform
+			Name="x64"
 		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="Debug|Win32"
+			Name="Debug - Console|Win32"
 			OutputDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)"
 			IntermediateDirectory="$(ProjectName)-$(ConfigurationName)"
-			ConfigurationType="2"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="true"
-			CharacterSet="0"
-			BuildLogFile="$(IntDir)\BuildLog.htm"
+			ConfigurationType="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -42,56 +40,38 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				UseUnicodeResponseFiles="true"
 				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="DEBUG_LOG,NO_JAVA"
-				IgnoreStandardIncludePath="false"
-				MinimalRebuild="true"
-				ExceptionHandling="1"
-				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
+				PreprocessorDefinitions="CONSOLE,TINY,DEBUG_LOG"
 				BufferSecurityCheck="false"
-				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="0"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="$(IntDir)\vc80.pdb"
-				XMLDocumentationFileName="$(IntDir)\"
 				WarningLevel="4"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 				CallingConvention="0"
+				CompileAs="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				ResourceOutputFileName=""
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../lib/xlcall32.lib Ws2_32.lib"
-				OutputFile="$(OutDir)\$(ProjectName).xll"
-				LinkIncremental="2"
-				GenerateManifest="false"
-				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
-				IgnoreAllDefaultLibraries="false"
-				ModuleDefinitionFile="../src/XLLoop.def"
+				AdditionalDependencies="../lib/wcrt.lib psapi.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
+				IgnoreAllDefaultLibraries="true"
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
-				MapExports="true"
-				SubSystem="2"
-				TargetMachine="1"
+				SubSystem="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -113,13 +93,10 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
+			Name="Release - Console|Win32"
 			OutputDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)"
 			IntermediateDirectory="$(ProjectName)-$(ConfigurationName)"
-			ConfigurationType="2"
-			ATLMinimizesCRunTimeLibraryUsage="true"
-			CharacterSet="0"
-			WholeProgramOptimization="1"
+			ConfigurationType="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -138,40 +115,45 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				WholeProgramOptimization="false"
-				PreprocessorDefinitions="NO_JAVA"
-				MinimalRebuild="false"
+				PreprocessorDefinitions="CONSOLE,TINY"
 				ExceptionHandling="0"
-				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="0"
+				RuntimeTypeInfo="false"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\vc80.pdb"
+				XMLDocumentationFileName="$(IntDir)\"
+				CallingConvention="2"
+				CompileAs="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				ResourceOutputFileName=""
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../lib/xlcall32.lib Ws2_32.lib"
-				OutputFile="$(OutDir)\$(ProjectName).xll"
-				GenerateManifest="false"
-				ModuleDefinitionFile="..\src\XLLoop.def"
+				AdditionalOptions="/LTCG"
+				AdditionalDependencies="../lib/wcrt.lib psapi.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
+				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
+				IgnoreAllDefaultLibraries="true"
 				SubSystem="1"
-				LinkTimeCodeGeneration="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
+				ManifestResourceFile="$(IntDir)\$(TargetFileName).embed.manifest.res"
+				DependencyInformationFile="$(IntDir)\mt.dep"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -202,35 +184,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\src\common\Dictionary.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\common\INI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\common\Log.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\xll\Protocol.cpp"
+				RelativePath="..\src\ResourceEditor.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\common\Runtime.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\xll\XLCodec.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\XLLoop.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\xll\XLUtil.cpp"
 				>
 			</File>
 		</Filter>
@@ -240,35 +198,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\src\common\Dictionary.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\common\INI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\common\Log.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\xll\Protocol.h"
+				RelativePath="..\src\ResourceEditor.h"
 				>
 			</File>
 			<File
 				RelativePath="..\src\common\Runtime.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\xll\xlcall.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\xll\XLCodec.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\xll\XLUtil.h"
 				>
 			</File>
 		</Filter>
@@ -277,10 +211,6 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
-			<File
-				RelativePath="..\src\XLLoop.def"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

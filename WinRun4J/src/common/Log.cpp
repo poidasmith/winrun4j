@@ -161,7 +161,9 @@ void Log::Error(const char* format, ...)
 
 void Log::Close() 
 {
+	Log::Info("<EOF>");
 	if(fp != NULL) {
+		fflush(fp);
 		fclose(fp);
 	}
 }

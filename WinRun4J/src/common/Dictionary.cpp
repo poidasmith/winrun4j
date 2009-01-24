@@ -225,16 +225,12 @@ void dictionary_unset(dictionary * d, char * key)
     return ;
 }
 
-
-
 void dictionary_setint(dictionary * d, char * key, int val)
 {
-	char	sval[MAXVALSZ];
+	char sval[MAXVALSZ];
 	sprintf(sval, "%d", val);
 	dictionary_set(d, key, sval);
 }
-
-
 
 void dictionary_setdouble(dictionary * d, char * key, double val)
 {
@@ -490,7 +486,7 @@ dictionary * iniparser_load(char * ininame, bool isbuffer)
     char        sec[ASCIILINESZ+1];
     char        key[ASCIILINESZ+1];
     char        val[ASCIILINESZ+1];
-    char    *   where ;
+    char    *   wher ;
     FILE    *   ini ;
     int         lineno ;
 
@@ -512,17 +508,17 @@ dictionary * iniparser_load(char * ininame, bool isbuffer)
 	int pos = 0;
 	while ((isbuffer ? sgets(ininame, &pos, lin, ASCIILINESZ) : fgets(lin, ASCIILINESZ, ini))!=NULL) {
         lineno++ ;
-        where = strskp(lin); /* Skip leading spaces */
-        if (*where==';' || *where=='#' || *where==0)
+        wher = strskp(lin); /* Skip leading spaces */
+        if (*wher==';' || *wher=='#' || *wher==0)
             continue ; /* Comment lines */
         else {
-            if (sscanf(where, "[%[^]]", sec)==1) {
+            if (sscanf(wher, "[%[^]]", sec)==1) {
                 /* Valid section name */
                 strcpy(sec, strlwc(sec));
                 iniparser_add_entry(d, sec, NULL, NULL);
-            } else if (sscanf (where, "%[^=] = \"%[^\"]\"", key, val) == 2
-                   ||  sscanf (where, "%[^=] = '%[^\']'",   key, val) == 2
-                   ||  sscanf (where, "%[^=] = %[^;#]",     key, val) == 2) {
+            } else if (sscanf (wher, "%[^=] = \"%[^\"]\"", key, val) == 2
+                   ||  sscanf (wher, "%[^=] = '%[^\']'",   key, val) == 2
+                   ||  sscanf (wher, "%[^=] = %[^;#]",     key, val) == 2) {
                 strcpy(key, strlwc(strcrop(key)));
                 /*
                  * sscanf cannot handle "" or '' as empty value,

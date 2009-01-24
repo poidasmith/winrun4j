@@ -41,7 +41,10 @@ DDE testing
 
 - add a single.instance option; detect if another instance is running. if it is then bring the
   main window (?) for the application to focus.
-  
+
+
+- bug:cannot have semicolon ; in value field on ini file - so cannot have eg 
+  multiple paths in java.library.path vm option...  
 
 
 
