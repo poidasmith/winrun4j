@@ -214,7 +214,7 @@ bool Log::RegisterNatives(JNIEnv* env)
 	env->RegisterNatives(clazz, nm, 3);
 
 	if(env->ExceptionCheck()) {
-		Log::SetLastError(JNI::GetExceptionMessage(env));
+		JNI::PrintStackTrace(env);
 		return false;
 	}
 	

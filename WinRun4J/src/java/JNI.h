@@ -20,7 +20,7 @@ class JNI
 {
 public:
 	static void ClearException(JNIEnv* env);
-	static char* GetExceptionMessage(JNIEnv* env);
+	static jthrowable PrintStackTrace(JNIEnv* env);
 	static bool RunMainClass( JNIEnv* env, TCHAR* mainClass, TCHAR* progArgs[] );
 	static char* CallStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
 	static const bool CallBooleanMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);

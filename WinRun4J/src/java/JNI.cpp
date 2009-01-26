@@ -42,6 +42,8 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 	}
 
 	env->CallStaticVoidMethod(mainClass, mainMethod, args);
+
+	PrintStackTrace(env);
 	ClearException(env);
 
 	return true;
@@ -61,7 +63,7 @@ char* JNI::CallStringMethod( JNIEnv* env, jclass clazz, jobject obj, char* name 
 	}
 
 	if(env->ExceptionCheck()) {
-		Log::SetLastError("Error calling %s method: %s", name, GetExceptionMessage(env));
+		JNI::PrintStackTrace(env);
 		return NULL;
 	}
 
@@ -83,27 +85,24 @@ const bool JNI::CallBooleanMethod( JNIEnv* env, jclass clazz, jobject obj, char*
 	return env->CallBooleanMethod(obj, methodID);
 }
 
+// Dump stack trace for exception (if present)
+jthrowable JNI::PrintStackTrace(JNIEnv* env)
+{
+	jthrowable thr = env->ExceptionOccurred();
+	if(thr) {
+		// Print out the stack trace for this exception
+		jclass c = env->GetObjectClass(thr);
+		jmethodID m = env->GetMethodID(c, "printStackTrace", "()V");
+		env->CallVoidMethod(thr, m);
+		env->ExceptionClear();
+	}
+	return thr;
+}
+
 // Clear JNI exception
 void JNI::ClearException(JNIEnv* env)
 {
 	if(env && env->ExceptionOccurred()) {
-		char* msg = JNI::GetExceptionMessage(env);
-		if(msg) {
-			Log::Error(msg);
-			free(msg);
-		}
-		env->ExceptionDescribe();
 		env->ExceptionClear();
 	}
-}
-
-char* JNI::GetExceptionMessage(JNIEnv* env)
-{
-	jthrowable thr = env->ExceptionOccurred();
-	env->ExceptionClear();
-	if(thr != NULL) {
-		return CallStringMethod(env, env->GetObjectClass(thr), thr, "getMessage");
-	}
-
-	return NULL;
 }

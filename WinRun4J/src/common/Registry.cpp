@@ -382,8 +382,7 @@ bool Registry::RegisterNatives(JNIEnv *env)
 	
 	env->RegisterNatives(clazz, methods, 20);
 	if(env->ExceptionOccurred()) {
-		char* msg = JNI::GetExceptionMessage(env);
-		Log::Error(msg);
+		JNI::PrintStackTrace(env);
 		env->ExceptionClear();
 	}
 	return true;

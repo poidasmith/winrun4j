@@ -296,60 +296,47 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 	}
 }
 
+void VM::LoadRuntimeLibrary(TCHAR* libPath)
+{
+	int len = strlen(libPath);
+	TCHAR binPath[MAX_PATH];
+	strcpy(binPath, libPath);
+
+	// strip off "client\jvm.dll" or "server\jvm.dll"
+	int i, sc=0;
+	for(i = len - 1; i >=0; i--) {
+		if(binPath[i] == '\\') {
+			binPath[i] = 0;
+			sc++;
+			if(sc>1)
+				break;
+		}
+	}
+
+	// Append library path and load
+	strcat(binPath, "\\msvcr71.dll");
+	if(!LoadLibrary(binPath)) {
+		Log::Error("Could not load runtime library: %s\n", binPath);
+	}
+}
+
 int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance)
 {
 	g_hInstance = hInstance;
 
-	/* Find binPath where the DLLs required to launch the JVM are stored. It is two directories up from the
-	* jvm.dll in the standard Java directory layout. Specifically we require the specific copy of msvcr71.dll
-	* that is in that path to be loaded prior to loading the JVM. This follows the recommendations and discussion
-	* from http://www.duckware.com/tech/java6msvcr71.html
-	*/
-	TCHAR binPath[MAX_PATH];
-	strcpy(binPath, libPath);
-	for(int i = strlen(binPath) - 1; i >= 0; i--) {
-		if(binPath[i] == '\\') {
-			binPath[i] = 0;
-			break;
-		}
-	}
-	for(int i = strlen(binPath) - 1; i >= 0; i--) {
-		if(binPath[i] == '\\') {
-			binPath[i] = 0;
-			break;
-		}
-	}
+	// We need to load "msvcr71.dll" before the VM otherwise bad things happen
+	// so we assume the VM is located under a bin path and inside this bin dir
+	// there is the above dll
+	LoadRuntimeLibrary(libPath);
 
-	/* Save and set current directory to the binPath and set the DLL search directory */
-	int currentDirectoryLength = GetCurrentDirectory(0, NULL);
-	TCHAR *saveCurrentDirectory = (TCHAR*)malloc(currentDirectoryLength * sizeof(TCHAR));
-	if (GetCurrentDirectory(currentDirectoryLength, saveCurrentDirectory) == 0) {
-		Log::Error("ERROR: Could not get current directory\n");
-		return -1;
-	}
-	SetCurrentDirectory(binPath);
-
-	/* Dynamic binding to SetDllDirectory() as it is only available in XP SP1+ */
-	typedef BOOL (WINAPI *LPFNSetDllDirectory)(LPCTSTR lpPathname);
-	HINSTANCE hKernel32 = GetModuleHandle("kernel32");
-	LPFNSetDllDirectory lpfnSetDllDirectory = (LPFNSetDllDirectory)GetProcAddress(hKernel32, "SetDllDirectoryA");
-	if (lpfnSetDllDirectory != NULL) {
-		lpfnSetDllDirectory(binPath);
-	}
-
-	/* Load the JVM library */
+	// Load the JVM library 
 	g_jniLibrary = LoadLibrary(libPath);
 	if(g_jniLibrary == NULL) {
 		Log::Error("ERROR: Could not load library: %s\n", libPath);
 		return -1;
 	}
 
-	/* Restore current directory and DLL search directory */
-	SetCurrentDirectory(saveCurrentDirectory);
-	if (lpfnSetDllDirectory != NULL) {
-		lpfnSetDllDirectory(NULL);
-	}
-
+	// Grab the create VM function address
 	JNI_createJavaVM createJavaVM = (JNI_createJavaVM)GetProcAddress(g_jniLibrary, "JNI_CreateJavaVM");
 	if(createJavaVM == NULL) {
 		Log::Error("ERROR: Could not find JNI_CreateJavaVM function\n");
