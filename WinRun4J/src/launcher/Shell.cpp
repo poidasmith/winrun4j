@@ -49,7 +49,7 @@ int Shell::CheckSingleInstance(dictionary* ini)
 		processOnly = false;
 		dde = true;
 	} else if(strcmp(singleInstance, "process") != 0) {		
-		Log::Warning("Invalid single instance mode: %s\n", singleInstance);
+		Log::Warning("Invalid single instance mode: %s", singleInstance);
 		return 0;
 	}
 
@@ -94,6 +94,6 @@ int Shell::CheckSingleInstance(dictionary* ini)
 
 bool Shell::RegisterNatives(JNIEnv *env)
 {
-	Log::Info("Registering natives for Shell class\n");
+	Log::Info("Registering natives for Shell class");
 	return false;
 }

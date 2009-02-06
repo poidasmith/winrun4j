@@ -69,9 +69,9 @@ void Icon::GetFilenames(LPSTR commandLine, LPSTR filename, LPSTR iconfile)
 	iconfile[len - 2] = 'c';
 	iconfile[len - 3] = 'i';
 
-	Log::Info("Setting icon file...\n");
-	Log::Info("Icon File: %s\n", iconfile);
-	Log::Info("Exe File: %s\n", filename);
+	Log::Info("Setting icon file...");
+	Log::Info("Icon File: %s", iconfile);
+	Log::Info("Exe File: %s", filename);
 }
 
 void Icon::RunDeleteRandom(LPSTR filename, LPSTR command)
@@ -89,7 +89,7 @@ void Icon::RunDeleteRandom(LPSTR filename, LPSTR command)
     si.cb = sizeof(si);
     ZeroMemory( &pi, sizeof(pi) );
 	if(!CreateProcess(filename, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-		Log::Error("Could not run delete process\n");
+		Log::Error("Could not run delete process");
 }
 
 // Create a random filename based on original and call set icon on this executable
@@ -111,7 +111,7 @@ void Icon::CopyToRandomAndRun(LPSTR command)
     si.cb = sizeof(si);
     ZeroMemory( &pi, sizeof(pi) );
 	if(!CreateProcess(random, cmdline, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) 
-		Log::Error("Could not run random process\n");
+		Log::Error("Could not run random process");
 }
 
 // Delete the random filename
@@ -159,7 +159,7 @@ bool Icon::LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, G
 {
 	HANDLE hFile = CreateFile(TEXT(iconFile), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(hFile == INVALID_HANDLE_VALUE) {
-		Log::Error("ERROR: Could not open icon file: %s\n", iconFile);
+		Log::Error("ERROR: Could not open icon file: %s", iconFile);
 		return false;
 	}
 

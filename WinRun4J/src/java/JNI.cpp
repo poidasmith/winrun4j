@@ -15,13 +15,13 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 {
 	jclass mainClass = env->FindClass(mainClassStr);
 	if(mainClass == NULL) {
-		Log::Error("Could not find main class\n");
+		Log::Error("Could not find main class");
 		return false;
 	}
 	
 	jclass stringClass = env->FindClass("java/lang/String");
 	if(stringClass == NULL) {
-		Log::Error("Could not find string class\n");
+		Log::Error("Could not find String class");
 		return false;
 	}
 
@@ -37,7 +37,7 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 
 	jmethodID mainMethod = env->GetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
 	if(mainMethod == NULL) {
-		Log::Error("Could not find main method.\n");
+		Log::Error("Could not find main method.");
 		return false;
 	}
 

@@ -59,7 +59,7 @@ void WINAPI ServiceCtrlHandler(DWORD opCode)
 		g_serviceStatus.dwWaitHint = 0;
 		
 		if(!SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus)) {
-			Log::Error("Error in SetServiceStatus: %d\n", GetLastError());
+			Log::Error("Error in SetServiceStatus: %d", GetLastError());
 		}
 
 		// Detach this thread so it doesn't block
@@ -72,7 +72,7 @@ void WINAPI ServiceCtrlHandler(DWORD opCode)
 	}
 
 	if(!SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus)) {
-		Log::Error("Error in SetServiceStatus: %d\n", GetLastError());
+		Log::Error("Error in SetServiceStatus: %d", GetLastError());
 	}
 }
 
@@ -88,9 +88,8 @@ void WINAPI ServiceStart(DWORD argc, LPTSTR *argv)
 	// Register the service
 	g_serviceStatusHandle = RegisterServiceCtrlHandler(g_serviceId, ServiceCtrlHandler);
 
-	if(g_serviceStatusHandle == (SERVICE_STATUS_HANDLE)0)
-	{
-		Log::Error("Error registering service control handler: %d\n", GetLastError());
+	if(g_serviceStatusHandle == (SERVICE_STATUS_HANDLE)0) {
+		Log::Error("Error registering service control handler: %d", GetLastError());
 		return;
 	}
 
@@ -101,56 +100,56 @@ int Service::Initialise(dictionary* ini)
 {
 	g_serviceId = iniparser_getstr(ini, SERVICE_ID);
 	if(g_serviceId == NULL) {
-		Log::Error("Service ID not specified\n");
+		Log::Error("Service ID not specified");
 		return 1;
 	}
 
 	// Initialise JNI members
 	JNIEnv* env = VM::GetJNIEnv();
 	if(env == NULL) {
-		Log::Error("JNIEnv is null\n");
+		Log::Error("JNIEnv is null");
 		return 1;
 	}
 
 	g_serviceClass = env->FindClass(iniparser_getstr(ini, SERVICE_CLASS));
 	if(g_serviceClass == NULL) {
-		Log::Error("Could not find service class\n");
+		Log::Error("Could not find service class");
 		return 1;
 	}
 
 	g_serviceInstance = env->NewObject(g_serviceClass, env->GetMethodID(g_serviceClass, "<init>", "()V"));
 	if(g_serviceInstance == NULL) {
-		Log::Error("Could not create service class\n");
+		Log::Error("Could not create service class");
 		return 1;
 	}
 
 	g_controlMethod = env->GetMethodID(g_serviceClass, "doRequest", "(I)I");
 	if(g_controlMethod == NULL) {
-		Log::Error("Could not find control method class\n");
+		Log::Error("Could not find control method class");
 		return 1;
 	}
 
 	g_controlsAcceptMethod = env->GetMethodID(g_serviceClass, "getControlsAccepted", "()I");
 	if(g_controlsAcceptMethod == NULL) {
-		Log::Error("Could not find control getControlsAccepted class\n");
+		Log::Error("Could not find control getControlsAccepted class");
 		return 1;
 	}
 
 	g_getNameMethod = env->GetMethodID(g_serviceClass, "getName", "()Ljava/lang/String;");
 	if(g_getNameMethod == NULL) {
-		Log::Error("Could not find control getName class\n");
+		Log::Error("Could not find control getName class");
 		return 1;
 	}
 
 	g_getDescriptionMethod = env->GetMethodID(g_serviceClass, "getDescription", "()Ljava/lang/String;");
 	if(g_getNameMethod == NULL) {
-		Log::Error("Could not find control getDescription class\n");
+		Log::Error("Could not find control getDescription class");
 		return 1;
 	}
 
 	g_mainMethod = env->GetMethodID(g_serviceClass, "main", "([Ljava/lang/String;)I");
 	if(g_mainMethod == NULL) {
-		Log::Error("Could not find control main class\n");
+		Log::Error("Could not find control main class");
 		return 1;
 	}
 
@@ -169,7 +168,7 @@ int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
 	};
 
 	if(!StartServiceCtrlDispatcher(dispatchTable)) {
-		Log::Error("Service control dispatcher error: %d\n", GetLastError());
+		Log::Error("Service control dispatcher error: %d", GetLastError());
 		return 2;
 	}
 
@@ -195,21 +194,21 @@ int Service::Register(dictionary* ini)
 	if(startup != NULL) {
 		if(strcmp(startup, "auto") == 0) {
 			startupMode = SERVICE_AUTO_START;
-			Log::Info("Service startup mode: SERVICE_AUTO_START\n");
+			Log::Info("Service startup mode: SERVICE_AUTO_START");
 		} else if(strcmp(startup, "boot") == 0) {
 			startupMode = SERVICE_BOOT_START;
-			Log::Info("Service startup mode: SERVICE_BOOT_START\n");
+			Log::Info("Service startup mode: SERVICE_BOOT_START");
 		} else if(strcmp(startup, "demand") == 0) {
 			startupMode = SERVICE_DEMAND_START;
-			Log::Info("Service startup mode: SERVICE_DEMAND_START\n");
+			Log::Info("Service startup mode: SERVICE_DEMAND_START");
 		} else if(strcmp(startup, "disabled") == 0) {
 			startupMode = SERVICE_DISABLED;
-			Log::Info("Service startup mode: SERVICE_DISABLED\n");
+			Log::Info("Service startup mode: SERVICE_DISABLED");
 		} else if(strcmp(startup, "system") == 0) {
 			startupMode = SERVICE_SYSTEM_START;
-			Log::Info("Service startup mode: SERVICE_SYSTEM_START\n");
+			Log::Info("Service startup mode: SERVICE_SYSTEM_START");
 		} else {
-			Log::Warning("Unrecognized service startup mode: %s\n", startup);
+			Log::Warning("Unrecognized service startup mode: %s", startup);
 		}
 	}
 
@@ -227,7 +226,7 @@ int Service::Register(dictionary* ini)
 	if(depListSize > 0) {
 		depList = (TCHAR*) malloc(depListSize);
 		if(depList == 0) {
-			Log::Error("Could not create dependency list\n");
+			Log::Error("Could not create dependency list");
 			return 1;
 		}
 
@@ -274,7 +273,7 @@ int Service::Unregister(dictionary* ini)
 {
 	const char* serviceId = iniparser_getstr(ini, SERVICE_ID);
 	if(serviceId == NULL) {
-		Log::Error("Service ID not specified\n");
+		Log::Error("Service ID not specified");
 		return 1;
 	}
 

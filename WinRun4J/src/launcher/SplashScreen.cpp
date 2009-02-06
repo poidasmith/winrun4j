@@ -10,6 +10,7 @@
 
 #include "SplashScreen.h"
 #include "../common/Log.h"
+#include "../java/JNI.h"
 #include "ocidl.h"
 #include "olectl.h"
 
@@ -87,7 +88,7 @@ void SplashScreen::CreateSplashWindow(HINSTANCE hInstance)
 	wcx.hIconSm = 0;
 
 	if(!RegisterClassEx(&wcx)) {
-		Log::Error("Could not register splash window class\n");
+		Log::Error("Could not register splash window class");
 		return;
 	}
 
@@ -135,7 +136,7 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 		return;
 	}
 
-	Log::Info("Displaying splash: %s\n", image);
+	Log::Info("Displaying splash: %s", image);
 
 	// Check for autohide disable flag
 	char* disableAutohide = iniparser_getstr(ini, SPLASH_DISABLE_AUTOHIDE);
@@ -145,7 +146,7 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 
 	g_hBitmap = LoadImageBitmap(ini, image);
 	if(g_hBitmap == NULL) {
-		Log::Warning("Could not load splash screen: %s\n", image);
+		Log::Warning("Could not load splash screen: %s", image);
 		return;
 	}
 
@@ -216,10 +217,10 @@ void SplashScreen::Close(JNIEnv* env, jobject self)
 
 void SplashScreen::RegisterNatives(JNIEnv *env)
 {
-	Log::Info("Registering natives for SplashScreen class\n");
+	Log::Info("Registering natives for SplashScreen class");
 	jclass clazz = env->FindClass("org/boris/winrun4j/SplashScreen");
 	if(clazz == NULL) {
-		Log::Warning("Could not find SplashScreen class\n");
+		Log::Warning("Could not find SplashScreen class");
 		if(env->ExceptionOccurred())
 			env->ExceptionClear();
 		return;
@@ -233,5 +234,9 @@ void SplashScreen::RegisterNatives(JNIEnv *env)
 	methods[1].name = "close";
 	methods[1].signature = "()V";
 	env->RegisterNatives(clazz, methods, 2);
+	if(env->ExceptionCheck()) {
+		JNI::PrintStackTrace(env);
+		env->ExceptionClear();
+	}
 }
 

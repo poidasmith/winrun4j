@@ -123,7 +123,7 @@ bool DDE::Initialize(HINSTANCE hInstance, JNIEnv* env, dictionary* ini)
 		return false;
 
 	// Store ini file reference
-	Log::Info("Initializing DDE\n");
+	Log::Info("Initializing DDE");
 	g_ini = ini;
 
 	// Attach JNI methods
@@ -186,7 +186,7 @@ void DDE::Execute(LPSTR lpExecuteStr)
 
 	if (g_ready) {
 		if (g_class != NULL) {
-			Log::Info("DDE Execute: %s\n", lpExecuteStr);
+			Log::Info("DDE Execute: %s", lpExecuteStr);
 
 			if (strcmp(lpExecuteStr, DDE_EXECUTE_ACTIVATE) == 0) {
 				if (g_activateMethodID != NULL) {
@@ -268,7 +268,7 @@ void DDE::RegisterWindow(HINSTANCE hInstance)
 	wcx.hIconSm = 0;
 
 	if(!RegisterClassEx(&wcx)) {
-		Log::Error("Could not register DDE window class\n");
+		Log::Error("Could not register DDE window class");
 		return;
 	}
 }
@@ -287,13 +287,15 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 		g_class = env->FindClass("org/boris/winrun4j/DDE");
 	}
 	if(g_class == NULL) {
-		Log::SetLastError("Could not find DDE class.");
+		Log::Error("Could not find DDE class.");
+		if(env->ExceptionCheck()) env->ExceptionClear();
 		return false;
 	}
 
 	g_executeMethodID = env->GetStaticMethodID(g_class, "execute", "(Ljava/lang/String;)V");
 	if(g_executeMethodID == NULL) {
-		Log::SetLastError("Could not find execute method");
+		Log::Error("Could not find execute method");
+		if(env->ExceptionCheck()) env->ExceptionClear();
 		return false;
 	}
 
@@ -309,7 +311,7 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 
 	if(env->ExceptionCheck()) {
 		env->ExceptionClear();
-		Log::Info("DDE.ready native method not found; not registering");
+		Log::Warning("DDE.ready native method not found; not registering");
 	}
 
 	return true;
@@ -327,19 +329,19 @@ void DDE::EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, void (*CallbackF
 		info.extension = iniparser_getstr(ini, key);
 		if(info.extension == NULL) break;
 
-		Log::Info("Registering %s\n", info.extension);
+		Log::Info("Registering %s", info.extension);
 
 		sprintf(key, "FileAssociations:file.%d.name", i);
 		info.name = iniparser_getstr(ini, key);
 		if(info.name == NULL) {
-			Log::Error("ERROR: Name not specified for extension: %s\n", info.extension);
+			Log::Error("ERROR: Name not specified for extension: %s", info.extension);
 			break;
 		}
 
 		sprintf(key, "FileAssociations:file.%d.description", i);
 		info.description = iniparser_getstr(ini, key);
 		if(info.description == NULL) {
-			Log::Warning("WARNING: Description not specified for extension: %s\n", info.extension);
+			Log::Warning("WARNING: Description not specified for extension: %s", info.extension);
 		}
 
 		CallbackFunc(info);
@@ -356,102 +358,102 @@ void DDE::RegisterFileAssociation(DDEInfo& info)
 	DWORD dwDisp;
 	HKEY hKey;
 	if(RegCreateKeyEx(HKEY_CLASSES_ROOT, info.extension, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp)) {
-		Log::Error("ERROR: Could not create extension key: %s\n", info.extension);
+		Log::Error("ERROR: Could not create extension key: %s", info.extension);
 		return;
 	}
 
 	if(RegSetValueEx(hKey, NULL, 0, REG_SZ, (BYTE *) info.name, strlen(info.name) + 1)) {
-		Log::Error("ERROR: Could not set name for extension: %s\n", info.extension);
+		Log::Error("ERROR: Could not set name for extension: %s", info.extension);
 		return;
 	}
 
 	if(RegCreateKeyEx(HKEY_CLASSES_ROOT, info.name, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp)) {
-		Log::Error("ERROR: Could not create name key: %s\n", info.name);
+		Log::Error("ERROR: Could not create name key: %s", info.name);
 		return;
 	}
 
 	if(info.description) {
 		if(RegSetValueEx(hKey, NULL, 0, REG_SZ, (BYTE *) info.description, strlen(info.description) + 1)) {
-			Log::Error("ERROR: Could not set description for extension: %s\n", info.extension);
+			Log::Error("ERROR: Could not set description for extension: %s", info.extension);
 			return;
 		}
 	}
 
 	if(RegCreateKeyEx(HKEY_CLASSES_ROOT, info.name, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp)) {
-		Log::Error("ERROR: Could not create name key: %s\n", info.name);
+		Log::Error("ERROR: Could not create name key: %s", info.name);
 		return;
 	}
 
 	HKEY hDep;
 	if(RegCreateKeyEx(hKey, "DefaultIcon", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hDep, &dwDisp)) {
-		Log::Error("ERROR: Could not create shell key: %s\n", info.name);
+		Log::Error("ERROR: Could not create shell key: %s", info.name);
 		return;
 	}
 
 	char path[MAX_PATH];
 	GetModuleFileName(NULL, path, MAX_PATH);
 	if(RegSetValueEx(hDep, NULL, 0, REG_SZ, (BYTE *) path, strlen(path) + 1)) {
-		Log::Error("ERROR: Could not set command for extension: %s\n", info.extension);
+		Log::Error("ERROR: Could not set command for extension: %s", info.extension);
 		return;
 	}
 
 	if(RegCreateKeyEx(hKey, "shell", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp)) {
-		Log::Error("ERROR: Could not create shell key: %s\n", info.name);
+		Log::Error("ERROR: Could not create shell key: %s", info.name);
 		return;
 	}
 
 	if(RegCreateKeyEx(hKey, "Open", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisp)) {
-		Log::Error("ERROR: Could not create Open key: %s\n", info.name);
+		Log::Error("ERROR: Could not create Open key: %s", info.name);
 		return;
 	}
 
 	HKEY hCmd;
 	if(RegCreateKeyEx(hKey, "command", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hCmd, &dwDisp)) {
-		Log::Error("ERROR: Could not create command key: %s\n", info.name);
+		Log::Error("ERROR: Could not create command key: %s", info.name);
 		return;
 	}
 
 	strcat(path, " \"%1\"");
 	if(RegSetValueEx(hCmd, NULL, 0, REG_SZ, (BYTE *) path, strlen(path) + 1)) {
-		Log::Error("ERROR: Could not set command for extension: %s\n", info.extension);
+		Log::Error("ERROR: Could not set command for extension: %s", info.extension);
 		return;
 	}
 
 	HKEY hDde;
 	if(RegCreateKeyEx(hKey, "ddeexec", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hDde, &dwDisp)) {
-		Log::Error("ERROR: Could not create ddeexec key: %s\n", info.name);
+		Log::Error("ERROR: Could not create ddeexec key: %s", info.name);
 		return;
 	}
 
 	char* cmd = "%1";
 	if(RegSetValueEx(hDde, NULL, 0, REG_SZ, (BYTE *) cmd, strlen(cmd) + 1)) {
-		Log::Error("ERROR: Could not set command string for extension: %s\n", info.extension);
+		Log::Error("ERROR: Could not set command string for extension: %s", info.extension);
 		return;
 	}
 
 	HKEY hApp;
 	if(RegCreateKeyEx(hDde, "application", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hApp, &dwDisp)) {
-		Log::Error("ERROR: Could not create ddeexec->application key: %s\n", info.name);
+		Log::Error("ERROR: Could not create ddeexec->application key: %s", info.name);
 		return;
 	}
 
 	char* appname = iniparser_getstr(info.ini, DDE_SERVER_NAME);
 	if(appname == NULL) appname = "WinRun4J";
 	if(RegSetValueEx(hApp, NULL, 0, REG_SZ, (BYTE *) appname, strlen(appname) + 1)) {
-		Log::Error("ERROR: Could not set appname for extension: %s\n", info.extension);
+		Log::Error("ERROR: Could not set appname for extension: %s", info.extension);
 		return;
 	}
 
 	HKEY hTopic;
 	if(RegCreateKeyEx(hDde, "topic", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hTopic, &dwDisp)) {
-		Log::Error("ERROR: Could not create ddeexec->application key: %s\n", info.name);
+		Log::Error("ERROR: Could not create ddeexec->application key: %s", info.name);
 		return;
 	}
 
 	char* topic = iniparser_getstr(info.ini, DDE_TOPIC);
 	if(topic == NULL) topic = "system";
 	if(RegSetValueEx(hTopic, NULL, 0, REG_SZ, (BYTE *) topic, strlen(topic) + 1)) {
-		Log::Error("ERROR: Could not set topic for extension: %s\n", info.extension);
+		Log::Error("ERROR: Could not set topic for extension: %s", info.extension);
 		return;
 	}
 }

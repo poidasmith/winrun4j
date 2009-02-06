@@ -19,7 +19,7 @@ void ExpandClassPathEntry(char* arg, char** result, int* current, int max)
 		return;
 	}
 
-	Log::Info("Expanding classpath: %s\n", arg);
+	Log::Info("Expanding Classpath: %s", arg);
 
 	// Convert to full path
 	char fullpath[MAX_PATH];
@@ -132,7 +132,7 @@ void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, int& count)
 	// Add classpath
 	TCHAR argl[MAX_PATH];
 	StrTruncate(argl, built, MAX_PATH);
-	Log::Info("Generated Classpath: %s\n", argl);
+	Log::Info("Generated Classpath: %s", argl);
 	TCHAR* cpArg = (TCHAR *) malloc(sizeof(TCHAR)*(strlen(built) + 1) + sizeof(TCHAR)*(strlen(CLASS_PATH_ARG) + 1));
 	lstrcpy(cpArg, CLASS_PATH_ARG);
 	lstrcat(cpArg, built);

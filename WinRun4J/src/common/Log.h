@@ -16,11 +16,12 @@
 #include <jni.h>
 #endif
 
-enum LoggingLevel { info = 0, warning, error, none };
+enum LoggingLevel { info = 0, warning = 1, error = 2, none = 3 };
 
 struct Log {
 	static void Init(HINSTANCE hInstance, const char* logfile, const char* loglevel);
 	static void SetLevel(LoggingLevel level);
+	static LoggingLevel GetLevel();
 	static void Info(const char* format, ...);
 	static void Warning(const char* format, ...);
 	static void Error(const char* format, ...);
@@ -34,8 +35,7 @@ struct Log {
 #endif
 
 private:
-	static void LogIt(LoggingLevel loggingLevel, const char* format, ...);
-	static void LogIt(const char* format, ...);
+	static void LogIt(LoggingLevel loggingLevel, const char* marker, const char* format, va_list args);
 	static void RedirectIOToConsole();
 #ifndef NO_JAVA
 	static void JNICALL LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str);

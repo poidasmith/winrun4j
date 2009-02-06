@@ -66,6 +66,9 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 		level = warning;
 	} else if(strcmp(loglevel, "error") == 0) {
 		level = error;
+	} else {
+		level = info;
+		Warning("log.level unrecognized");
 	}
 
 #ifndef CONSOLE
@@ -102,66 +105,73 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 	}
 }
 
-#ifdef DEBUG_LOG						
-#define LOG_IT						\
-	if(format) {                    \
-		char tmp[4096];				\
-		va_list args;				\
-		va_start(args, format);		\
-		vsprintf(tmp, format, args);\
-		OutputDebugString(tmp);		\
-		va_end(args);				\
-	}
-#else
-#define LOG_IT						\
-	if(format) {                    \
-		char tmp[4096];				\
-		va_list args;				\
-		va_start(args, format);		\
-		vsprintf(tmp, format, args);\
-		puts(tmp);                  \
-		fflush(stdout);				\
-		fflush(stderr);				\
-		va_end(args);				\
-	}
-#endif
-
-void Log::SetLevel(LoggingLevel logingLevel) 
+// enum LoggingLevel { info = 0, warning = 1, error = 2, none = 3 };
+void Log::LogIt(LoggingLevel loggingLevel, const char* marker, const char* format, va_list args) 
 {
-	level = logingLevel;
+	if(level > loggingLevel) return;
+	if(!format) return;
+
+	char tmp[4096];
+	vsprintf(tmp, format, args);
+#ifdef DEBUG_LOG
+	if(marker) {
+		OutputDebugString(marker);
+		OutputDebugString(" ");
+	}
+	OutputDebugString(tmp);
+	OutputDebugString("\n");
+#endif
+	if(marker) {
+		printf(marker);
+		printf(" ");
+	}
+	puts(tmp);
+	fflush(stdout);
+	fflush(stderr);
 }
 
-void Log::LogIt(LoggingLevel loggingLevel, const char* format, ...)
+void Log::SetLevel(LoggingLevel loggingLevel) 
 {
-	if(level <= loggingLevel) {
-		LOG_IT
-	}
+	level = loggingLevel;
+}
+
+LoggingLevel Log::GetLevel()
+{
+	return level;
 }
 
 void Log::Info(const char* format, ...)
 {
 	if(level <= info) {
-		LOG_IT
+		va_list args;
+		va_start(args, format);
+		LogIt(info, "[info]", format, args);
+		va_end(args);
 	}
 }
 
 void Log::Warning(const char* format, ...)
 {
 	if(level <= warning) {
-		LOG_IT
+		va_list args;
+		va_start(args, format);
+		LogIt(warning, "[warn]", format, args);
+		va_end(args);
 	}
 }
 
 void Log::Error(const char* format, ...)
 {
 	if(level <= error) {
-		LOG_IT
+		va_list args;
+		va_start(args, format);
+		LogIt(error, " [err]", format, args);
+		va_end(args);
 	}
 }
 
 void Log::Close() 
 {
-	Log::Info("<EOF>");
 	if(fp != NULL) {
 		fflush(fp);
 		fclose(fp);
@@ -194,10 +204,10 @@ const char* Log::GetLastError()
 bool Log::RegisterNatives(JNIEnv* env)
 {
 	// Register Log functions
-	Log::Info("Registering natives for Log class\n");
+	Log::Info("Registering natives for Log class");
 	jclass clazz = env->FindClass("org/boris/winrun4j/Log");
 	if(clazz == NULL) {
-		Log::SetLastError("Could not find Log class");
+		Log::Warning("Could not find Log class");
 		return false;
 	}
 	
@@ -228,7 +238,12 @@ void JNICALL Log::LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str)
 
 	jboolean iscopy = false;
 	const char* format = env->GetStringUTFChars(str, &iscopy);
-	LogIt((LoggingLevel) jlevel, format);
+	// TODO - logging level to string
+	switch(jlevel) {
+		case info: Info(format); break;
+		case warning: Warning(format); break;
+		case error: Error(format); break;
+	}
 }
 
 void JNICALL Log::SetLastErrorJ(JNIEnv* env, jobject self, jstring str)

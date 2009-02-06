@@ -262,10 +262,10 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 	if(MaxHeapSizePercentStr != NULL && PreferredHeapSizeStr == NULL) {
 		double percent = atof(MaxHeapSizePercentStr);
 		if(percent < 0 || percent > 100) {
-			Log::Error("Error with heap size percent. Should be between 0 and 100.\n");
+			Log::Error("Error with heap size percent. Should be between 0 and 100.");
 		} else {
-			Log::Info("Percent is: %f\n", percent);
-			Log::Info("Avail Phys: %dm\n", availMax);
+			Log::Info("Percent is: %f", percent);
+			Log::Info("Avail Phys: %dm", availMax);
 			int size = (int)((percent/100) * (double)(availMax));
 			if(size > overallMax) {
 				size = overallMax;
@@ -281,10 +281,10 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 	if(MinHeapSizePercentStr != NULL) {
 		double percent = atof(MinHeapSizePercentStr);
 		if(percent < 0 || percent > 100) {
-			Log::Warning("Error with heap size percent. Should be between 0 and 100.\n");
+			Log::Warning("Error with heap size percent. Should be between 0 and 100.");
 		} else {
-			Log::Info("Percent is: %f\n", percent);
-			Log::Info("Avail Phys: %dm\n", availMax);
+			Log::Info("Percent is: %f", percent);
+			Log::Info("Avail Phys: %dm", availMax);
 			int size = (int)((percent/100) * (double)(availMax));
 			if(size > overallMax) {
 				size = overallMax;
@@ -316,7 +316,7 @@ void VM::LoadRuntimeLibrary(TCHAR* libPath)
 	// Append library path and load
 	strcat(binPath, "\\msvcr71.dll");
 	if(!LoadLibrary(binPath)) {
-		Log::Error("Could not load runtime library: %s\n", binPath);
+		Log::Error("Could not load runtime library: %s", binPath);
 	}
 }
 
@@ -332,14 +332,14 @@ int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance)
 	// Load the JVM library 
 	g_jniLibrary = LoadLibrary(libPath);
 	if(g_jniLibrary == NULL) {
-		Log::Error("ERROR: Could not load library: %s\n", libPath);
+		Log::Error("ERROR: Could not load library: %s", libPath);
 		return -1;
 	}
 
 	// Grab the create VM function address
 	JNI_createJavaVM createJavaVM = (JNI_createJavaVM)GetProcAddress(g_jniLibrary, "JNI_CreateJavaVM");
 	if(createJavaVM == NULL) {
-		Log::Error("ERROR: Could not find JNI_CreateJavaVM function\n");
+		Log::Error("ERROR: Could not find JNI_CreateJavaVM function");
 		return -1; 
 	}
 

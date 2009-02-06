@@ -10,14 +10,15 @@
 
 #include "EventLog.h"
 #include "../common/Log.h"
+#include "../java/JNI.h"
 
 bool EventLog::RegisterNatives(JNIEnv *env)
 {
-	Log::Info("Registering natives for EventLog class\n");
+	Log::Info("Registering natives for EventLog class");
 	jclass clazz = env->FindClass("org/boris/winrun4j/EventLog");
 	if(clazz == NULL) {
-		Log::Warning("Could not find EventLog class\n");
-		if(env->ExceptionOccurred())
+		Log::Warning("Could not find EventLog class");
+		if(env->ExceptionCheck())
 			env->ExceptionClear();
 		return false;
 	}
@@ -27,7 +28,12 @@ bool EventLog::RegisterNatives(JNIEnv *env)
 	methods[0].name = "report";
 	methods[0].signature = "(Ljava/lang/String;ILjava/lang/String;)Z";
 	env->RegisterNatives(clazz, methods, 1);
-	return false;
+	if(env->ExceptionCheck()) {
+		JNI::PrintStackTrace(env);
+		env->ExceptionClear();
+	}
+
+	return true;
 }
 
 bool EventLog::Report(JNIEnv* env, jobject self, jstring source, jint type, jstring msg)

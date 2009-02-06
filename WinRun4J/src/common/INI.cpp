@@ -50,7 +50,7 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 {
 	dictionary* ini = iniparser_load(inifile);
 	if(ini == NULL) {
-		Log::Error("Could not load INI file: %s\n", inifile);
+		Log::Error("Could not load INI file: %s", inifile);
 		return NULL;
 	}
 
@@ -66,8 +66,8 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 
 	// Log init
 	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL));
-	Log::Info("Module Name: %s\n", filename);
-	Log::Info("Module INI: %s\n", inifile);
+	Log::Info("Module Name: %s", filename);
+	Log::Info("Module INI: %s", inifile);
 
 	// strip off filename to get module directory
 	strcpy(filedir, filename);
@@ -78,7 +78,7 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 		}
 	}
 	iniparser_setstr(ini, MODULE_DIR, filedir);
-	Log::Info("Module Dir: %s\n", filedir);
+	Log::Info("Module Dir: %s", filedir);
 
 	// stip off filename to get ini directory
 	strcpy(filedir, inifile);
@@ -89,7 +89,7 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 		}
 	}
 	iniparser_setstr(ini, INI_DIR, filedir);
-	Log::Info("INI Dir: %s\n", filedir);
+	Log::Info("INI Dir: %s", filedir);
 
 	// Store a reference to be used by JNI functions
 	g_ini = ini;
@@ -105,7 +105,7 @@ void INI::ExpandVariables(dictionary* ini)
 		char* value = ini->val[i];
 		int size = ExpandEnvironmentStrings(value, tmp, 4096);
 		if(size == 0) {
-			Log::Warning("Could not expand variable: %s\n", value);
+			Log::Warning("Could not expand variable: %s", value);
 		}
 		iniparser_setstr(ini, key, tmp);
 	}
@@ -135,7 +135,7 @@ jstring INI::GetKey(JNIEnv* env, jobject self, jstring key)
 
 bool INI::RegisterNatives(JNIEnv *env, bool useExcel)
 {
-	Log::Info("Registering natives for INI class\n");
+	Log::Info("Registering natives for INI class");
 	jclass clazz;
 	JNINativeMethod methods[2];
 	if(useExcel) {
@@ -144,7 +144,7 @@ bool INI::RegisterNatives(JNIEnv *env, bool useExcel)
 		clazz = env->FindClass("org/boris/winrun4j/INI");
 	}
 	if(clazz == NULL) {
-		Log::Warning("INI class not found in classpath\n");
+		Log::Warning("Could not find INI class");
 		if(env->ExceptionOccurred())
 			env->ExceptionClear();
 		return false;
