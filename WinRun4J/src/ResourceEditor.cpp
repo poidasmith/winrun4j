@@ -8,6 +8,18 @@
  *     Peter Smith
  *******************************************************************************/
 
+/*
+ * features:
+ *   - set icon (ie. set main icon)
+ *   - add icon (secondary - used for file associations)
+ *   - add a way to load icons from exe/dll for use as image in swt
+ *   - set ini file
+ *   - add/remove jar file
+ *   - classpath.1=winrun4j.exe#test.jar
+ *   - classpath.2=test.dll#other.jar
+ *   - set splash image
+ */
+
 int main(int argc, char* argv[])
 {
 	return 0;
