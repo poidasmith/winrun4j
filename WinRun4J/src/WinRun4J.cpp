@@ -35,6 +35,13 @@ void WinRun4J::SetWorkingDirectory(dictionary* ini)
 
 		// Now set working directory to specified (this allows for a relative working directory)
 		SetCurrentDirectory(dir);
+
+		// Inform the user of the absolute path
+		if(Log::GetLevel() == info) {
+			char temp[MAX_PATH];
+			GetCurrentDirectory(MAX_PATH, temp);
+			Log::Info("Working directory set to: %s", temp);
+		}
 	} 
 }
 
@@ -127,7 +134,7 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 		return 1;
 	}
 
-	Log::Info("Found VM: %s\n", vmlibrary);
+	Log::Info("Found VM: %s", vmlibrary);
 
 	// Collect the VM args from the INI file
 	INI::GetNumberedKeysFromIni(ini, VM_ARG, vmargs, vmargsCount);
@@ -139,11 +146,12 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	VM::ExtractSpecificVMArgs(ini, vmargs, vmargsCount);
 
 	// Log the VM args
-	Log::Info("VM Args\n");
+	if(vmargsCount > 0)
+		Log::Info("VM Args:");
 	TCHAR argl[MAX_PATH];
 	for(int i = 0; i < vmargsCount; i++) {
 		StrTruncate(argl, vmargs[i], MAX_PATH);
-		Log::Info("vmarg.%d=%s\n", i, argl);
+		Log::Info("vmarg.%d=%s", i, argl);
 	}
 
 	// Collect the program arguments from the INI file
@@ -153,10 +161,11 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	ParseCommandLine(lpCmdLine, progargs, progargsCount, true);
 
 	// Log the commandline args
-	Log::Info("Program Args\n");
+	if(progargsCount > 0)
+		Log::Info("Program Args");
 	for(int i = 0; i < progargsCount; i++) {
 		StrTruncate(argl, progargs[i], MAX_PATH);
-		Log::Info("arg.%d=%s\n", i, argl);
+		Log::Info("arg.%d=%s", i, argl);
 	}
 
 	// Make sure there is a NULL at the end of the args
@@ -179,15 +188,15 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 		}
 	}
 	if(mainClass == NULL) {
-		Log::Error("No main class specified\n");
+		Log::Error("No main class specified");
 		return 1;
 	} else {
-		Log::Info("Main Class: %s\n", mainClass);
+		Log::Info("Main Class: %s", mainClass);
 	}
 
 	// Start the VM
 	if(VM::StartJavaVM(vmlibrary, vmargs, NULL) != 0) {
-		Log::Error("Error starting Java VM\n");
+		Log::Error("Error starting Java VM");
 		char* javaFailed = iniparser_getstr(ini, ERROR_MESSAGES_JAVA_START_FAILED);
 		MessageBox(NULL, (javaFailed == NULL ? "Error starting Java VM." : javaFailed), "Startup Error", 0);
 		Log::Close();
