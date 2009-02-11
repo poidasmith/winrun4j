@@ -28,6 +28,7 @@
 
 // jar - magic[4bytes], name-len[4bytes], name[variable], data-len[4bytes], data[variable]
 // ini - magic[4bytes], len[4bytes], data[variable]
+// splash - magic[4bytes], len[4bytes], data[variable]
 
 int PrintUsage()
 {
@@ -43,11 +44,17 @@ int PrintUsage()
 	printf("  /S\t\tSets the splash image.\n");
 	printf("  /V\t\tSets the version information.\n");
 	printf("  /C\t\tClears all resources from the EXE/DLL.\n");
+	printf("  /L\t\tLists the resources in the EXE/DLL.\n");
 	return 1;
 }
 
 int main(int argc, char* argv[])
 {
+	if(1) {
+		Resource::ClearResources("F:/eclipse/workspace/WinRun4J/build/WinRun4J-Debug/WinRun4J.exe");
+		return 0;
+	}
+
 	if(argc < 2) {
 		return PrintUsage();
 	}
@@ -57,6 +64,10 @@ int main(int argc, char* argv[])
 		LPSTR exeFile = argv[2];
 		LPSTR iconFile = argv[3];
 		Resource::SetIcon(exeFile, iconFile);
+	} else if(strcmp(argv[1], "/C") == 0) {
+		if(argc != 3) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		Resource::ClearResources(exeFile);
 	}
 
 	printf("%s\n", argv[0]);

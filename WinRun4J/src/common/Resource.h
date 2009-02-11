@@ -90,7 +90,9 @@ public:
 	static int AddJar(LPSTR exeFile, LPSTR jarFile);
 	static int SetSplash(LPSTR exeFile, LPSTR splashFile);
 	static int SetVersionInformation(LPSTR exeFile, VERINFO& info);
+	static int ClearResources(LPSTR exeFile);
+	static int ListResources(LPSTR exeFile);
 
 private:
-	static bool LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, GRPICONHEADER*& pGrpHeader);
+	static bool LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, GRPICONHEADER*& pGrpHeader, int index = 0);
 };

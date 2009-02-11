@@ -27,7 +27,7 @@ bool Resource::SetIcon(LPSTR exeFile, LPSTR iconFile)
 	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
 
 	// Copy in icon group resource
-	UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(1), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+	UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(1), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
 		pGrpHeader, sizeof(WORD)*3+pHeader->count*sizeof(GRPICONENTRY));
 
 	// Copy in icons
@@ -43,7 +43,7 @@ bool Resource::SetIcon(LPSTR exeFile, LPSTR iconFile)
 }
 
 // Load an icon image from a file
-bool Resource::LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, GRPICONHEADER*& pGrpHeader)
+bool Resource::LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, GRPICONHEADER*& pGrpHeader, int index)
 {
 	HANDLE hFile = CreateFile(TEXT(iconFile), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(hFile == INVALID_HANDLE_VALUE) {
@@ -78,7 +78,7 @@ bool Resource::LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcon
 		entry->bytesInRes2 = (WORD)icon->bytesInRes;
 		entry->colourCount = icon->colorCount;
 		entry->height = icon->height;
-		entry->id = (WORD)(i+1);
+		entry->id = (WORD)(i+1+index);
 		entry->planes = (BYTE)icon->planes;
 		entry->reserved = icon->reserved;
 		entry->width = icon->width;
@@ -89,4 +89,72 @@ bool Resource::LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcon
 	CloseHandle(hFile);
 
 	return true;
+}
+
+typedef struct
+{
+	LPCTSTR lpType;
+	LPCTSTR lpName;
+	WORD wLang;
+} ResourceInfo;
+
+typedef struct
+{
+	WORD count;
+	WORD max;
+	ResourceInfo* ri;
+} ResourceInfoList;
+
+BOOL ClearEnumLangsFunc(HANDLE hModule, LPCTSTR lpType, LPCTSTR lpName, WORD wLang, LONG lParam)
+{
+	ResourceInfoList* pRil = (ResourceInfoList*) lParam;
+	pRil->ri[pRil->count].lpType = lpType;
+	pRil->ri[pRil->count].lpName = lpName;
+	pRil->ri[pRil->count].wLang = wLang;
+	pRil->count++;
+	return pRil->count < pRil->max;
+}
+
+BOOL ClearEnumNamesFunc(HANDLE hModule, LPCTSTR lpType, LPTSTR lpName, LONG lParam)
+{
+	EnumResourceLanguages((HMODULE) hModule, lpType, lpName, (ENUMRESLANGPROC) ClearEnumLangsFunc, lParam);
+	return TRUE;
+}
+
+BOOL ClearEnumTypesFunc(HANDLE hModule, LPTSTR lpType, LONG lParam)
+{
+	EnumResourceNames((HMODULE) hModule, lpType, (ENUMRESNAMEPROC) ClearEnumNamesFunc, lParam);
+	return TRUE;
+}
+
+int Resource::ClearResources(LPSTR exeFile)
+{
+	HMODULE hMod = LoadLibrary(exeFile);
+	if(!hMod)
+		return 1;
+
+	ResourceInfoList ril;
+	ril.ri = (ResourceInfo*) malloc(sizeof(ResourceInfo) * 100);
+	ril.max = 100;
+	ril.count = 0;
+	EnumResourceTypes((HMODULE) hMod, (ENUMRESTYPEPROC) ClearEnumTypesFunc, (LONG_PTR) &ril);
+	FreeLibrary(hMod);
+
+	// Open exe for update
+	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
+	if(!hUpdate) {
+		return 1;
+	}
+
+	for(int i = 0; i < ril.count; i++) {
+		UpdateResource(hUpdate, ril.ri[i].lpType, ril.ri[i].lpName, ril.ri[i].wLang, 0, 0);
+	}
+
+	// Commit the changes
+	EndUpdateResource(hUpdate, FALSE);
+
+	// Free resources
+	free(ril.ri);
+
+	return 0;
 }
