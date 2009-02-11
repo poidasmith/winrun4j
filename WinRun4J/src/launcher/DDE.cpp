@@ -300,6 +300,9 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 	}
 
 	g_activateMethodID = env->GetStaticMethodID(g_class, "activate", "()V");
+	if(env->ExceptionCheck()) {
+		env->ExceptionClear();
+	}
 
 	// Setup native method for dde callback
 	JNINativeMethod nm[1];
@@ -334,14 +337,14 @@ void DDE::EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, void (*CallbackF
 		sprintf(key, "FileAssociations:file.%d.name", i);
 		info.name = iniparser_getstr(ini, key);
 		if(info.name == NULL) {
-			Log::Error("ERROR: Name not specified for extension: %s", info.extension);
+			Log::Error("Name not specified for extension: %s", info.extension);
 			break;
 		}
 
 		sprintf(key, "FileAssociations:file.%d.description", i);
 		info.description = iniparser_getstr(ini, key);
 		if(info.description == NULL) {
-			Log::Warning("WARNING: Description not specified for extension: %s", info.extension);
+			Log::Warning("Description not specified for extension: %s", info.extension);
 		}
 
 		CallbackFunc(info);

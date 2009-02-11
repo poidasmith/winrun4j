@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="CONSOLE,TINY,DEBUG_LOG"
+				PreprocessorDefinitions="CONSOLE,TINY,DEBUG_LOG,NO_JAVA"
 				BufferSecurityCheck="false"
 				WarningLevel="4"
 				DebugInformationFormat="3"
@@ -72,6 +72,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -153,6 +154,7 @@
 			<Tool
 				Name="VCManifestTool"
 				ManifestResourceFile="$(IntDir)\$(TargetFileName).embed.manifest.res"
+				EmbedManifest="false"
 				DependencyInformationFile="$(IntDir)\mt.dep"
 			/>
 			<Tool
@@ -184,6 +186,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\src\common\Log.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\common\Resource.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\ResourceEditor.cpp"
 				>
 			</File>
@@ -197,6 +207,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\src\common\Log.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\common\Resource.h"
+				>
+			</File>
 			<File
 				RelativePath="..\src\ResourceEditor.h"
 				>
