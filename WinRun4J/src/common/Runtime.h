@@ -14,6 +14,15 @@
 #define WIN32_LEAN_MEAN
 #include <windows.h>
 
+// Tags for embedded resources
+#define RT_INI_FILE MAKEINTRESOURCE(687)
+#define RT_JAR_FILE MAKEINTRESOURCE(688)
+#define RT_SPLASH_FILE MAKEINTRESOURCE(689)
+#define RES_MAGIC_SIZE 4
+#define INI_RES_MAGIC MAKEFOURCC('I','N','I','Z')
+#define JAR_RES_MAGIC MAKEFOURCC('J','A','R','Z')
+#define SPLASH_RES_MAGIC MAKEFOURCC('S','P','L','Z')
+
 #ifdef NDEBUG
 #pragma comment(linker, "/FILEALIGN:0x200")
 #pragma comment(linker, "/ALIGN:0x200")

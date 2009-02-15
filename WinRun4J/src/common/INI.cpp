@@ -48,10 +48,39 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance)
 
 dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 {
-	dictionary* ini = iniparser_load(inifile);
-	if(ini == NULL) {
-		Log::Error("Could not load INI file: %s", inifile);
-		return NULL;
+	dictionary* ini = NULL;
+
+	// First attempt to load INI from exe
+	HRSRC hi = FindResource(hInstance, MAKEINTRESOURCE(1), RT_INI_FILE);
+	if(hi) {
+		HGLOBAL hg = LoadResource(hInstance, hi);
+		PBYTE pb = (PBYTE) LockResource(hg);
+		DWORD* pd = (DWORD*) pb;
+		if(*pd == INI_RES_MAGIC) {
+			ini = iniparser_load((char *) &pb[RES_MAGIC_SIZE], true);	
+			if(!ini) {
+				Log::Warning("Could not load embedded INI file");
+			}
+		}
+	}
+
+	// Check if we have already loaded an embedded INI file - if so 
+	// then we only need to load and merge the INI file (if present)
+	if(ini) {
+		dictionary* ini2 = iniparser_load(inifile);
+		if(ini2) {
+			for(int i = 0; i < ini2->size; i++) {
+				char* key = ini2->key[i];
+				char* value = ini2->val[i];
+				iniparser_setstr(ini, key, value);
+			}		
+		}
+	} else {
+		ini = iniparser_load(inifile);
+		if(ini == NULL) {
+			Log::Error("Could not load INI file: %s", inifile);
+			return NULL;
+		}
 	}
 
 	// Expand environment variables

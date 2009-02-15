@@ -133,10 +133,24 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 {
 	char* image = iniparser_getstr(ini, SPLASH_IMAGE);
 	if(image == NULL) {
-		return;
+		// Now check if we can load an embedded image
+		HRSRC hi = FindResource(hInstance, MAKEINTRESOURCE(1), RT_SPLASH_FILE);
+		if(hi) {
+			HGLOBAL hgbl = LoadResource(hInstance, hi);
+			DWORD size = SizeofResource(hInstance, hi);
+			g_hBitmap = LoadImageBitmap(hgbl, size, true);
+			if(!g_hBitmap)
+				Log::Warning("Could not load embedded splash image");
+		}
+
+		if(!g_hBitmap)
+			return;
 	}
 
-	Log::Info("Displaying splash: %s", image);
+	if(image) 
+		Log::Info("Displaying splash: %s", image);
+	else
+		Log::Info("Displaying embedded splash image");
 
 	// Check for autohide disable flag
 	char* disableAutohide = iniparser_getstr(ini, SPLASH_DISABLE_AUTOHIDE);
@@ -174,23 +188,7 @@ HBITMAP SplashScreen::LoadImageBitmap(dictionary* ini, char* fileName)
 
 		// Read in file into memory
 		if(ReadFile(hFile, hgbl, dwFileSize, &dwRead, 0) && dwRead == dwFileSize) {
-			CoInitialize(NULL);
-			IStream* stream;
-			HRESULT hr = CreateStreamOnHGlobal(hgbl, TRUE, &stream);
-			if(SUCCEEDED(hr) && stream) {
-				IPicture* picture;
-				// Load picture from stream
-				hr = OleLoadPicture(stream, dwFileSize, 0, IID_IPicture, (void**)&picture);
-				if(SUCCEEDED(hr) && picture) {
-					// Copy picture to a bitmap resource
-					HBITMAP hsrc;                
-					picture->get_Handle((OLE_HANDLE *)&hsrc);
-					hbmp = (HBITMAP)CopyImage(hsrc, IMAGE_BITMAP, 0, 0, 0);
-					picture->Release();
-				}
-				stream->Release();
-			}
-			CoUninitialize();
+			hbmp = LoadImageBitmap(hgbl, dwFileSize);
 		}
 	   
 		GlobalFree(hgbl);
@@ -204,6 +202,31 @@ HBITMAP SplashScreen::LoadImageBitmap(dictionary* ini, char* fileName)
    
     return hbmp;
 }
+
+// Load image from memory
+HBITMAP SplashScreen::LoadImageBitmap(HGLOBAL hgbl, DWORD size, bool embedded)
+{
+	HBITMAP hbmp = NULL;
+	CoInitialize(NULL);
+	IStream* stream;
+	HRESULT hr = CreateStreamOnHGlobal(hgbl, TRUE, &stream);
+	if(SUCCEEDED(hr) && stream) {
+		IPicture* picture;
+		// Load picture from stream
+		hr = OleLoadPicture(stream, size, 0, IID_IPicture, (void**)&picture);
+		if(SUCCEEDED(hr) && picture) {
+			// Copy picture to a bitmap resource
+			HBITMAP hsrc;                
+			picture->get_Handle((OLE_HANDLE *)&hsrc);
+			hbmp = (HBITMAP)CopyImage(hsrc, IMAGE_BITMAP, 0, 0, 0);
+			picture->Release();
+		}
+		stream->Release();
+	}
+	CoUninitialize();
+	return hbmp;
+}
+
 
 jlong SplashScreen::GetWindowHandle(JNIEnv* env, jobject self)
 {

@@ -12,22 +12,6 @@
 
 typedef struct 
 {
-	const TCHAR* comments;
-	const TCHAR* companyName;
-	const TCHAR* fileDescription;
-	const TCHAR* fileVersion;
-	const TCHAR* internalName;
-	const TCHAR* legalCopyright;
-	const TCHAR* legalTrademarks;
-	const TCHAR* originalFilename;
-	const TCHAR* privateBuild;
-	const TCHAR* productName;
-	const TCHAR* productVersion;
-	const TCHAR* specialBuild;
-} VERINFO;
-
-typedef struct 
-{
 	BYTE width;
 	BYTE height;
 	BYTE colorCount;
@@ -85,14 +69,15 @@ class Resource
 {
 public:
 	static bool SetIcon(LPSTR exeFile, LPSTR iconFile);
-	static int AddIcon(LPSTR exeFile, LPSTR iconFile);
-	static int SetINI(LPSTR exeFile, LPSTR iniFile);
-	static int AddJar(LPSTR exeFile, LPSTR jarFile);
-	static int SetSplash(LPSTR exeFile, LPSTR splashFile);
-	static int SetVersionInformation(LPSTR exeFile, VERINFO& info);
-	static int ClearResources(LPSTR exeFile);
-	static int ListResources(LPSTR exeFile);
+	static bool AddIcon(LPSTR exeFile, LPSTR iconFile);
+	static bool SetINI(LPSTR exeFile, LPSTR iniFile);
+	static bool AddJar(LPSTR exeFile, LPSTR jarFile);
+	static bool SetSplash(LPSTR exeFile, LPSTR splashFile);
+	static bool ClearResources(LPSTR exeFile);
+	static bool ListResources(LPSTR exeFile);
+	static bool ListINI(LPSTR exeFile);
 
 private:
+	static bool SetFile(LPSTR exeFile, LPSTR resFile, LPCTSTR lpType, LPCTSTR lpName, DWORD magic, bool zeroTerminate);
 	static bool LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, GRPICONHEADER*& pGrpHeader, int index = 0);
 };

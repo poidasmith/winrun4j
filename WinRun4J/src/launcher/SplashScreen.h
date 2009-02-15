@@ -27,6 +27,7 @@ public:
 
 private:
 	static HBITMAP LoadImageBitmap(dictionary* ini, char* fileName);
+	static HBITMAP LoadImageBitmap(HGLOBAL hgbl, DWORD size, bool embedded = false);
 	
 	// JNI functions
 	static jlong GetWindowHandle(JNIEnv* env, jobject self);

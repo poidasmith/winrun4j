@@ -647,8 +647,8 @@ char* sgets(char* buffer, int* pos, char * line, int maxsize)
 		if(buffer[i] == '\n' || buffer[i] == 0)
 			break;
 	}
-	strncpy(line, &buffer[*pos], i - *pos - 1);
-	line[i - *pos - 1] = 0;
+	memcpy(line, &buffer[*pos], i - (*pos));
+	line[i - (*pos)] = 0;
 	*pos = i + (buffer[i] == 0 ? 0 : 1);
 	return line;
 }

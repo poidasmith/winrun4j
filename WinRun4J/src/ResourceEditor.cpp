@@ -8,52 +8,35 @@
  *     Peter Smith
  *******************************************************************************/
 
-/*
- * features:
- *   - set icon (ie. set main icon) /I
- *   - add icon (secondary - used for file associations) /+I
- *   - add a way to load icons from exe/dll for use as image in swt
- *   - set ini file
- *   - add/remove jar file /+J 
- *   - classpath.1=winrun4j.exe#test.jar
- *   - classpath.2=test.dll#other.jar
- *   - set splash image
- *   - set version information
- *   - clear all resources
- */
-
 #include "common/Runtime.h"
 #include "common/Resource.h"
+#include "common/Log.h"
 #include <stdio.h>
-
-// jar - magic[4bytes], name-len[4bytes], name[variable], data-len[4bytes], data[variable]
-// ini - magic[4bytes], len[4bytes], data[variable]
-// splash - magic[4bytes], len[4bytes], data[variable]
 
 int PrintUsage()
 {
 	printf("WinRun4J Resource Editor v1.0 (winrun4j.sf.net)\n\n");
 	printf("Edits resources in executables (EXE) and dynamic link-libraries (DLL).\n\n");
-	printf("RCEDIT [option] <filename> <resource>\n\n");
+	printf("RCEDIT <option> <exe/dll> [resource]\n\n");
 	printf("  filename\tSpecifies the filename of the EXE/DLL.\n");
 	printf("  resource\tSpecifies the name of the resource to add to the EXE/DLL.\n");
 	printf("  /I\t\tSet the icon as the default icon for the executable.\n");
 	printf("  /A\t\tAdds an icon to the EXE/DLL.\n");
-	printf("  /B\t\tSets the INI file.\n");
+	printf("  /N\t\tSets the INI file.\n");
 	printf("  /J\t\tAdds a JAR file.\n");
+	printf("  /E\t\tExtracts a JAR file from the EXE/DLL.\n");
 	printf("  /S\t\tSets the splash image.\n");
-	printf("  /V\t\tSets the version information.\n");
+	//printf("  /V\t\tSets the version information.\n");
 	printf("  /C\t\tClears all resources from the EXE/DLL.\n");
 	printf("  /L\t\tLists the resources in the EXE/DLL.\n");
+	printf("  /P\t\tOutputs the contents of the INI file in the EXE.\n");
 	return 1;
 }
 
 int main(int argc, char* argv[])
 {
-	if(1) {
-		Resource::ClearResources("F:/eclipse/workspace/WinRun4J/build/WinRun4J-Debug/WinRun4J.exe");
-		return 0;
-	}
+	// Initialize the logger to dump to stdout
+	Log::Init(GetModuleHandle(NULL), 0, 0);
 
 	if(argc < 2) {
 		return PrintUsage();
@@ -64,13 +47,42 @@ int main(int argc, char* argv[])
 		LPSTR exeFile = argv[2];
 		LPSTR iconFile = argv[3];
 		Resource::SetIcon(exeFile, iconFile);
+	} else if(strcmp(argv[1], "/A") == 0) {
+		if(argc != 4) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		LPSTR iconFile = argv[3];
+		Resource::AddIcon(exeFile, iconFile);
+	} else if(strcmp(argv[1], "/N") == 0) {
+		if(argc != 4) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		LPSTR iniFile = argv[3];
+		Resource::SetINI(exeFile, iniFile);
+	} else if(strcmp(argv[1], "/J") == 0) {
+		if(argc != 4) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		LPSTR jarFile = argv[3];
+		Resource::AddJar(exeFile, jarFile);
+	} else if(strcmp(argv[1], "/S") == 0) {
+		if(argc != 4) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		LPSTR splashFile = argv[3];
+		Resource::SetSplash(exeFile, splashFile);
 	} else if(strcmp(argv[1], "/C") == 0) {
 		if(argc != 3) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		Resource::ClearResources(exeFile);
+	} else if(strcmp(argv[1], "/L") == 0) {
+		if(argc != 3) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		Resource::ListResources(exeFile);
+	} else if(strcmp(argv[1], "/P") == 0) {
+		if(argc != 3) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		Resource::ListINI(exeFile);
+	} else {
+		return PrintUsage();
 	}
 
-	printf("%s\n", argv[0]);
 	return 0;
 }
 

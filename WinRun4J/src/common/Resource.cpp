@@ -10,8 +10,9 @@
 
 #include "Resource.h"
 #include "Log.h"
+#include <stdio.h>
 
-// Set icon on original exe file
+// Set icon on exe file
 bool Resource::SetIcon(LPSTR exeFile, LPSTR iconFile)
 {
 	// Read icon file
@@ -25,6 +26,10 @@ bool Resource::SetIcon(LPSTR exeFile, LPSTR iconFile)
 
 	// Copy in resources
 	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
+	if(!hUpdate) {
+		Log::Error("Could not load exe to set icon: %s", exeFile);
+		return false;
+	}
 
 	// Copy in icon group resource
 	UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(1), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
@@ -42,12 +47,202 @@ bool Resource::SetIcon(LPSTR exeFile, LPSTR iconFile)
 	return true;
 }
 
+// Add icon to exe file
+bool Resource::AddIcon(LPSTR exeFile, LPSTR iconFile)
+{
+	// Find the resource indices that are available
+	HMODULE hm = LoadLibrary(exeFile);
+	if(!hm) {
+		Log::Error("Could not load exe to add icon: %s", exeFile);
+		return false;
+	}
+	int gresId = 1;
+	HRSRC hr = 0;
+	while((hr = FindResource(hm, MAKEINTRESOURCE(gresId), RT_GROUP_ICON)) != NULL)
+		gresId++;
+	int iresId = 1;
+	while((hr = FindResource(hm, MAKEINTRESOURCE(iresId), RT_ICON)) != NULL)
+		iresId++;
+	FreeLibrary(hm);
+
+	// Read icon file
+	ICONHEADER* pHeader;
+	ICONIMAGE** pIcons;
+	GRPICONHEADER* pGrpHeader;
+	bool res = LoadIcon(iconFile, pHeader, pIcons, pGrpHeader, iresId);
+	if(!res) {
+		return false;
+	}
+
+	// Copy in resources
+	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
+	if(!hUpdate) {
+		Log::Error("Could not load exe to add icon: %s", exeFile);
+		return false;
+	}
+
+	// Copy in icon group resource
+	UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(gresId), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
+		pGrpHeader, sizeof(WORD)*3+pHeader->count*sizeof(GRPICONENTRY));
+
+	// Copy in icons
+	for(int i = 0; i < pHeader->count; i++) {
+		UpdateResource(hUpdate, RT_ICON, MAKEINTRESOURCE(i + iresId), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+			pIcons[i], pHeader->entries[i].bytesInRes);
+	}
+
+	// Commit the changes
+	EndUpdateResource(hUpdate, FALSE);
+
+	return true;
+}
+
+// Set the INI file
+bool Resource::SetINI(LPSTR exeFile, LPSTR iniFile)
+{
+	return SetFile(exeFile, iniFile, RT_INI_FILE, MAKEINTRESOURCE(1), INI_RES_MAGIC, true);
+}
+
+// Set the splash file
+bool Resource::SetSplash(LPSTR exeFile, LPSTR splashFile)
+{
+	return SetFile(exeFile, splashFile, RT_SPLASH_FILE, MAKEINTRESOURCE(1), 0, false);
+}
+
+// Prints the contents of the  INI  file
+bool Resource::ListINI(LPSTR exeFile)
+{
+	HMODULE hm = LoadLibrary(exeFile);
+	if(!hm) {
+		Log::Error("Could not load exe to list INI contents: %s", exeFile);
+		return false;
+	}
+	
+	HRSRC h = FindResource(hm, MAKEINTRESOURCE(1), RT_INI_FILE);
+	if(!h) {
+		Log::Error("Could not find INI resource", exeFile);
+		return false;
+	}
+	HGLOBAL hg = LoadResource(hm, h);
+	PBYTE pb = (PBYTE) LockResource(hg);
+	DWORD* pd = (DWORD*) pb;
+	if(*pd == INI_RES_MAGIC) {
+		printf("%s\n", &pb[4]);
+	} else {
+		printf("Unknown resource\n");
+	}
+
+	FreeLibrary(hm);
+	return true;
+}
+
+
+// Add JAR file
+bool Resource::AddJar(LPSTR exeFile, LPSTR jarFile)
+{
+	// Extract just the filename from the jar file path
+	char jarName[MAX_PATH];
+	int len = strlen(jarFile) - 1;
+	while(len > 0) {
+		if(jarFile[len] == '\\' || jarFile[len] == '/') 
+			break;
+		len--;
+	}
+	if(len == 0) len--;
+	strcpy(jarName, &jarFile[len+1]);
+
+	// Find next available slot for JAR file
+	HMODULE hm = LoadLibrary(exeFile);
+	if(!hm) {
+		Log::Error("Could not load exe to add JAR: %s", exeFile);
+		return false;
+	}
+	int resId = 1;
+	HRSRC hr = 0;
+	while((hr = FindResource(hm, MAKEINTRESOURCE(resId), RT_JAR_FILE)) != NULL)
+		resId++;
+	FreeLibrary(hm);
+
+	// Read the JAR file
+	HANDLE hFile = CreateFile(TEXT(jarFile), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hFile == INVALID_HANDLE_VALUE) {
+		Log::Error("Could not open JAR file: %s", jarFile);
+		return false;
+	}
+	DWORD cbBuffer = GetFileSize(hFile, 0);
+	DWORD cbPadding = RES_MAGIC_SIZE + strlen(jarName) + 1;
+	PBYTE pBuffer = (PBYTE) malloc(cbBuffer + cbPadding);
+	ReadFile(hFile, &pBuffer[cbPadding], cbBuffer, &cbBuffer, 0);
+
+	// Create binary structure for jar file
+	DWORD* pMagic = (DWORD*) pBuffer;
+	*pMagic = JAR_RES_MAGIC;
+	memcpy(&pBuffer[RES_MAGIC_SIZE], jarName, strlen(jarName) + 1);
+
+	// Copy in resources
+	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
+	if(!hUpdate) {
+		Log::Error("Could not load exe to add JAR: %s", exeFile);
+		return false;
+	}
+
+	// Copy in JAR file
+	UpdateResource(hUpdate, RT_JAR_FILE, MAKEINTRESOURCE(resId), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
+		pBuffer, cbBuffer + cbPadding);
+
+	// Commit the changes
+	EndUpdateResource(hUpdate, FALSE);
+
+	return true;
+}
+
+bool Resource::SetFile(LPSTR exeFile, LPSTR resFile, LPCTSTR lpType, LPCTSTR lpName, DWORD magic, bool zeroTerminate)
+{
+	// Read the INI file
+	HANDLE hFile = CreateFile(TEXT(resFile), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hFile == INVALID_HANDLE_VALUE) {
+		Log::Error("Could not open resource file: %s", resFile);
+		return false;
+	}
+	DWORD cbBuffer = GetFileSize(hFile, 0);
+	DWORD ztPadding = zeroTerminate ? 1 : 0;
+	DWORD magicSize = magic == 0 ? 0 : RES_MAGIC_SIZE;
+	PBYTE pBuffer = (PBYTE) malloc(cbBuffer + magicSize + ztPadding);
+	BOOL rfRes = ReadFile(hFile, &pBuffer[magicSize], cbBuffer, &cbBuffer, 0);
+	if(!rfRes) {
+		Log::Error("Could not read in resource file: %s", resFile);
+		return false;
+	}
+	if(magic) {
+		DWORD* pMagic = (DWORD*) pBuffer;
+		*pMagic = magic;
+	}
+	if(zeroTerminate) 
+		pBuffer[cbBuffer + magicSize] = 0;
+
+	// Copy in resources
+	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
+	if(!hUpdate) {
+		Log::Error("Could not load exe to load resource: %s", exeFile);
+		return false;
+	}
+
+	// Copy in resource file
+	UpdateResource(hUpdate, lpType, lpName, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
+		pBuffer, cbBuffer + RES_MAGIC_SIZE + ztPadding);
+
+	// Commit the changes
+	EndUpdateResource(hUpdate, FALSE);
+
+	return true;
+}
+
 // Load an icon image from a file
 bool Resource::LoadIcon(LPSTR iconFile, ICONHEADER*& pHeader, ICONIMAGE**& pIcons, GRPICONHEADER*& pGrpHeader, int index)
 {
 	HANDLE hFile = CreateFile(TEXT(iconFile), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(hFile == INVALID_HANDLE_VALUE) {
-		Log::Error("ERROR: Could not open icon file: %s", iconFile);
+		Log::Error("Could not open icon file: %s", iconFile);
 		return false;
 	}
 
@@ -105,7 +300,7 @@ typedef struct
 	ResourceInfo* ri;
 } ResourceInfoList;
 
-BOOL ClearEnumLangsFunc(HANDLE hModule, LPCTSTR lpType, LPCTSTR lpName, WORD wLang, LONG lParam)
+BOOL EnumLangsFunc(HANDLE hModule, LPCTSTR lpType, LPCTSTR lpName, WORD wLang, LONG lParam)
 {
 	ResourceInfoList* pRil = (ResourceInfoList*) lParam;
 	pRil->ri[pRil->count].lpType = lpType;
@@ -115,35 +310,36 @@ BOOL ClearEnumLangsFunc(HANDLE hModule, LPCTSTR lpType, LPCTSTR lpName, WORD wLa
 	return pRil->count < pRil->max;
 }
 
-BOOL ClearEnumNamesFunc(HANDLE hModule, LPCTSTR lpType, LPTSTR lpName, LONG lParam)
+BOOL EnumNamesFunc(HANDLE hModule, LPCTSTR lpType, LPTSTR lpName, LONG lParam)
 {
-	EnumResourceLanguages((HMODULE) hModule, lpType, lpName, (ENUMRESLANGPROC) ClearEnumLangsFunc, lParam);
-	return TRUE;
+	return EnumResourceLanguages((HMODULE) hModule, lpType, lpName, (ENUMRESLANGPROC) EnumLangsFunc, lParam);
 }
 
-BOOL ClearEnumTypesFunc(HANDLE hModule, LPTSTR lpType, LONG lParam)
+BOOL EnumTypesFunc(HANDLE hModule, LPTSTR lpType, LONG lParam)
 {
-	EnumResourceNames((HMODULE) hModule, lpType, (ENUMRESNAMEPROC) ClearEnumNamesFunc, lParam);
-	return TRUE;
+	return EnumResourceNames((HMODULE) hModule, lpType, (ENUMRESNAMEPROC) EnumNamesFunc, lParam);
 }
 
-int Resource::ClearResources(LPSTR exeFile)
+bool Resource::ClearResources(LPSTR exeFile)
 {
 	HMODULE hMod = LoadLibrary(exeFile);
-	if(!hMod)
-		return 1;
+	if(!hMod) {
+		Log::Error("Could not load exe to clear resources: %s", exeFile);
+		return false;
+	}
 
 	ResourceInfoList ril;
 	ril.ri = (ResourceInfo*) malloc(sizeof(ResourceInfo) * 100);
 	ril.max = 100;
 	ril.count = 0;
-	EnumResourceTypes((HMODULE) hMod, (ENUMRESTYPEPROC) ClearEnumTypesFunc, (LONG_PTR) &ril);
+	EnumResourceTypes((HMODULE) hMod, (ENUMRESTYPEPROC) EnumTypesFunc, (LONG_PTR) &ril);
 	FreeLibrary(hMod);
 
 	// Open exe for update
 	HANDLE hUpdate = BeginUpdateResource(exeFile, FALSE);
 	if(!hUpdate) {
-		return 1;
+		Log::Error("Could not load exe to clear resources: %s", exeFile);
+		return false;
 	}
 
 	for(int i = 0; i < ril.count; i++) {
@@ -156,5 +352,53 @@ int Resource::ClearResources(LPSTR exeFile)
 	// Free resources
 	free(ril.ri);
 
-	return 0;
+	return true;
+}
+
+bool Resource::ListResources(LPSTR exeFile)
+{
+	HMODULE hMod = LoadLibrary(exeFile);
+	if(!hMod) {
+		Log::Error("Could not load exe to list resources: %s", exeFile);
+		return false;
+	}
+
+	ResourceInfoList ril;
+	ril.ri = (ResourceInfo*) malloc(sizeof(ResourceInfo) * 100);
+	ril.max = 100;
+	ril.count = 0;
+	EnumResourceTypes((HMODULE) hMod, (ENUMRESTYPEPROC) EnumTypesFunc, (LONG_PTR) &ril);
+
+	for(int i = 0; i < ril.count; i++) {
+		LPCTSTR lpType = ril.ri[i].lpType;
+		LPCTSTR lpName = ril.ri[i].lpName;
+		if(lpType == RT_GROUP_ICON) {
+			printf("Group Icon\t%04x\n", lpName);
+		} else if(lpType == RT_ICON) {
+			printf("Icon      \t%04x\n", lpName);
+		} else if(lpType == RT_JAR_FILE) {
+			HRSRC h = FindResource(hMod, lpName, lpType);
+			HGLOBAL hg = LoadResource(hMod, h);
+			PBYTE pb = (PBYTE) LockResource(hg);
+			DWORD* pd = (DWORD*) pb;
+			if(*pd == JAR_RES_MAGIC) {
+				printf("JAR File  \t%s\n", &pb[4]);
+			} else {
+				printf("Unknown   \t%04x, %04x\n", lpType, lpName);
+			}
+		} else if(lpType == RT_INI_FILE) {
+			printf("INI File\n");
+		} else if(lpType == RT_SPLASH_FILE) {
+			printf("Splash File\n");
+		} else if(lpType == RT_ACCELERATOR) {
+			printf("Accelerator\t%04x\n", lpName);
+		} else {
+			printf("Unknown   \t%04x, %04x\n", lpType, lpName);
+		}
+	}
+
+	free(ril.ri);
+	FreeLibrary(hMod);
+
+	return true;
 }
