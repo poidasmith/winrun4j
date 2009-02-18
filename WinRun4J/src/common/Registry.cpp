@@ -310,7 +310,7 @@ void Registry::SetMultiString(JNIEnv* env, jobject self, jlong parent, jstring n
 bool Registry::RegisterNatives(JNIEnv *env)
 {
 	Log::Info("Registering natives for Registry class");
-	jclass clazz = env->FindClass("org/boris/winrun4j/RegistryKey");
+	jclass clazz = JNI::FindClass(env, "org/boris/winrun4j/RegistryKey");
 	if(clazz == NULL) {
 		Log::Warning("Could not find RegistryKey class");
 		if(env->ExceptionOccurred())
@@ -384,6 +384,8 @@ bool Registry::RegisterNatives(JNIEnv *env)
 	if(env->ExceptionOccurred()) {
 		JNI::PrintStackTrace(env);
 		env->ExceptionClear();
+		return false;
 	}
+
 	return true;
 }

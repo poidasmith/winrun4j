@@ -15,7 +15,8 @@ import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.RegistryKey;
 
-public class WinRunTest {
+public class WinRunTest
+{
     public static void main(String[] args) throws Exception {
         final JFrame frame = new JFrame();
         StringBuffer ab = new StringBuffer();
@@ -56,9 +57,9 @@ public class WinRunTest {
         }
 
         // Test logger
-        Log.info("INFO: test1\n");
-        Log.warning("WARN: test2\n");
-        Log.error("ERR: test3\n");
+        Log.info("test1\n");
+        Log.warning("test2\n");
+        Log.error("test3\n");
         Log.setLastError("Last Error Test");
         sb.append("\nLast Error:" + Log.getLastError() + "\n");
 

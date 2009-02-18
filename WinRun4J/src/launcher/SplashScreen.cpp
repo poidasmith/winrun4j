@@ -241,7 +241,7 @@ void SplashScreen::Close(JNIEnv* env, jobject self)
 void SplashScreen::RegisterNatives(JNIEnv *env)
 {
 	Log::Info("Registering natives for SplashScreen class");
-	jclass clazz = env->FindClass("org/boris/winrun4j/SplashScreen");
+	jclass clazz = JNI::FindClass(env, "org/boris/winrun4j/SplashScreen");
 	if(clazz == NULL) {
 		Log::Warning("Could not find SplashScreen class");
 		if(env->ExceptionOccurred())

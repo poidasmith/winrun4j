@@ -205,7 +205,7 @@ bool Log::RegisterNatives(JNIEnv* env)
 {
 	// Register Log functions
 	Log::Info("Registering natives for Log class");
-	jclass clazz = env->FindClass("org/boris/winrun4j/Log");
+	jclass clazz = JNI::FindClass(env, "org/boris/winrun4j/Log");
 	if(clazz == NULL) {
 		Log::Warning("Could not find Log class");
 		return false;

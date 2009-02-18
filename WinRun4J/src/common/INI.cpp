@@ -10,6 +10,7 @@
 
 #include "INI.h"
 #include "Log.h"
+#include "../java/JNI.h"
 
 static dictionary* g_ini = NULL;
 
@@ -168,14 +169,13 @@ bool INI::RegisterNatives(JNIEnv *env, bool useExcel)
 	jclass clazz;
 	JNINativeMethod methods[2];
 	if(useExcel) {
-		clazz = env->FindClass("org/excel4j/INI");
+		clazz = JNI::FindClass(env, "org/excel4j/INI");
 	} else {
-		clazz = env->FindClass("org/boris/winrun4j/INI");
+		clazz = JNI::FindClass(env, "org/boris/winrun4j/INI");
 	}
 	if(clazz == NULL) {
 		Log::Warning("Could not find INI class");
-		if(env->ExceptionOccurred())
-			env->ExceptionClear();
+		JNI::ClearException(env);
 		return false;
 	}
 	methods[0].fnPtr = (void*) GetKeys;
@@ -185,6 +185,11 @@ bool INI::RegisterNatives(JNIEnv *env, bool useExcel)
 	methods[1].name = "getProperty";
 	methods[1].signature = "(Ljava/lang/String;)Ljava/lang/String;";
 	env->RegisterNatives(clazz, methods, 2);
+	if(env->ExceptionCheck()) {
+		Log::Error("Could not register natives methods for INI class");
+		JNI::PrintStackTrace(env);
+		return false;
+	}
 
 	return true;
 }

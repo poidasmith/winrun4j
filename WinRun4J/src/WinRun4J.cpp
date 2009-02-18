@@ -187,6 +187,7 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 			}
 		}
 	}
+
 	if(mainClass == NULL) {
 		Log::Error("No main class specified");
 		return 1;
@@ -260,6 +261,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	JNIEnv* env = VM::GetJNIEnv();
 
 	// Register native methods
+	JNI::Init(env);
 	Log::RegisterNatives(env);
 	INI::RegisterNatives(env);
 	SplashScreen::RegisterNatives(env);
@@ -278,7 +280,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 		JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
 	// Check for exception
-	JNI::ClearException(env);
+	JNI::PrintStackTrace(env);
 
 	if (ddeInit) DDE::Ready();
 	
