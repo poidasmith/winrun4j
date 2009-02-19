@@ -313,10 +313,14 @@ void VM::LoadRuntimeLibrary(TCHAR* libPath)
 		}
 	}
 
-	// Append library path and load
+	// Append library path and load - we have a couple of choices here depending on 
+	// VM version - we don't treat failure here as an error as some VM versions
+	// don't have this runtime installed
 	strcat(binPath, "\\msvcr71.dll");
 	if(!LoadLibrary(binPath)) {
-		Log::Error("Could not load runtime library: %s", binPath);
+		binPath[i] = 0;
+		strcat(binPath, "\\msvcrt.dll");
+		LoadLibrary(binPath);
 	}
 }
 
@@ -324,9 +328,9 @@ int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance)
 {
 	g_hInstance = hInstance;
 
-	// We need to load "msvcr71.dll" before the VM otherwise bad things happen
-	// so we assume the VM is located under a bin path and inside this bin dir
-	// there is the above dll
+	// We need to load an MS runtime library before the VM otherwise 
+	// bad things happen so we assume the VM is located under a bin path and 
+	// inside this bin dir there is the dll
 	LoadRuntimeLibrary(libPath);
 
 	// Load the JVM library 

@@ -36,7 +36,9 @@ jclass JNI::FindClass(JNIEnv* env, TCHAR* classStr)
 
 	jclass cl = (jclass) env->CallObjectMethod(g_classLoader, g_findClassMethod, env->NewStringUTF(t));
 	// Workaround for JDK bug
-	CallStringMethod(env, env->GetObjectClass(cl), cl, "toString");
+	if(cl) {
+		CallStringMethod(env, env->GetObjectClass(cl), cl, "getName");
+	}
 	return cl;
 }
 
@@ -123,7 +125,16 @@ jthrowable JNI::PrintStackTrace(JNIEnv* env)
 		// Print out the stack trace for this exception
 		jclass c = env->GetObjectClass(thr);
 		jmethodID m = env->GetMethodID(c, "printStackTrace", "()V");
-		env->CallVoidMethod(thr, m);
+		if(m) 
+			env->CallVoidMethod(thr, m);
+		else {
+			env->ExceptionClear();
+			m = env->GetMethodID(c, "printStackTrace", "(Ljava/io/PrintStream;)V");
+			jclass sc = env->FindClass("java/lang/System");
+			jfieldID sof = env->GetStaticFieldID(sc, "out", "Ljava/io/PrintStream;");
+			jobject so = env->GetStaticObjectField(sc, sof);
+			env->CallVoidMethod(thr, m, so);
+		}
 		env->ExceptionClear();
 	}
 	return thr;
