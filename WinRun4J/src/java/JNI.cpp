@@ -415,8 +415,8 @@ bool JNI::SetClassLoaderJars(JNIEnv* env, jobject classloader)
 		PBYTE pb = (PBYTE) LockResource(hg);
 		DWORD* pd = (DWORD*) pb;
 		if(*pd == JAR_RES_MAGIC) {
-			int l = strlen((char*) &pb[RES_MAGIC_SIZE]);
-			DWORD offset = RES_MAGIC_SIZE + l + 1;
+			int len = strlen((char*) &pb[RES_MAGIC_SIZE]);
+			DWORD offset = RES_MAGIC_SIZE + len + 1;
 			DWORD s = SizeofResource(NULL, hs);
 			jbyteArray jb = env->NewByteArray(s - offset);
 			env->SetByteArrayRegion(jb, 0, s-offset, (const jbyte*) &pb[offset]); 

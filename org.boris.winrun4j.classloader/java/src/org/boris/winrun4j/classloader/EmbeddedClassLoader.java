@@ -12,6 +12,7 @@ package org.boris.winrun4j.classloader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -26,7 +27,6 @@ public class EmbeddedClassLoader extends URLClassLoader
 
     public EmbeddedClassLoader() {
         super(makeUrls(), ClassLoader.getSystemClassLoader());
-
     }
 
     private static URL[] makeUrls() {
@@ -42,6 +42,14 @@ public class EmbeddedClassLoader extends URLClassLoader
             }
         }
         return (URL[]) urls.toArray(new URL[0]);
+    }
+
+    public URL findResource(String name) {
+        return super.findResource(name);
+    }
+
+    public InputStream getResourceAsStream(String name) {
+        return super.getResourceAsStream(name);
     }
 
     protected Class findClass(String name) throws ClassNotFoundException {
