@@ -44,12 +44,22 @@ public class EmbeddedClassLoader extends URLClassLoader
         return (URL[]) urls.toArray(new URL[0]);
     }
 
-    public URL findResource(String name) {
-        return super.findResource(name);
-    }
-
     public InputStream getResourceAsStream(String name) {
-        return super.getResourceAsStream(name);
+        for (int i = 0; i < jarData.length; i++) {
+            byte[] j = jarData[i];
+            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(j));
+            ZipEntry ze = null;
+            try {
+                while ((ze = zis.getNextEntry()) != null) {
+                    if (name.equals(ze.getName())) {
+                        return zis;
+                    }
+                }
+            } catch (IOException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     protected Class findClass(String name) throws ClassNotFoundException {
