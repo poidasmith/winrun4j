@@ -232,6 +232,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, LPSTR lpCmdLine)
 		return 1;
 	}
 
+	// TODO - make this work
 	dictionary* ini = INI::LoadIniFile(hInstance, tmpProgargs[0]);
 
 	return 1;

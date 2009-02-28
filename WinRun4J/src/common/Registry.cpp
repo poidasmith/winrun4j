@@ -313,7 +313,7 @@ bool Registry::RegisterNatives(JNIEnv *env)
 	jclass clazz = JNI::FindClass(env, "org/boris/winrun4j/RegistryKey");
 	if(clazz == NULL) {
 		Log::Warning("Could not find RegistryKey class");
-		if(env->ExceptionOccurred())
+		if(env->ExceptionCheck())
 			env->ExceptionClear();
 		return false;
 	}
@@ -383,7 +383,6 @@ bool Registry::RegisterNatives(JNIEnv *env)
 	env->RegisterNatives(clazz, methods, 20);
 	if(env->ExceptionOccurred()) {
 		JNI::PrintStackTrace(env);
-		env->ExceptionClear();
 		return false;
 	}
 
