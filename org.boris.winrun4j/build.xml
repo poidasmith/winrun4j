@@ -1,9 +1,9 @@
 <project name="WinRun4J" default="build">
 	
-	<property name="release.dir" value="C:/Development/Releases/"/>
-	<property name="src.dir" value="C:\eclipse\workspace\WinRun4J"/>
+	<property name="release.dir" value="F:/Development/Releases/"/>
+	<property name="src.dir" value="F:\eclipse\workspace\WinRun4J"/>
 	<property name="release.name" value="winrun4J"/>
-	<property name="release.version" value="0.1.10"/>
+	<property name="release.version" value="0.2.0"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/winrun4j"/>
 	
 	<target name="build">
@@ -11,15 +11,15 @@
 		<mkdir dir="${deploy.dir}/bin"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release/WinRun4J.exe"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release - Console/WinRun4Jc.exe"/>
-		<copy tofile="${deploy.dir}/bin/WinRun4J64.exe" file="${src.dir}/build/WinRun4J-Release-x64/WinRun4J.exe"/>
+		<!-- <copy tofile="${deploy.dir}/bin/WinRun4J64.exe" file="${src.dir}/build/WinRun4J-Release-x64/WinRun4J.exe"/> -->
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/test/WinRun4J.ini"/>
-		<copy tofile="${deploy.dir}/bin/WinRun4J64.ini" file="${src.dir}/test/WinRun4J.ini"/>
+		<!-- <copy tofile="${deploy.dir}/bin/WinRun4J64.ini" file="${src.dir}/test/WinRun4J.ini"/> -->
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/SplashScreen.gif"/>
 		<copy todir="${deploy.dir}" file="${src.dir}/cpl-v10.html"/>
 		<copy todir="${deploy.dir}" file="${src.dir}/epl-v10.html"/>
 		<mkdir dir="${deploy.dir}/src"/>
 		<mkdir dir="build"/>
-		<javac debug="off" srcdir="java/src" destdir="build"/>
+		<javac source="1.4" debug="off" srcdir="java/src" destdir="build"/>
 		<jar destfile="${deploy.dir}/bin/WinRun4J.jar">
 			<fileset dir="build">
 				<include name="**/*.class"/>
@@ -32,7 +32,7 @@
 		</jar>
 		<delete dir="build"/>
 		<mkdir dir="build"/>
-		<javac debug="off" srcdir="../org.boris.winrun4j.test/java/src" destdir="build">
+		<javac source="1.4" debug="off" srcdir="../org.boris.winrun4j.test/java/src" destdir="build">
 			<classpath path="bin"/>
 		</javac>
 		<jar destfile="${deploy.dir}/bin/WinRun4JTest.jar">
@@ -56,7 +56,8 @@
 			</fileset>
 		</jar>
 		<mkdir dir="build"/>
-		<javac debug="off" srcdir="../org.boris.winrun4j.eclipsedde/java/src" destdir="build">
+		<!--
+		<javac source="1.4" debug="off" srcdir="../org.boris.winrun4j.eclipsedde/java/src" destdir="build">
 			<classpath path="../org.eclipse.equinox.launcher/bin"/>
 		</javac>
 		<jar destfile="${deploy.dir}/bin/EclipseDDE.jar">
@@ -66,7 +67,7 @@
             <fileset dir="../org.boris.winrun4j.eclipsedde/java/src">
                 <include name="**/*.java"/>
             </fileset>
-        </jar>
+        </jar> -->
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/eclipse.ico"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/eclipse.ini"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/service.ini"/>

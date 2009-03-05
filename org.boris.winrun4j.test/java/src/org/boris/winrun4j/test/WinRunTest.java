@@ -57,9 +57,9 @@ public class WinRunTest
         }
 
         // Test logger
-        Log.info("test1\n");
-        Log.warning("test2\n");
-        Log.error("test3\n");
+        Log.info("test1");
+        Log.warning("test2");
+        Log.error("test3");
         Log.setLastError("Last Error Test");
         sb.append("\nLast Error:" + Log.getLastError() + "\n");
 

@@ -1,0 +1,52 @@
+spreadsheet
+===========
+
+- allow multiple worksheets
+- allow writing of functions using a scripting language 
+    (probably pluggable but start with rhino)
+- console view for debugging
+ 
+winrun4j
+========
+
+- implement set of SetTitle, SetVersion, AddJar, SetINI functions
+    (instead of pecoff4j)
+- implement loading of INI, splash, jars from exe resources
+- allow user to write text to splash screen window
+- allow user to change splash image on the fly
+- allow user to store splash image in jar and specify via manifest
+    (need a flag in INI: splash.searchManifest=true)
+- check launch4j and others for their format for storing jars in exe and
+  try to be compatible
+- add option to ini file whether overriding is allowed for embedded ini.
+
+    
+xlloop
+======
+
+- add list of servers to connect to (either round robin or random selection)
+- probably use list like (servers=localhost:5600,myserver,myserver:8000)
+- also allow a server to indicate another server to use each time
+  a new connection is created (ie. when no connection exists)
+- client/server talk in xlopers
+- separate out scripting example/provider to separate jar to remove excess 
+  dependencies
+- tray icon for stopping xllop/resetting connection?
+- popup for long running functions?
+
+variantcodec
+============
+
+- add a sourcecodec unicode codec (look at how java source files are encoded)
+- similar setup for xml and binary
+
+
+expr4j
+======
+
+- unify operators
+- allow operator overriding ?
+- finish excel impl
+
+
+  
