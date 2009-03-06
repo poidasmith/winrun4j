@@ -681,20 +681,25 @@ static BYTE g_byteBufferISCode[] = {
 
 jobjectArray JNI::ListJars(JNIEnv* env, jobject self, jstring library)
 {
-	// Currently we don't support libraries other than the executable
-	if(library)
-		return NULL;
+	HMODULE hm = NULL;
+	if(library) {
+		jboolean iscopy = false;
+		const char* c = env->GetStringUTFChars(library, &iscopy);
+		hm = LoadLibrary(c);
+		if(!hm)
+			return NULL;
+	}
 
 	int resId = 1;
 	HRSRC hs;
-	while((hs = FindResource(NULL, MAKEINTRESOURCE(resId), RT_JAR_FILE)) != NULL) {
+	while((hs = FindResource(hm, MAKEINTRESOURCE(resId), RT_JAR_FILE)) != NULL) {
 		resId++;
 	}
 	jclass c = env->FindClass("java/lang/String");
 	jobjectArray a = env->NewObjectArray(resId-1, c, 0);
 	for(int i = 1; i < resId; i++) {
-		hs = FindResource(NULL, MAKEINTRESOURCE(i), RT_JAR_FILE);
-		HGLOBAL hg = LoadResource(NULL, hs);
+		hs = FindResource(hm, MAKEINTRESOURCE(i), RT_JAR_FILE);
+		HGLOBAL hg = LoadResource(hm, hs);
 		LPBYTE pb = (LPBYTE) LockResource(hg);
 		DWORD* pd = (DWORD*) pb;
 		if(*pd == JAR_RES_MAGIC) {
@@ -707,9 +712,14 @@ jobjectArray JNI::ListJars(JNIEnv* env, jobject self, jstring library)
 
 jobject JNI::GetJar(JNIEnv* env, jobject self, jstring library, jstring jarName)
 {
-	// Currently we don't support libraries other than the executable
-	if(library)
-		return NULL;
+	HMODULE hm = NULL;
+	if(library) {
+		jboolean iscopy = false;
+		const char* c = env->GetStringUTFChars(library, &iscopy);
+		hm = LoadLibrary(c);
+		if(!hm)
+			return NULL;
+	}
 
 	if(!jarName)
 		return NULL;
@@ -719,8 +729,8 @@ jobject JNI::GetJar(JNIEnv* env, jobject self, jstring library, jstring jarName)
 
 	int resId = 1;
 	HRSRC hs;
-	while((hs = FindResource(NULL, MAKEINTRESOURCE(resId), RT_JAR_FILE)) != NULL) {
-		HGLOBAL hg = LoadResource(NULL, hs);
+	while((hs = FindResource(hm, MAKEINTRESOURCE(resId), RT_JAR_FILE)) != NULL) {
+		HGLOBAL hg = LoadResource(hm, hs);
 		PBYTE pb = (PBYTE) LockResource(hg);
 		DWORD* pd = (DWORD*) pb;
 		if(*pd == JAR_RES_MAGIC) {

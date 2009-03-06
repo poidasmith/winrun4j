@@ -119,7 +119,7 @@
 				Optimization="1"
 				FavorSizeOrSpeed="2"
 				WholeProgramOptimization="false"
-				PreprocessorDefinitions="CONSOLE,TINY"
+				PreprocessorDefinitions="CONSOLE,TINY,NO_JAVA"
 				ExceptionHandling="0"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"

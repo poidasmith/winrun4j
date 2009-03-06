@@ -19,9 +19,8 @@
 #define RT_JAR_FILE MAKEINTRESOURCE(688)
 #define RT_SPLASH_FILE MAKEINTRESOURCE(689)
 #define RES_MAGIC_SIZE 4
-#define INI_RES_MAGIC MAKEFOURCC('I','N','I','Z')
-#define JAR_RES_MAGIC MAKEFOURCC('J','A','R','Z')
-#define SPLASH_RES_MAGIC MAKEFOURCC('S','P','L','Z')
+#define INI_RES_MAGIC MAKEFOURCC('I','N','I',' ')
+#define JAR_RES_MAGIC MAKEFOURCC('J','A','R',' ')
 
 #ifdef NDEBUG
 #pragma comment(linker, "/FILEALIGN:0x200")

@@ -82,13 +82,15 @@ bool Resource::AddIcon(LPSTR exeFile, LPSTR iconFile)
 	}
 
 	// Copy in icon group resource
-	UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(gresId), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
-		pGrpHeader, sizeof(WORD)*3+pHeader->count*sizeof(GRPICONENTRY));
+	if(!UpdateResource(hUpdate, RT_GROUP_ICON, MAKEINTRESOURCE(gresId), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
+		pGrpHeader, sizeof(WORD)*3+pHeader->count*sizeof(GRPICONENTRY)))
+		Log::Error("Could not insert group icon into binary");
 
 	// Copy in icons
 	for(int i = 0; i < pHeader->count; i++) {
-		UpdateResource(hUpdate, RT_ICON, MAKEINTRESOURCE(i + iresId), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
-			pIcons[i], pHeader->entries[i].bytesInRes);
+		if(!UpdateResource(hUpdate, RT_ICON, MAKEINTRESOURCE(i + iresId), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+			pIcons[i], pHeader->entries[i].bytesInRes))
+			Log::Error("Could not insert icon into binary");
 	}
 
 	// Commit the changes
@@ -159,8 +161,20 @@ bool Resource::AddJar(LPSTR exeFile, LPSTR jarFile)
 	}
 	int resId = 1;
 	HRSRC hr = 0;
-	while((hr = FindResource(hm, MAKEINTRESOURCE(resId), RT_JAR_FILE)) != NULL)
+	while((hr = FindResource(hm, MAKEINTRESOURCE(resId), RT_JAR_FILE)) != NULL) {
+		// Check for jar with matching name - if found we want to overwrite
+		HGLOBAL hg = LoadResource(hm, hr);
+		PBYTE pb = (PBYTE) LockResource(hg);
+		DWORD* pd = (DWORD*) pb;
+		if(*pd == JAR_RES_MAGIC) {
+			int len = strlen((char*) &pb[RES_MAGIC_SIZE]);
+			if(strcmp(jarName, (char*) &pb[RES_MAGIC_SIZE]) == 0) {
+				break;
+			}
+		}
+
 		resId++;
+	}
 	FreeLibrary(hm);
 
 	// Read the JAR file
@@ -228,8 +242,9 @@ bool Resource::SetFile(LPSTR exeFile, LPSTR resFile, LPCTSTR lpType, LPCTSTR lpN
 	}
 
 	// Copy in resource file
-	UpdateResource(hUpdate, lpType, lpName, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
-		pBuffer, cbBuffer + RES_MAGIC_SIZE + ztPadding);
+	if(!UpdateResource(hUpdate, lpType, lpName, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
+		pBuffer, cbBuffer + RES_MAGIC_SIZE + ztPadding))
+		Log::Error("Could not insert resource into binary");
 
 	// Commit the changes
 	EndUpdateResource(hUpdate, FALSE);
