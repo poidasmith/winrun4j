@@ -138,7 +138,7 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 		if(hi) {
 			HGLOBAL hgbl = LoadResource(hInstance, hi);
 			DWORD size = SizeofResource(hInstance, hi);
-			g_hBitmap = LoadImageBitmap(hgbl, size, true);
+			g_hBitmap = LoadImageBitmap(hgbl, size);
 			if(!g_hBitmap)
 				Log::Warning("Could not load embedded splash image");
 		}
@@ -158,10 +158,12 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 		g_disableAutohide = true;
 	}
 
-	g_hBitmap = LoadImageBitmap(ini, image);
-	if(g_hBitmap == NULL) {
-		Log::Warning("Could not load splash screen: %s", image);
-		return;
+	if(image) {
+		g_hBitmap = LoadImageBitmap(ini, image);
+		if(g_hBitmap == NULL) {
+			Log::Warning("Could not load splash screen: %s", image);
+			return;
+		}
 	}
 
 	// Create thread for window creator/destroyer
@@ -204,16 +206,19 @@ HBITMAP SplashScreen::LoadImageBitmap(dictionary* ini, char* fileName)
 }
 
 // Load image from memory
-HBITMAP SplashScreen::LoadImageBitmap(HGLOBAL hgbl, DWORD size, bool embedded)
+HBITMAP SplashScreen::LoadImageBitmap(HGLOBAL hgbl, DWORD size)
 {
 	HBITMAP hbmp = NULL;
 	CoInitialize(NULL);
 	IStream* stream;
 	HRESULT hr = CreateStreamOnHGlobal(hgbl, TRUE, &stream);
 	if(SUCCEEDED(hr) && stream) {
+		ULARGE_INTEGER ul;
+		ul.LowPart = size;
+		stream->SetSize(ul);
 		IPicture* picture;
 		// Load picture from stream
-		hr = OleLoadPicture(stream, size, 0, IID_IPicture, (void**)&picture);
+		hr = OleLoadPicture(stream, 0, 0, IID_IPicture, (void**)&picture);
 		if(SUCCEEDED(hr) && picture) {
 			// Copy picture to a bitmap resource
 			HBITMAP hsrc;                

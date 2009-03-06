@@ -9,13 +9,13 @@
  *******************************************************************************/
 package org.boris.winrun4j.classloader;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
@@ -23,10 +23,16 @@ import java.util.zip.ZipInputStream;
 
 public class EmbeddedClassLoader extends URLClassLoader
 {
-    private byte[][] jarData;
+    private String[] jars;
+    private ByteBuffer[] buffers;
 
     public EmbeddedClassLoader() {
         super(makeUrls(), ClassLoader.getSystemClassLoader());
+        jars = listJars(null);
+        buffers = new ByteBuffer[jars.length];
+        for (int i = 0; i < buffers.length; i++) {
+            buffers[i] = getJar(null, jars[i]);
+        }
     }
 
     private static URL[] makeUrls() {
@@ -45,9 +51,11 @@ public class EmbeddedClassLoader extends URLClassLoader
     }
 
     public InputStream getResourceAsStream(String name) {
-        for (int i = 0; i < jarData.length; i++) {
-            byte[] j = jarData[i];
-            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(j));
+        for (int i = 0; i < buffers.length; i++) {
+            ByteBuffer bb = buffers[i];
+            bb.position(0);
+            ZipInputStream zis = new ZipInputStream(new ByteBufferInputStream(
+                    bb));
             ZipEntry ze = null;
             try {
                 while ((ze = zis.getNextEntry()) != null) {
@@ -64,13 +72,16 @@ public class EmbeddedClassLoader extends URLClassLoader
 
     protected Class findClass(String name) throws ClassNotFoundException {
         String cname = name.replace('.', '/').concat(".class");
-        for (int i = 0; i < jarData.length; i++) {
-            byte[] j = jarData[i];
-            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(j));
+        for (int i = 0; i < buffers.length; i++) {
+            ByteBuffer bb = buffers[i];
+            bb.position(0);
+            ZipInputStream zis = new ZipInputStream(new ByteBufferInputStream(
+                    bb));
             ZipEntry ze = null;
             try {
                 while ((ze = zis.getNextEntry()) != null) {
-                    if (cname.equals(ze.getName())) {
+                    String s = ze.getName();
+                    if (cname.equals(s)) {
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
                         byte[] buf = new byte[4096];
                         int len = 0;
@@ -88,4 +99,8 @@ public class EmbeddedClassLoader extends URLClassLoader
 
         throw new ClassNotFoundException(name);
     }
+
+    private static native ByteBuffer getJar(String library, String jarName);
+
+    private static native String[] listJars(String library);
 }

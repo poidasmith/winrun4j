@@ -19,7 +19,7 @@ public class GenerateCodeBuffer
     public static void main(String[] args) throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         InputStream is = EmbeddedClassLoader.class
-                .getResourceAsStream("EmbeddedClassLoader.class");
+                .getResourceAsStream("ByteBufferInputStream.class");
         copy(is, bos, true);
         byte[] b = bos.toByteArray();
         System.out.print("    ");
