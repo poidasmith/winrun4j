@@ -41,6 +41,11 @@ int main(int argc, char* argv[])
 	if(argc < 2) {
 		return PrintUsage();
 	}
+
+	// TODO 
+	//  - add checks on icon import to ensure a valid icon
+	//  - recognize more resource types when listing
+	//  - 
 	
 	if(strcmp(argv[1], "/I") == 0) {
 		if(argc != 4) return PrintUsage();

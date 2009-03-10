@@ -407,6 +407,42 @@ bool Resource::ListResources(LPSTR exeFile)
 			printf("Splash File\n");
 		} else if(lpType == RT_ACCELERATOR) {
 			printf("Accelerator\t%04x\n", lpName);
+		} else if(lpType == RT_ANICURSOR) {
+			printf("Ani Cursor\t%04x\n", lpName);
+		} else if(lpType == RT_ANIICON) {
+			printf("Ani Icon\t%04x\n", lpName);
+		} else if(lpType == RT_BITMAP) {
+			printf("Bitmap\t%04x\n", lpName);
+		} else if(lpType == RT_CURSOR) {
+			printf("Cursor\t%04x\n", lpName);
+		} else if(lpType == RT_DIALOG) {
+			printf("Dialog\t%04x\n", lpName);
+		} else if(lpType == RT_DLGINCLUDE) {
+			printf("Dialog Include\t%04x\n", lpName);
+		} else if(lpType == RT_FONT) {
+			printf("Font\t%04x\n", lpName);
+		} else if(lpType == RT_FONTDIR) {
+			printf("Font Dir\t%04x\n", lpName);
+		} else if(lpType == RT_HTML) {
+			printf("HTML\t%04x\n", lpName);
+		} else if(lpType == RT_GROUP_CURSOR) {
+			printf("Group Cursor\t%04x\n", lpName);
+		} else if(lpType == RT_MANIFEST) {
+			printf("Manifest\t%04x\n", lpName);
+		} else if(lpType == RT_MENU) {
+			printf("Menu\t%04x\n", lpName);
+		} else if(lpType == RT_MESSAGETABLE) {
+			printf("Message Table\t%04x\n", lpName);
+		} else if(lpType == RT_PLUGPLAY) {
+			printf("Plug Play\t%04x\n", lpName);
+		} else if(lpType == RT_RCDATA) {
+			printf("RC Data\t%04x\n", lpName);
+		} else if(lpType == RT_STRING) {
+			printf("String\t%04x\n", lpName);
+		} else if(lpType == RT_VERSION) {
+			printf("Version\t%04x\n", lpName);
+		} else if(lpType == RT_VXD) {
+			printf("VXD\t%04x\n", lpName);
 		} else {
 			printf("Unknown   \t%04x, %04x\n", lpType, lpName);
 		}
