@@ -1,6 +1,6 @@
 <project name="WinRun4J" default="build">
 	
-	<property name="release.dir" value="F:/Development/Releases/"/>
+	<property name="release.dir" value="F:\Development\Releases"/>
 	<property name="src.dir" value="F:\eclipse\workspace\WinRun4J"/>
 	<property name="release.name" value="winrun4J"/>
 	<property name="release.version" value="0.2.0"/>
@@ -80,7 +80,7 @@
 			</fileset>
 		</zip>
 		<delete dir="${release.dir}/${release.name}-${release.version}"/>
-		<mkdir dir="C:/Development/winrun4j-javadoc"/>
-		<javadoc sourcepath="java/src" packagenames="*" destdir="C:/Development/winrun4j-javadoc"/>
+		<mkdir dir="${release.dir}/winrun4j-javadoc"/>
+		<javadoc sourcepath="java/src" packagenames="*" destdir="${release.dir}/winrun4j-javadoc"/>
 	</target>
 </project>

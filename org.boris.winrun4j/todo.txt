@@ -19,6 +19,7 @@ winrun4j
 - check launch4j and others for their format for storing jars in exe and
   try to be compatible
 - add option to ini file whether overriding is allowed for embedded ini.
+- build 64 bit console version
 
     
 xlloop
@@ -49,4 +50,9 @@ expr4j
 - finish excel impl
 
 
-  
+pecoff4j
+========
+
+- assemblers
+- parsers 
+ 
