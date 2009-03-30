@@ -20,6 +20,7 @@ winrun4j
   try to be compatible
 - add option to ini file whether overriding is allowed for embedded ini.
 - build 64 bit console version
+- console version option to add "Press any key to continue..." at the end
 
     
 xlloop

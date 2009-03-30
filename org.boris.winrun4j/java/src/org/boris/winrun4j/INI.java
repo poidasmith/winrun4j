@@ -17,10 +17,10 @@ import java.util.Properties;
 public class INI
 {
     // Known INI keys
-    public static final String MODULE_NAME = "WinRun4J:ModuleName";
-    public static final String MODULE_INI = "WinRun4J:ModuleINI";
-    public static final String MODULE_DIR = "WinRun4J:ModuleDir";
-    public static final String INI_DIR = "WinRun4J:IniDir";
+    public static final String MODULE_NAME = "winrun4j:modulename";
+    public static final String MODULE_INI = "winrun4j:moduleini";
+    public static final String MODULE_DIR = "winrun4j:moduledir";
+    public static final String INI_DIR = "winrun4j:inidir";
     public static final String WORKING_DIR = ":working.directory";
 
     /**
