@@ -7,23 +7,17 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.classloader;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLStreamHandler;
 
-public class EmbeddedJarURLConnection extends URLConnection
+
+public class Handler extends URLStreamHandler
 {
-    protected EmbeddedJarURLConnection(URL url) {
-        super(url);
-    }
-
-    public void connect() throws IOException {
-    }
-
-    public InputStream getInputStream() throws IOException {
-        return null;
+    protected URLConnection openConnection(URL u) throws IOException {
+        return new EmbeddedJarURLConnection(u);
     }
 }
