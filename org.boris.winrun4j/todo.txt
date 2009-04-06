@@ -11,11 +11,16 @@ Resources
 - allow embedding of html to display if launcher cannot find appropriate
   java version
 - add an api for accessing arbitrary resources on an exe/module
+- associate a file type with secondary (or other) icon embedded.
+
+? Maybe integrate RCEDIT into winrun4j binary and remove existing run on itself
+  features. Should be minimal size overhead and would add useful features.  
 
 Splash Screen
 =============
 
 - allow user to write text to splash screen window
+- allow user to specify font and location of text
 - allow user to change splash image on the fly
 - allow user to store splash image in jar and specify via manifest
     (need a flag in INI: splash.searchManifest=true)
@@ -28,6 +33,7 @@ Build/Release
 
 OSGI Support
 ============
+
 - create an osgi launcher. start with eclipse. embedded launcher for directory
   of jars with versions etc...
   equinox.application=org.boris.xlloop.dataservice.XLLoopDataService
