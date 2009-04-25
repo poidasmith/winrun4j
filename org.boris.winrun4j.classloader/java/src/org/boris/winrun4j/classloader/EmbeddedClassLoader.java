@@ -50,6 +50,11 @@ public class EmbeddedClassLoader extends URLClassLoader
         return (URL[]) urls.toArray(new URL[0]);
     }
 
+    public URL findResource(String name) {
+
+        return null;
+    }
+
     public InputStream getResourceAsStream(String name) {
         for (int i = 0; i < buffers.length; i++) {
             ByteBuffer bb = buffers[i];
@@ -100,7 +105,7 @@ public class EmbeddedClassLoader extends URLClassLoader
         throw new ClassNotFoundException(name);
     }
 
-    private static native ByteBuffer getJar(String library, String jarName);
+    public static native ByteBuffer getJar(String library, String jarName);
 
-    private static native String[] listJars(String library);
+    public static native String[] listJars(String library);
 }

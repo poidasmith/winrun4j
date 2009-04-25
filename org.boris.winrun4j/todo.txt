@@ -30,6 +30,14 @@ Build/Release
 
 - build 64 bit console version
 - console version option to add "Press any key to continue..." at the end
+- possibly split out win32 features from core executable
+	* registry access
+	* event log
+	* resource access
+	* shell api
+	* possibly arbitrary function calls with callback support
+	* implement a wrapper api over win32 functions (eg. dde, com?, 
+	  shell)
 
 OSGI Support
 ============

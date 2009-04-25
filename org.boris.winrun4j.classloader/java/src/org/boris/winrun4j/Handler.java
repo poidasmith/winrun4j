@@ -7,7 +7,7 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.classloader;
+package org.boris.winrun4j;
 
 import java.io.IOException;
 import java.net.URL;

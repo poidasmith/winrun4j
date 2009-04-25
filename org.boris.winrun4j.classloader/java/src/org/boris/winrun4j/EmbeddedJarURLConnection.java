@@ -7,12 +7,15 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.classloader;
+package org.boris.winrun4j;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
+
+import org.boris.winrun4j.classloader.EmbeddedClassLoader;
 
 public class EmbeddedJarURLConnection extends URLConnection
 {
@@ -24,6 +27,11 @@ public class EmbeddedJarURLConnection extends URLConnection
     }
 
     public InputStream getInputStream() throws IOException {
-        return null;
+        ByteBuffer bb = EmbeddedClassLoader.getJar(null, url.getFile());
+        if (bb == null)
+            return null;
+        else
+            // TODO - search through zip for resource
+            return null;
     }
 }

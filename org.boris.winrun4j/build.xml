@@ -9,6 +9,7 @@
 	<target name="build">
 		<mkdir dir="${deploy.dir}"/>
 		<mkdir dir="${deploy.dir}/bin"/>
+        <copy tofile="${deploy.dir}/bin/RCEDIT.exe" file="${src.dir}/build/ResourceEditor-Release - Console/ResourceEditor.exe"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release/WinRun4J.exe"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release - Console/WinRun4Jc.exe"/>
 		<!-- <copy tofile="${deploy.dir}/bin/WinRun4J64.exe" file="${src.dir}/build/WinRun4J-Release-x64/WinRun4J.exe"/> -->

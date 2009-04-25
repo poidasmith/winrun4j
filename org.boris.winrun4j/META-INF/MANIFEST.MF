@@ -5,3 +5,4 @@ Bundle-SymbolicName: org.boris.winrun4j
 Bundle-Version: 0.2.0
 Export-Package: org.boris.winrun4j
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Bundle-Vendor: Boris Inc.
