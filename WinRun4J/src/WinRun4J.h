@@ -21,7 +21,6 @@
 #include "common/Log.h"
 #include "common/INI.h"
 #include "common/Dictionary.h"
-#include "common/Icon.h"
 #include "java/JNI.h"
 #include "java/VM.h"
 #include "java/Classpath.h"

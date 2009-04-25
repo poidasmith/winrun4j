@@ -141,6 +141,7 @@ void INI::ExpandVariables(dictionary* ini)
 	}
 }
 
+#ifndef NO_JAVA
 jobjectArray INI::GetKeys(JNIEnv* env, jobject self)
 {
 	jclass clazz = env->FindClass("java/lang/String");
@@ -193,4 +194,4 @@ bool INI::RegisterNatives(JNIEnv *env, bool useExcel)
 
 	return true;
 }
-
+#endif

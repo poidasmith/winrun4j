@@ -38,16 +38,21 @@ public:
 	static void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index);
 	static dictionary* LoadIniFile(HINSTANCE hInstance);
 	static dictionary* LoadIniFile(HINSTANCE hInstance, LPSTR inifile);
+
+#ifndef NO_JAVA
 	static bool RegisterNatives(JNIEnv *env, bool useExcel = false);
+#endif
 
 private:
 	static bool StrTrimInChars(LPSTR trimChars, char c);
 	static void StrTrim(LPSTR str, LPSTR trimChars);
 	static void ExpandVariables(dictionary* ini);
 
+#ifndef NO_JAVA
 	// JNI functions
 	static jstring GetKey(JNIEnv* env, jobject self, jstring key);
 	static jobjectArray GetKeys(JNIEnv* env, jobject self);
+#endif
 };
 
 #endif // INI_H

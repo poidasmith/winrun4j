@@ -37,6 +37,7 @@ struct Log {
 private:
 	static void LogIt(LoggingLevel loggingLevel, const char* marker, const char* format, va_list args);
 	static void RedirectIOToConsole();
+
 #ifndef NO_JAVA
 	static void JNICALL LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str);
 	static void JNICALL SetLastErrorJ(JNIEnv* env, jobject self, jstring str);

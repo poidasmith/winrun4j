@@ -708,10 +708,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\common\Icon.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\common\INI.cpp"
 				>
 			</File>
@@ -771,10 +767,6 @@
 			</File>
 			<File
 				RelativePath="..\src\launcher\EventLog.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\common\Icon.h"
 				>
 			</File>
 			<File
