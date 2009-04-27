@@ -7,7 +7,7 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.res;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 
+import org.boris.winrun4j.classloader.ByteBufferInputStream;
 import org.boris.winrun4j.classloader.EmbeddedClassLoader;
 
 public class EmbeddedJarURLConnection extends URLConnection
@@ -31,7 +32,6 @@ public class EmbeddedJarURLConnection extends URLConnection
         if (bb == null)
             return null;
         else
-            // TODO - search through zip for resource
-            return null;
+            return new ByteBufferInputStream(bb);
     }
 }

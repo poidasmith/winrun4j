@@ -13,6 +13,7 @@
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release/WinRun4J.exe"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/WinRun4J-Release - Console/WinRun4Jc.exe"/>
 		<copy tofile="${deploy.dir}/bin/WinRun4J64.exe" file="${src.dir}/build/WinRun4J-Release-x64/WinRun4J.exe"/>
+		<copy tofile="${deploy.dir}/bin/WinRun4J64c.exe" file="${src.dir}/build/WinRun4J-Release - Console-x64/WinRun4Jc.exe"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/test/WinRun4J.ini"/>
 		<copy tofile="${deploy.dir}/bin/WinRun4J64.ini" file="${src.dir}/test/WinRun4J.ini"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/SplashScreen.gif"/>
@@ -28,6 +29,9 @@
 		</jar>
 		<jar destfile="${deploy.dir}/src/WinRun4J-src.jar">
 			<fileset dir="java/src">
+				<include name="**/*.java"/>
+			</fileset>
+			<fileset dir="../org.boris.winrun4j.classloader/java/src">
 				<include name="**/*.java"/>
 			</fileset>
 		</jar>

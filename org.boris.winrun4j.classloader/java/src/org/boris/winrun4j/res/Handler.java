@@ -7,13 +7,12 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.res;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
-
 
 public class Handler extends URLStreamHandler
 {
