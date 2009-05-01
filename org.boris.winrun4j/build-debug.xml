@@ -1,0 +1,15 @@
+<project name="WinRun4J-Debug" default="build">
+	
+	<property name="release.dir" value="c:\Development\Releases"/>
+	<property name="src.dir" value="c:\eclipse\workspace\WinRun4J"/>
+	<property name="release.name" value="winrun4J"/>
+	<property name="release.version" value="0.2.0"/>
+	
+	<target name="build">
+		<zip destfile="${release.dir}\${release.name}-debug-${release.version}.zip">
+            <fileset dir="${src.dir}\build">
+            	<include name="WinRun4J-Debug*/*.exe"/>
+            </fileset>
+		</zip>
+	</target>
+</project>
