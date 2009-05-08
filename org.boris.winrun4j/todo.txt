@@ -38,6 +38,8 @@ Build/Release
 	* possibly arbitrary function calls with callback support
 	* implement a wrapper api over win32 functions (eg. dde, com?, 
 	  shell)
+- look at supporting an open source VM impl. possibly build a version that includes
+  a VM (ie. statically link the VM to the executable). maybe jamvm.
 
 OSGI Support
 ============
