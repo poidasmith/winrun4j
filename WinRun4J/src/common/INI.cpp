@@ -95,7 +95,7 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 	iniparser_setstr(ini, MODULE_NAME, filename);
 
 	// Log init
-	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL));
+	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL), ini);
 	Log::Info("Module Name: %s", filename);
 	Log::Info("Module INI: %s", inifile);
 

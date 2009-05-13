@@ -17,8 +17,6 @@
 #include "../java/VM.h"
 #include "../java/JNI.h"
 
-using namespace std;
-
 static const WORD MAX_CONSOLE_LINES = 500;
 static BOOL haveInit = FALSE;
 static BOOL canUseConsole = FALSE;
@@ -29,6 +27,8 @@ static bool g_error = false;
 static char g_errorText[MAX_PATH];
 
 typedef BOOL (__stdcall *FPTR_AttachConsole) ( DWORD );
+
+#define LOG_OVERWRITE_OPTION ":log.overwrite"
 
 void Log::RedirectIOToConsole()
 {
@@ -54,7 +54,7 @@ void Log::RedirectIOToConsole()
 	setvbuf( stderr, NULL, _IONBF, 0 );
 }
 
-void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
+void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, dictionary* ini)
 {
 	if(loglevel == NULL) {
 		level = info;
@@ -69,6 +69,32 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 	} else {
 		level = info;
 		Warning("log.level unrecognized");
+	}
+
+	// If there is a log file specified redirect std streams to this file
+	if(logfile != NULL) {
+		char* logOverwriteOption;
+		logOverwriteOption = iniparser_getstring(ini, LOG_OVERWRITE_OPTION, "no");
+		const char* fmode="a";
+		if (!stricmp(logOverwriteOption, "y") || 
+			!stricmp(logOverwriteOption, "yes") ||
+			!stricmp(logOverwriteOption, "true")) fmode = "w+";
+		freopen(logfile, fmode, stdout);
+		HANDLE lf = CreateFile(logile, access, sharemode, NULL, NULL, flags, NULL);
+		FILE* log = freopen(logfile, fmode, stderr);
+		if (log != NULL) {
+			HANDLE h = (HANDLE)_get_osfhandle(_fileno(log));
+			if (h != INVALID_HANDLE_VALUE) {
+				SetStdHandle(STD_OUTPUT_HANDLE, h);
+				SetStdHandle(STD_ERROR_HANDLE, h);
+				*stdout = *log;
+				*stderr = *log;
+			}
+		}
+
+		setvbuf( stdout, NULL, _IONBF, 0 );
+		setvbuf( stderr, NULL, _IONBF, 0 );
+		setvbuf(log, NULL, _IONBF, 0 );
 	}
 
 #ifndef CONSOLE
@@ -97,12 +123,6 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel)
 		haveInit = TRUE;
 	}
 #endif
-
-	// If there is a log file specified redirect std streams to this file
-	if(logfile != NULL) {
-		freopen(logfile, "a", stdout);
-		freopen(logfile, "a", stderr);
-	}
 }
 
 // enum LoggingLevel { info = 0, warning = 1, error = 2, none = 3 };

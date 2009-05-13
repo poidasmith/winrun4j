@@ -51,6 +51,12 @@ pre
     padding: 5px;
     background-color: #f0f0f0;
 }
+code
+{
+	margin: 2px;
+	color: #000;
+	background-color: #f0f0f0;
+}
 table, tr, td, th
 {
 	border-collapse: collapse;

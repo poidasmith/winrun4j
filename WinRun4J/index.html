@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>WinRun4J</title>
-		<link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon"/>
+		<link rel="shortcut icon" href="http://winrun4j.sourceforge.net/favicon.ico" type="image/vnd.microsoft.icon"/>
 		<link rel="stylesheet" href="style.css" type="text/css"/>
 		<meta name="description" content="Configurable java launcher for windows"/>
 		<meta name="keywords" content="java, launcher, windows, icon, splash, screen, memory, open source"/>
@@ -31,7 +31,16 @@
 						<li>Windows EventLog API</li> 
 						<li>Console version</li>
 						<li>JNI library for INI access, splash screen, logger, registry, shell.</li>
+						<li>Support for 64-bit JVM.</li>
 				</ul>
+				<b>
+				New Features:
+				<ul>
+					<li>Supports embedding (inside the executable) the INI file. See <a href="#Embed">Embedded Resources</a> section below.</li>
+					<li>Supports embedding a splash image.</li>
+					<li>Supports embedding JAR files. These will be included in the classpath (without extraction). This is currently BETA quality.</li>
+				</ul>
+				</b>
 				<p>
 					WinRun4J is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
 				</p>
@@ -52,10 +61,11 @@
 					<li>Create [YourApp].ini (in the same directory)</li>
 					<li>Customize [YourApp].ini (see the table below for information)</li>
 					<li>Create [YourApp].ico (in the same directory)</li>
-					<li>Run [YourApp].exe --WinRun4J:SetIcon (this will inject your icon into the executable).</li>
+					<li>Run <code>RCEDIT.exe /I [YourApp].exe [YourApp].ico</code> (this will inject your icon into the executable).</li>
 					<li>Launch [YourApp].exe</li>
 				</ol>
 				The INI file accepts the following settings:
+				<br/><br/>
 				<table>
 					<tr><th>Key</th><th>Description</th></tr>
 					<tr>
@@ -143,6 +153,18 @@ given the physical memory available.</td>
 						<td>Override the DDE server name, topic and window class.</td>
 					</tr>
 					<tr>
+						<td>single.instance</td>
+						<td>
+						This will detect another instance of the application running and will shutdown if one is found.<br/>
+						It takes the following options:
+						<ul>
+						<li>"process", this will simply detect if a process for the same executable is present and shutdown.</li>
+						<li>"window", this will detect if a process for the same executable is present and if there is a visible window - if this is the case it will set the window to the front and then shutdown.</li>
+						<li>"dde", this will simply detect if a process for the same executable and if dde is enabled it will fire a dde activation call (and then shutdown), which can be picked up by the other process. If dde is not enabled it will simply defer to the "window" method.</li>
+						</ul>
+						</td>
+					</tr>					
+					<tr>
 						<td>service.class</td>
 						<td>This is the java class that will be run (for a service)</td>
 					</tr>
@@ -150,7 +172,83 @@ given the physical memory available.</td>
 						<td>service.id</td>
 						<td>This is the ID of the service (used for registration)</td>
 					</tr>
+					<tr>
+						<td>service.startup</td>
+						<td>Can be one of "auto", "boot", "demand", "disabled", "system". The default is "demand"</td>
+					</tr>
+					<tr>
+						<td>service.dependency.1, service.dependency.2, ....</td>
+						<td>Specifies a set of services that this service depends on.</td>
+					</tr>
+					<tr>
+						<td>service.loadordergroup</td>
+						<td>Specifies the service's load order group.</td>
+					</tr>
+					<tr>
+						<td>service.user</td>
+						<td>Specifies the account to run the service under.</td>
+					</tr>
+					<tr>
+						<td>service.password</td>
+						<td>Specifies the password for the user account.</td>
+					</tr>
 				</table>
+			</div>
+		</div>
+		<div class="section">
+			<div class="section-title">Error Messages</div>
+			<div class="section-content">
+				Error messages emitted by the launcher can be customized via the INI file. These can be placed in an "[ErrorMessages]" section:
+				<br/><br/>
+				<table>
+					<tr><th>Key</th><th>Description</th></tr>
+					<tr>
+						<td>java.not.found</td>
+						<td>This message will be displayed as a message box popup when the launcher cannot find an appropriate JVM to load.</td>
+					</tr>
+					<tr>
+						<td>java.failed</td>
+						<td>This message will be displayed as a message box popup when the JVM fails to startup, for example if invalid VM args are entered in the INI file</td>
+					</tr>
+				</table>
+			</div>
+			<br/><br/>
+			An example is as follows:
+		<pre>
+[ErrorMessages]
+java.not.found=A suitable version of Java could not be found on your system. Please contact VendorX.
+java.failed=Java failed to startup successfully. Please contact VendorX.
+		</pre>
+		</div>
+		<div class="section">
+			<div class="section-title"><a name="Embed"></a>Embedded Resources</div>
+			<div class="section-content">
+			The following shows the help information for RCEDIT, the resource editor included in the download:
+<pre>
+WinRun4J Resource Editor v1.0 (winrun4j.sf.net)
+
+Edits resources in executables (EXE) and dynamic link-libraries (DLL).
+
+RCEDIT &lt;option&gt; &lt;exe/dll&gt; [resource]
+
+  filename      Specifies the filename of the EXE/DLL.
+  resource      Specifies the name of the resource to add to the EXE/DLL.
+  /I            Set the icon as the default icon for the executable.
+  /A            Adds an icon to the EXE/DLL.
+  /N            Sets the INI file.
+  /J            Adds a JAR file.
+  /E            Extracts a JAR file from the EXE/DLL.
+  /S            Sets the splash image.
+  /C            Clears all resources from the EXE/DLL.
+  /L            Lists the resources in the EXE/DLL.
+  /P            Outputs the contents of the INI file in the EXE.
+</pre>
+Note: 
+<ul>
+	<li>The embedded INI entries are overwridden by an external INI file (if present).</li>
+	<li>Any JARs added to the executable will automatically be added to the classpath (before all classpath entries specified in the INI file and in the order in which they are embedded). They don't need to be specified in the INI file.</li>
+	<li>If an embedded splash image is present it will automatically appear (it doesn't need to be specified in the INI file).</li>
+</ul>	
 			</div>
 		</div>
 		<div class="section">
@@ -183,7 +281,7 @@ vm.heapsize.percent=80
 			<div class="section-content">
 				<p>
 					The download includes an alternative launcher for Eclipse that enables DDE. This allows
-					the user to double-click on a (eg.) java file in Windows explorer and have the file
+					the user to double-click on a java file in Windows explorer and have the file
 					open in the currently opened workspace.
 				</p>
 				<p>
@@ -191,9 +289,9 @@ vm.heapsize.percent=80
 					<ol>
 						<li>In your eclipse directory rename eclipse.exe to eclipse.exe.old and rename eclipse.ini to eclipse.ini.old.</li>
 						<li>Copy WinRun4J.exe, EcliseDDE.jar, eclipse.ico and eclipse.ini from to downloaded zip file to your eclipse directory.</li>
-						<li>Rename WinRun4J.exe to eclipse.exe.</li>
-						<li>Run eclipse.exe --WinRun4J:SetIcon. This will change the exectable icon to the eclipse icon.</li>
-						<li>Run eclipse.exe --WinRun4J:RegisterFileAssocations. This will register java files to be associated with eclipse.</li>
+						<li>Rename <code>WinRun4J.exe</code> to <code>eclipse.exe</code>.</li>
+						<li>Run <code>RCEDIT.exe /I eclipse.exe eclipse.ico</code>. This will change the exectable icon to the eclipse icon.</li>
+						<li>Run <code>eclipse.exe --WinRun4J:RegisterFileAssociations</code>. This will register java files to be associated with eclipse.</li>
 					</ol>
 					You should now be able to double-click on java files in Windows.
 				</p>
@@ -224,13 +322,13 @@ file.1.description=Java Source File
 					The download contains a simple example of a windows service. Its only function is to
 					log to the Windows Event Log every five minutes. To run the example:
 					<ol>
-						<li>Create a test directory C:/test.</li>
-						<li>Copy WinRun4Jc.exe to C:/test and rename to service.exe.</li>
-						<li>Copy service.ini to C:/test.</li>
-						<li>Copy WinRun4JTest.jar to C:/test.</li>
-						<li>Run service.exe --WinRun4J:RegisterService. </li>
+						<li>Create a test directory <code>C:/test</code>.</li>
+						<li>Copy <code>WinRun4Jc.exe</code> to <code>C:/test</code> and rename to <code>service.exe</code>.</li>
+						<li>Copy <code>service.ini</code> to <code>C:/test</code>.</li>
+						<li>Copy <code>WinRun4JTest.jar</code> to <code>C:/test</code>.</li>
+						<li>Run <code>service.exe --WinRun4J:RegisterService</code>. </li>
 						<li>To start/stop the service use the control panel services console (The service name will be "WinRun4J Test Service")</li>
-						<li>To unregister run service.exe --WinRun4J:UnregisterService.</li>
+						<li>To unregister run <code>service.exe --WinRun4J:UnregisterService</code>.</li>
 					</ol>
 				</p>
 				<p>
@@ -297,63 +395,22 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
-				V0.1.4
+				V0.2
 				<ul>
-					<li>More fixes for DDE execution on startup.</li>
-					<li>Added support for IBM JRE.</li>
+					<li>Support embedding of INI, splash and JAR files.</li>
+					<li>Improvements to logging output format.</li>
+					<li>Fixes for runtime library dependencies.</li>
+					<li>Improved handling of exceptions on startup and exit.</li>
+					<li>Built-in Icon changer moved to separate executable.</li>
+					<li>64-Bit console version.</li>
 				</ul>
-				V0.1.3
+				V0.1.10
 				<ul>
-					<li>Fixes for DDE execution on startup.</li>
+					<li>Improvements to DDE (plus fix for Eclipse launcher).</li>
+					<li>Extra checks for Sun VM runtime library bugs.</li>
+					<li>Fixes for icon setting race condition.</li>
 				</ul>
-				V0.1.2
-				<ul>
-					<li>Improvements to examples.</li>
-					<li>Experimental 64bit build.</li>
-					<li>Fix to CPP source files in package.</li>
-				</ul>
-				V0.1.1
-				<ul>
-					<li>Fixed bug in console logger.</li>
-				</ul>
-				V0.1.0
-				<ul>
-					<li>Added DDE for file assocations (with Eclipse java file association example).</li>
-					<li>Added Service wrapper.</li>
-					<li>Added Event Log API.</li>
-					<li>Added Registry API.</li>
-					<li>Reduced EXE size (using <a href="http://wcrt.sourceforge.net">wcrt</a>).</li>
-					<li>Added console version.</li>
-					<li>Environment variables can be used in INI file (eg. %TEMP%).</li>
-					<li>Fix for "." in classpath</li>
-					<li>Improved classpath handling with nested wildcards<li>
-					<li>Flag to disable splash screen autohide</li>
-				</ul>
-				V0.0.5
-				<ul>
-					<li>Added vm.location key.</li>
-				</ul>
-				V0.0.4
-				<ul>
-					<li>Fixes splash screen window not being destroyed.</li>
-				</ul>
-				V0.0.3
-				<ul>
-					<li>Added JNI access to INI file contents.</li>
-					<li>Added splash screen with auto-hide.</li>
-					<li>Added JNI access to the splash screen.</li>
-				</ul>
-				V0.0.2
-				<ul>
-					<li>Added VM version arguments to allow specification of minimum version, maximum version or exact version.</li>
-					<li>Add VM proportional heap size argument.</li>
-					<li>Added logging level.</li>
-					<li>Improved icon changer (no rename required).</li>
-				</ul>
-				V0.0.1
-				<ul>
-					<li>Initial release.</li>
-				</ul>
+				<a href="oldchangehistory.html">Older Change History</a>
 			</div>
 		</div>
 		<div class="section">
@@ -361,15 +418,31 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 			<div class="section-content">
 			<ul>
 				<li>Peter Smith</li>
+				<li>Karl von Randow</li>
+				<li><a href="http://www.aquafold.com/">AquaFold</a>, launcher used in Aqua Data Studio.
+				<li>Frederic Canut</li>
 			</ul>
 			</div>
 		</div>
 	</div>
-	
-	<div id="footer">
-		<p>
-			<a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=195634&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
-		</p>
-	</div>
+    <div id="footer">
+		<div class="footer"/>
+		<table style="border:0px;width:750px">
+		<tr style="border:0px;vertical-align:top">
+		<td style="border:0px;vertical-align:top;width:619px">
+        <a href="http://www.opensource.org/docs/definition.php"><img border="0" alt="Open Source" src="http://opensource.org/trademarks/open_source_button.png" style="width:88px;height:31px" /></a>
+        <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=222420&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
+        </td>
+        <td align="right" style="border:0px;vertical-align:top">
+        <a href="http://winrun4j.sourceforge.net/"><img border="0" alt="WinRun4J - Configurable Java Launcher for Windows" src="others/winrun4j.gif"/></a>
+        <a href="http://xlloop.sourceforge.net/"><img border="0" alt="XLLoop - Excel Functions in Java, Javascript, Ruby, Python, Erlang" src="others/xlloop.gif"/></a>
+        <a href="http://variantcodec.sourceforge.net/"><img border="0" alt="VariantCodec - Generic Data Structure Serialization Library for Java" src="others/variantcodec.gif"/></a>
+        <a href="http://jvst.sourceforge.net/"><img border="0" alt="JVST - VST Interface for Java" src="others/jvst.gif"/></a>
+        <a href="http://jxll.sourceforge.net/"><img border="0" alt="JXLL - Excel Addin Interaction Library" src="others/jxll.gif"/></a>
+        <a href="http://expr4j.sourceforge.net/"><img border="0" alt="Expr4J - Expression Calculation Engine for Java" src="others/expr4j.gif"/></a>
+        </td>
+        </tr>
+        </table>
+    </div>
 </body>
 </html>

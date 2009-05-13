@@ -221,4 +221,14 @@ extern "C" int _cdecl _open_osfhandle(int c)
 	return c;
 }
 
+extern "C" int __cdecl _fileno(FILE* _File)
+{
+	return _File->_file;
+}
+
+HANDLE __cdecl _get_osfhandle(int _FileHandle)
+{
+	return _FileHandle;
+}
+
 #endif 

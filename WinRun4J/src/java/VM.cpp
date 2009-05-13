@@ -57,6 +57,8 @@ char* VM::FindJavaVMLibrary(dictionary *ini)
 		HMODULE module = LoadLibrary(vmLocation);
 		if(module != NULL)
 			return vmLocation;
+		else
+			return NULL;
 	}
 
 	return GetJavaVMLibrary(iniparser_getstr(ini, VM_VERSION), iniparser_getstr(ini, VM_VERSION_MIN), iniparser_getstr(ini, VM_VERSION_MAX));

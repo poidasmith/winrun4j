@@ -230,7 +230,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	WinRun4J::SetWorkingDirectory(ini);
 
 	// Now initialise the logger using std streams + specified log dir
-	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL));
+	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL), ini);
 
 	// Display the splash screen if present
 	SplashScreen::ShowSplashImage(hInstance, ini);
@@ -314,7 +314,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 #endif
 
 	// Initialise the logger using std streams
-	Log::Init(hInstance, NULL, NULL);
+	Log::Init(hInstance, NULL, NULL, NULL);
 
 	// Check for Builtin commands
 	if(IsBuiltInCommand(lpCmdLine)) {
