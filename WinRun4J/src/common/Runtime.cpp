@@ -228,7 +228,7 @@ extern "C" int __cdecl _fileno(FILE* _File)
 
 HANDLE __cdecl _get_osfhandle(int _FileHandle)
 {
-	return _FileHandle;
+	return (HANDLE) _FileHandle;
 }
 
 #endif 

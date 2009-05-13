@@ -75,26 +75,23 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 	if(logfile != NULL) {
 		char* logOverwriteOption;
 		logOverwriteOption = iniparser_getstring(ini, LOG_OVERWRITE_OPTION, "no");
-		const char* fmode="a";
+		DWORD dwCreationDisp = OPEN_ALWAYS;
 		if (!stricmp(logOverwriteOption, "y") || 
 			!stricmp(logOverwriteOption, "yes") ||
-			!stricmp(logOverwriteOption, "true")) fmode = "w+";
-		freopen(logfile, fmode, stdout);
-		HANDLE lf = CreateFile(logile, access, sharemode, NULL, NULL, flags, NULL);
-		FILE* log = freopen(logfile, fmode, stderr);
-		if (log != NULL) {
-			HANDLE h = (HANDLE)_get_osfhandle(_fileno(log));
-			if (h != INVALID_HANDLE_VALUE) {
-				SetStdHandle(STD_OUTPUT_HANDLE, h);
-				SetStdHandle(STD_ERROR_HANDLE, h);
-				*stdout = *log;
-				*stderr = *log;
-			}
+			!stricmp(logOverwriteOption, "true")) dwCreationDisp = TRUNCATE_EXISTING;
+		HANDLE h = CreateFile(logfile, GENERIC_ALL, FILE_SHARE_WRITE, NULL, dwCreationDisp, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (h != INVALID_HANDLE_VALUE) {
+			SetStdHandle(STD_OUTPUT_HANDLE, h);
+			SetStdHandle(STD_ERROR_HANDLE, h);
+			int oh = _open_osfhandle((long) h, _O_TEXT);
+			FILE* fp = _fdopen(oh, dwCreationDisp == OPEN_ALWAYS ? "a+" : "w");
+			*stdout = *fp;
+			*stderr = *fp;
 		}
 
 		setvbuf( stdout, NULL, _IONBF, 0 );
 		setvbuf( stderr, NULL, _IONBF, 0 );
-		setvbuf(log, NULL, _IONBF, 0 );
+		//setvbuf(log, NULL, _IONBF, 0 );
 	}
 
 #ifndef CONSOLE
