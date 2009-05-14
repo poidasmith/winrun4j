@@ -36,7 +36,7 @@ int PrintUsage()
 int main(int argc, char* argv[])
 {
 	// Initialize the logger to dump to stdout
-	Log::Init(GetModuleHandle(NULL), 0, 0);
+	Log::Init(GetModuleHandle(NULL), 0, 0, 0);
 
 	if(argc < 2) {
 		return PrintUsage();

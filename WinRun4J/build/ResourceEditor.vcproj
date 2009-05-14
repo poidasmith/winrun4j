@@ -308,6 +308,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\src\common\Dictionary.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\common\INI.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\common\Log.cpp"
 				>
 			</File>
@@ -329,6 +337,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\src\common\Dictionary.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\common\INI.h"
+				>
+			</File>
 			<File
 				RelativePath="..\src\common\Log.h"
 				>

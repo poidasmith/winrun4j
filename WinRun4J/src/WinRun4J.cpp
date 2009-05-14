@@ -229,9 +229,6 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	// Set the current working directory if specified
 	WinRun4J::SetWorkingDirectory(ini);
 
-	// Now initialise the logger using std streams + specified log dir
-	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL), ini);
-
 	// Display the splash screen if present
 	SplashScreen::ShowSplashImage(hInstance, ini);
 

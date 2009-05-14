@@ -212,6 +212,8 @@ extern "C" FILE* _cdecl _fdopen(int fd, const char *mode)
 	ret->_cnt = 0;
 	ret->_ptr = NULL;
 	ret->_flag = _IOREAD | _IOWRT;
+	ret->_bufsiz = 0;
+	ret->_charbuf = 0;
 
 	return ret;
 }

@@ -21,7 +21,7 @@ static const WORD MAX_CONSOLE_LINES = 500;
 static BOOL haveInit = FALSE;
 static BOOL canUseConsole = FALSE;
 static BOOL haveConsole = FALSE;
-static FILE* fp = NULL;
+static HANDLE g_logfileHandle = NULL;
 static LoggingLevel level = none; 
 static bool g_error = false;
 static char g_errorText[MAX_PATH];
@@ -74,24 +74,21 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 	// If there is a log file specified redirect std streams to this file
 	if(logfile != NULL) {
 		char* logOverwriteOption;
-		logOverwriteOption = iniparser_getstring(ini, LOG_OVERWRITE_OPTION, "no");
-		DWORD dwCreationDisp = OPEN_ALWAYS;
-		if (!stricmp(logOverwriteOption, "y") || 
-			!stricmp(logOverwriteOption, "yes") ||
-			!stricmp(logOverwriteOption, "true")) dwCreationDisp = TRUNCATE_EXISTING;
-		HANDLE h = CreateFile(logfile, GENERIC_ALL, FILE_SHARE_WRITE, NULL, dwCreationDisp, FILE_ATTRIBUTE_NORMAL, NULL);
-		if (h != INVALID_HANDLE_VALUE) {
-			SetStdHandle(STD_OUTPUT_HANDLE, h);
-			SetStdHandle(STD_ERROR_HANDLE, h);
-			int oh = _open_osfhandle((long) h, _O_TEXT);
-			FILE* fp = _fdopen(oh, dwCreationDisp == OPEN_ALWAYS ? "a+" : "w");
-			*stdout = *fp;
-			*stderr = *fp;
+		logOverwriteOption = iniparser_getstr(ini, LOG_OVERWRITE_OPTION);
+		bool overwrite = false;
+		if (logOverwriteOption || stricmp(logOverwriteOption, "y")==0 || 
+			stricmp(logOverwriteOption, "yes")==0 ||
+			stricmp(logOverwriteOption, "true")==0) {
+				overwrite = true;
 		}
-
-		setvbuf( stdout, NULL, _IONBF, 0 );
-		setvbuf( stderr, NULL, _IONBF, 0 );
-		//setvbuf(log, NULL, _IONBF, 0 );
+		g_logfileHandle = CreateFile(logfile, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS, 
+				FILE_ATTRIBUTE_NORMAL, NULL);
+		if (g_logfileHandle != INVALID_HANDLE_VALUE) {
+			if(!overwrite) SetFilePointer(g_logfileHandle, 0, NULL, FILE_END);
+			// Redirect STD streams to log file
+			SetStdHandle(STD_OUTPUT_HANDLE, g_logfileHandle);
+			SetStdHandle(STD_ERROR_HANDLE, g_logfileHandle);
+		}
 	}
 
 #ifndef CONSOLE
@@ -101,7 +98,7 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 	if (result && ver.dwMajorVersion > 5 || (ver.dwMajorVersion == 5 && ver.dwMinorVersion > 0))
 		canUseConsole = TRUE;
 
-	if(!haveInit) {
+	if(!haveInit && !logfile) {
 		if(canUseConsole) {
 			// Attempt to attach to parent console (if function is present)
 			HMODULE hModule = GetModuleHandle("kernel32");
@@ -111,7 +108,7 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 					haveConsole = AttachConsole(-1);
 					if(haveConsole) {
 						AllocConsole();
-						RedirectIOToConsole();
+						//RedirectIOToConsole();
 						printf("\n\n");
 					}
 				}
@@ -138,13 +135,26 @@ void Log::LogIt(LoggingLevel loggingLevel, const char* marker, const char* forma
 	OutputDebugString(tmp);
 	OutputDebugString("\n");
 #endif
+	DWORD dwRead;
 	if(marker) {
-		printf(marker);
-		printf(" ");
+		if(g_logfileHandle) {
+			WriteFile(g_logfileHandle, marker, strlen(marker), &dwRead, NULL);
+			WriteFile(g_logfileHandle, " ", 1, &dwRead, NULL);
+		} else {
+			printf(marker);
+			printf(" ");
+		}
 	}
-	puts(tmp);
-	fflush(stdout);
-	fflush(stderr);
+	if(g_logfileHandle) {
+		WriteFile(g_logfileHandle, tmp, strlen(tmp), &dwRead, NULL);
+		WriteFile(g_logfileHandle, "\r\n", 2, &dwRead, NULL);
+		FlushFileBuffers(g_logfileHandle);
+	}
+	else {
+		puts(tmp);
+		fflush(stdout);
+		fflush(stderr);
+	}
 }
 
 void Log::SetLevel(LoggingLevel loggingLevel) 
@@ -189,9 +199,9 @@ void Log::Error(const char* format, ...)
 
 void Log::Close() 
 {
-	if(fp != NULL) {
-		fflush(fp);
-		fclose(fp);
+	if(g_logfileHandle) {
+		CloseHandle(g_logfileHandle);
+		g_logfileHandle = NULL;
 	}
 }
 
