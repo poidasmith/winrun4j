@@ -53,12 +53,30 @@ char* VM::FindJavaVMLibrary(dictionary *ini)
 	char* vmLocation = iniparser_getstr(ini, VM_LOCATION);
 	if(vmLocation != NULL)
 	{
-		// Check if file is valid
-		HMODULE module = LoadLibrary(vmLocation);
-		if(module != NULL)
-			return vmLocation;
-		else
+		// If the working.dir is not specified then we assume the vm location is relative to the
+		// module dir
+		char defWorkingDir[MAX_PATH];
+		char* workingDir = iniparser_getstr(ini, WORKING_DIR);
+		if(!workingDir) {
+			GetCurrentDirectory(MAX_PATH, defWorkingDir);
+			SetCurrentDirectory(iniparser_getstr(ini, MODULE_DIR));
+		}
+
+		// Check if file is valid (ie. accessible or present)
+		DWORD fileAttr = GetFileAttributes(vmLocation);
+		if(fileAttr == INVALID_FILE_ATTRIBUTES) {
 			return NULL;
+		}
+
+		char vmFull[MAX_PATH];
+		GetFullPathName(vmLocation, MAX_PATH, vmFull, NULL);
+
+		// Reset working dir if set
+		if(!workingDir) {
+			SetCurrentDirectory(defWorkingDir);
+		}
+
+		return strdup(vmFull);
 	}
 
 	return GetJavaVMLibrary(iniparser_getstr(ini, VM_VERSION), iniparser_getstr(ini, VM_VERSION_MIN), iniparser_getstr(ini, VM_VERSION_MAX));
