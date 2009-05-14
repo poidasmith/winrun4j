@@ -259,8 +259,9 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	else
 		JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
-	// Check for exception
-	JNI::PrintStackTrace(env);
+	// Check for exception - if not a service
+	if(serviceCls == NULL)
+		JNI::PrintStackTrace(env);
 
 	if (ddeInit) DDE::Ready();
 	

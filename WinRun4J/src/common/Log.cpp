@@ -73,6 +73,13 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 
 	// If there is a log file specified redirect std streams to this file
 	if(logfile != NULL) {
+		char defWorkingDir[MAX_PATH];
+		GetCurrentDirectory(MAX_PATH, defWorkingDir);
+		char* workingDir = iniparser_getstr(ini, WORKING_DIR);
+		if(workingDir) {
+			SetCurrentDirectory(iniparser_getstr(ini, MODULE_DIR));
+			SetCurrentDirectory(workingDir);
+		}
 		char* logOverwriteOption;
 		logOverwriteOption = iniparser_getstr(ini, LOG_OVERWRITE_OPTION);
 		bool overwrite = false;
@@ -81,13 +88,17 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 			stricmp(logOverwriteOption, "true")==0) {
 				overwrite = true;
 		}
-		g_logfileHandle = CreateFile(logfile, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS, 
+		g_logfileHandle = CreateFile(logfile, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, NULL, 
+				overwrite ? CREATE_ALWAYS : OPEN_ALWAYS, 
 				FILE_ATTRIBUTE_NORMAL, NULL);
 		if (g_logfileHandle != INVALID_HANDLE_VALUE) {
-			if(!overwrite) SetFilePointer(g_logfileHandle, 0, NULL, FILE_END);
+			SetFilePointer(g_logfileHandle, 0, NULL, overwrite ? FILE_BEGIN : FILE_END);
 			// Redirect STD streams to log file
 			SetStdHandle(STD_OUTPUT_HANDLE, g_logfileHandle);
 			SetStdHandle(STD_ERROR_HANDLE, g_logfileHandle);
+		}
+		if(workingDir) {
+			SetCurrentDirectory(defWorkingDir);
 		}
 	}
 

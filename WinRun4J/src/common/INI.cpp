@@ -94,11 +94,6 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 	GetModuleFileName(hInstance, filename, MAX_PATH);
 	iniparser_setstr(ini, MODULE_NAME, filename);
 
-	// Log init
-	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL), ini);
-	Log::Info("Module Name: %s", filename);
-	Log::Info("Module INI: %s", inifile);
-
 	// strip off filename to get module directory
 	strcpy(filedir, filename);
 	for(int i = strlen(filename) - 1; i >= 0; i--) {
@@ -108,6 +103,11 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 		}
 	}
 	iniparser_setstr(ini, MODULE_DIR, filedir);
+
+	// Log init
+	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL), ini);
+	Log::Info("Module Name: %s", filename);
+	Log::Info("Module INI: %s", inifile);
 	Log::Info("Module Dir: %s", filedir);
 
 	// stip off filename to get ini directory

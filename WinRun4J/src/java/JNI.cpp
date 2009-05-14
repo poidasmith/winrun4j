@@ -141,6 +141,7 @@ const bool JNI::CallBooleanMethod(JNIEnv* env, jclass clazz, jobject obj, char* 
 // Dump stack trace for exception (if present)
 jthrowable JNI::PrintStackTrace(JNIEnv* env)
 {
+	if(!env) return NULL;
 	jthrowable thr = env->ExceptionOccurred();
 	if(thr) {
 		// Print out the stack trace for this exception
@@ -377,10 +378,9 @@ void JNI::LoadEmbbededClassloader(JNIEnv* env)
 		return;
 	}
 
-	/*
 	if(!SetClassLoaderJars(env, o)) {
 		return;
-	}*/
+	}
 
 	g_classLoader = env->NewGlobalRef(o);
 
