@@ -87,6 +87,7 @@ public class WinRunTest
         frame.setVisible(true);
         System.out.println("Testing stdout stream redirection from Java");
         System.err.println("Testing stderr stream redirection from Java");
+        System.out.println("Random: " + Math.random());
 
         // Add file association listener
         DDE.addFileAssocationListener(new FileAssociationListener() {
@@ -101,5 +102,16 @@ public class WinRunTest
                 frame.toFront();
             }
         });
+        
+        new Thread(new Runnable() {public void run() {
+            while(true) {
+                Log.info("in thread logging");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+                System.out.flush();
+            }
+        }}).start();
     }
 }
