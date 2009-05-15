@@ -30,30 +30,6 @@ typedef BOOL (__stdcall *FPTR_AttachConsole) ( DWORD );
 
 #define LOG_OVERWRITE_OPTION ":log.overwrite"
 
-void Log::RedirectIOToConsole()
-{
-	// redirect unbuffered STDOUT to the console
-	HANDLE lStdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-	int hConHandle = _open_osfhandle((long) lStdHandle, _O_TEXT);
-	FILE* fp = _fdopen( hConHandle, "w" );
-	*stdout = *fp;
-	setvbuf( stdout, NULL, _IONBF, 0 );
-
-	// redirect unbuffered STDIN to the console
-	lStdHandle = GetStdHandle(STD_INPUT_HANDLE);
-	hConHandle = _open_osfhandle((long) lStdHandle, _O_TEXT);
-	fp = _fdopen( hConHandle, "r" );
-	*stdin = *fp;
-	setvbuf( stdin, NULL, _IONBF, 0 );
-
-	// redirect unbuffered STDERR to the console
-	lStdHandle = GetStdHandle(STD_ERROR_HANDLE);
-	hConHandle = _open_osfhandle((long) lStdHandle, _O_TEXT);
-	fp = _fdopen( hConHandle, "w" );
-	*stderr = *fp;
-	setvbuf( stderr, NULL, _IONBF, 0 );
-}
-
 void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, dictionary* ini)
 {
 	if(loglevel == NULL) {
@@ -93,13 +69,14 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 				FILE_ATTRIBUTE_NORMAL, NULL);
 		if (g_logfileHandle != INVALID_HANDLE_VALUE) {
 			SetFilePointer(g_logfileHandle, 0, NULL, overwrite ? FILE_BEGIN : FILE_END);
-			// Redirect STD streams to log file
 			SetStdHandle(STD_OUTPUT_HANDLE, g_logfileHandle);
 			SetStdHandle(STD_ERROR_HANDLE, g_logfileHandle);
 		}
 		if(workingDir) {
 			SetCurrentDirectory(defWorkingDir);
 		}
+	} else {
+		g_logfileHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	}
 
 #ifndef CONSOLE
@@ -119,7 +96,6 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 					haveConsole = AttachConsole(-1);
 					if(haveConsole) {
 						AllocConsole();
-						//RedirectIOToConsole();
 						printf("\n\n");
 					}
 				}
@@ -148,24 +124,12 @@ void Log::LogIt(LoggingLevel loggingLevel, const char* marker, const char* forma
 #endif
 	DWORD dwRead;
 	if(marker) {
-		if(g_logfileHandle) {
-			WriteFile(g_logfileHandle, marker, strlen(marker), &dwRead, NULL);
-			WriteFile(g_logfileHandle, " ", 1, &dwRead, NULL);
-		} else {
-			printf(marker);
-			printf(" ");
-		}
+		WriteFile(g_logfileHandle, marker, strlen(marker), &dwRead, NULL);
+		WriteFile(g_logfileHandle, " ", 1, &dwRead, NULL);
 	}
-	if(g_logfileHandle) {
-		WriteFile(g_logfileHandle, tmp, strlen(tmp), &dwRead, NULL);
-		WriteFile(g_logfileHandle, "\r\n", 2, &dwRead, NULL);
-		FlushFileBuffers(g_logfileHandle);
-	}
-	else {
-		puts(tmp);
-		fflush(stdout);
-		fflush(stderr);
-	}
+	WriteFile(g_logfileHandle, tmp, strlen(tmp), &dwRead, NULL);
+	WriteFile(g_logfileHandle, "\r\n", 2, &dwRead, NULL);
+	FlushFileBuffers(g_logfileHandle);
 }
 
 void Log::SetLevel(LoggingLevel loggingLevel) 
@@ -227,8 +191,6 @@ void Log::SetLastError(const char* format, ...)
 	va_start(args, format);
 	Log::Error(format, args);
 	vsprintf_s(g_errorText, MAX_PATH, format, args);
-	fflush(stdout);
-	fflush(stderr);
 	va_end(args);
 }
 

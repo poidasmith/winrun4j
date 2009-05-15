@@ -16,6 +16,7 @@
 #include "launcher/EventLog.h"
 #include "common/Registry.h"
 
+#define PROCESS_PRIORITY ":process.priority"
 #define ERROR_MESSAGES_JAVA_NOT_FOUND "ErrorMessages:java.not.found"
 #define ERROR_MESSAGES_JAVA_START_FAILED "ErrorMessages:java.failed"
 
@@ -43,6 +44,34 @@ void WinRun4J::SetWorkingDirectory(dictionary* ini)
 			Log::Info("Working directory set to: %s", temp);
 		}
 	} 
+}
+
+void WinRun4J::SetProcessPriority(dictionary* ini)
+{
+	char* priority = iniparser_getstr(ini, PROCESS_PRIORITY);
+	if(!priority) 
+		return;
+
+	DWORD p = -1;
+	if(strcmp("idle", priority) == 0) {
+		p = IDLE_PRIORITY_CLASS;
+	} else if(strcmp("below_normal", priority) == 0) {
+		p = BELOW_NORMAL_PRIORITY_CLASS;
+	} else if(strcmp("normal", priority) == 0) {
+		p = NORMAL_PRIORITY_CLASS;
+	} else if(strcmp("above_normal", priority) == 0) {
+		p = ABOVE_NORMAL_PRIORITY_CLASS;
+	} else if(strcmp("high", priority) == 0) {
+		p = HIGH_PRIORITY_CLASS;
+	} else if(strcmp("realtime", priority) == 0) {
+		p = REALTIME_PRIORITY_CLASS;
+	} else {
+		Log::Warning("Invalid process priority class: %s", priority);
+	}
+
+	if(p != -1) {
+		SetPriorityClass(GetCurrentProcess(), p);
+	}
 }
 
 int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
@@ -231,6 +260,9 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 
 	// Display the splash screen if present
 	SplashScreen::ShowSplashImage(hInstance, ini);
+
+	// Check for process priority setting
+	WinRun4J::SetProcessPriority(ini);
 
 	// Start vm
 	int result = WinRun4J::StartVM(lpCmdLine, ini);

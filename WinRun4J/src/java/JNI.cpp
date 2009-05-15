@@ -238,60 +238,6 @@ jobject JNI::GetJar(JNIEnv* env, jobject self, jstring library, jstring jarName)
 	return NULL;
 }
 
-bool JNI::SetClassLoaderJars(JNIEnv* env, jobject classloader)
-{
-	int resId = 1;
-	HRSRC hs;
-	while((hs = FindResource(NULL, MAKEINTRESOURCE(resId), RT_JAR_FILE)) != NULL) {
-		resId++;
-	}
-
-	jclass ba = env->FindClass("[B");
-	if(!ba) {
-		Log::Error("Could not find byte array class");
-		return false;
-	}
-
-	jobjectArray a = env->NewObjectArray(resId - 1, ba, 0);
-	if(!a) {
-		Log::Error("Could not create jar byte array");
-	}
-
-	resId = 1;
-	while((hs = FindResource(NULL, MAKEINTRESOURCE(resId), RT_JAR_FILE)) != NULL) {
-		HGLOBAL hg = LoadResource(NULL, hs);
-		PBYTE pb = (PBYTE) LockResource(hg);
-		DWORD* pd = (DWORD*) pb;
-		if(*pd == JAR_RES_MAGIC) {
-			int len = strlen((char*) &pb[RES_MAGIC_SIZE]);
-			DWORD offset = RES_MAGIC_SIZE + len + 1;
-			DWORD s = SizeofResource(NULL, hs);
-			jbyteArray jb = env->NewByteArray(s - offset);
-			env->SetByteArrayRegion(jb, 0, s-offset, (const jbyte*) &pb[offset]); 
-			env->SetObjectArrayElement(a, resId - 1, jb);
-			if(env->ExceptionCheck()) 
-				PrintStackTrace(env);
-		}
-		resId++;
-	}
-
-	jfieldID jf = env->GetFieldID(env->GetObjectClass(classloader), "jarData", "[[B");
-	if(!jf) {
-		Log::Error("Could not access EmbeddedClassLoader.jarData field");
-		ClearException(env);
-		return false;
-	}
-
-	env->SetObjectField(classloader, jf, a);
-	if(env->ExceptionCheck()) {
-		Log::Error("Could not set EmbeddedClassLoader.jarData field");
-		PrintStackTrace(env);
-		return false;
-	}
-
-	return true;
-}
-
 jclass JNI::DefineClass(JNIEnv* env, const char* filename, const char* name, jobject loader) 
 {
 	// Read in file from temp source
@@ -375,10 +321,6 @@ void JNI::LoadEmbbededClassloader(JNIEnv* env)
 	if(!o) {
 		PrintStackTrace(env);
 		Log::Error("Could not create classloader instance");
-		return;
-	}
-
-	if(!SetClassLoaderJars(env, o)) {
 		return;
 	}
 
