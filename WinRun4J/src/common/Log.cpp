@@ -59,9 +59,9 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 		char* logOverwriteOption;
 		logOverwriteOption = iniparser_getstr(ini, LOG_OVERWRITE_OPTION);
 		bool overwrite = false;
-		if (logOverwriteOption || stricmp(logOverwriteOption, "y")==0 || 
+		if (logOverwriteOption && (stricmp(logOverwriteOption, "y")==0 || 
 			stricmp(logOverwriteOption, "yes")==0 ||
-			stricmp(logOverwriteOption, "true")==0) {
+			stricmp(logOverwriteOption, "true")==0)) {
 				overwrite = true;
 		}
 		g_logfileHandle = CreateFile(logfile, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, NULL, 
