@@ -251,9 +251,19 @@ int Service::Register(dictionary* ini)
 	strcat(quotePath, path);
 	strcat(quotePath, "\"");
 	SC_HANDLE h = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
+	if(!h) {
+		DWORD error = GetLastError();
+		Log::Error("Could not access service manager: %d", error);
+		return error;
+	}
 	SC_HANDLE s = CreateService(h, g_serviceId, GetName(), SERVICE_ALL_ACCESS, 
 		SERVICE_WIN32_OWN_PROCESS, startupMode,
 		SERVICE_ERROR_NORMAL, quotePath, loadOrderGroup, NULL, (LPCTSTR)depList, user, pwd);
+	if(!s) {
+		DWORD error = GetLastError();
+		Log::Error("Could not create service: %d", error);
+		return error;
+	}
 	CloseServiceHandle(s);
 	CloseServiceHandle(h);
 
@@ -278,7 +288,17 @@ int Service::Unregister(dictionary* ini)
 	}
 
 	SC_HANDLE h = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
+	if(!h) {
+		DWORD error = GetLastError();
+		Log::Error("Could not access service manager: %d", error);
+		return error;
+	}
 	SC_HANDLE s = OpenService(h, serviceId, SC_MANAGER_ALL_ACCESS);
+	if(!s) {
+		DWORD error = GetLastError();
+		Log::Error("Could not open service: %d", error);
+		return error;
+	}
 	return DeleteService(s);
 }
 

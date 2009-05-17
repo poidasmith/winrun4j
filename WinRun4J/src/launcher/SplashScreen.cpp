@@ -138,7 +138,14 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 		if(hi) {
 			HGLOBAL hgbl = LoadResource(hInstance, hi);
 			DWORD size = SizeofResource(hInstance, hi);
-			g_hBitmap = LoadImageBitmap(hgbl, size);
+			LPVOID data = GlobalLock(hgbl);
+			HGLOBAL hcopy = GlobalAlloc(GMEM_MOVEABLE, size);
+			LPVOID pcopy = GlobalLock(hcopy);
+			memcpy(pcopy, data, size);
+			GlobalUnlock(hcopy);
+			g_hBitmap = LoadImageBitmap(pcopy, size);
+			GlobalUnlock(pcopy);
+			GlobalFree(pcopy);
 			if(!g_hBitmap)
 				Log::Warning("Could not load embedded splash image");
 		}
@@ -185,7 +192,7 @@ HBITMAP SplashScreen::LoadImageBitmap(dictionary* ini, char* fileName)
 	HANDLE hFile = CreateFile(fileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
 	if(hFile != INVALID_HANDLE_VALUE) {
 		DWORD dwFileSize = GetFileSize(hFile, 0);
-		HGLOBAL hgbl =(HGLOBAL)GlobalAlloc(GMEM_FIXED, dwFileSize);
+		HGLOBAL hgbl = GlobalAlloc(GMEM_FIXED, dwFileSize);
 		DWORD dwRead = 0;
 
 		// Read in file into memory
@@ -211,10 +218,11 @@ HBITMAP SplashScreen::LoadImageBitmap(HGLOBAL hgbl, DWORD size)
 	HBITMAP hbmp = NULL;
 	CoInitialize(NULL);
 	IStream* stream;
-	HRESULT hr = CreateStreamOnHGlobal(hgbl, TRUE, &stream);
+	HRESULT hr = CreateStreamOnHGlobal(hgbl, FALSE, &stream);
 	if(SUCCEEDED(hr) && stream) {
 		ULARGE_INTEGER ul;
 		ul.LowPart = size;
+		ul.HighPart = 0;
 		stream->SetSize(ul);
 		IPicture* picture;
 		// Load picture from stream
