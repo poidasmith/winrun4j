@@ -22,7 +22,7 @@ static BOOL haveInit = FALSE;
 static BOOL canUseConsole = FALSE;
 static BOOL haveConsole = FALSE;
 static HANDLE g_logfileHandle = NULL;
-static LoggingLevel level = none; 
+static LoggingLevel g_logLevel = none; 
 static bool g_error = false;
 static char g_errorText[MAX_PATH];
 
@@ -33,17 +33,17 @@ typedef BOOL (__stdcall *FPTR_AttachConsole) ( DWORD );
 void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, dictionary* ini)
 {
 	if(loglevel == NULL) {
-		level = info;
+		g_logLevel = info;
 	} else if(strcmp(loglevel,"none") == 0) {
-		level = none;
+		g_logLevel = none;
 	} else if(strcmp(loglevel, "info") == 0) {
-		level = info;
+		g_logLevel = info;
 	} else if(strcmp(loglevel, "warning") == 0) {
-		level = warning;
+		g_logLevel = warning;
 	} else if(strcmp(loglevel, "error") == 0) {
-		level = error;
+		g_logLevel = error;
 	} else {
-		level = info;
+		g_logLevel = info;
 		Warning("log.level unrecognized");
 	}
 
@@ -109,7 +109,7 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 // enum LoggingLevel { info = 0, warning = 1, error = 2, none = 3 };
 void Log::LogIt(LoggingLevel loggingLevel, const char* marker, const char* format, va_list args) 
 {
-	if(level > loggingLevel) return;
+	if(g_logLevel > loggingLevel) return;
 	if(!format) return;
 
 	char tmp[4096];
@@ -134,17 +134,18 @@ void Log::LogIt(LoggingLevel loggingLevel, const char* marker, const char* forma
 
 void Log::SetLevel(LoggingLevel loggingLevel) 
 {
-	level = loggingLevel;
+	g_logLevel = loggingLevel;
 }
 
 LoggingLevel Log::GetLevel()
 {
-	return level;
+	return g_logLevel;
 }
 
+// enum LoggingLevel { info = 0, warning = 1, error = 2, none = 3 };
 void Log::Info(const char* format, ...)
 {
-	if(level <= info) {
+	if(g_logLevel <= info) {
 		va_list args;
 		va_start(args, format);
 		LogIt(info, "[info]", format, args);
@@ -154,7 +155,7 @@ void Log::Info(const char* format, ...)
 
 void Log::Warning(const char* format, ...)
 {
-	if(level <= warning) {
+	if(g_logLevel <= warning) {
 		va_list args;
 		va_start(args, format);
 		LogIt(warning, "[warn]", format, args);
@@ -164,7 +165,7 @@ void Log::Warning(const char* format, ...)
 
 void Log::Error(const char* format, ...)
 {
-	if(level <= error) {
+	if(g_logLevel <= error) {
 		va_list args;
 		va_start(args, format);
 		LogIt(error, " [err]", format, args);
@@ -233,6 +234,7 @@ bool Log::RegisterNatives(JNIEnv* env)
 
 void JNICALL Log::LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str)
 {
+	if(g_logLevel > jlevel) return;
 	if(str == NULL)
 		return;
 
