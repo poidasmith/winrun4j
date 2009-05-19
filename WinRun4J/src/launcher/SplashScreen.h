@@ -32,6 +32,10 @@ private:
 	// JNI functions
 	static jlong GetWindowHandle(JNIEnv* env, jobject self);
 	static void Close(JNIEnv* env, jobject self);
+	static void SetTextFont(JNIEnv* env, jobject self, jstring typeface, jint size);
+	static void SetText(JNIEnv* env, jobject self, jstring text, jint x, jint y);
+	static void SetTextColor(JNIEnv* env, jobject self, int r, int g, int b);
+	static void SetTextBgColor(JNIEnv* env, jobject self, int r, int g, int b);
 };
 
 #endif // SPLASH_SCREEN_H

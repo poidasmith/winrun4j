@@ -14,12 +14,24 @@
 #include "ocidl.h"
 #include "olectl.h"
 
-static HWND g_hWnd = NULL;
-static HBITMAP g_hBitmap = NULL;
-static int g_width = 0;
-static int g_height = 0;
-static bool g_closeWindow = false;
-static bool g_disableAutohide = false;
+namespace 
+{
+	HWND g_hWnd = NULL;
+	HBITMAP g_hBitmap = NULL;
+	int g_width = 0;
+	int g_height = 0;
+	bool g_closeWindow = false;
+	bool g_disableAutohide = false;
+	bool g_textSet = false;
+	int g_textX;
+	int g_textY;
+	HFONT g_font = NULL;
+	char g_text[MAX_PATH];
+	bool g_textColorSet;
+	COLORREF g_textColor;
+	bool g_textBkColorSet;
+	COLORREF g_textBkColor;
+}
 
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -51,7 +63,12 @@ DWORD WINAPI SplashWindowThreadProc(LPVOID lpParam)
 {
 	SplashScreen::CreateSplashWindow((HINSTANCE) lpParam);
 
+	MSG msg;
 	while(true) {
+		while (PeekMessage(&msg, g_hWnd, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 		if(!g_disableAutohide) EnumWindows((WNDENUMPROC)EnumWindowsProc, NULL);
 		if(g_closeWindow) break;
 		Sleep(50);
@@ -104,7 +121,7 @@ void SplashScreen::CreateSplashWindow(HINSTANCE hInstance)
     int y = (screenHeight - g_height) / 2;
 
 	g_hWnd = CreateWindowEx(
-		WS_EX_TOPMOST | WS_EX_TOOLWINDOW, 
+		WS_EX_TOOLWINDOW, 
 		"WinRun4J.SplashWClass", 
 		"WinRun4J.SplashWindow", 
 		WS_POPUP, 
@@ -122,10 +139,22 @@ void SplashScreen::DrawImage()
 	PAINTSTRUCT ps;
 	HDC hDC = BeginPaint(g_hWnd, &ps);
     HDC hMemDC = CreateCompatibleDC(hDC);
-    HBITMAP hOldBmp = (HBITMAP)SelectObject(hMemDC, g_hBitmap);   
+    HBITMAP hOldBmp = (HBITMAP) SelectObject(hMemDC, g_hBitmap);   
 	BitBlt(hDC, 0, 0, g_width, g_height, hMemDC, 0, 0, SRCCOPY);
     SelectObject(hMemDC, hOldBmp);
-    DeleteDC(hMemDC);
+	DeleteDC(hMemDC);
+	if(g_textSet) {
+		HFONT of = NULL;
+		if(g_font) of = (HFONT) SelectObject(hDC, g_font);
+		SetBkMode(hDC, g_textBkColorSet ? OPAQUE : TRANSPARENT);
+		if(g_textBkColorSet) SetBkColor(hDC, g_textBkColor);
+		if(g_textColorSet)
+			::SetTextColor(hDC, g_textColor);
+		else
+			::SetTextColor(hDC, RGB(0, 0, 0));
+		TextOut(hDC, g_textX, g_textY, g_text, strlen(g_text));
+		if(of) SelectObject(hDC, of);
+	}
 	EndPaint(g_hWnd, &ps);
 }
 
@@ -251,6 +280,41 @@ void SplashScreen::Close(JNIEnv* env, jobject self)
 	g_closeWindow = true;
 }
 
+void SplashScreen::SetTextFont(JNIEnv* env, jobject self, jstring typeface, jint size)
+{
+	jboolean iscopy = false;
+	const char* t = env->GetStringUTFChars(typeface, &iscopy);
+	HDC hdc = GetDC(NULL);
+	DWORD h = -MulDiv(size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+	HFONT hf = CreateFont(h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, t);
+	if(g_font)
+		DeleteObject(g_font);
+	g_font = hf;
+}
+
+void SplashScreen::SetText(JNIEnv* env, jobject self, jstring text, jint x, jint y)
+{
+	g_textSet = true;
+	jboolean iscopy = false;
+	const char* t = env->GetStringUTFChars(text, &iscopy);
+	strcpy(g_text, t);
+	g_textX = x;
+	g_textY = y;
+	InvalidateRect(g_hWnd, NULL, FALSE);
+}
+
+void SplashScreen::SetTextColor(JNIEnv* env, jobject self, int r, int g, int b)
+{
+	g_textColorSet = true;
+	g_textColor = RGB(r, g, b);
+}
+
+void SplashScreen::SetTextBgColor(JNIEnv* env, jobject self, int r, int g, int b)
+{
+	g_textBkColorSet = true;
+	g_textBkColor = RGB(r, g, b);
+}
+
 void SplashScreen::RegisterNatives(JNIEnv *env)
 {
 	Log::Info("Registering natives for SplashScreen class");
@@ -262,14 +326,26 @@ void SplashScreen::RegisterNatives(JNIEnv *env)
 		return;
 	}
 
-	JNINativeMethod methods[2];
+	JNINativeMethod methods[6];
 	methods[0].fnPtr = (void*) GetWindowHandle;
 	methods[0].name = "getWindowHandle";
 	methods[0].signature = "()J";
 	methods[1].fnPtr = (void*) Close;
 	methods[1].name = "close";
 	methods[1].signature = "()V";
-	env->RegisterNatives(clazz, methods, 2);
+	methods[2].fnPtr = (void*) SetText;
+	methods[2].name = "setText";
+	methods[2].signature = "(Ljava/lang/String;II)V";
+	methods[3].fnPtr = (void*) SetTextFont;
+	methods[3].name = "setTextFont";
+	methods[3].signature = "(Ljava/lang/String;I)V";
+	methods[4].fnPtr = (void*) SetTextColor;
+	methods[4].name = "setTextColor";
+	methods[4].signature = "(III)V";
+	methods[5].fnPtr = (void*) SetTextBgColor;
+	methods[5].name = "setTextBgColor";
+	methods[5].signature = "(III)V";
+	env->RegisterNatives(clazz, methods, 6);
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);
 		env->ExceptionClear();
