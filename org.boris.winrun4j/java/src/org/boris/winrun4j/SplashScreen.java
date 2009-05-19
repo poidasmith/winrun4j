@@ -15,7 +15,7 @@ package org.boris.winrun4j;
 public class SplashScreen {
     /**
      * Grabs the splash screen window handle.
-     *
+     * 
      * @return long.
      */
     public static native long getWindowHandle();
@@ -24,4 +24,24 @@ public class SplashScreen {
      * Closes the splash.
      */
     public static native void close();
+
+    /**
+     * Writes splash screen text.
+     */
+    public static native void setText(String text, int x, int y);
+
+    /**
+     * Sets the splash screen text font.
+     */
+    public static native void setTextFont(String text, int height);
+
+    /**
+     * Sets the splash screen text colour.
+     */
+    public static native void setTextColor(int r, int g, int b);
+
+    /**
+     * Sets the splash screen background text colour.
+     */
+    public static native void setTextBgColor(int r, int g, int b);
 }

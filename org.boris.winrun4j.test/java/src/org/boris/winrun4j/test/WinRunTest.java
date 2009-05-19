@@ -14,9 +14,9 @@ import org.boris.winrun4j.FileAssociationListener;
 import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.RegistryKey;
+import org.boris.winrun4j.SplashScreen;
 
-public class WinRunTest
-{
+public class WinRunTest {
     public static void main(String[] args) throws Exception {
         final JFrame frame = new JFrame();
         StringBuffer ab = new StringBuffer();
@@ -83,7 +83,14 @@ public class WinRunTest
         frame.getContentPane().add(new JScrollPane(text));
         frame.setSize(500, 500);
         frame.setLocation(30, 30);
-        // Thread.sleep(5000); // for the splash screen
+        SplashScreen.setTextFont("Arial", 14);
+        SplashScreen.setTextColor(170, 170, 170);
+        for (int i = 0; i < 24; i++) {
+            SplashScreen.setText("WinRun4J splash message".substring(0, i),
+                    (int) (280 - (i * 10)), 240);
+            Thread.sleep(100);
+        }
+        Thread.sleep(2000);
         frame.setVisible(true);
         System.out.println("Testing stdout stream redirection from Java");
         System.err.println("Testing stderr stream redirection from Java");
@@ -102,16 +109,18 @@ public class WinRunTest
                 frame.toFront();
             }
         });
-        
-        new Thread(new Runnable() {public void run() {
-            while(true) {
-                Log.info("in thread logging");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
+
+        new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    Log.info("in thread logging");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                    }
+                    System.out.flush();
                 }
-                System.out.flush();
             }
-        }}).start();
+        }).start();
     }
 }
