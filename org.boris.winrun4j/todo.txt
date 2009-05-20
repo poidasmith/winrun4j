@@ -1,3 +1,9 @@
+Release Notes for 0.2.1
+- Added log.overwrite option for log files
+- Fixed log file logging
+- Added process.priority option to set process priority on startup
+- Fixed shutdown bug on service mode
+ 
  
 Resources
 =========
@@ -19,16 +25,16 @@ Resources
 Splash Screen
 =============
 
-- allow user to write text to splash screen window
-- allow user to specify font and location of text
-- allow user to change splash image on the fly
+- allow user to write text to splash screen window DONE
+- allow user to specify font and location of text DONE
+- allow user to change splash image on the fly 
 - allow user to store splash image in jar and specify via manifest
     (need a flag in INI: splash.searchManifest=true)
 
 Build/Release
 =============
 
-- build 64 bit console version
+- build 64 bit console version DONE
 - console version option to add "Press any key to continue..." at the end
 - possibly split out win32 features from core executable
 	* registry access
