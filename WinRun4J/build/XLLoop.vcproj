@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="WINDOWS-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="8.00"
 	Name="XLLoop"
 	ProjectGUID="{930CC50F-F2EF-486E-BDDB-9B6867177A4C}"
 	RootNamespace="XLLoop"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -22,7 +21,7 @@
 			IntermediateDirectory="$(ProjectName)-$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
+			ATLMinimizesCRunTimeLibraryUsage="true"
 			CharacterSet="0"
 			BuildLogFile="$(IntDir)\BuildLog.htm"
 			>
@@ -85,8 +84,6 @@
 				GenerateMapFile="true"
 				MapExports="true"
 				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -109,6 +106,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -117,7 +117,7 @@
 			OutputDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)"
 			IntermediateDirectory="$(ProjectName)-$(ConfigurationName)"
 			ConfigurationType="2"
-			ATLMinimizesCRunTimeLibraryUsage="false"
+			ATLMinimizesCRunTimeLibraryUsage="true"
 			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
@@ -144,7 +144,6 @@
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
-				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -168,8 +167,6 @@
 				ModuleDefinitionFile="..\src\XLLoop.def"
 				SubSystem="1"
 				LinkTimeCodeGeneration="0"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -188,6 +185,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -220,6 +220,10 @@
 			</File>
 			<File
 				RelativePath="..\src\common\Runtime.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xll\Timeout.cpp"
 				>
 			</File>
 			<File
@@ -261,6 +265,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\xll\Timeout.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\xll\xlcall.h"
 				>
 			</File>
@@ -280,6 +288,10 @@
 			>
 			<File
 				RelativePath="..\src\XLLoop.def"
+				>
+			</File>
+			<File
+				RelativePath="..\src\XLLoop.rc"
 				>
 			</File>
 		</Filter>
