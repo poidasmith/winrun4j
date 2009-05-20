@@ -12,10 +12,19 @@
 #include "../common/Log.h"
 #include "../common/Dictionary.h"
 
+namespace 
+{
+	bool g_classpathMaxWarned = false;
+};
+
 void ExpandClassPathEntry(char* arg, char** result, int* current, int max)
 {
 	// Check for too many results
 	if(*current >= max) {
+		if(!g_classpathMaxWarned) {
+			Log::Warning("Exceeded maximum classpath size");
+			g_classpathMaxWarned = true;
+		}
 		return;
 	}
 

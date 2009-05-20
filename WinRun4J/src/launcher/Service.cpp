@@ -357,8 +357,5 @@ int Service::Main(DWORD argc, LPSTR* argv)
 	g_serviceStatus.dwCurrentState = SERVICE_RUNNING;
 	SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus);
 
-	// Detach this thread so it doesn't block
-	VM::DetachCurrentThread();
-
 	return 0;
 }
