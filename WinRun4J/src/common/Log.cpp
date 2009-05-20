@@ -17,16 +17,18 @@
 #include "../java/VM.h"
 #include "../java/JNI.h"
 
-static const WORD MAX_CONSOLE_LINES = 500;
-static BOOL haveInit = FALSE;
-static BOOL canUseConsole = FALSE;
-static BOOL haveConsole = FALSE;
-static HANDLE g_logfileHandle = NULL;
-static LoggingLevel g_logLevel = none; 
-static bool g_error = false;
-static char g_errorText[MAX_PATH];
+namespace 
+{
+	BOOL haveInit = FALSE;
+	BOOL canUseConsole = FALSE;
+	BOOL haveConsole = FALSE;
+	HANDLE g_logfileHandle = NULL;
+	LoggingLevel g_logLevel = none; 
+	bool g_error = false;
+	char g_errorText[MAX_PATH];
+}
 
-typedef BOOL (__stdcall *FPTR_AttachConsole) ( DWORD );
+typedef BOOL (_stdcall *FPTR_AttachConsole) ( DWORD );
 
 #define LOG_OVERWRITE_OPTION ":log.overwrite"
 
@@ -40,7 +42,11 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 		g_logLevel = info;
 	} else if(strcmp(loglevel, "warning") == 0) {
 		g_logLevel = warning;
+	} else if(strcmp(loglevel, "warn") == 0) {
+		g_logLevel = warning;
 	} else if(strcmp(loglevel, "error") == 0) {
+		g_logLevel = error;
+	} else if(strcmp(loglevel, "err") == 0) {
 		g_logLevel = error;
 	} else {
 		g_logLevel = info;
@@ -113,7 +119,7 @@ void Log::LogIt(LoggingLevel loggingLevel, const char* marker, const char* forma
 	if(!format) return;
 
 	char tmp[4096];
-	vsprintf(tmp, format, args);
+	vsprintf_s(tmp, 4096, format, args);
 #ifdef DEBUG_LOG
 	if(marker) {
 		OutputDebugString(marker);

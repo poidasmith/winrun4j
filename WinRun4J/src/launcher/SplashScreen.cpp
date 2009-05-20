@@ -98,8 +98,8 @@ void SplashScreen::CreateSplashWindow(HINSTANCE hInstance)
 	wcx.cbWndExtra = DLGWINDOWEXTRA;
 	wcx.hInstance = hInstance;
 	wcx.hIcon = 0;
-	wcx.hCursor = ::LoadCursor(NULL, IDC_WAIT);
-	wcx.hbrBackground = (HBRUSH)::GetStockObject(LTGRAY_BRUSH);
+	wcx.hCursor = LoadCursor(NULL, IDC_WAIT);
+	wcx.hbrBackground = (HBRUSH) GetStockObject(LTGRAY_BRUSH);
 	wcx.lpszMenuName = 0;
 	wcx.lpszClassName = "WinRun4J.SplashWClass";
 	wcx.hIconSm = 0;
@@ -282,6 +282,7 @@ void SplashScreen::Close(JNIEnv* env, jobject self)
 
 void SplashScreen::SetTextFont(JNIEnv* env, jobject self, jstring typeface, jint size)
 {
+	if(!g_hWnd) return;
 	jboolean iscopy = false;
 	const char* t = env->GetStringUTFChars(typeface, &iscopy);
 	HDC hdc = GetDC(NULL);
@@ -294,6 +295,7 @@ void SplashScreen::SetTextFont(JNIEnv* env, jobject self, jstring typeface, jint
 
 void SplashScreen::SetText(JNIEnv* env, jobject self, jstring text, jint x, jint y)
 {
+	if(!g_hWnd) return;
 	g_textSet = true;
 	jboolean iscopy = false;
 	const char* t = env->GetStringUTFChars(text, &iscopy);
@@ -305,12 +307,14 @@ void SplashScreen::SetText(JNIEnv* env, jobject self, jstring text, jint x, jint
 
 void SplashScreen::SetTextColor(JNIEnv* env, jobject self, int r, int g, int b)
 {
+	if(!g_hWnd) return;
 	g_textColorSet = true;
 	g_textColor = RGB(r, g, b);
 }
 
 void SplashScreen::SetTextBgColor(JNIEnv* env, jobject self, int r, int g, int b)
 {
+	if(!g_hWnd) return;
 	g_textBkColorSet = true;
 	g_textBkColor = RGB(r, g, b);
 }

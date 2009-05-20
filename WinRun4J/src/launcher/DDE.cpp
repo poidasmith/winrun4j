@@ -251,7 +251,7 @@ void JNICALL DDE::ReadyJ(JNIEnv* env, jobject self)
 
 void DDE::RegisterWindow(HINSTANCE hInstance)
 {
-	// Create window class for splash image
+	// Create window class for DDE
 	WNDCLASSEX wcx;
 	wcx.cbSize = sizeof(wcx);
 	wcx.style = CS_BYTEALIGNCLIENT | CS_BYTEALIGNWINDOW;
@@ -260,8 +260,8 @@ void DDE::RegisterWindow(HINSTANCE hInstance)
 	wcx.cbWndExtra = DLGWINDOWEXTRA;
 	wcx.hInstance = hInstance;
 	wcx.hIcon = 0;
-	wcx.hCursor = ::LoadCursor(NULL, IDC_WAIT);
-	wcx.hbrBackground = (HBRUSH)::GetStockObject(LTGRAY_BRUSH);
+	wcx.hCursor = LoadCursor(NULL, IDC_WAIT);
+	wcx.hbrBackground = (HBRUSH) GetStockObject(LTGRAY_BRUSH);
 	wcx.lpszMenuName = 0;
 	char* clsName = iniparser_getstr(g_ini, DDE_WINDOW_CLASS);
 	wcx.lpszClassName = clsName == NULL ? "WinRun4J.DDEWndClass" : clsName;
