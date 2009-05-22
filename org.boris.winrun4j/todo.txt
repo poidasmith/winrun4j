@@ -1,19 +1,22 @@
-Release Notes for 0.2.1
+Release Notes for 0.3.0
 - Added log.overwrite option for log files
 - Fixed log file logging
 - Added process.priority option to set process priority on startup
 - Fixed shutdown bug on service mode
- 
+- Added ability to write text to splash screen
+- Fixes for splash screen loading in 64 bit mode
+- Improved window attributes on splash screen 
+- Further improvements to diagnostics
  
 Resources
 =========
 
 - implement set of SetTitle, SetVersion, AddJar, SetINI functions
     (instead of pecoff4j)
-- implement loading of INI, splash, jars from exe resources
+- implement loading of INI, splash, jars from exe resources DONE
 - check launch4j and others for their format for storing jars in exe and
   try to be compatible
-- add option to ini file whether overriding is allowed for embedded ini.
+- add option to ini file whether overriding is allowed for embedded ini. DONE
 - allow embedding of html to display if launcher cannot find appropriate
   java version
 - add an api for accessing arbitrary resources on an exe/module
@@ -35,7 +38,7 @@ Build/Release
 =============
 
 - build 64 bit console version DONE
-- console version option to add "Press any key to continue..." at the end
+- console version option to add "Press any key to continue..." at the end ??
 - possibly split out win32 features from core executable
 	* registry access
 	* event log
