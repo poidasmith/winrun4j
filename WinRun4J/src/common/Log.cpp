@@ -63,13 +63,7 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 			SetCurrentDirectory(workingDir);
 		}
 		char* logOverwriteOption;
-		logOverwriteOption = iniparser_getstr(ini, LOG_OVERWRITE_OPTION);
-		bool overwrite = false;
-		if (logOverwriteOption && (stricmp(logOverwriteOption, "y")==0 || 
-			stricmp(logOverwriteOption, "yes")==0 ||
-			stricmp(logOverwriteOption, "true")==0)) {
-				overwrite = true;
-		}
+		bool overwrite = iniparser_getboolean(ini, LOG_OVERWRITE_OPTION, false);
 		g_logfileHandle = CreateFile(logfile, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, NULL, 
 				overwrite ? CREATE_ALWAYS : OPEN_ALWAYS, 
 				FILE_ATTRIBUTE_NORMAL, NULL);
