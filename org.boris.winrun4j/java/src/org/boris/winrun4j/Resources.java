@@ -20,6 +20,6 @@ public class Resources
 
     public interface EnumCallback
     {
-        void resourceFound(ResourceID type, ResourceID name, int language);
+        void onResource(ResourceID type, ResourceID name, int language);
     }
 }
