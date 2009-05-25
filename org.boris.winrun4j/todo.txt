@@ -8,6 +8,37 @@ Release Notes for 0.3.0
 - Improved window attributes on splash screen 
 - Further improvements to diagnostics
  
+Things remaining for release:
+	- update site (synch also)
+	- testing
+		- check service install
+		- check eclipse dde
+		-  
+
+Misc
+====
+
+- Improve error messages for different types of startup isues:
+	- cannot find old enough version (eg. require <1.5)
+	- cannot find new enough version
+	- need 64-bit version
+	- launch the following when cannot find:
+		ShellExecute(NULL,"open","http://www.java.com/en/download/manual.jsp",NULL,NULL,SW_SHOWNORMAL);
+	- see here for customizing a messagebox to give further options:
+		http://www.codeguru.com/cpp/w-p/win32/messagebox/article.php/c10873
+    - option to enable/disable this feature
+    
+    notfound.title=
+    notfound.message=
+    notfound.ok.label=
+    notfound.cancel.label=
+    notfound.ok.url=
+ 
+- Further enhancements to logging
+	- option to specify markers for logging (or switch off)
+	- log rolling after specified size
+	- maybe integrate log4j - ie. add a logger factory on the log class?
+	
 Resources
 =========
 
@@ -19,6 +50,7 @@ Resources
 - add option to ini file whether overriding is allowed for embedded ini. DONE
 - allow embedding of html to display if launcher cannot find appropriate
   java version
+  	ShellExecute(..., "res://path.to.exe?")
 - add an api for accessing arbitrary resources on an exe/module
 - associate a file type with secondary (or other) icon embedded.
 
@@ -33,6 +65,19 @@ Splash Screen
 - allow user to change splash image on the fly 
 - allow user to store splash image in jar and specify via manifest
     (need a flag in INI: splash.searchManifest=true)
+- add option to ini for initial setting of splash text:
+	splash.text=Loading...
+	splash.text.location=15,56
+	splash.text.font=Arial
+	splash.text.fontsize=14
+	splash.text.rgb=23,56,12
+
+Service Support
+===============
+
+- add checking for JVM hang
+- automatically add -Xrs?
+- 
 
 Build/Release
 =============
