@@ -210,6 +210,23 @@ bool Resource::AddJar(LPSTR exeFile, LPSTR jarFile)
 	return true;
 }
 
+// Add JAR file
+bool Resource::AddHTML(LPSTR exeFile, LPSTR htmlFile)
+{
+	// Extract just the filename from the jar file path
+	char htmlName[MAX_PATH];
+	int len = strlen(htmlFile) - 1;
+	while(len > 0) {
+		if(htmlFile[len] == '\\' || htmlFile[len] == '/') 
+			break;
+		len--;
+	}
+	if(len == 0) len--;
+	strcpy(htmlName, &htmlFile[len+1]);
+
+	return SetFile(exeFile, htmlFile, RT_HTML, htmlName, 0, false);
+}
+
 bool Resource::SetFile(LPSTR exeFile, LPSTR resFile, LPCTSTR lpType, LPCTSTR lpName, DWORD magic, bool zeroTerminate)
 {
 	// Read the INI file

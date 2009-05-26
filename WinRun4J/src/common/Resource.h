@@ -72,6 +72,7 @@ public:
 	static bool AddIcon(LPSTR exeFile, LPSTR iconFile);
 	static bool SetINI(LPSTR exeFile, LPSTR iniFile);
 	static bool AddJar(LPSTR exeFile, LPSTR jarFile);
+	static bool AddHTML(LPSTR exeFile, LPSTR htmlFile);
 	static bool SetSplash(LPSTR exeFile, LPSTR splashFile);
 	static bool ClearResources(LPSTR exeFile);
 	static bool ListResources(LPSTR exeFile);

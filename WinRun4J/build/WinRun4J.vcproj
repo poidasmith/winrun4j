@@ -830,7 +830,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\WinRun4J.rc"
+				RelativePath="..\src\WinRun4J.rc"
 				>
 			</File>
 		</Filter>

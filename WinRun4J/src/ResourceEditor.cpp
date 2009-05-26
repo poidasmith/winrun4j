@@ -26,6 +26,7 @@ int PrintUsage()
 	printf("  /J\t\tAdds a JAR file.\n");
 	printf("  /E\t\tExtracts a JAR file from the EXE/DLL.\n");
 	printf("  /S\t\tSets the splash image.\n");
+	printf("  /H\t\tAdds an HTML file the EXE/DLL.\n");
 	//printf("  /V\t\tSets the version information.\n");
 	printf("  /C\t\tClears all resources from the EXE/DLL.\n");
 	printf("  /L\t\tLists the resources in the EXE/DLL.\n");
@@ -67,6 +68,11 @@ int main(int argc, char* argv[])
 		LPSTR exeFile = argv[2];
 		LPSTR jarFile = argv[3];
 		Resource::AddJar(exeFile, jarFile);
+	} else if(strcmp(argv[1], "/H") == 0) {
+		if(argc != 4) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		LPSTR htmlFile = argv[3];
+		Resource::AddHTML(exeFile, htmlFile);
 	} else if(strcmp(argv[1], "/S") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
