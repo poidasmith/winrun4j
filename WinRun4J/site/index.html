@@ -11,7 +11,7 @@
 	<body>
 
 	<div id="heading">
-		<div class="title"><img src="WinRun4J.gif">WinRun4j</div>
+		<div class="title"><img src="WinRun4J.gif">WinRun4J</div>
 		<div class="subtitle">Configurable Java Launcher for Windows</div>
 	</div>
 	
@@ -125,11 +125,15 @@ given the physical memory available.</td>
 					</tr>
 					<tr>
 						<td>log</td>
-						<td>Standard out and error streams will be redirected to this file (including launcher messages).</td>
+						<td>Standard out and error streams will be redirected to this file (including launcher messages and JNI logging).</td>
 					</tr>
 					<tr>
 						<td>log.level</td>
-						<td>Specify the logging level. One of "info", "warning", "error", "none". Default is "error".</td>
+						<td>Specify the logging level. One of "info", "warning", "error", "none". Default is "info".</td>
+					</tr>
+					<tr>
+						<td>log.overwrite</td>
+						<td>Set to "true" to cause the log file to be overwritten each time the application/service is launched.</td>
 					</tr>
 					<tr>
 						<td>splash.image</td>
@@ -164,6 +168,10 @@ given the physical memory available.</td>
 						</ul>
 						</td>
 					</tr>					
+					<tr>
+						<td>process.priority</td>
+						<td>This is can be one of "idle", "below_normal", "normal", "above_normal", "high", "realtime".</td>
+					</tr>
 					<tr>
 						<td>service.class</td>
 						<td>This is the java class that will be run (for a service)</td>
@@ -395,6 +403,17 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.3
+				<ul>
+					<li>Added log.overwrite option for log files</li>
+					<li>Fixed log file logging</li>
+					<li>Added process.priority option to set process priority on startup</li>
+					<li>Fixed shutdown bug on service mode</li>
+					<li>Added ability to write text to splash screen</li>
+					<li>Fixes for splash screen loading in 64 bit mode</li>
+					<li>Improved window attributes on splash screen </li>
+					<li>Further improvements to diagnostics</li>
+				</ul>
 				V0.2
 				<ul>
 					<li>Support embedding of INI, splash and JAR files.</li>
@@ -403,12 +422,6 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 					<li>Improved handling of exceptions on startup and exit.</li>
 					<li>Built-in Icon changer moved to separate executable.</li>
 					<li>64-Bit console version.</li>
-				</ul>
-				V0.1.10
-				<ul>
-					<li>Improvements to DDE (plus fix for Eclipse launcher).</li>
-					<li>Extra checks for Sun VM runtime library bugs.</li>
-					<li>Fixes for icon setting race condition.</li>
 				</ul>
 				<a href="oldchangehistory.html">Older Change History</a>
 			</div>
