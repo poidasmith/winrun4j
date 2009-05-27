@@ -167,11 +167,11 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 		if(hi) {
 			HGLOBAL hgbl = LoadResource(hInstance, hi);
 			DWORD size = SizeofResource(hInstance, hi);
-			LPVOID data = GlobalLock(hgbl);
+			LPVOID data = LockResource(hgbl);
 			HGLOBAL hcopy = GlobalAlloc(GMEM_MOVEABLE, size);
 			LPVOID pcopy = GlobalLock(hcopy);
 			memcpy(pcopy, data, size);
-			GlobalUnlock(hcopy);
+			UnlockResource(hgbl);
 			g_hBitmap = LoadImageBitmap(pcopy, size);
 			GlobalUnlock(pcopy);
 			GlobalFree(pcopy);
