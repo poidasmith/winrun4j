@@ -281,8 +281,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectName)-$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)-$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)-$(PlatformName)"
 			ConfigurationType="1"
 			>
 			<Tool

@@ -95,8 +95,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug - Console|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)-$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)-$(PlatformName)"
 			ConfigurationType="1"
 			>
 			<Tool
@@ -116,6 +116,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="CONSOLE,DEBUG_LOG,NO_JAVA,X64"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -239,8 +240,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release - Console|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)-$(PlatformName)"
+			IntermediateDirectory="$(SolutionDir)\build\$(ProjectName)-$(ConfigurationName)-$(PlatformName)"
 			ConfigurationType="1"
 			>
 			<Tool
@@ -260,6 +261,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="CONSOLE,NO_JAVA,X64"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

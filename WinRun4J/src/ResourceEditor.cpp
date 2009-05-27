@@ -15,9 +15,17 @@
 
 int PrintUsage()
 {
+#ifdef X64
+	printf("WinRun4J 64-bit Resource Editor v1.0 (winrun4j.sf.net)\n\n");
+#else
 	printf("WinRun4J Resource Editor v1.0 (winrun4j.sf.net)\n\n");
+#endif
 	printf("Edits resources in executables (EXE) and dynamic link-libraries (DLL).\n\n");
+#ifdef X64
+	printf("RCEDIT64 <option> <exe/dll> [resource]\n\n");
+#else
 	printf("RCEDIT <option> <exe/dll> [resource]\n\n");
+#endif
 	printf("  filename\tSpecifies the filename of the EXE/DLL.\n");
 	printf("  resource\tSpecifies the name of the resource to add to the EXE/DLL.\n");
 	printf("  /I\t\tSet the icon as the default icon for the executable.\n");
