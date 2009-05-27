@@ -28,6 +28,8 @@ Misc
 	- probably need to make --WinRun4J:ExecuteINI work properly
 	- generate launcher with embedded classes/jars via right-click
 	
+- Add vm.type option (ie. "client" or "server")
+	
 Resources
 =========
 

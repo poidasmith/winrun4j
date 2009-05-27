@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="org.boris.winrun4j.eclipse.WLaunchConfigurationDelegate"
+            id="org.boris.winrun4j.eclipse.launch"
+            modes="run, debug"
+            name="WinRun4J"
+            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
+            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="org.boris.winrun4j.eclipse.launch"
+            icon="icons/winrun4j.gif"
+            id="org.boris.winrun4j.eclipse.launch.image">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.boris.winrun4j.eclipse.WLaunchConfigurationTabGroup"
+            id="org.boris.winrun4j.eclipse.launch.tabs"
+            type="org.boris.winrun4j.eclipse.launch">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            class="org.boris.winrun4j.eclipse.WLaunchShortcut"
+            icon="icons/winrun4j.gif"
+            id="org.boris.winrun4j.eclipse.launch.shortcut"
+            label="WinRun4J Application"
+            modes="run, debug">
+                 <contextualLaunch>
+           <enablement>
+             <with variable="selection">
+               <count value="1"/>
+                <iterate>
+                 <and>
+                  <adapt type="org.eclipse.jdt.core.IJavaElement">
+                  	<test property="org.eclipse.jdt.core.isInJavaProject"/>
+                  </adapt>
+                  <test
+                        property="org.eclipse.jdt.launching.hasMain">
+                  </test>
+                 </and>
+                </iterate>
+               </with>
+           </enablement>
+  		 </contextualLaunch>
+      </shortcut>
+   </extension>
+</plugin>
