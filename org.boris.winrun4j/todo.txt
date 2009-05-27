@@ -23,15 +23,16 @@ Misc
 	- log rolling after specified size
 	- maybe integrate log4j - ie. add a logger factory on the log class?
 	
+- Launcher for eclipse
+	- run/debug with launcher from eclipse (generate ini on the fly)
+	- probably need to make --WinRun4J:ExecuteINI work properly
+	- generate launcher with embedded classes/jars via right-click
+	
 Resources
 =========
 
-- implement set of SetTitle, SetVersion, AddJar, SetINI functions
-    (instead of pecoff4j)
-- implement loading of INI, splash, jars from exe resources DONE
 - check launch4j and others for their format for storing jars in exe and
   try to be compatible
-- add option to ini file whether overriding is allowed for embedded ini. DONE
 - allow embedding of html to display if launcher cannot find appropriate
   java version
   	ShellExecute(..., "res://path.to.exe?")
@@ -44,8 +45,6 @@ Resources
 Splash Screen
 =============
 
-- allow user to write text to splash screen window DONE
-- allow user to specify font and location of text DONE
 - allow user to change splash image on the fly 
 - allow user to store splash image in jar and specify via manifest
     (need a flag in INI: splash.searchManifest=true)
@@ -66,7 +65,6 @@ Service Support
 Build/Release
 =============
 
-- build 64 bit console version DONE
 - console version option to add "Press any key to continue..." at the end ??
 - possibly split out win32 features from core executable
 	* registry access
