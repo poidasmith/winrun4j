@@ -9,6 +9,14 @@
  *******************************************************************************/
 package org.boris.winrun4j.eclipse;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -39,5 +47,20 @@ public class WActivator implements BundleActivator
     }
 
     public void stop(BundleContext context) throws Exception {
+    }
+
+    public static IPath getBundleLocation() {
+        Bundle bundle = context.getBundle();
+        if (bundle == null)
+            return null;
+
+        URL local = null;
+        try {
+            local = FileLocator.toFileURL(bundle.getEntry("/"));
+        } catch (IOException e) {
+            return null;
+        }
+        String fullPath = new File(local.getPath()).getAbsolutePath();
+        return Path.fromOSString(fullPath);
     }
 }

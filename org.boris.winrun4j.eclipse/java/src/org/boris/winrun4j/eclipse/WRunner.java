@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,15 +26,19 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.jdi.Bootstrap;
+import org.eclipse.jdt.debug.core.JDIDebugModel;
 import org.eclipse.jdt.launching.AbstractVMRunner;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.SocketUtil;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
 
-import com.sun.jdi.Bootstrap;
+import com.sun.jdi.VirtualMachine;
+import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.ListeningConnector;
 
 public class WRunner extends AbstractVMRunner
@@ -56,6 +61,17 @@ public class WRunner extends AbstractVMRunner
             monitor = new NullProgressMonitor();
         }
 
+        IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1);
+        try {
+            subMonitor.beginTask("WinRun4J Debug Launch", 10);
+            doRun(configuration, launch, subMonitor);
+        } finally {
+            subMonitor.done();
+        }
+    }
+
+    public void doRun(VMRunnerConfiguration configuration, ILaunch launch, IProgressMonitor monitor)
+            throws CoreException {
         Map ini = new HashMap();
         ini.put("main.class", configuration.getClassToLaunch());
         ini.put("vm.location", getJVMPath());
@@ -66,7 +82,7 @@ public class WRunner extends AbstractVMRunner
             port = SocketUtil.findFreePort();
             ini.put("vmarg.1", "-Xdebug");
             ini.put("vmarg.2", "-Xnoagent");
-            ini.put("vmarg.3", "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=" + port);
+            ini.put("vmarg.3", "-Xrunjdwp:transport=dt_socket,suspend=y,address=" + port);
             offset = 4;
         }
         if (vmargs != null) {
@@ -94,6 +110,7 @@ public class WRunner extends AbstractVMRunner
         try {
             monitor.subTask("Extracting launcher executable");
             launcher = extractLauncher();
+            monitor.worked(1);
         } catch (IOException e) {
             abort("Could not generate INI file for launch", e, IStatus.ERROR);
         }
@@ -101,6 +118,7 @@ public class WRunner extends AbstractVMRunner
         try {
             monitor.subTask("Generating INI file...");
             inf = buildIniFile(ini);
+            monitor.worked(1);
         } catch (IOException e) {
             abort("Could not generate INI file for launch", e, IStatus.ERROR);
         }
@@ -111,11 +129,29 @@ public class WRunner extends AbstractVMRunner
         if (monitor.isCanceled())
             return;
 
+        // Debug listener setup
+        ListeningConnector lc = getListeningConnector();
+        Map m = lc.defaultArguments();
+        if (debug) {
+            Connector.IntegerArgument pa = (Connector.IntegerArgument) m.get("port"); //$NON-NLS-1$
+            pa.setValue(port);
+            try {
+                lc.startListening(m);
+            } catch (Throwable e) {
+                monitor.done();
+                abort("Error attaching debugger...", e, IStatus.ERROR);
+            }
+        }
+
+        monitor.worked(1);
+
         File wdf = wd == null ? null : new File(wd);
         Process p = exec(cmdLine, wdf, configuration.getEnvironment());
         if (p == null) {
             return;
         }
+
+        monitor.worked(1);
 
         // check for cancellation
         if (monitor.isCanceled()) {
@@ -123,33 +159,41 @@ public class WRunner extends AbstractVMRunner
             return;
         }
 
+        IProcess process = newProcess(launch, p, renderProcessLabel(cmdLine),
+                getDefaultProcessMap());
+        process.setAttribute(IProcess.ATTR_CMDLINE, renderCommandLine(cmdLine));
+
         // Check for debugger
         if (debug) {
             try {
-                attachDebugger(port);
+                VirtualMachine vm = lc.accept(m);
+                JDIDebugModel.newDebugTarget(launch, vm, renderDebugTarget(configuration
+                        .getClassToLaunch(), port), process, true, false, configuration
+                        .isResumeOnStartup());
             } catch (Exception e) {
+                monitor.done();
                 abort("Error attaching debugger...", e, IStatus.ERROR);
             }
         }
 
-        IProcess process = newProcess(launch, p, renderProcessLabel(cmdLine),
-                getDefaultProcessMap());
-        process.setAttribute(IProcess.ATTR_CMDLINE, renderCommandLine(cmdLine));
+        monitor.done();
     }
 
-    private void attachDebugger(int port) throws Exception {
+    private ListeningConnector getListeningConnector() {
         List connectors = Bootstrap.virtualMachineManager().listeningConnectors();
-        ListeningConnector lc = null;
         for (int i = 0; i < connectors.size(); i++) {
             ListeningConnector c = (ListeningConnector) connectors.get(i);
             if ("com.sun.jdi.SocketListen".equals(c.name())) {
-                lc = c;
-                break;
+                return c;
             }
         }
 
-        Map m = lc.defaultArguments();
-        lc.accept(m);
+        return null;
+    }
+
+    protected String renderDebugTarget(String classToRun, int host) {
+        String format = "{0} at localhost:{1}";
+        return MessageFormat.format(format, new String[] { classToRun, String.valueOf(host) });
     }
 
     private String renderCommandLine(String[] cmdLine) {

@@ -55,4 +55,19 @@
   		 </contextualLaunch>
       </shortcut>
    </extension>
+   <extension
+         point="org.eclipse.jdt.core.classpathContainerInitializer">
+      <classpathContainerInitializer
+            class="org.boris.winrun4j.eclipse.WClasspathContainerInitializer"
+            id="org.boris.winrun4j.eclipse.WINRUN4J_CONTAINER">
+      </classpathContainerInitializer>
+   </extension>
+   <extension
+         point="org.eclipse.jdt.ui.classpathContainerPage">
+      <classpathContainerPage
+            class="org.boris.winrun4j.eclipse.WClasspathContainerPage"
+            id="org.boris.winrun4j.eclipse.WINRUN4J_CONTAINER"
+            name="WinRun4J">
+      </classpathContainerPage>
+   </extension>
 </plugin>
