@@ -70,4 +70,14 @@
             name="WinRun4J">
       </classpathContainerPage>
    </extension>
+   <extension
+         point="org.eclipse.ui.exportWizards">
+      <wizard
+            category="org.eclipse.jdt.ui.Java"
+            class="org.boris.winrun4j.eclipse.WExportWizard"
+            icon="icons/winrun4j.gif"
+            id="org.boris.winrun4j.eclipse.ExportWizard"
+            name="WinRun4J Executable">
+      </wizard>
+   </extension>
 </plugin>
