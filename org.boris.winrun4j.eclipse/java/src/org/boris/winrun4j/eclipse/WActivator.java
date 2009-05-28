@@ -14,14 +14,28 @@ import org.osgi.framework.BundleContext;
 
 public class WActivator implements BundleActivator
 {
+    private static BundleContext context;
     private static String id;
+    private static String version;
+    private static String versionId;
 
     public void start(BundleContext context) throws Exception {
+        WActivator.context = context;
         id = context.getBundle().getSymbolicName();
+        version = (String) context.getBundle().getHeaders().get("Bundle-Version");
+        versionId = id + "-" + version;
     }
 
     public static String getIdentifier() {
         return id;
+    }
+
+    public static String getVersionedIdentifier() {
+        return versionId;
+    }
+
+    public static BundleContext getContext() {
+        return context;
     }
 
     public void stop(BundleContext context) throws Exception {

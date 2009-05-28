@@ -9,14 +9,21 @@
  *******************************************************************************/
 package org.boris.winrun4j.eclipse;
 
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfigurationType;
-import org.eclipse.jdt.debug.ui.launchConfigurations.JavaApplicationLaunchShortcut;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public class WLaunchShortcut extends JavaApplicationLaunchShortcut
+public class IO
 {
-    protected ILaunchConfigurationType getConfigurationType() {
-        return DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurationType(
-                "org.boris.winrun4j.eclipse.launch");
+    public static void copy(InputStream r, OutputStream w, boolean close) throws IOException {
+        byte[] buf = new byte[4096];
+        int len = 0;
+        while ((len = r.read(buf)) > 0) {
+            w.write(buf, 0, len);
+        }
+        if (close) {
+            r.close();
+            w.close();
+        }
     }
 }
