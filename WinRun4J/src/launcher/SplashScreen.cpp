@@ -214,7 +214,7 @@ HBITMAP SplashScreen::LoadImageBitmap(dictionary* ini, char* fileName)
 	char* workingDirectory = iniparser_getstr(ini, WORKING_DIR);
 	if(workingDirectory == NULL) {
 		GetCurrentDirectory(MAX_PATH, current);
-		SetCurrentDirectory(iniparser_getstr(ini, MODULE_DIR));
+		SetCurrentDirectory(iniparser_getstr(ini, INI_DIR));
 	}
 
 	HBITMAP hbmp = NULL;

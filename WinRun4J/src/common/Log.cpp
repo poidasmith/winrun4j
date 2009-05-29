@@ -59,7 +59,7 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 		GetCurrentDirectory(MAX_PATH, defWorkingDir);
 		char* workingDir = iniparser_getstr(ini, WORKING_DIR);
 		if(workingDir) {
-			SetCurrentDirectory(iniparser_getstr(ini, MODULE_DIR));
+			SetCurrentDirectory(iniparser_getstr(ini, INI_DIR));
 			SetCurrentDirectory(workingDir);
 		}
 		char* logOverwriteOption;

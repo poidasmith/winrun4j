@@ -59,7 +59,7 @@ char* VM::FindJavaVMLibrary(dictionary *ini)
 		char* workingDir = iniparser_getstr(ini, WORKING_DIR);
 		if(!workingDir) {
 			GetCurrentDirectory(MAX_PATH, defWorkingDir);
-			SetCurrentDirectory(iniparser_getstr(ini, MODULE_DIR));
+			SetCurrentDirectory(iniparser_getstr(ini, INI_DIR));
 		}
 
 		// Check if file is valid (ie. accessible or present)

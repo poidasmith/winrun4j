@@ -24,6 +24,7 @@ using namespace std;
 
 static TCHAR *vmargs[MAX_PATH];
 static int vmargsCount = 0;
+static bool progargsParsed = false;
 static TCHAR *progargs[MAX_PATH];
 static int progargsCount = 0;
 
@@ -169,7 +170,8 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	INI::GetNumberedKeysFromIni(ini, PROG_ARG, progargs, progargsCount);
 
 	// Add the args from commandline
-	ParseCommandLine(lpCmdLine, progargs, progargsCount, true);
+	if(!progargsParsed)
+		ParseCommandLine(lpCmdLine, progargs, progargsCount, true);
 
 	// Log the commandline args
 	if(progargsCount > 0)
@@ -233,20 +235,33 @@ void WinRun4J::FreeArgs()
 
 int WinRun4J::ExecuteINI(HINSTANCE hInstance, LPSTR lpCmdLine)
 {
-	TCHAR *tmpProgargs[MAX_PATH];
-	int tmpProgargsCount = 0;
-	ParseCommandLine(lpCmdLine, tmpProgargs, tmpProgargsCount, false);
+	ParseCommandLine(lpCmdLine, progargs, progargsCount, false);
 
 	// The first arg should be the ini file
-	if(tmpProgargsCount == 0) {
+	if(progargsCount == 0) {
 		Log::Error("INI file not specified");
 		return 1;
 	}
 
-	// TODO - make this work
-	dictionary* ini = INI::LoadIniFile(hInstance, tmpProgargs[0]);
+	// Load the INI
+	dictionary* ini = INI::LoadIniFile(hInstance, progargs[0]);
+	if(!ini) {
+		return 1;
+	}
 
-	return 1;
+	// Now shuffle any program args
+	progargsParsed = true;
+	if(progargsCount > 1) {
+		free(progargs[0]);
+		for(int i = 1; i < progargsCount; i++) {
+			progargs[i-1] = progargs[i];
+		}
+		progargsCount--;
+	} else {
+		progargsCount == 0;
+	}
+
+	return ExecuteINI(hInstance, ini, NULL);
 }
 
 int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
@@ -348,9 +363,9 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	// Check for Builtin commands
 	if(IsBuiltInCommand(lpCmdLine)) {
-		WinRun4J::DoBuiltInCommand(hInstance, lpCmdLine);
+		int res = WinRun4J::DoBuiltInCommand(hInstance, lpCmdLine);
 		Log::Close();
-		return 0;
+		return res;
 	}
 
 	// Load the INI file based on module name

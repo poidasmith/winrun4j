@@ -103,7 +103,7 @@ void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, int& count)
 	char* workingDirectory = iniparser_getstr(ini, WORKING_DIR);
 	if(workingDirectory == NULL) {
 		GetCurrentDirectory(MAX_PATH, current);
-		SetCurrentDirectory(iniparser_getstr(ini, MODULE_DIR));
+		SetCurrentDirectory(iniparser_getstr(ini, INI_DIR));
 	}
 
 	TCHAR* entries[MAX_PATH];
