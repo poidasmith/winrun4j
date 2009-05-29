@@ -78,6 +78,12 @@
             icon="icons/winrun4j.gif"
             id="org.boris.winrun4j.eclipse.ExportWizard"
             name="WinRun4J Executable">
+         <description>
+            Export all resources required to run an application into a WinRun4J executable launcher on the local file system.
+         </description>
+         <selection
+               class="org.eclipse.core.resources.IResource">
+         </selection>
       </wizard>
    </extension>
 </plugin>

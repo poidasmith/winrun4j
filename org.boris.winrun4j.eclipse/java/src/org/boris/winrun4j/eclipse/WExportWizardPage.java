@@ -16,13 +16,19 @@ import org.eclipse.ui.dialogs.WizardExportResourcesPage;
 
 public class WExportWizardPage extends WizardExportResourcesPage
 {
-    protected WExportWizardPage(String pageName, IStructuredSelection selection) {
-        super(pageName, selection);
+    private static final String PAGE_NAME = "WinRun4JExportWizardPage";
+
+    protected WExportWizardPage(IStructuredSelection selection) {
+        super(PAGE_NAME, selection);
     }
 
     protected void createDestinationGroup(Composite parent) {
     }
 
     public void handleEvent(Event event) {
+    }
+
+    public boolean isPageComplete() {
+        return true;
     }
 }

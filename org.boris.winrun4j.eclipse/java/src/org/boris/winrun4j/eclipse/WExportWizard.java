@@ -19,8 +19,12 @@ public class WExportWizard extends Wizard implements IExportWizard
 {
     private IWorkbench workbench;
     private IStructuredSelection selection;
+    private WExportWizardPage exportWizardPage;
 
     public void addPages() {
+        super.addPages();
+        exportWizardPage = new WExportWizardPage(selection);
+        addPage(exportWizardPage);
     }
 
     public boolean performFinish() {

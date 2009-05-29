@@ -107,7 +107,11 @@ public class WRunner extends AbstractVMRunner
             }
         }
         ini.put("log.level", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, "info"));
+                IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, "warn"));
+        ini.put("process.priority", launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, (String) null));
+        ini.put("single.instance", launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_SINGLE_INSTANCE, (String) null));
 
         File launcher = null;
         File inf = null;
@@ -202,7 +206,7 @@ public class WRunner extends AbstractVMRunner
     }
 
     private String renderCommandLine(String[] cmdLine) {
-        return cmdLine[0];
+        return getCmdLineAsString(cmdLine);
     }
 
     private String renderProcessLabel(String[] cmdLine) {
