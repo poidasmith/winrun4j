@@ -65,6 +65,11 @@ jclass JNI::FindClass(JNIEnv* env, TCHAR* classStr)
 
 bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 {
+	if(!mainClassStr) {
+		Log::Error("No main class specified");
+		return false;
+	}
+
 	jclass mainClass = FindClass(env, mainClassStr);
 
 	if(mainClass == NULL) {
