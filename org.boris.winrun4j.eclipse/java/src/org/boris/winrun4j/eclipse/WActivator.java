@@ -12,10 +12,14 @@ package org.boris.winrun4j.eclipse;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -49,6 +53,10 @@ public class WActivator implements BundleActivator
     public void stop(BundleContext context) throws Exception {
     }
 
+    public static URL getBundleEntry(String path) {
+        return context.getBundle().getEntry(path);
+    }
+
     public static IPath getBundleLocation() {
         Bundle bundle = context.getBundle();
         if (bundle == null)
@@ -62,5 +70,20 @@ public class WActivator implements BundleActivator
         }
         String fullPath = new File(local.getPath()).getAbsolutePath();
         return Path.fromOSString(fullPath);
+    }
+
+    public static Image getLauncherImage() {
+        return createImage("/icons/winrun4j.gif");
+    }
+
+    private static Map images = new HashMap();
+
+    private static Image createImage(String location) {
+        Image i = (Image) images.get(location);
+        if (i == null) {
+            images.put(location, i = ImageDescriptor.createFromURL(getBundleEntry(location))
+                    .createImage());
+        }
+        return i;
     }
 }

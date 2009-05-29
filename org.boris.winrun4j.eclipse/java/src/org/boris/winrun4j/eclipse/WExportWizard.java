@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.eclipse;
 
+import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IExportWizard;
@@ -16,7 +17,10 @@ import org.eclipse.ui.IWorkbench;
 
 public class WExportWizard extends Wizard implements IExportWizard
 {
-    public WExportWizard() {
+    private IWorkbench workbench;
+    private IStructuredSelection selection;
+
+    public void addPages() {
     }
 
     public boolean performFinish() {
@@ -24,5 +28,10 @@ public class WExportWizard extends Wizard implements IExportWizard
     }
 
     public void init(IWorkbench workbench, IStructuredSelection selection) {
+        this.workbench = workbench;
+        this.selection = selection;
+        setWindowTitle("WinRun4J Fat Executable Export");
+        setDefaultPageImageDescriptor(JavaPluginImages.DESC_WIZBAN_FAT_JAR_PACKAGER);
+        setNeedsProgressMonitor(true);
     }
 }

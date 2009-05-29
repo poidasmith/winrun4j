@@ -9,15 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.eclipse;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.jdt.launching.IVMRunner;
-import org.eclipse.jdt.launching.JavaLaunchDelegate;
-
-public class WLaunchConfigurationDelegate extends JavaLaunchDelegate
+public interface IWinRun4JLaunchConfigurationConstants
 {
-    public IVMRunner getVMRunner(ILaunchConfiguration configuration, String mode)
-            throws CoreException {
-        return new WRunner(configuration, verifyVMInstall(configuration), mode);
-    }
+    String PROP_LOG_LEVEL = "log.level";
 }

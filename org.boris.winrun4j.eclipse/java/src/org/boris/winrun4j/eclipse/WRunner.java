@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.jdi.Bootstrap;
@@ -45,8 +46,10 @@ public class WRunner extends AbstractVMRunner
 {
     private IVMInstall vmInstall;
     private boolean debug;
+    private ILaunchConfiguration launchConfig;
 
-    public WRunner(IVMInstall vmInstall, String mode) {
+    public WRunner(ILaunchConfiguration configuration, IVMInstall vmInstall, String mode) {
+        this.launchConfig = configuration;
         this.vmInstall = vmInstall;
         this.debug = ILaunchManager.DEBUG_MODE.equals(mode);
     }
@@ -103,6 +106,8 @@ public class WRunner extends AbstractVMRunner
                 ini.put("arg." + (i + 1), args[i]);
             }
         }
+        ini.put("log.level", launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, "info"));
 
         File launcher = null;
         File inf = null;
@@ -207,12 +212,12 @@ public class WRunner extends AbstractVMRunner
     private File extractLauncher() throws IOException {
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher.exe");
+        launcher.deleteOnExit();
         if (launcher.exists()) {
             return launcher;
         }
         FileOutputStream fos = new FileOutputStream(launcher);
-        InputStream is = WActivator.getContext().getBundle().getEntry("/launcher/WinRun4J.exe")
-                .openStream();
+        InputStream is = WActivator.getBundleEntry("/launcher/WinRun4J.exe").openStream();
         IO.copy(is, fos, true);
         return launcher;
     }

@@ -23,9 +23,10 @@ import org.eclipse.jdt.debug.ui.launchConfigurations.JavaMainTab;
 public class WLaunchConfigurationTabGroup extends AbstractLaunchConfigurationTabGroup
 {
     public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
-        ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] { new JavaMainTab(),
-                new JavaArgumentsTab(), new JavaJRETab(), new JavaClasspathTab(),
-                new SourceLookupTab(), new EnvironmentTab(), new CommonTab() };
+        ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
+                new WLaunchConfigurationTab(), new JavaMainTab(), new JavaArgumentsTab(),
+                new JavaJRETab(), new JavaClasspathTab(), new SourceLookupTab(),
+                new EnvironmentTab(), new CommonTab() };
         setTabs(tabs);
     }
 }
