@@ -9,7 +9,12 @@
  *******************************************************************************/
 package org.boris.winrun4j.eclipse;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 
 public class UIHelper
 {
@@ -29,5 +34,16 @@ public class UIHelper
             return combo.getItem(i);
         }
         return null;
+    }
+
+    public static Composite createComposite(Composite parent, Font font, int columns, int hspan,
+            int fill) {
+        Composite g = new Composite(parent, SWT.NONE);
+        g.setLayout(new GridLayout(columns, false));
+        g.setFont(font);
+        GridData gd = new GridData(fill);
+        gd.horizontalSpan = hspan;
+        g.setLayoutData(gd);
+        return g;
     }
 }
