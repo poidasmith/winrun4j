@@ -479,16 +479,48 @@ void iniparser_unset(dictionary * ini, char * entry)
     dictionary_unset(ini, strlwc(entry));
 }
 
-dictionary * iniparser_load(char * ininame, bool isbuffer)
+void parse_line(char * lin, dictionary * d)
 {
-    dictionary  *   d ;
-    char        lin[ASCIILINESZ+1];
     char        sec[ASCIILINESZ+1];
     char        key[ASCIILINESZ+1];
     char        val[ASCIILINESZ+1];
     char    *   wher ;
+
+    sec[0]=0;
+
+    wher = strskp(lin); /* Skip leading spaces */
+    if (*wher==';' || *wher=='#' || *wher==0)
+        return ; /* Comment lines */
+    else {
+        if (sscanf(wher, "[%[^]]", sec)==1) {
+            /* Valid section name */
+            strcpy(sec, strlwc(sec));
+            iniparser_add_entry(d, sec, NULL, NULL);
+        } else if (sscanf (wher, "%[^=] = \"%[^\"]\"", key, val) == 2
+               ||  sscanf (wher, "%[^=] = '%[^\']'",   key, val) == 2
+               ||  sscanf (wher, "%[^=] = %[^;#]",     key, val) == 2) {
+            strcpy(key, strlwc(strcrop(key)));
+            /*
+             * sscanf cannot handle "" or '' as empty value,
+             * this is done here
+             */
+            if (!strcmp(val, "\"\"") || !strcmp(val, "''")) {
+                val[0] = (char)0;
+            } else {
+                strcpy(val, strcrop(val));
+            }
+            iniparser_add_entry(d, sec, key, val);
+        }
+    }
+}
+
+dictionary * iniparser_load(char * ininame, bool isbuffer)
+{
+    dictionary  *   d ;
+    char        lin[ASCIILINESZ+1];
     FILE    *   ini ;
     int         lineno ;
+	memset(lin, 0, ASCIILINESZ);
 
     if (!isbuffer && (ini=fopen(ininame, "r"))==NULL) {
         return NULL ;
@@ -498,48 +530,25 @@ dictionary * iniparser_load(char * ininame, bool isbuffer)
 		return NULL ;
 	}
 
-    sec[0]=0;
-
     /*
      * Initialize a new dictionary entry
      */
     d = dictionary_new(0);
     lineno = 0 ;
 	int pos = 0;
-	while ((isbuffer ? sgets(ininame, &pos, lin, ASCIILINESZ) : fgets(lin, ASCIILINESZ, ini))!=NULL) {
-        lineno++ ;
-        wher = strskp(lin); /* Skip leading spaces */
-        if (*wher==';' || *wher=='#' || *wher==0)
-            continue ; /* Comment lines */
-        else {
-            if (sscanf(wher, "[%[^]]", sec)==1) {
-                /* Valid section name */
-                strcpy(sec, strlwc(sec));
-                iniparser_add_entry(d, sec, NULL, NULL);
-            } else if (sscanf (wher, "%[^=] = \"%[^\"]\"", key, val) == 2
-                   ||  sscanf (wher, "%[^=] = '%[^\']'",   key, val) == 2
-                   ||  sscanf (wher, "%[^=] = %[^;#]",     key, val) == 2) {
-                strcpy(key, strlwc(strcrop(key)));
-                /*
-                 * sscanf cannot handle "" or '' as empty value,
-                 * this is done here
-                 */
-                if (!strcmp(val, "\"\"") || !strcmp(val, "''")) {
-                    val[0] = (char)0;
-                } else {
-                    strcpy(val, strcrop(val));
-                }
-                iniparser_add_entry(d, sec, key, val);
-            }
-        }
+	while ((isbuffer ? sgets(ininame, &pos, lin, ASCIILINESZ) : fgets(lin, ASCIILINESZ, ini)) != NULL) {
+		lineno++;
+		parse_line(lin, d);
+		memset(lin, 0, ASCIILINESZ);
     }
+
+	if(strlen(lin) != 0)
+		parse_line(lin, d);
     
 	if(!isbuffer) fclose(ini);
 
     return d ;
 }
-
-
 
 void iniparser_freedict(dictionary * d)
 {
