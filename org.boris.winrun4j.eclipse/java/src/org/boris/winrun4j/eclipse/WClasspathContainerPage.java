@@ -20,7 +20,7 @@ public class WClasspathContainerPage extends WizardPage implements IClasspathCon
 {
     public WClasspathContainerPage() {
         super("WinRun4JContainerPage");
-        setTitle("WinRun4J Launcher Library");
+        setTitle(WinRun4JMessages.classpathContainerPage_title);
         setDescription("Add the WinRun4J launcher library to this project");
         setImageDescriptor(JavaPluginImages.DESC_WIZBAN_ADD_LIBRARY);
     }
