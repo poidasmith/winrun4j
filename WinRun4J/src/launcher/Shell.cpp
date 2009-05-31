@@ -26,6 +26,7 @@ BOOL CALLBACK EnumWindowsProcSingleInstance(HWND hWnd, LPARAM lParam)
 		GetWindowInfo(hWnd, &wi);
 		if((wi.dwStyle & WS_VISIBLE) != 0) {
 			SetForegroundWindow(hWnd);
+			Log::Warning("Single Instance Shutdown");
 			return FALSE;
 		}
 	}
@@ -66,9 +67,11 @@ int Shell::CheckSingleInstance(dictionary* ini)
 		CloseHandle(hProcess);
 		if(thisProcessId != e.th32ProcessID && strcmp(thisModule, otherModule) == 0) {
 			if (dde && DDE::NotifySingleInstance(ini)) {
+				Log::Warning("Single Instance Shutdown");
 				return 1;
 			}
 			if(processOnly) {
+				Log::Warning("Single Instance Shutdown");
 				return 1;
 			}
 			return !EnumWindows(EnumWindowsProcSingleInstance, e.th32ProcessID);
@@ -79,9 +82,11 @@ int Shell::CheckSingleInstance(dictionary* ini)
 			CloseHandle(hProcess);
 			if(thisProcessId != e.th32ProcessID && strcmp(thisModule, otherModule) == 0) {
 				if (dde && DDE::NotifySingleInstance(ini)) {
+					Log::Warning("Single Instance Shutdown");
 					return 1;
 				}
 				if(processOnly) {
+					Log::Warning("Single Instance Shutdown");
 					return 1;
 				}
 				return !EnumWindows(EnumWindowsProcSingleInstance, e.th32ProcessID);

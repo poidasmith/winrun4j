@@ -251,15 +251,13 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, LPSTR lpCmdLine)
 
 	// Now shuffle any program args
 	progargsParsed = true;
-	if(progargsCount > 1) {
+	if(progargsCount > 0) {
 		free(progargs[0]);
 		for(int i = 1; i < progargsCount; i++) {
 			progargs[i-1] = progargs[i];
 		}
 		progargsCount--;
-	} else {
-		progargsCount == 0;
-	}
+	} 
 
 	return ExecuteINI(hInstance, ini, NULL);
 }
