@@ -27,8 +27,16 @@ Misc
 	- run/debug with launcher from eclipse (generate ini on the fly)
 	- probably need to make --WinRun4J:ExecuteINI work properly
 	- generate launcher with embedded classes/jars via right-click
+		? generate as one large class file (ie. trims down class files)
 	
 - Add vm.type option (ie. "client" or "server")
+
+- Add flag to register file associations on startup?
+- Add java utility to register file associations:
+	- FileAssociation.register(".java");
+	- FileAssociation.isRegistered(".java");
+	
+- Read only key handle to registry key api
 	
 Resources
 =========
@@ -92,3 +100,4 @@ OSGI Support
   bundles that automatically get installed/started
   * probably need specific implementations for each osgi implementation...
  
+  

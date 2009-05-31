@@ -22,6 +22,7 @@ public class INI
     public static final String MODULE_DIR = "winrun4j:moduledir";
     public static final String INI_DIR = "winrun4j:inidir";
     public static final String WORKING_DIR = ":working.directory";
+    public static final String MAIN_CLASS = ":main.class";
 
     /**
      * Gets a property from the INI file.

@@ -7,18 +7,16 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.eclipse;
+package org.boris.winrun4j;
 
-import org.eclipse.osgi.util.NLS;
+import java.util.StringTokenizer;
 
-public class WinRun4JMessages extends NLS
+public class RegistryPath
 {
-    private static final String BUNDLE_NAME = "org.boris.winrun4j.eclipse.WinRun4JMessages"; //$NON-NLS-1$
+    public static void setValue(String path, String value) throws RegistryException {
+        // path="HKEY_CLASS_ROOT/.java/@", value="Hello World"
 
-    public static String exportWizardPage_title;
-    public static String classpathContainerPage_title;
+        StringTokenizer st = new StringTokenizer(path, "/");
 
-    static {
-        NLS.initializeMessages(BUNDLE_NAME, WinRun4JMessages.class);
     }
 }

@@ -7,18 +7,23 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.eclipse;
+package org.boris.winrun4j;
 
-import org.eclipse.osgi.util.NLS;
-
-public class WinRun4JMessages extends NLS
+public class RegistryException extends Exception
 {
-    private static final String BUNDLE_NAME = "org.boris.winrun4j.eclipse.WinRun4JMessages"; //$NON-NLS-1$
+    public RegistryException() {
+        super();
+    }
 
-    public static String exportWizardPage_title;
-    public static String classpathContainerPage_title;
+    public RegistryException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    static {
-        NLS.initializeMessages(BUNDLE_NAME, WinRun4JMessages.class);
+    public RegistryException(String message) {
+        super(message);
+    }
+
+    public RegistryException(Throwable cause) {
+        super(cause);
     }
 }
