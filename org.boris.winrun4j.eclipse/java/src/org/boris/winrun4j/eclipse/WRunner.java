@@ -107,7 +107,25 @@ public class WRunner extends AbstractVMRunner
             }
         }
         ini.put("log.level", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, "warn"));
+                IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, (String) null));
+        ini.put("log", launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_LOG_FILE, (String) null));
+        ini.put("log.overwrite", Boolean.toString(launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true)));
+        ini.put("splash.image", launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_FILE, (String) null));
+        ini.put("splash.autohide", Boolean.toString(launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true)));
+        ini.put("dde.enabled", Boolean.toString(launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_DDE_ENABLED, false)));
+        ini.put("dde.class", launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_DDE_CLASS, (String) null));
+        ini.put("dde.server.name", launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_DDE_SERVER_NAME, (String) null));
+        ini.put("dde.topic", launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_DDE_TOPIC, (String) null));
+        ini.put("dde.window.class", launchConfig.getAttribute(
+                IWinRun4JLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME, (String) null));
         ini.put("process.priority", launchConfig.getAttribute(
                 IWinRun4JLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, (String) null));
         ini.put("single.instance", launchConfig.getAttribute(
@@ -234,7 +252,7 @@ public class WRunner extends AbstractVMRunner
         for (Iterator i = ini.keySet().iterator(); i.hasNext();) {
             String k = (String) i.next();
             String v = (String) ini.get(k);
-            if (k != null && v != null) {
+            if (k != null && v != null && !"".equals(v)) {
                 pw.print(k);
                 pw.print("=");
                 pw.println(v);

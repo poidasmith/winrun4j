@@ -68,7 +68,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     private void createMiscEditor(Composite parent) {
         Font font = parent.getFont();
         Group group = new Group(parent, SWT.NONE);
-        group.setText("Miscellaneous");
+        group.setText("Miscellaneous:");
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         group.setLayoutData(gd);
         GridLayout layout = new GridLayout();
@@ -102,7 +102,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     private void createDDEEditor(Composite parent) {
         Font font = parent.getFont();
         Group group = new Group(parent, SWT.NONE);
-        group.setText("Dynamic Data Exchange (DDE)");
+        group.setText("Dynamic Data Exchange (DDE):");
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         group.setLayoutData(gd);
         GridLayout layout = new GridLayout();
@@ -141,6 +141,8 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         this.ddeServerNameText = new Text(group, SWT.SEARCH);
         this.ddeServerNameText.addSelectionListener(this);
         gd = new GridData();
+        gd.widthHint = 70;
+        this.ddeServerNameText.setLayoutData(gd);
 
         // DDE topic name
         t = new Label(group, SWT.NULL);
@@ -149,6 +151,8 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         this.ddeTopicNameText = new Text(group, SWT.SEARCH);
         this.ddeTopicNameText.addSelectionListener(this);
         gd = new GridData();
+        gd.widthHint = 70;
+        this.ddeTopicNameText.setLayoutData(gd);
 
         // DDE window name
         t = new Label(group, SWT.NULL);
@@ -157,12 +161,14 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         this.ddeWindowNameText = new Text(group, SWT.SEARCH);
         this.ddeWindowNameText.addSelectionListener(this);
         gd = new GridData();
+        gd.widthHint = 70;
+        this.ddeWindowNameText.setLayoutData(gd);
     }
 
     private void createSplashEditor(Composite parent) {
         Font font = parent.getFont();
         Group group = new Group(parent, SWT.NONE);
-        group.setText("Splash Screen");
+        group.setText("Splash Screen:");
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         group.setLayoutData(gd);
         GridLayout layout = new GridLayout();
@@ -196,7 +202,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     private void createLogEditor(Composite parent) {
         Font font = parent.getFont();
         Group group = new Group(parent, SWT.NONE);
-        group.setText("Logging");
+        group.setText("Logging:");
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         group.setLayoutData(gd);
         GridLayout layout = new GridLayout();
@@ -232,7 +238,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // Log file overwrite
         t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("Append");
+        t.setText("Overwrite");
         this.logFileOverwriteCheck = new Button(group, SWT.CHECK);
         this.logFileOverwriteCheck.addSelectionListener(this);
         gd = new GridData();
@@ -248,7 +254,29 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     public void initializeFrom(ILaunchConfiguration configuration) {
         try {
             UIHelper.select(logLevelCombo, configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, "info"));
+                    IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, ""));
+            logFileText.setText(configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_LOG_FILE, ""));
+            logFileOverwriteCheck.setSelection(configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true));
+            splashImageText.setText(configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_FILE, ""));
+            splashAutoHideCheck.setSelection(configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true));
+            ddeEnabledCheck.setSelection(configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_DDE_ENABLED, false));
+            ddeClassText.setText(configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_DDE_CLASS, ""));
+            ddeServerNameText.setText(configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_DDE_SERVER_NAME, ""));
+            ddeTopicNameText.setText(configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_DDE_TOPIC, ""));
+            ddeWindowNameText.setText(configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME, ""));
+            UIHelper.select(singleInstanceCombo, configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_SINGLE_INSTANCE, ""));
+            UIHelper.select(processPriorityCombo, configuration.getAttribute(
+                    IWinRun4JLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, ""));
         } catch (CoreException e) {
             e.printStackTrace();
         }
@@ -261,11 +289,29 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
                 logFileText.getText());
         updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_LOG_OVERWRITE,
                 logFileOverwriteCheck.getSelection());
+        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_FILE,
+                splashImageText.getText());
+        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE,
+                splashAutoHideCheck.getSelection());
+        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_DDE_ENABLED,
+                ddeEnabledCheck.getSelection());
+        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_DDE_CLASS,
+                ddeClassText.getText());
+        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_DDE_SERVER_NAME,
+                ddeServerNameText.getText());
+        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_DDE_TOPIC,
+                ddeTopicNameText.getText());
+        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME,
+                ddeWindowNameText.getText());
+        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_SINGLE_INSTANCE,
+                UIHelper.getSelection(singleInstanceCombo));
+        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_PROCESS_PRIORITY,
+                UIHelper.getSelection(processPriorityCombo));
     }
 
     private void updateConfig(ILaunchConfigurationWorkingCopy configuration, String property,
             boolean value) {
-        updateConfig(configuration, property, value ? "true" : "false");
+        configuration.setAttribute(property, value);
     }
 
     private void updateConfig(ILaunchConfigurationWorkingCopy configuration, String property,
@@ -278,12 +324,12 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     }
 
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-        configuration.setAttribute(IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, "info");
+        configuration
+                .setAttribute(IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true);
+        configuration.setAttribute(IWinRun4JLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true);
     }
 
     public void widgetDefaultSelected(SelectionEvent e) {
-        setDirty(true);
-        updateLaunchConfigurationDialog();
     }
 
     public void widgetSelected(SelectionEvent e) {

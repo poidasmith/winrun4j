@@ -16,4 +16,11 @@ public interface IWinRun4JLaunchConfigurationConstants
     String PROP_PROCESS_PRIORITY = "process.priority";
     String PROP_LOG_OVERWRITE = "log.overwrite";
     String PROP_LOG_FILE = "log";
+    String PROP_SPLASH_FILE = "splash.image";
+    String PROP_SPLASH_AUTOHIDE = "splash.autohide";
+    String PROP_DDE_ENABLED = "dde.enabled";
+    String PROP_DDE_CLASS = "dde.class";
+    String PROP_DDE_SERVER_NAME = "dde.server";
+    String PROP_DDE_TOPIC = "dde.topic";
+    String PROP_DDE_WINDOW_NAME = "dde.window";
 }
