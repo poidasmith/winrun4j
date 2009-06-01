@@ -10,7 +10,6 @@
 package org.boris.winrun4j.eclipse;
 
 import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.ui.wizards.IClasspathContainerPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -20,9 +19,9 @@ public class WClasspathContainerPage extends WizardPage implements IClasspathCon
 {
     public WClasspathContainerPage() {
         super("WinRun4JContainerPage");
-        setTitle(WinRun4JMessages.classpathContainerPage_title);
-        setDescription("Add the WinRun4J launcher library to this project");
-        setImageDescriptor(JavaPluginImages.DESC_WIZBAN_ADD_LIBRARY);
+        setTitle(WMessages.classpathContainerPage_title);
+        setDescription(WMessages.classpathContainerPage_description);
+        setImageDescriptor(WActivator.getImageDescriptor("icons/addlibrary_wiz.png"));
     }
 
     public boolean finish() {

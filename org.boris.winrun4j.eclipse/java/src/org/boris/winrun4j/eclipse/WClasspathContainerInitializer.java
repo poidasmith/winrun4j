@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jface.preference.IPreferenceStore;
 
 public class WClasspathContainerInitializer extends ClasspathContainerInitializer
 {
@@ -39,7 +40,7 @@ public class WClasspathContainerInitializer extends ClasspathContainerInitialize
         }
 
         public String getDescription() {
-            return "WinRun4J";
+            return WMessages.classpathContainer_description;
         }
 
         public int getKind() {
@@ -73,7 +74,20 @@ public class WClasspathContainerInitializer extends ClasspathContainerInitialize
         if (instance == null) {
             IPath bundleBase = WActivator.getBundleLocation();
             IPath jarLocation = bundleBase.append("/launcher/WinRun4J.jar");
+            IPreferenceStore prefs = WActivator.getDefault().getPreferenceStore();
+            String libraryDir = prefs.getString(IWPreferenceConstants.LIBRARY_DIR);
+            if (libraryDir != null) {
+                jarLocation = new Path(libraryDir);
+            }
+            String libraryFile = prefs.getString(IWPreferenceConstants.LIBRARY_FILE);
+            if (libraryFile != null && !"".equals(libraryFile)) {
+                jarLocation = new Path(libraryFile);
+            }
             IPath srcLocation = bundleBase.append("/launcher/WinRun4J-src.jar");
+            String librarySrc = prefs.getString(IWPreferenceConstants.LIBRARY_SRC);
+            if (librarySrc != null && !"".equals(librarySrc)) {
+                srcLocation = new Path(librarySrc);
+            }
             IClasspathEntry library = JavaCore.newLibraryEntry(jarLocation, srcLocation, null,
                     false);
             instance = new WClasspathContainer(new IClasspathEntry[] { library });

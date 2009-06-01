@@ -254,58 +254,58 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     public void initializeFrom(ILaunchConfiguration configuration) {
         try {
             UIHelper.select(logLevelCombo, configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, ""));
+                    IWLaunchConfigurationConstants.PROP_LOG_LEVEL, ""));
             logFileText.setText(configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_LOG_FILE, ""));
+                    IWLaunchConfigurationConstants.PROP_LOG_FILE, ""));
             logFileOverwriteCheck.setSelection(configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true));
+                    IWLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true));
             splashImageText.setText(configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_FILE, ""));
+                    IWLaunchConfigurationConstants.PROP_SPLASH_FILE, ""));
             splashAutoHideCheck.setSelection(configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true));
+                    IWLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true));
             ddeEnabledCheck.setSelection(configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_DDE_ENABLED, false));
+                    IWLaunchConfigurationConstants.PROP_DDE_ENABLED, false));
             ddeClassText.setText(configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_DDE_CLASS, ""));
+                    IWLaunchConfigurationConstants.PROP_DDE_CLASS, ""));
             ddeServerNameText.setText(configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_DDE_SERVER_NAME, ""));
+                    IWLaunchConfigurationConstants.PROP_DDE_SERVER_NAME, ""));
             ddeTopicNameText.setText(configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_DDE_TOPIC, ""));
+                    IWLaunchConfigurationConstants.PROP_DDE_TOPIC, ""));
             ddeWindowNameText.setText(configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME, ""));
+                    IWLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME, ""));
             UIHelper.select(singleInstanceCombo, configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_SINGLE_INSTANCE, ""));
+                    IWLaunchConfigurationConstants.PROP_SINGLE_INSTANCE, ""));
             UIHelper.select(processPriorityCombo, configuration.getAttribute(
-                    IWinRun4JLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, ""));
+                    IWLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, ""));
         } catch (CoreException e) {
             e.printStackTrace();
         }
     }
 
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, UIHelper
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_LOG_LEVEL, UIHelper
                 .getSelection(logLevelCombo));
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_LOG_FILE,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_LOG_FILE,
                 logFileText.getText());
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_LOG_OVERWRITE,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_LOG_OVERWRITE,
                 logFileOverwriteCheck.getSelection());
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_FILE,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_SPLASH_FILE,
                 splashImageText.getText());
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE,
                 splashAutoHideCheck.getSelection());
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_DDE_ENABLED,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_DDE_ENABLED,
                 ddeEnabledCheck.getSelection());
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_DDE_CLASS,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_DDE_CLASS,
                 ddeClassText.getText());
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_DDE_SERVER_NAME,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_DDE_SERVER_NAME,
                 ddeServerNameText.getText());
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_DDE_TOPIC,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_DDE_TOPIC,
                 ddeTopicNameText.getText());
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME,
                 ddeWindowNameText.getText());
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_SINGLE_INSTANCE,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_SINGLE_INSTANCE,
                 UIHelper.getSelection(singleInstanceCombo));
-        updateConfig(configuration, IWinRun4JLaunchConfigurationConstants.PROP_PROCESS_PRIORITY,
+        updateConfig(configuration, IWLaunchConfigurationConstants.PROP_PROCESS_PRIORITY,
                 UIHelper.getSelection(processPriorityCombo));
     }
 
@@ -325,8 +325,8 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
 
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
         configuration
-                .setAttribute(IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true);
-        configuration.setAttribute(IWinRun4JLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true);
+                .setAttribute(IWLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true);
+        configuration.setAttribute(IWLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true);
     }
 
     public void widgetDefaultSelected(SelectionEvent e) {

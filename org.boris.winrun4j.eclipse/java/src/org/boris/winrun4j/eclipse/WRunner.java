@@ -11,6 +11,7 @@ package org.boris.winrun4j.eclipse;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,29 +108,29 @@ public class WRunner extends AbstractVMRunner
             }
         }
         ini.put("log.level", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_LOG_LEVEL, (String) null));
-        ini.put("log", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_LOG_FILE, (String) null));
+                IWLaunchConfigurationConstants.PROP_LOG_LEVEL, (String) null));
+        ini.put("log", launchConfig.getAttribute(IWLaunchConfigurationConstants.PROP_LOG_FILE,
+                (String) null));
         ini.put("log.overwrite", Boolean.toString(launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true)));
+                IWLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true)));
         ini.put("splash.image", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_FILE, (String) null));
+                IWLaunchConfigurationConstants.PROP_SPLASH_FILE, (String) null));
         ini.put("splash.autohide", Boolean.toString(launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true)));
+                IWLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true)));
         ini.put("dde.enabled", Boolean.toString(launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_DDE_ENABLED, false)));
+                IWLaunchConfigurationConstants.PROP_DDE_ENABLED, false)));
         ini.put("dde.class", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_DDE_CLASS, (String) null));
+                IWLaunchConfigurationConstants.PROP_DDE_CLASS, (String) null));
         ini.put("dde.server.name", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_DDE_SERVER_NAME, (String) null));
+                IWLaunchConfigurationConstants.PROP_DDE_SERVER_NAME, (String) null));
         ini.put("dde.topic", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_DDE_TOPIC, (String) null));
+                IWLaunchConfigurationConstants.PROP_DDE_TOPIC, (String) null));
         ini.put("dde.window.class", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME, (String) null));
+                IWLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME, (String) null));
         ini.put("process.priority", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, (String) null));
+                IWLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, (String) null));
         ini.put("single.instance", launchConfig.getAttribute(
-                IWinRun4JLaunchConfigurationConstants.PROP_SINGLE_INSTANCE, (String) null));
+                IWLaunchConfigurationConstants.PROP_SINGLE_INSTANCE, (String) null));
 
         File launcher = null;
         File inf = null;
@@ -234,12 +235,19 @@ public class WRunner extends AbstractVMRunner
     private File extractLauncher() throws IOException {
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher.exe");
+        String lc = WActivator.getDefault().getPreferenceStore().getString(
+                IWPreferenceConstants.LAUNCHER_LOCATION);
         launcher.deleteOnExit();
         if (launcher.exists()) {
             return launcher;
         }
         FileOutputStream fos = new FileOutputStream(launcher);
-        InputStream is = WActivator.getBundleEntry("/launcher/WinRun4J.exe").openStream();
+        InputStream is;
+        if (lc != null) {
+            is = new FileInputStream(lc);
+        } else {
+            is = WActivator.getBundleEntry("/launcher/WinRun4J.exe").openStream();
+        }
         IO.copy(is, fos, true);
         return launcher;
     }

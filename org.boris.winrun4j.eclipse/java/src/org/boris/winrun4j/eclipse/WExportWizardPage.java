@@ -20,7 +20,7 @@ public class WExportWizardPage extends WizardExportResourcesPage
 
     protected WExportWizardPage(IStructuredSelection selection) {
         super(PAGE_NAME, selection);
-        setTitle(WinRun4JMessages.exportWizardPage_title);
+        setTitle(WMessages.exportWizardPage_title);
     }
 
     protected void createDestinationGroup(Composite parent) {
