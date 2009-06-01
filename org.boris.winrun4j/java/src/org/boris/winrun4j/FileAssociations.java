@@ -16,16 +16,16 @@ public class FileAssociations
      */
     public static void register(String extension, String name, String description)
             throws RegistryException {
-        RegistryPath.setValue("HKEY_CLASSES_ROOT/" + extension + "/@", name);
-        RegistryPath.setValue("HKEY_CLASSES_ROOT/" + name + "/@", description);
-        RegistryPath.setValue("HKEY_CLASSES_ROOT/" + name + "/DefaultIcon/@", INI
+        RegistryPath.setString("HKEY_CLASSES_ROOT/" + extension + "/@", name);
+        RegistryPath.setString("HKEY_CLASSES_ROOT/" + name + "/@", description);
+        RegistryPath.setString("HKEY_CLASSES_ROOT/" + name + "/DefaultIcon/@", INI
                 .getProperty(INI.MODULE_DIR));
-        RegistryPath.setValue("HKEY_CLASSES_ROOT/" + name + "/shell/Open/command/@", INI
+        RegistryPath.setString("HKEY_CLASSES_ROOT/" + name + "/shell/Open/command/@", INI
                 .getProperty(INI.MODULE_DIR)
                 + " \"%1\"");
-        RegistryPath.setValue("HKEY_CLASSES_ROOT/" + name + "/shell/Open/ddeexec/@", "%1");
+        RegistryPath.setString("HKEY_CLASSES_ROOT/" + name + "/shell/Open/ddeexec/@", "%1");
         RegistryPath
-                .setValue("HKEY_CLASSES_ROOT/" + name + "/shell/Open/ddeexec/application", "%1");
+                .setString("HKEY_CLASSES_ROOT/" + name + "/shell/Open/ddeexec/application", "%1");
     }
 
     /**

@@ -16,7 +16,6 @@ import org.eclipse.ui.IWorkbench;
 
 public class WExportWizard extends Wizard implements IExportWizard
 {
-    private IWorkbench workbench;
     private IStructuredSelection selection;
     private WExportWizardPage exportWizardPage;
 
@@ -31,7 +30,6 @@ public class WExportWizard extends Wizard implements IExportWizard
     }
 
     public void init(IWorkbench workbench, IStructuredSelection selection) {
-        this.workbench = workbench;
         this.selection = selection;
         setWindowTitle(WMessages.exportWizard_title);
         setDefaultPageImageDescriptor(WActivator.getImageDescriptor("icons/exportapp_wiz.png"));

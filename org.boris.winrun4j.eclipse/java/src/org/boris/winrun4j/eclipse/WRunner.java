@@ -43,7 +43,7 @@ import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.ListeningConnector;
 
-public class WRunner extends AbstractVMRunner
+class WRunner extends AbstractVMRunner
 {
     private IVMInstall vmInstall;
     private boolean debug;

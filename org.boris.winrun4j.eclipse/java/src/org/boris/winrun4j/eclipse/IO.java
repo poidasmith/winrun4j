@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class IO
+class IO
 {
     public static void copy(InputStream r, OutputStream w, boolean close) throws IOException {
         byte[] buf = new byte[4096];

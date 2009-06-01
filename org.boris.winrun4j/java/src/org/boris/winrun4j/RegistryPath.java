@@ -13,10 +13,14 @@ import java.util.StringTokenizer;
 
 public class RegistryPath
 {
-    public static void setValue(String path, String value) throws RegistryException {
+    public static void setString(String path, String value) throws RegistryException {
         // path="HKEY_CLASS_ROOT/.java/@", value="Hello World"
 
         StringTokenizer st = new StringTokenizer(path, "/");
 
+    }
+
+    public static String getString(String path) throws RegistryException {
+        return null;
     }
 }

@@ -1,9 +1,6 @@
 package org.boris.winrun4j.eclipse;
 
-/**
- * Constant definitions for plug-in preferences
- */
-public interface IWPreferenceConstants
+interface IWPreferenceConstants
 {
     public static final String LAUNCHER_LOCATION = "launcher.location";
     public static final String LIBRARY_DIR = "library.dir";

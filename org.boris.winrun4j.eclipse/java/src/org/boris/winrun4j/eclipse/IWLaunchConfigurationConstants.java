@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.eclipse;
 
-public interface IWLaunchConfigurationConstants
+interface IWLaunchConfigurationConstants
 {
     String PROP_LOG_LEVEL = "log.level";
     String PROP_SINGLE_INSTANCE = "single.instance";

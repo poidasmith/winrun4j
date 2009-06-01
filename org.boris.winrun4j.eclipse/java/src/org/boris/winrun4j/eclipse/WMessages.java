@@ -11,17 +11,19 @@ package org.boris.winrun4j.eclipse;
 
 import org.eclipse.osgi.util.NLS;
 
-public class WMessages extends NLS
+class WMessages extends NLS
 {
     private static final String BUNDLE_NAME = "org.boris.winrun4j.eclipse.WMessages"; //$NON-NLS-1$
 
-    public static String exportWizardPage_title;
-    public static String classpathContainerPage_title;
-    public static String preferencePage_description;
     public static String exportWizard_title;
+    public static String exportWizardPage_title;
+    public static String exportWizardPage_description;
+
+    public static String preferencePage_description;
 
     public static String classpathContainer_description;
 
+    public static String classpathContainerPage_title;
     public static String classpathContainerPage_description;
 
     static {

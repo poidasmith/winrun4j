@@ -16,7 +16,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 
-public class UIHelper
+class UIHelper
 {
     public static void select(Combo combo, String data) {
         int c = combo.getItemCount();
