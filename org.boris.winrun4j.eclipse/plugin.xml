@@ -101,7 +101,4 @@
             class="org.boris.winrun4j.eclipse.WPreferenceInitializer">
       </initializer>
    </extension>
-   <extension
-         point="org.eclipse.equinox.preferences.preferences">
-   </extension>
 </plugin>

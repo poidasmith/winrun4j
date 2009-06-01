@@ -17,6 +17,6 @@ public class WLaunchShortcut extends JavaApplicationLaunchShortcut
 {
     protected ILaunchConfigurationType getConfigurationType() {
         return DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurationType(
-                "org.boris.winrun4j.eclipse.launch");
+                IWLaunchConfigurationConstants.TYPE);
     }
 }

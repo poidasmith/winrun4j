@@ -18,11 +18,9 @@ class WMessages extends NLS
     public static String exportWizard_title;
     public static String exportWizardPage_title;
     public static String exportWizardPage_description;
-
+    public static String exportWizardPage_launchConfigLabel;
     public static String preferencePage_description;
-
     public static String classpathContainer_description;
-
     public static String classpathContainerPage_title;
     public static String classpathContainerPage_description;
 

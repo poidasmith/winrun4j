@@ -9,17 +9,10 @@
  *******************************************************************************/
 package org.boris.winrun4j.eclipse;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -76,62 +69,13 @@ class WRunner extends AbstractVMRunner
 
     public void doRun(VMRunnerConfiguration configuration, ILaunch launch, IProgressMonitor monitor)
             throws CoreException {
-        Map ini = new HashMap();
-        ini.put("main.class", configuration.getClassToLaunch());
-        ini.put("vm.location", getJVMPath());
-        String[] vmargs = configuration.getVMArguments();
+
         int port = -1;
-        int offset = 1;
         if (debug) {
             port = SocketUtil.findFreePort();
-            ini.put("vmarg.1", "-Xdebug");
-            ini.put("vmarg.2", "-Xnoagent");
-            ini.put("vmarg.3", "-Xrunjdwp:transport=dt_socket,suspend=y,address=" + port);
-            offset = 4;
         }
-        if (vmargs != null) {
-            for (int i = 0; i < vmargs.length; i++) {
-                ini.put("vmarg." + (i + offset), vmargs[i]);
-            }
-        }
-        String[] cp = configuration.getClassPath();
-        for (int i = 0; i < cp.length; i++) {
-            ini.put("classpath." + (i + 1), cp[i]);
-        }
-        String wd = configuration.getWorkingDirectory();
-        if (wd != null)
-            ini.put("working.directory", wd);
-        String[] args = configuration.getProgramArguments();
-        if (args != null) {
-            for (int i = 0; i < args.length; i++) {
-                ini.put("arg." + (i + 1), args[i]);
-            }
-        }
-        ini.put("log.level", launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_LOG_LEVEL, (String) null));
-        ini.put("log", launchConfig.getAttribute(IWLaunchConfigurationConstants.PROP_LOG_FILE,
-                (String) null));
-        ini.put("log.overwrite", Boolean.toString(launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true)));
-        ini.put("splash.image", launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_SPLASH_FILE, (String) null));
-        ini.put("splash.autohide", Boolean.toString(launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true)));
-        ini.put("dde.enabled", Boolean.toString(launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_DDE_ENABLED, false)));
-        ini.put("dde.class", launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_DDE_CLASS, (String) null));
-        ini.put("dde.server.name", launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_DDE_SERVER_NAME, (String) null));
-        ini.put("dde.topic", launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_DDE_TOPIC, (String) null));
-        ini.put("dde.window.class", launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME, (String) null));
-        ini.put("process.priority", launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, (String) null));
-        ini.put("single.instance", launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_SINGLE_INSTANCE, (String) null));
-
+        Map ini = LauncherHelper
+                .generateIni(configuration, launchConfig, getJVMPath(), debug, port);
         File launcher = null;
         File inf = null;
 
@@ -145,7 +89,7 @@ class WRunner extends AbstractVMRunner
 
         try {
             monitor.subTask("Generating INI file...");
-            inf = buildIniFile(ini);
+            inf = LauncherHelper.buildTemporaryIniFile(ini);
             monitor.worked(1);
         } catch (IOException e) {
             abort("Could not generate INI file for launch", e, IStatus.ERROR);
@@ -173,6 +117,7 @@ class WRunner extends AbstractVMRunner
 
         monitor.worked(1);
 
+        String wd = configuration.getWorkingDirectory();
         File wdf = wd == null ? null : new File(wd);
         Process p = exec(cmdLine, wdf, configuration.getEnvironment());
         if (p == null) {
@@ -235,40 +180,13 @@ class WRunner extends AbstractVMRunner
     private File extractLauncher() throws IOException {
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher.exe");
-        String lc = WActivator.getDefault().getPreferenceStore().getString(
-                IWPreferenceConstants.LAUNCHER_LOCATION);
         launcher.deleteOnExit();
         if (launcher.exists()) {
             return launcher;
         }
         FileOutputStream fos = new FileOutputStream(launcher);
-        InputStream is;
-        if (lc != null) {
-            is = new FileInputStream(lc);
-        } else {
-            is = WActivator.getBundleEntry("/launcher/WinRun4J.exe").openStream();
-        }
-        IO.copy(is, fos, true);
+        IO.copy(LauncherHelper.getLauncherOriginal(), fos, true);
         return launcher;
-    }
-
-    private File buildIniFile(Map ini) throws IOException {
-        File f = File.createTempFile("winrun4j-", ".ini");
-        f.deleteOnExit();
-        PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(f))));
-        for (Iterator i = ini.keySet().iterator(); i.hasNext();) {
-            String k = (String) i.next();
-            String v = (String) ini.get(k);
-            if (k != null && v != null && !"".equals(v)) {
-                pw.print(k);
-                pw.print("=");
-                pw.println(v);
-            }
-        }
-        pw.flush();
-        pw.close();
-        return f;
     }
 
     private String getJVMPath() {

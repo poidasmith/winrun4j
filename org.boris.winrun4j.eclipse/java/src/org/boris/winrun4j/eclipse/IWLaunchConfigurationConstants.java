@@ -11,6 +11,8 @@ package org.boris.winrun4j.eclipse;
 
 interface IWLaunchConfigurationConstants
 {
+    String TYPE = "org.boris.winrun4j.eclipse.launch";
+
     String PROP_LOG_LEVEL = "log.level";
     String PROP_SINGLE_INSTANCE = "single.instance";
     String PROP_PROCESS_PRIORITY = "process.priority";

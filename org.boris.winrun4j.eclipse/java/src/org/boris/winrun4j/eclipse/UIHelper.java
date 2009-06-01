@@ -19,6 +19,8 @@ import org.eclipse.swt.widgets.Composite;
 class UIHelper
 {
     public static void select(Combo combo, String data) {
+        if (data == null)
+            return;
         int c = combo.getItemCount();
         for (int i = 0; i < c; i++) {
             if (combo.getItem(i).equals(data)) {
