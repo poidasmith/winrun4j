@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            delegate="org.boris.winrun4j.eclipse.WLaunchConfigurationDelegate"
+            delegate="org.boris.winrun4j.eclipse.WLaunchDelegate"
             id="org.boris.winrun4j.eclipse.launch"
             modes="run, debug"
             name="WinRun4J"

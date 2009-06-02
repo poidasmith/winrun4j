@@ -14,7 +14,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
 
-public class WLaunchConfigurationDelegate extends JavaLaunchDelegate
+public class WLaunchDelegate extends JavaLaunchDelegate
 {
     public IVMRunner getVMRunner(ILaunchConfiguration configuration, String mode)
             throws CoreException {

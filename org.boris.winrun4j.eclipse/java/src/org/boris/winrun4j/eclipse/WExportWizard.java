@@ -34,7 +34,7 @@ public class WExportWizard extends Wizard implements IExportWizard
     public boolean performFinish() {
         try {
             ewp.saveSettings();
-            WLaunchConfigurationDelegate lcd = new WLaunchConfigurationDelegate();
+            WLaunchDelegate lcd = new WLaunchDelegate();
             ILaunchConfigurationWorkingCopy lc = ewp.getLaunchConfig().getWorkingCopy();
             lc.setAttribute(IWLaunchConfigurationConstants.ATTR_LAUNCHER_FILE, ewp
                     .getLauncherFile().getAbsolutePath());

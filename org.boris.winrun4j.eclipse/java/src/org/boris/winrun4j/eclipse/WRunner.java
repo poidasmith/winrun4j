@@ -10,7 +10,6 @@
 package org.boris.winrun4j.eclipse;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
@@ -41,11 +40,13 @@ class WRunner extends AbstractVMRunner
     private IVMInstall vmInstall;
     private boolean debug;
     private ILaunchConfiguration launchConfig;
+    private String mode;
 
     public WRunner(ILaunchConfiguration configuration, IVMInstall vmInstall, String mode) {
         this.launchConfig = configuration;
         this.vmInstall = vmInstall;
         this.debug = ILaunchManager.DEBUG_MODE.equals(mode);
+        this.mode = mode;
     }
 
     protected String getPluginIdentifier() {
@@ -74,14 +75,20 @@ class WRunner extends AbstractVMRunner
         if (debug) {
             port = SocketUtil.findFreePort();
         }
-        Map ini = LauncherHelper
-                .generateIni(configuration, launchConfig, getJVMPath(), debug, port);
+        String jvm = LauncherHelper.getJVMPath(vmInstall);
+        Map ini = LauncherHelper.generateIni(configuration, launchConfig, jvm, debug, port);
         File launcher = null;
         File inf = null;
 
+        // If we are just exporting then fire off here
+        if (IWLaunchConfigurationConstants.LAUNCH_TYPE_EXPORT.equals(mode)) {
+            doExport(configuration, ini, monitor);
+            return;
+        }
+
         try {
             monitor.subTask("Extracting launcher executable");
-            launcher = extractLauncher();
+            launcher = LauncherHelper.createTemporaryLauncher();
             monitor.worked(1);
         } catch (IOException e) {
             abort("Could not generate INI file for launch", e, IStatus.ERROR);
@@ -177,25 +184,9 @@ class WRunner extends AbstractVMRunner
         return cmdLine[0];
     }
 
-    private File extractLauncher() throws IOException {
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher.exe");
-        launcher.deleteOnExit();
-        if (launcher.exists()) {
-            return launcher;
-        }
-        FileOutputStream fos = new FileOutputStream(launcher);
-        IO.copy(LauncherHelper.getLauncherOriginal(), fos, true);
-        return launcher;
-    }
-
-    private String getJVMPath() {
-        File f = new File(vmInstall.getInstallLocation(), "bin" + File.separatorChar + "client"
-                + File.separatorChar + "jvm.dll");
-        if (!f.exists()) {
-            f = new File(vmInstall.getInstallLocation(), "jre" + File.separatorChar + "bin"
-                    + File.separatorChar + "client" + File.separatorChar + "jvm.dll");
-        }
-        return f.getAbsolutePath();
+    private void doExport(VMRunnerConfiguration configuration, Map ini, IProgressMonitor monitor) {
+        System.out.println(configuration);
+        System.out.println(ini);
+        monitor.done();
     }
 }
