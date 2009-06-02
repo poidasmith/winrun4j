@@ -35,11 +35,40 @@ int PrintUsage()
 	printf("  /E\t\tExtracts a JAR file from the EXE/DLL.\n");
 	printf("  /S\t\tSets the splash image.\n");
 	printf("  /H\t\tAdds an HTML file the EXE/DLL.\n");
-	//printf("  /V\t\tSets the version information.\n");
 	printf("  /C\t\tClears all resources from the EXE/DLL.\n");
 	printf("  /L\t\tLists the resources in the EXE/DLL.\n");
 	printf("  /P\t\tOutputs the contents of the INI file in the EXE.\n");
+	printf("  /R\t\tLoads a script file listing resource settings.\n");
+	printf("  /W\t\tSame as /R but clears all resources first.\n");
+	printf("  /D\t\tFurther help on /R command.\n");
+
 	return 1;
+}
+
+void PrintScriptHelp() 
+{
+	printf("Use /R to set a series of resource options on a single executable.\n\n");
+	printf("RCEDIT /R <exe/dll> <script file>\n\n");
+	printf("ini=<ini file>\n");
+	printf("icon.1=<main icon file>\n");
+	printf("icon.2=<extra icon file>\n");
+	printf("icon.n=<extra icon file>\n");
+	printf("jar.1=<jar file>\n");
+	printf("html.1=<html file>\n");
+	printf("version.FileVersion=x,y,z,a\n");
+	printf("version.ProductVersion=x,y,z,a\n");
+	printf("version.info.Comments=...\n");
+	printf("version.info.CompanyName=...\n");
+	printf("version.info.FileDescription=...\n");
+	printf("version.info.FileVersion=...\n");
+	printf("version.info.InternalName=...\n");
+	printf("version.info.LegalCopyright=...\n");
+	printf("version.info.LegalTrademarks=...\n");
+	printf("version.info.OriginalFilename=...\n");
+	printf("version.info.PrivateBuild=...\n");
+	printf("version.info.ProductName=...\n");
+	printf("version.info.ProductVersion=...\n");
+	printf("version.info.SpecialBuild=...\n");
 }
 
 int main(int argc, char* argv[])
@@ -98,6 +127,8 @@ int main(int argc, char* argv[])
 		if(argc != 3) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		Resource::ListINI(exeFile);
+	} else if(strcmp(argv[1], "/D") == 0) {
+		PrintScriptHelp();
 	} else {
 		return PrintUsage();
 	}

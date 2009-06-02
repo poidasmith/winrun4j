@@ -189,8 +189,8 @@ void SplashScreen::ShowSplashImage(HINSTANCE hInstance, dictionary *ini)
 		Log::Info("Displaying embedded splash image");
 
 	// Check for autohide disable flag
-	char* disableAutohide = iniparser_getstr(ini, SPLASH_DISABLE_AUTOHIDE);
-	if(disableAutohide != NULL && strcmp(disableAutohide, "true") == 0) {
+	char* autohide = iniparser_getstr(ini, SPLASH_DISABLE_AUTOHIDE);
+	if(autohide != NULL && strcmp(autohide, "false") == 0) {
 		g_disableAutohide = true;
 	}
 
