@@ -33,14 +33,32 @@ import org.eclipse.jdt.launching.VMRunnerConfiguration;
 
 public class LauncherHelper
 {
-    public static InputStream getLauncherOriginal() throws IOException {
+    public static InputStream getLauncherOriginal(int launcherType) throws IOException {
         String lc = WActivator.getDefault().getPreferenceStore().getString(
                 IWPreferenceConstants.LAUNCHER_LOCATION);
+        String path = null;
+        switch (launcherType) {
+        case IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_CONSOLE:
+            path = "/launcher/WinRun4Jc.exe";
+            break;
+        case IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_WIN:
+            path = "/launcher/WinRun4J.exe";
+            break;
+        case IWLaunchConfigurationConstants.LAUNCHER_TYPE_64_CONSOLE:
+            path = "/launcher/WinRun4J64c.exe";
+            break;
+        case IWLaunchConfigurationConstants.LAUNCHER_TYPE_64_WIN:
+            path = "/launcher/WinRun4J64.exe";
+            break;
+        default:
+            throw new IOException("Invalid launcher type: " + launcherType);
+        }
         InputStream is;
-        if (lc != null) {
+        if (!Lang.isEmpty(lc)
+                && launcherType == IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_WIN) {
             is = new FileInputStream(lc);
         } else {
-            is = WActivator.getBundleEntry("/launcher/WinRun4J.exe").openStream();
+            is = WActivator.getBundleEntry(path).openStream();
         }
         return is;
     }
@@ -58,7 +76,7 @@ public class LauncherHelper
         for (Iterator i = ini.keySet().iterator(); i.hasNext();) {
             String k = (String) i.next();
             String v = (String) ini.get(k);
-            if (k != null && v != null && !"".equals(v)) {
+            if (k != null && !Lang.isEmpty(v)) {
                 pw.print(k);
                 pw.print("=");
                 pw.println(v);
@@ -68,7 +86,7 @@ public class LauncherHelper
         pw.close();
     }
 
-    public static File createTemporaryLauncher() throws IOException {
+    public static File createTemporaryLauncher(int launcherType) throws IOException {
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher.exe");
         launcher.deleteOnExit();
@@ -76,7 +94,7 @@ public class LauncherHelper
             return launcher;
         }
         FileOutputStream fos = new FileOutputStream(launcher);
-        IO.copy(LauncherHelper.getLauncherOriginal(), fos, true);
+        IO.copy(LauncherHelper.getLauncherOriginal(launcherType), fos, true);
         return launcher;
     }
 
@@ -84,58 +102,59 @@ public class LauncherHelper
             ILaunchConfiguration launchConfig, String vmLocation, boolean debug, int port)
             throws CoreException {
         Map ini = new TreeMap();
-        ini.put("main.class", configuration.getClassToLaunch());
+        ini.put(IWINIConstants.MAIN_CLASS, configuration.getClassToLaunch());
         if (vmLocation != null)
-            ini.put("vm.location", vmLocation);
+            ini.put(IWINIConstants.VM_LOCATION, vmLocation);
         String[] vmargs = configuration.getVMArguments();
         int offset = 1;
         if (debug) {
-            ini.put("vmarg.1", "-Xdebug");
-            ini.put("vmarg.2", "-Xnoagent");
-            ini.put("vmarg.3", "-Xrunjdwp:transport=dt_socket,suspend=y,address=" + port);
+            ini.put(IWINIConstants.VMARG_PREFIX + 1, "-Xdebug");
+            ini.put(IWINIConstants.VMARG_PREFIX + 2, "-Xnoagent");
+            ini.put(IWINIConstants.VMARG_PREFIX + 3,
+                    "-Xrunjdwp:transport=dt_socket,suspend=y,address=" + port);
             offset = 4;
         }
         if (vmargs != null) {
             for (int i = 0; i < vmargs.length; i++) {
-                ini.put("vmarg." + (i + offset), vmargs[i]);
+                ini.put(IWINIConstants.VMARG_PREFIX + (i + offset), vmargs[i]);
             }
         }
         String[] cp = configuration.getClassPath();
         for (int i = 0; i < cp.length; i++) {
-            ini.put("classpath." + (i + 1), cp[i]);
+            ini.put(IWINIConstants.CLASSPATH_PREFIX + (i + 1), cp[i]);
         }
         String wd = configuration.getWorkingDirectory();
         if (wd != null)
-            ini.put("working.directory", wd);
+            ini.put(IWINIConstants.WORKING_DIRECTORY, wd);
         String[] args = configuration.getProgramArguments();
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
                 ini.put("arg." + (i + 1), args[i]);
             }
         }
-        ini.put("log.level", launchConfig.getAttribute(
+        ini.put(IWINIConstants.LOG_LEVEL, launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_LOG_LEVEL, (String) null));
-        ini.put("log", launchConfig.getAttribute(IWLaunchConfigurationConstants.PROP_LOG_FILE,
-                (String) null));
-        ini.put("log.overwrite", Boolean.toString(launchConfig.getAttribute(
+        ini.put(IWINIConstants.LOG_FILE, launchConfig.getAttribute(
+                IWLaunchConfigurationConstants.PROP_LOG_FILE, (String) null));
+        ini.put(IWINIConstants.LOG_OVERWRITE, Boolean.toString(launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true)));
-        ini.put("splash.image", launchConfig.getAttribute(
+        ini.put(IWINIConstants.SPLASH_IMAGE, launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_SPLASH_FILE, (String) null));
-        ini.put("splash.autohide", Boolean.toString(launchConfig.getAttribute(
+        ini.put(IWINIConstants.SPLASH_AUTOHIDE, Boolean.toString(launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true)));
-        ini.put("dde.enabled", Boolean.toString(launchConfig.getAttribute(
+        ini.put(IWINIConstants.DDE_ENABLED, Boolean.toString(launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_DDE_ENABLED, false)));
-        ini.put("dde.class", launchConfig.getAttribute(
+        ini.put(IWINIConstants.DDE_CLASS, launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_DDE_CLASS, (String) null));
-        ini.put("dde.server.name", launchConfig.getAttribute(
+        ini.put(IWINIConstants.DDE_SERVER_NAME, launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_DDE_SERVER_NAME, (String) null));
-        ini.put("dde.topic", launchConfig.getAttribute(
+        ini.put(IWINIConstants.DDE_TOPIC, launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_DDE_TOPIC, (String) null));
-        ini.put("dde.window.class", launchConfig.getAttribute(
+        ini.put(IWINIConstants.DDE_WINDOW_CLASS, launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME, (String) null));
-        ini.put("process.priority", launchConfig.getAttribute(
+        ini.put(IWINIConstants.PROCESS_PRIORITY, launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, (String) null));
-        ini.put("single.instance", launchConfig.getAttribute(
+        ini.put(IWINIConstants.SINGLE_INSTANCE, launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_SINGLE_INSTANCE, (String) null));
 
         return ini;
@@ -151,11 +170,13 @@ public class LauncherHelper
         return f.getAbsolutePath();
     }
 
-    public static Process runResourceEditor(String option, File exeFile, File resourceFile)
-            throws IOException {
+    public static Process runResourceEditor(String option, File exeFile, File resourceFile,
+            boolean is64bit) throws IOException {
 
         File rcEdit = null;
-        URL rcUrl = FileLocator.toFileURL(WActivator.getBundleEntry("/launcher/RCEDIT.exe"));
+        URL rcUrl = is64bit ? FileLocator.toFileURL(WActivator
+                .getBundleEntry("/launcher/RCEDIT64.exe")) : FileLocator.toFileURL(WActivator
+                .getBundleEntry("/launcher/RCEDIT.exe"));
         try {
             rcEdit = new File(rcUrl.toURI());
         } catch (URISyntaxException e) {

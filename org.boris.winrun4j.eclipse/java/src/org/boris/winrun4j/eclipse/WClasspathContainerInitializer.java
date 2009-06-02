@@ -40,7 +40,7 @@ public class WClasspathContainerInitializer extends ClasspathContainerInitialize
         }
 
         public String getDescription() {
-            return WMessages.classpathContainer_description;
+            return WMessages.WClasspathContainer_description;
         }
 
         public int getKind() {
@@ -76,7 +76,7 @@ public class WClasspathContainerInitializer extends ClasspathContainerInitialize
             IPath jarLocation = bundleBase.append("/launcher/WinRun4J.jar");
             IPreferenceStore prefs = WActivator.getDefault().getPreferenceStore();
             String libraryDir = prefs.getString(IWPreferenceConstants.LIBRARY_DIR);
-            if (libraryDir != null) {
+            if (libraryDir != null && !"".equals(libraryDir)) {
                 jarLocation = new Path(libraryDir);
             }
             String libraryFile = prefs.getString(IWPreferenceConstants.LIBRARY_FILE);

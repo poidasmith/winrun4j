@@ -42,15 +42,15 @@ import org.eclipse.swt.widgets.Text;
 
 public class WExportWizardPage extends WizardPage
 {
-    private static final String PAGE_NAME = "WinRun4JExportWizardPage";
-    private static final String SETTING_LAUNCH_CONFIG = "WinRun4J.export.launchConfig";
-    private static final String SETTING_LAUNCHER_NAME = "WinRun4J.export.launcherName";
-    private static final String SETTING_OUTPUTDIR = "WinRun4J.export.outputDir";
-    private static final String SETTING_OUTPUTDIR_LIST = "WinRun4J.export.outputDirList";
-    private static final String SETTING_ICON_LIST = "WinRun4J.export.iconList";
-    private static final String SETTING_ICON = "WinRun4J.export.icon";
-    private static final String SETTING_EXPORT_TYPE = "WinRun4J.export.exportType";
-    private static final String SETTING_LAUNCHER_TYPE = "WinRun4J.export.launcherType";
+    private static final String PAGE_NAME = "WinRun4JExportWizardPage"; //$NON-NLS-1$
+    private static final String SETTING_LAUNCH_CONFIG = "WinRun4J.export.launchConfig"; //$NON-NLS-1$
+    private static final String SETTING_LAUNCHER_NAME = "WinRun4J.export.launcherName"; //$NON-NLS-1$
+    private static final String SETTING_OUTPUTDIR = "WinRun4J.export.outputDir"; //$NON-NLS-1$
+    private static final String SETTING_OUTPUTDIR_LIST = "WinRun4J.export.outputDirList"; //$NON-NLS-1$
+    private static final String SETTING_ICON_LIST = "WinRun4J.export.iconList"; //$NON-NLS-1$
+    private static final String SETTING_ICON = "WinRun4J.export.icon"; //$NON-NLS-1$
+    private static final String SETTING_EXPORT_TYPE = "WinRun4J.export.exportType"; //$NON-NLS-1$
+    private static final String SETTING_LAUNCHER_TYPE = "WinRun4J.export.launcherType"; //$NON-NLS-1$
     private Map launchConfigs = new TreeMap();
 
     // UI elements
@@ -68,8 +68,8 @@ public class WExportWizardPage extends WizardPage
 
     protected WExportWizardPage() {
         super(PAGE_NAME);
-        setTitle(WMessages.exportWizardPage_title);
-        setDescription(WMessages.exportWizardPage_description);
+        setTitle(WMessages.WExportWizardPage_title);
+        setDescription(WMessages.WExportWizardPage_description);
     }
 
     public ILaunchConfiguration getLaunchConfig() {
@@ -102,7 +102,7 @@ public class WExportWizardPage extends WizardPage
 
         // Launch config
         Label lcl = new Label(composite, SWT.NULL);
-        lcl.setText("Launch Configuration:");
+        lcl.setText(WMessages.WExportWizardPage_launchConfig);
         GridHelper.setHorizontalSpan(lcl, 2);
         launchConfigurationCombo = new Combo(composite, SWT.NULL);
         launchConfigurationCombo.setItems(findLaunchConfigurations());
@@ -119,7 +119,7 @@ public class WExportWizardPage extends WizardPage
 
         // Launcher name
         Label lnl = new Label(composite, SWT.NULL);
-        lnl.setText("Launcher Name:");
+        lnl.setText(WMessages.WExportWizardPage_launcherName);
         GridHelper.setHorizontalSpan(lcl, 2);
         launcherNameText = new Text(composite, SWT.BORDER);
         gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -135,7 +135,7 @@ public class WExportWizardPage extends WizardPage
 
         // Output dir
         Label odl = new Label(composite, SWT.NULL);
-        odl.setText("Output Directory:");
+        odl.setText(WMessages.WExportWizardPage_outputDir);
         GridHelper.setHorizontalSpan(odl, 2);
         outputDirectoryCombo = new Combo(composite, SWT.NULL);
         outputDirectoryCombo.addModifyListener(new ModifyListener() {
@@ -148,7 +148,7 @@ public class WExportWizardPage extends WizardPage
         gd.grabExcessHorizontalSpace = true;
         outputDirectoryCombo.setLayoutData(gd);
         Button odcb = new Button(composite, SWT.PUSH);
-        odcb.setText("Browse...");
+        odcb.setText(WMessages.WExportWizardPage_outputDirBrowse);
         odcb.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 browseForOutputDirectory();
@@ -157,7 +157,7 @@ public class WExportWizardPage extends WizardPage
 
         // Icon
         Label il = new Label(composite, SWT.NULL);
-        il.setText("Launcher Icon:");
+        il.setText(WMessages.WExportWizardPage_launcherIcon);
         GridHelper.setHorizontalSpan(il, 2);
         launcherIconCombo = new Combo(composite, SWT.NULL);
         gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -170,7 +170,7 @@ public class WExportWizardPage extends WizardPage
             }
         });
         Button ib = new Button(composite, SWT.PUSH);
-        ib.setText("Browse...");
+        ib.setText(WMessages.WExportWizardPage_launcherIconBrowse);
         ib.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 browseForLauncherIcon();
@@ -179,21 +179,21 @@ public class WExportWizardPage extends WizardPage
 
         // Export type
         Label etl = new Label(composite, SWT.NULL);
-        etl.setText("Export Type:");
+        etl.setText(WMessages.WExportWizardPage_exportType);
         GridHelper.setHorizontalSpan(etl, 2);
         exportTypeCombo = new Combo(composite, SWT.READ_ONLY);
-        exportTypeCombo.setItems(new String[] { "Standard", "Standard, with embedded INI",
-                "Fat Executable" });
+        exportTypeCombo.setItems(new String[] { WMessages.WExportWizardPage_exportTypeStandard, WMessages.WExportWizardPage_exportTypeEmbedIni,
+                WMessages.WExportWizardPage_exportTypeFat });
         exportTypeCombo.select(0);
         GridHelper.setHorizontalSpan(exportTypeCombo, 2);
 
         // Launcher type
         Label ltl = new Label(composite, SWT.NULL);
-        ltl.setText("Launcher Type:");
+        ltl.setText(WMessages.WExportWizardPage_launcherType);
         GridHelper.setHorizontalSpan(ltl, 2);
         launcherTypeCombo = new Combo(composite, SWT.READ_ONLY);
-        launcherTypeCombo.setItems(new String[] { "32-bit Windows", "32-bit Console",
-                "64-bit Windows", "64-bit Console" });
+        launcherTypeCombo.setItems(new String[] { WMessages.WExportWizardPage_launcherType32W, WMessages.WExportWizardPage_launcherType32C,
+                WMessages.WExportWizardPage_launcherType64W, WMessages.WExportWizardPage_launcherType64C });
         launcherTypeCombo.select(0);
         GridHelper.setHorizontalSpan(launcherTypeCombo, 2);
 
@@ -206,7 +206,7 @@ public class WExportWizardPage extends WizardPage
 
     protected void updateLauncherIconFile() {
         String ln = launcherIconCombo.getText();
-        if (ln == null || "".equals(ln)) {
+        if (ln == null || "".equals(ln)) { //$NON-NLS-1$
             launcherIcon = null;
             return;
         }
@@ -217,7 +217,7 @@ public class WExportWizardPage extends WizardPage
     protected void updateLauncherFile() {
         String ln = launcherNameText.getText();
         String od = outputDirectoryCombo.getText();
-        if (ln == null || "".equals(ln) || od == null || "".equals(od)) {
+        if (ln == null || "".equals(ln) || od == null || "".equals(od)) { //$NON-NLS-1$ //$NON-NLS-2$
             this.launcherFile = null;
             return;
         }
@@ -229,7 +229,7 @@ public class WExportWizardPage extends WizardPage
         this.launchConfig = (ILaunchConfiguration) launchConfigs.get(UIHelper
                 .getSelection(launchConfigurationCombo));
         if (launchConfig == null) {
-            this.launcherNameText.setText("");
+            this.launcherNameText.setText(""); //$NON-NLS-1$
             this.launchConfig = null;
             return;
         }
@@ -238,27 +238,27 @@ public class WExportWizardPage extends WizardPage
         if (idx != -1) {
             ln = ln.substring(0, idx - 1);
         }
-        ln += ".exe";
+        ln += ".exe"; //$NON-NLS-1$
         this.launcherNameText.setText(ln);
     }
 
     protected void browseForLauncherIcon() {
         FileDialog fd = new FileDialog(getShell());
-        fd.setFilterExtensions(new String[] { "*.ico" });
-        fd.setText("Launcher Icon File");
+        fd.setFilterExtensions(new String[] { "*.ico" }); //$NON-NLS-1$
+        fd.setText(WMessages.WExportWizardPage_30);
         String fn = fd.open();
         if (fn == null)
-            fn = "";
+            fn = ""; //$NON-NLS-1$
         this.launcherIconCombo.setText(fn);
     }
 
     protected void browseForOutputDirectory() {
         DirectoryDialog dd = new DirectoryDialog(getShell());
-        dd.setText("Launcher Output Directory");
-        dd.setMessage("Select a directory to generate the launcher into");
+        dd.setText(WMessages.WExportWizardPage_outputDirDialog);
+        dd.setMessage(WMessages.WExportWizardPage_selectDir);
         String ds = dd.open();
         if (ds == null)
-            ds = "";
+            ds = ""; //$NON-NLS-1$
         this.outputDirectoryCombo.setText(ds);
     }
 
@@ -289,19 +289,19 @@ public class WExportWizardPage extends WizardPage
 
     public boolean isPageComplete() {
         setMessage(null);
-        if (launchConfigurationCombo.getText().equals("")) {
-            setMessage("Select a 'WinRun4J Application' launch configuration", WARNING);
+        if (launchConfigurationCombo.getText().equals("")) { //$NON-NLS-1$
+            setMessage(WMessages.WExportWizardPage_selectConfig, WARNING);
             return false;
         }
-        if (launcherNameText.getText().equals("")) {
+        if (launcherNameText.getText().equals("")) { //$NON-NLS-1$
             setMessage(
-                    "Specify a launcher name. This is the name of the executable that will be generated.",
+                    WMessages.WExportWizardPage_specifyLauncher,
                     WARNING);
             return false;
         }
-        if (outputDirectoryCombo.getText().equals("")) {
+        if (outputDirectoryCombo.getText().equals("")) { //$NON-NLS-1$
             setMessage(
-                    "Specify an output directory. This is where the launcher will be generated.",
+                    WMessages.WExportWizardPage_specifyOutputDir,
                     WARNING);
             return false;
         }

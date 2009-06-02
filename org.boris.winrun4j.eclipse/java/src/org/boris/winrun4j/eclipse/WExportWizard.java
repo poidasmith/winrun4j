@@ -11,7 +11,6 @@ package org.boris.winrun4j.eclipse;
 
 import java.io.File;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.Launch;
@@ -48,14 +47,14 @@ public class WExportWizard extends Wizard implements IExportWizard
             Launch l = new Launch(lc, IWLaunchConfigurationConstants.LAUNCH_TYPE_EXPORT, null);
             lcd.launch(lc, l.getLaunchMode(), l, new NullProgressMonitor());
             return true;
-        } catch (CoreException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
 
     public void init(IWorkbench workbench, IStructuredSelection selection) {
-        setWindowTitle(WMessages.exportWizard_title);
+        setWindowTitle(WMessages.WExportWizard_title);
         setDefaultPageImageDescriptor(WActivator.getImageDescriptor("icons/exportapp_wiz.png"));
         setNeedsProgressMonitor(true);
         setDialogSettings(WActivator.getDefault().getDialogSettings());

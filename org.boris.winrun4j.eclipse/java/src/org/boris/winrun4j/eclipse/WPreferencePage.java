@@ -12,7 +12,7 @@ public class WPreferencePage extends FieldEditorPreferencePage implements IWorkb
     public WPreferencePage() {
         super(GRID);
         setPreferenceStore(WActivator.getDefault().getPreferenceStore());
-        setDescription(WMessages.preferencePage_description);
+        setDescription(WMessages.WPreferencePage_description);
     }
 
     public void createFieldEditors() {

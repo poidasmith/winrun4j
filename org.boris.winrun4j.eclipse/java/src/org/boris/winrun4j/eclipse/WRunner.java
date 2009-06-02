@@ -64,7 +64,7 @@ class WRunner extends AbstractVMRunner
 
         IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1);
         try {
-            subMonitor.beginTask("WinRun4J Debug Launch", 10);
+            subMonitor.beginTask(WMessages.WRunner_debugLaunch_title, 10);
             doRun(configuration, launch, subMonitor);
         } finally {
             subMonitor.done();
@@ -88,7 +88,7 @@ class WRunner extends AbstractVMRunner
             try {
                 doExport(ini, monitor);
             } catch (Exception e) {
-                abort("Could not export application", e, IStatus.ERROR);
+                abort(WMessages.WRunner_exportError, e, IStatus.ERROR);
             } finally {
                 monitor.done();
             }
@@ -96,22 +96,23 @@ class WRunner extends AbstractVMRunner
         }
 
         try {
-            monitor.subTask("Extracting launcher executable");
-            launcher = LauncherHelper.createTemporaryLauncher();
+            monitor.subTask(WMessages.WRunner_extractLauncher_task);
+            launcher = LauncherHelper
+                    .createTemporaryLauncher(IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_WIN);
             monitor.worked(1);
         } catch (Exception e) {
-            abort("Could not extract launcher", e, IStatus.ERROR);
+            abort(WMessages.WRunner_extractLauncher_error, e, IStatus.ERROR);
         }
 
         try {
-            monitor.subTask("Generating INI file...");
+            monitor.subTask(WMessages.WRunner_generateINI_task);
             inf = LauncherHelper.buildTemporaryIniFile(ini);
             monitor.worked(1);
         } catch (Exception e) {
-            abort("Could not generate INI file for launch", e, IStatus.ERROR);
+            abort(WMessages.WRunner_generateINI_error, e, IStatus.ERROR);
         }
 
-        String[] cmdLine = new String[] { launcher.getAbsolutePath(), "--WinRun4J:ExecuteINI",
+        String[] cmdLine = new String[] { launcher.getAbsolutePath(), "--WinRun4J:ExecuteINI", //$NON-NLS-1$
                 inf.getAbsolutePath() };
 
         if (monitor.isCanceled())
@@ -127,7 +128,7 @@ class WRunner extends AbstractVMRunner
                 lc.startListening(m);
             } catch (Throwable e) {
                 monitor.done();
-                abort("Error attaching debugger...", e, IStatus.ERROR);
+                abort(WMessages.WRunner_attachDebug_error, e, IStatus.ERROR);
             }
         }
 
@@ -161,7 +162,7 @@ class WRunner extends AbstractVMRunner
                         .isResumeOnStartup());
             } catch (Exception e) {
                 monitor.done();
-                abort("Error attaching debugger...", e, IStatus.ERROR);
+                abort(WMessages.WRunner_attachDebug_error, e, IStatus.ERROR);
             }
         }
 
@@ -172,7 +173,7 @@ class WRunner extends AbstractVMRunner
         List connectors = Bootstrap.virtualMachineManager().listeningConnectors();
         for (int i = 0; i < connectors.size(); i++) {
             ListeningConnector c = (ListeningConnector) connectors.get(i);
-            if ("com.sun.jdi.SocketListen".equals(c.name())) {
+            if ("com.sun.jdi.SocketListen".equals(c.name())) { //$NON-NLS-1$
                 return c;
             }
         }
@@ -181,7 +182,7 @@ class WRunner extends AbstractVMRunner
     }
 
     protected String renderDebugTarget(String classToRun, int port) {
-        String format = "{0} at localhost:{1}";
+        String format = WMessages.WRunner_debugTarget;
         return MessageFormat.format(format, new String[] { classToRun, String.valueOf(port) });
     }
 
@@ -205,25 +206,29 @@ class WRunner extends AbstractVMRunner
         int exportType = launchConfig.getAttribute(IWLaunchConfigurationConstants.ATTR_EXPORT_TYPE,
                 IWLaunchConfigurationConstants.EXPORT_TYPE_STANDARD);
         boolean standard = IWLaunchConfigurationConstants.EXPORT_TYPE_FAT != exportType;
+        int launcherType = launchConfig.getAttribute(
+                IWLaunchConfigurationConstants.ATTR_LAUNCHER_TYPE,
+                IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_WIN);
 
         // Copy over launcher
-        monitor.beginTask("Generating launcher file", 1);
-        IO.copy(LauncherHelper.getLauncherOriginal(), new FileOutputStream(launcherFile), true);
+        monitor.beginTask(WMessages.WRunner_generateLauncher_task, 1);
+        IO.copy(LauncherHelper.getLauncherOriginal(launcherType),
+                new FileOutputStream(launcherFile), true);
 
         // Set icon if specified
         if (launcherIcon != null && launcherIcon.isFile() && launcherIcon.exists()) {
-            monitor.beginTask("Setting launcher icon", 1);
-            LauncherHelper.runResourceEditor("/I", launcherFile, launcherIcon);
+            monitor.beginTask(WMessages.WRunner_settingIcon_task, 1);
+            LauncherHelper.runResourceEditor("/I", launcherFile, launcherIcon, false); //$NON-NLS-1$
         }
 
         // Generate classpath
         HashSet cpNames = new HashSet();
         int cpi = 1;
         while (true) {
-            String k = "classpath." + cpi;
+            String k = IWINIConstants.CLASSPATH_PREFIX + cpi;
             String v = (String) ini.get(k);
             cpi++;
-            if (v == null || "".equals(v))
+            if (Lang.isEmpty(v)) //$NON-NLS-1$
                 break;
 
             File f = new File(v);
@@ -231,21 +236,21 @@ class WRunner extends AbstractVMRunner
                 // Generate unique name from folder
                 String nf = f.getName();
                 String nft = IO.removeExtension(f);
-                if (nf.equals("bin")) {
+                if (nf.equals("bin")) { //$NON-NLS-1$
                     nft = f.getParentFile().getName();
-                    nf = nft + ".jar";
+                    nf = nft + ".jar"; //$NON-NLS-1$
                 }
                 int nfi = 2;
                 while (cpNames.contains(nf)) {
-                    nf = nft + "-" + nfi + ".jar";
+                    nf = nft + "-" + nfi + ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
                     nfi++;
                 }
                 cpNames.add(nf);
 
                 // Generate jar file for entry
                 File genf = new File(launcherDir, nf);
-                File manifest = new File(new File(f.getParentFile(), "META-INF"), "MANIFEST.MF");
-                File tf = File.createTempFile("winrun4j", ".jar");
+                File manifest = new File(new File(f.getParentFile(), "META-INF"), "MANIFEST.MF"); //$NON-NLS-1$ //$NON-NLS-2$
+                File tf = File.createTempFile("winrun4j", ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
                 tf.deleteOnExit();
                 IO.jar(f, manifest, tf);
 
@@ -255,15 +260,15 @@ class WRunner extends AbstractVMRunner
                     tf.delete();
                     ini.put(k, genf.getName());
                 } else {
-                    LauncherHelper.runResourceEditor("/J", launcherFile, tf);
+                    LauncherHelper.runResourceEditor("/J", launcherFile, tf, false); //$NON-NLS-1$
                     ini.remove(k);
                 }
             } else {
                 String fe = IO.removeExtension(f);
-                String nf = fe + ".jar";
+                String nf = fe + ".jar"; //$NON-NLS-1$
                 int nfi = 2;
                 while (cpNames.contains(nf)) {
-                    nf = fe + "-" + nfi + ".jar";
+                    nf = fe + "-" + nfi + ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
                     nfi++;
                 }
                 cpNames.add(nf);
@@ -272,35 +277,35 @@ class WRunner extends AbstractVMRunner
                     IO.copy(new FileInputStream(f), new FileOutputStream(genf), true);
                     ini.put(k, genf.getName());
                 } else {
-                    LauncherHelper.runResourceEditor("/J", launcherFile, f);
+                    LauncherHelper.runResourceEditor("/J", launcherFile, f, false); //$NON-NLS-1$
                     ini.remove(k);
                 }
             }
         }
 
         // Now remove unwanted ini items
-        ini.remove("vm.location");
-        ini.remove("working.directory");
-        if ("false".equals(ini.get("dde.enabled"))) {
-            ini.remove("dde.enabled");
-            ini.remove("dde.server.name");
-            ini.remove("dde.topic");
-            ini.remove("dde.window.class");
+        ini.remove(IWINIConstants.VM_LOCATION);
+        ini.remove(IWINIConstants.WORKING_DIRECTORY);
+        if ("false".equals(ini.get(IWINIConstants.DDE_ENABLED))) {
+            ini.remove(IWINIConstants.DDE_ENABLED);
+            ini.remove(IWINIConstants.DDE_SERVER_NAME);
+            ini.remove(IWINIConstants.DDE_TOPIC);
+            ini.remove(IWINIConstants.DDE_WINDOW_CLASS);
         }
-        if ("".equals(ini.get("log"))) {
-            ini.remove("log.overwrite");
+        if ("".equals(ini.get(IWINIConstants.LOG_FILE))) { //$NON-NLS-1$ 
+            ini.remove(IWINIConstants.LOG_OVERWRITE);
         }
-        if ("".equals(ini.get("splash.image"))) {
-            ini.remove("splash.autohide");
+        if ("".equals(ini.get(IWINIConstants.SPLASH_IMAGE))) { //$NON-NLS-1$
+            ini.remove(IWINIConstants.SPLASH_AUTOHIDE);
         }
 
         // Create ini file
-        File launcherIni = new File(launcherDir, IO.removeExtension(launcherFile) + ".ini");
+        File launcherIni = new File(launcherDir, IO.removeExtension(launcherFile) + ".ini"); //$NON-NLS-1$
         LauncherHelper.buildIniFile(launcherIni, ini);
 
         // Embed ini file if required
         if (exportType != IWLaunchConfigurationConstants.EXPORT_TYPE_STANDARD) {
-            LauncherHelper.runResourceEditor("/N", launcherFile, launcherIni);
+            LauncherHelper.runResourceEditor("/N", launcherFile, launcherIni, false); //$NON-NLS-1$
             launcherIni.delete();
         }
     }

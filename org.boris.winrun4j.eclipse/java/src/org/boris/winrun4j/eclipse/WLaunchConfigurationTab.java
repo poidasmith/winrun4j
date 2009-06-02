@@ -72,7 +72,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     private void createMiscEditor(Composite parent) {
         Font font = parent.getFont();
         Group group = new Group(parent, SWT.NONE);
-        group.setText("Miscellaneous:");
+        group.setText(WMessages.WLaunchConfigurationTab_misc);
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         group.setLayoutData(gd);
         GridLayout layout = new GridLayout();
@@ -83,19 +83,19 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // Single instance
         Label t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("Single Instance");
+        t.setText(WMessages.WLaunchConfigurationTab_singleInstance);
         this.singleInstanceCombo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
-        this.singleInstanceCombo.setItems(new String[] { "", "process", "window", "dde" });
+        this.singleInstanceCombo.setItems(new String[] { "", WMessages.WLaunchConfigurationTab_process, WMessages.WLaunchConfigurationTab_singleInstance_window, WMessages.WLaunchConfigurationTab_singleInstance_dde }); //$NON-NLS-1$
         this.singleInstanceCombo.setFont(font);
         this.singleInstanceCombo.addSelectionListener(this);
 
         // Process priority
         t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("Process Priority");
+        t.setText(WMessages.WLaunchConfigurationTab_processPr);
         this.processPriorityCombo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
-        this.processPriorityCombo.setItems(new String[] { "", "idle", "below_normal", "normal",
-                "above_normal", "high", "realtime" });
+        this.processPriorityCombo.setItems(new String[] { "", WMessages.WLaunchConfigurationTab_processPr_idle, WMessages.WLaunchConfigurationTab_processPr_below, WMessages.WLaunchConfigurationTab_processPr_normal, //$NON-NLS-1$
+                WMessages.WLaunchConfigurationTab_processPr_above, WMessages.WLaunchConfigurationTab_processPr_high, WMessages.WLaunchConfigurationTab_processPr_realtime });
         this.processPriorityCombo.setFont(font);
         this.processPriorityCombo.addSelectionListener(this);
         this.processPriorityCombo.setVisibleItemCount(7);
@@ -104,7 +104,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     private void createDDEEditor(Composite parent) {
         Font font = parent.getFont();
         Group group = new Group(parent, SWT.NONE);
-        group.setText("Dynamic Data Exchange (DDE):");
+        group.setText(WMessages.WLaunchConfigurationTab_dde);
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         group.setLayoutData(gd);
         GridLayout layout = new GridLayout();
@@ -115,7 +115,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // DDE enabled
         Label t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("Enabled");
+        t.setText(WMessages.WLaunchConfigurationTab_dde_enabled);
         this.ddeEnabledCheck = new Button(group, SWT.CHECK);
         this.ddeEnabledCheck.addSelectionListener(this);
         gd = new GridData();
@@ -125,7 +125,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // DDE class
         t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("DDE Class");
+        t.setText(WMessages.WLaunchConfigurationTab_dde_class);
         this.ddeClassText = new Text(group, SWT.SEARCH);
         gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.horizontalSpan = 6;
@@ -135,7 +135,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // DDE server name
         t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("Server Name");
+        t.setText(WMessages.WLaunchConfigurationTab_dde_server_name);
         this.ddeServerNameText = new Text(group, SWT.SEARCH);
         this.ddeServerNameText.addModifyListener(this);
         gd = new GridData();
@@ -145,7 +145,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // DDE topic name
         t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("Topic");
+        t.setText(WMessages.WLaunchConfigurationTab_dde_topic);
         this.ddeTopicNameText = new Text(group, SWT.SEARCH);
         this.ddeTopicNameText.addModifyListener(this);
         gd = new GridData();
@@ -155,7 +155,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // DDE window name
         t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("Window Name");
+        t.setText(WMessages.WLaunchConfigurationTab_dde_window);
         this.ddeWindowNameText = new Text(group, SWT.SEARCH);
         this.ddeWindowNameText.addModifyListener(this);
         gd = new GridData();
@@ -166,7 +166,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     private void createSplashEditor(Composite parent) {
         Font font = parent.getFont();
         Group group = new Group(parent, SWT.NONE);
-        group.setText("Splash Screen:");
+        group.setText(WMessages.WLaunchConfigurationTab_splashScreen);
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         group.setLayoutData(gd);
         GridLayout layout = new GridLayout();
@@ -177,14 +177,14 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // Splash File
         Label t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("File");
+        t.setText(WMessages.WLaunchConfigurationTab_splashFile);
         this.splashImageText = new Text(group, SWT.SEARCH);
         this.splashImageText.addModifyListener(this);
         gd = new GridData(GridData.FILL_HORIZONTAL);
         this.splashImageText.setLayoutData(gd);
         Button b = new Button(group, SWT.NULL);
         b.setFont(font);
-        b.setText("Browse...");
+        b.setText(WMessages.WLaunchConfigurationTab_splashFileBrowse);
         b.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 browseForSplashImage();
@@ -194,7 +194,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // Splash auto-hide
         t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("Auto-Hide");
+        t.setText(WMessages.WLaunchConfigurationTab_splashAutoHide);
         this.splashAutoHideCheck = new Button(group, SWT.CHECK);
         this.splashAutoHideCheck.addSelectionListener(this);
         gd = new GridData();
@@ -205,7 +205,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     private void createLogEditor(Composite parent) {
         Font font = parent.getFont();
         Group group = new Group(parent, SWT.NONE);
-        group.setText("Logging:");
+        group.setText(WMessages.WLaunchConfigurationTab_logging);
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         group.setLayoutData(gd);
         GridLayout layout = new GridLayout();
@@ -216,9 +216,9 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // Log level
         Label t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("Level");
+        t.setText(WMessages.WLaunchConfigurationTab_logLevel);
         this.logLevelCombo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
-        this.logLevelCombo.setItems(new String[] { "", "info", "warning", "error", "none" });
+        this.logLevelCombo.setItems(new String[] { "", WMessages.WLaunchConfigurationTab_logLevel_info, WMessages.WLaunchConfigurationTab_logLevel_warn, WMessages.WLaunchConfigurationTab_logLevel_error, WMessages.WLaunchConfigurationTab_logLevel_none }); //$NON-NLS-1$
         this.logLevelCombo.setFont(font);
         this.logLevelCombo.addSelectionListener(this);
         gd = new GridData();
@@ -228,9 +228,9 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // Log file
         t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("File");
+        t.setText(WMessages.WLaunchConfigurationTab_logFile);
         this.logFileText = new Text(group, SWT.SEARCH);
-        this.logFileText.setMessage("No selection logs to console");
+        this.logFileText.setMessage(WMessages.WLaunchConfigurationTab_logFile_message);
         this.logFileText.addModifyListener(this);
         gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.horizontalSpan = 2;
@@ -239,7 +239,7 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         // Log file overwrite
         t = new Label(group, SWT.NULL);
         t.setFont(font);
-        t.setText("Overwrite");
+        t.setText(WMessages.WLaunchConfigurationTab_logFile_overwrite);
         this.logFileOverwriteCheck = new Button(group, SWT.CHECK);
         this.logFileOverwriteCheck.addSelectionListener(this);
         gd = new GridData();
@@ -249,35 +249,35 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     }
 
     public String getName() {
-        return "WinRun4J";
+        return "WinRun4J"; //$NON-NLS-1$
     }
 
     public void initializeFrom(ILaunchConfiguration configuration) {
         try {
             UIHelper.select(logLevelCombo, configuration.getAttribute(
-                    IWLaunchConfigurationConstants.PROP_LOG_LEVEL, ""));
+                    IWLaunchConfigurationConstants.PROP_LOG_LEVEL, "")); //$NON-NLS-1$
             logFileText.setText(configuration.getAttribute(
-                    IWLaunchConfigurationConstants.PROP_LOG_FILE, ""));
+                    IWLaunchConfigurationConstants.PROP_LOG_FILE, "")); //$NON-NLS-1$
             logFileOverwriteCheck.setSelection(configuration.getAttribute(
                     IWLaunchConfigurationConstants.PROP_LOG_OVERWRITE, true));
             splashImageText.setText(configuration.getAttribute(
-                    IWLaunchConfigurationConstants.PROP_SPLASH_FILE, ""));
+                    IWLaunchConfigurationConstants.PROP_SPLASH_FILE, "")); //$NON-NLS-1$
             splashAutoHideCheck.setSelection(configuration.getAttribute(
                     IWLaunchConfigurationConstants.PROP_SPLASH_AUTOHIDE, true));
             ddeEnabledCheck.setSelection(configuration.getAttribute(
                     IWLaunchConfigurationConstants.PROP_DDE_ENABLED, false));
             ddeClassText.setText(configuration.getAttribute(
-                    IWLaunchConfigurationConstants.PROP_DDE_CLASS, ""));
+                    IWLaunchConfigurationConstants.PROP_DDE_CLASS, "")); //$NON-NLS-1$
             ddeServerNameText.setText(configuration.getAttribute(
-                    IWLaunchConfigurationConstants.PROP_DDE_SERVER_NAME, ""));
+                    IWLaunchConfigurationConstants.PROP_DDE_SERVER_NAME, "")); //$NON-NLS-1$
             ddeTopicNameText.setText(configuration.getAttribute(
-                    IWLaunchConfigurationConstants.PROP_DDE_TOPIC, ""));
+                    IWLaunchConfigurationConstants.PROP_DDE_TOPIC, "")); //$NON-NLS-1$
             ddeWindowNameText.setText(configuration.getAttribute(
-                    IWLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME, ""));
+                    IWLaunchConfigurationConstants.PROP_DDE_WINDOW_NAME, "")); //$NON-NLS-1$
             UIHelper.select(singleInstanceCombo, configuration.getAttribute(
-                    IWLaunchConfigurationConstants.PROP_SINGLE_INSTANCE, ""));
+                    IWLaunchConfigurationConstants.PROP_SINGLE_INSTANCE, "")); //$NON-NLS-1$
             UIHelper.select(processPriorityCombo, configuration.getAttribute(
-                    IWLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, ""));
+                    IWLaunchConfigurationConstants.PROP_PROCESS_PRIORITY, "")); //$NON-NLS-1$
 
             updateEnablements();
         } catch (CoreException e) {
@@ -345,8 +345,8 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
     }
 
     private void updateEnablements() {
-        logFileOverwriteCheck.setEnabled(!logFileText.getText().equals(""));
-        splashAutoHideCheck.setEnabled(!splashImageText.getText().equals(""));
+        logFileOverwriteCheck.setEnabled(!logFileText.getText().equals("")); //$NON-NLS-1$
+        splashAutoHideCheck.setEnabled(!splashImageText.getText().equals("")); //$NON-NLS-1$
         boolean dde = ddeEnabledCheck.getSelection();
         ddeClassText.setEnabled(dde);
         ddeServerNameText.setEnabled(dde);
@@ -360,8 +360,8 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
 
     protected void browseForSplashImage() {
         FileDialog fd = new FileDialog(getShell());
-        fd.setFilterExtensions(new String[] { "*.jpg;*.gif;*.bmp" });
-        fd.setText("Select Splash Image");
+        fd.setFilterExtensions(new String[] { WMessages.WLaunchConfigurationTab_splash_filterList });
+        fd.setText(WMessages.WLaunchConfigurationTab_splashSelect_message);
         String f = fd.open();
         if (f != null)
             splashImageText.setText(f);

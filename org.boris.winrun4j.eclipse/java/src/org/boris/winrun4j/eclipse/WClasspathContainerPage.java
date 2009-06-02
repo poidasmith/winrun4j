@@ -19,8 +19,8 @@ public class WClasspathContainerPage extends WizardPage implements IClasspathCon
 {
     public WClasspathContainerPage() {
         super("WinRun4JContainerPage");
-        setTitle(WMessages.classpathContainerPage_title);
-        setDescription(WMessages.classpathContainerPage_description);
+        setTitle(WMessages.WClasspathContainerPage_title);
+        setDescription(WMessages.WClasspathContainerPage_description);
         setImageDescriptor(WActivator.getImageDescriptor("icons/addlibrary_wiz.png"));
     }
 
