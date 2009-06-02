@@ -32,6 +32,7 @@
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             class="org.boris.winrun4j.eclipse.WLaunchShortcut"
+            description="Runs a local Java application using the WinRun4J launcher"
             icon="icons/winrun4j.gif"
             id="org.boris.winrun4j.eclipse.launch.shortcut"
             label="WinRun4J Application"

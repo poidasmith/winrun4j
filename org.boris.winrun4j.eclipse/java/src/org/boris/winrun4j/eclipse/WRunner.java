@@ -87,7 +87,7 @@ class WRunner extends AbstractVMRunner
         if (IWLaunchConfigurationConstants.LAUNCH_TYPE_EXPORT.equals(mode)) {
             try {
                 doExport(ini, monitor);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 abort("Could not export application", e, IStatus.ERROR);
             } finally {
                 monitor.done();
@@ -99,15 +99,15 @@ class WRunner extends AbstractVMRunner
             monitor.subTask("Extracting launcher executable");
             launcher = LauncherHelper.createTemporaryLauncher();
             monitor.worked(1);
-        } catch (IOException e) {
-            abort("Could not generate INI file for launch", e, IStatus.ERROR);
+        } catch (Exception e) {
+            abort("Could not extract launcher", e, IStatus.ERROR);
         }
 
         try {
             monitor.subTask("Generating INI file...");
             inf = LauncherHelper.buildTemporaryIniFile(ini);
             monitor.worked(1);
-        } catch (IOException e) {
+        } catch (Exception e) {
             abort("Could not generate INI file for launch", e, IStatus.ERROR);
         }
 
@@ -197,8 +197,11 @@ class WRunner extends AbstractVMRunner
         File launcherFile = new File(launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.ATTR_LAUNCHER_FILE, (String) null));
         File launcherDir = launcherFile.getParentFile();
-        File launcherIcon = new File(launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.ATTR_LAUNCHER_ICON, (String) null));
+        String icon = launchConfig.getAttribute(IWLaunchConfigurationConstants.ATTR_LAUNCHER_ICON,
+                (String) null);
+        File launcherIcon = null;
+        if (icon != null)
+            launcherIcon = new File(icon);
         int exportType = launchConfig.getAttribute(IWLaunchConfigurationConstants.ATTR_EXPORT_TYPE,
                 IWLaunchConfigurationConstants.EXPORT_TYPE_STANDARD);
         boolean standard = IWLaunchConfigurationConstants.EXPORT_TYPE_FAT != exportType;
