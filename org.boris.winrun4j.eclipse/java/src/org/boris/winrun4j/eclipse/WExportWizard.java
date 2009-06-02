@@ -10,15 +10,11 @@
 package org.boris.winrun4j.eclipse;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.jdt.launching.IRuntimeClasspathEntry;
-import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.Launch;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IExportWizard;
@@ -38,12 +34,20 @@ public class WExportWizard extends Wizard implements IExportWizard
     public boolean performFinish() {
         try {
             ewp.saveSettings();
-            exportLauncher(ewp.getLaunchConfig(), ewp.getLauncherFile(), ewp.getLauncherIcon(), ewp
+            WLaunchConfigurationDelegate lcd = new WLaunchConfigurationDelegate();
+            ILaunchConfigurationWorkingCopy lc = ewp.getLaunchConfig().getWorkingCopy();
+            lc.setAttribute(IWLaunchConfigurationConstants.ATTR_LAUNCHER_FILE, ewp
+                    .getLauncherFile().getAbsolutePath());
+            File icon = ewp.getLauncherIcon();
+            if (icon != null)
+                lc.setAttribute(IWLaunchConfigurationConstants.ATTR_LAUNCHER_ICON, icon
+                        .getAbsolutePath());
+            lc.setAttribute(IWLaunchConfigurationConstants.ATTR_STANDARD_LAUNCHER, ewp
                     .isStandardLauncher());
+            Launch l = new Launch(lc, IWLaunchConfigurationConstants.LAUNCH_TYPE_EXPORT, null);
+            lcd.launch(lc, l.getLaunchMode(), l, new NullProgressMonitor());
             return true;
         } catch (CoreException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
@@ -54,33 +58,5 @@ public class WExportWizard extends Wizard implements IExportWizard
         setDefaultPageImageDescriptor(WActivator.getImageDescriptor("icons/exportapp_wiz.png"));
         setNeedsProgressMonitor(true);
         setDialogSettings(WActivator.getDefault().getDialogSettings());
-    }
-
-    public static void exportLauncher(ILaunchConfiguration launchConfig, File launcherFile,
-            File iconFile, boolean standard) throws CoreException, IOException {
-        // Create directory
-        File launcherDir = launcherFile.getParentFile();
-        if (!launcherDir.exists()) {
-            if (!launcherDir.mkdirs())
-                throw new CoreException(new Status(IStatus.ERROR, WActivator.getIdentifier(),
-                        "Could not create launcher output directory"));
-        }
-
-        // Copy over launcher
-        IO.copy(LauncherHelper.getLauncherOriginal(), new FileOutputStream(launcherFile), true);
-
-        // Run RCEDIT to set icon
-        if (iconFile != null) {
-            LauncherHelper.runResourceEditor("/I", launcherFile, iconFile);
-        }
-
-        // Copy over generated jars
-        IRuntimeClasspathEntry[] entries = JavaRuntime
-                .computeUnresolvedRuntimeClasspath(launchConfig);
-        entries = JavaRuntime.resolveRuntimeClasspath(entries, launchConfig);
-
-        // Generate jars and copy over
-        // Copy over ini file
-        // - need naming scheme for directory entries on classpath
     }
 }

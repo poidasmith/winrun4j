@@ -13,6 +13,8 @@ interface IWLaunchConfigurationConstants
 {
     String TYPE = "org.boris.winrun4j.eclipse.launch";
 
+    String LAUNCH_TYPE_EXPORT = "export";
+
     String PROP_LOG_LEVEL = "log.level";
     String PROP_SINGLE_INSTANCE = "single.instance";
     String PROP_PROCESS_PRIORITY = "process.priority";
@@ -25,4 +27,9 @@ interface IWLaunchConfigurationConstants
     String PROP_DDE_SERVER_NAME = "dde.server";
     String PROP_DDE_TOPIC = "dde.topic";
     String PROP_DDE_WINDOW_NAME = "dde.window";
+
+    String ATTR_LAUNCHER_FILE = "launcher.file";
+    String ATTR_LAUNCHER_ICON = "launcher.icon";
+    String ATTR_STANDARD_LAUNCHER = "standard.launcher";
+
 }

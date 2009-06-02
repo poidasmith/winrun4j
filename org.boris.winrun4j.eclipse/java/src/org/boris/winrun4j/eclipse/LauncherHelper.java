@@ -26,7 +26,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
 
 public class LauncherHelper
@@ -64,6 +66,18 @@ public class LauncherHelper
         }
         pw.flush();
         pw.close();
+    }
+
+    public static File createTemporaryLauncher() throws IOException {
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher.exe");
+        launcher.deleteOnExit();
+        if (launcher.exists()) {
+            return launcher;
+        }
+        FileOutputStream fos = new FileOutputStream(launcher);
+        IO.copy(LauncherHelper.getLauncherOriginal(), fos, true);
+        return launcher;
     }
 
     public static Map generateIni(VMRunnerConfiguration configuration,
@@ -127,11 +141,21 @@ public class LauncherHelper
         return ini;
     }
 
+    public static String getJVMPath(IVMInstall vmInstall) {
+        File f = new File(vmInstall.getInstallLocation(), "bin" + File.separatorChar + "client"
+                + File.separatorChar + "jvm.dll");
+        if (!f.exists()) {
+            f = new File(vmInstall.getInstallLocation(), "jre" + File.separatorChar + "bin"
+                    + File.separatorChar + "client" + File.separatorChar + "jvm.dll");
+        }
+        return f.getAbsolutePath();
+    }
+
     public static Process runResourceEditor(String option, File exeFile, File resourceFile)
             throws IOException {
 
         File rcEdit = null;
-        URL rcUrl = WActivator.getBundleEntry("/launcher/RCEDIT.exe");
+        URL rcUrl = FileLocator.toFileURL(WActivator.getBundleEntry("/launcher/RCEDIT.exe"));
         try {
             rcEdit = new File(rcUrl.toURI());
         } catch (URISyntaxException e) {
