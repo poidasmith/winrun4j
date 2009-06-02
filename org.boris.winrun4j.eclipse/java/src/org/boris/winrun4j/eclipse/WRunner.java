@@ -10,8 +10,11 @@
 package org.boris.winrun4j.eclipse;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -82,7 +85,13 @@ class WRunner extends AbstractVMRunner
 
         // If we are just exporting then fire off here
         if (IWLaunchConfigurationConstants.LAUNCH_TYPE_EXPORT.equals(mode)) {
-            doExport(configuration, ini, monitor);
+            try {
+                doExport(ini, monitor);
+            } catch (IOException e) {
+                abort("Could not export application", e, IStatus.ERROR);
+            } finally {
+                monitor.done();
+            }
             return;
         }
 
@@ -171,9 +180,9 @@ class WRunner extends AbstractVMRunner
         return null;
     }
 
-    protected String renderDebugTarget(String classToRun, int host) {
+    protected String renderDebugTarget(String classToRun, int port) {
         String format = "{0} at localhost:{1}";
-        return MessageFormat.format(format, new String[] { classToRun, String.valueOf(host) });
+        return MessageFormat.format(format, new String[] { classToRun, String.valueOf(port) });
     }
 
     private String renderCommandLine(String[] cmdLine) {
@@ -184,9 +193,110 @@ class WRunner extends AbstractVMRunner
         return cmdLine[0];
     }
 
-    private void doExport(VMRunnerConfiguration configuration, Map ini, IProgressMonitor monitor) {
-        System.out.println(configuration);
-        System.out.println(ini);
-        monitor.done();
+    private void doExport(Map ini, IProgressMonitor monitor) throws CoreException, IOException {
+        File launcherFile = new File(launchConfig.getAttribute(
+                IWLaunchConfigurationConstants.ATTR_LAUNCHER_FILE, (String) null));
+        File launcherDir = launcherFile.getParentFile();
+        File launcherIcon = new File(launchConfig.getAttribute(
+                IWLaunchConfigurationConstants.ATTR_LAUNCHER_ICON, (String) null));
+        boolean standard = launchConfig.getAttribute(
+                IWLaunchConfigurationConstants.ATTR_STANDARD_LAUNCHER, false);
+
+        // Copy over launcher
+        monitor.beginTask("Generating launcher file", 1);
+        IO.copy(LauncherHelper.getLauncherOriginal(), new FileOutputStream(launcherFile), true);
+
+        // Set icon if specified
+        if (launcherIcon != null && launcherIcon.isFile() && launcherIcon.exists()) {
+            monitor.beginTask("Setting launcher icon", 1);
+            LauncherHelper.runResourceEditor("/I", launcherFile, launcherIcon);
+        }
+
+        // Generate classpath
+        HashSet cpNames = new HashSet();
+        int cpi = 1;
+        while (true) {
+            String k = "classpath." + cpi;
+            String v = (String) ini.get(k);
+            cpi++;
+            if (v == null || "".equals(v))
+                break;
+
+            File f = new File(v);
+            if (f.isDirectory()) {
+                // Generate unique name from folder
+                String nf = f.getName();
+                String nft = IO.removeExtension(f);
+                if (nf.equals("bin")) {
+                    nft = f.getParentFile().getName() + ".jar";
+                }
+                int nfi = 2;
+                while (cpNames.contains(nf)) {
+                    nf = nft + "-" + nfi + ".jar";
+                    nfi++;
+                }
+                cpNames.add(nf);
+
+                // Generate jar file for entry
+                File genf = new File(launcherDir, nf);
+                File manifest = new File(new File(f.getParentFile(), "META-INF"), "MANIFEST.MF");
+                File tf = File.createTempFile("winrun4j", ".jar");
+                tf.deleteOnExit();
+                IO.jar(f, manifest, tf);
+
+                // Copy to output dir or embed in executable
+                if (standard) {
+                    IO.copy(new FileInputStream(tf), new FileOutputStream(genf), true);
+                    tf.delete();
+                    ini.put(k, genf.getName());
+                } else {
+                    LauncherHelper.runResourceEditor("/J", launcherFile, tf);
+                    ini.remove(k);
+                }
+            } else {
+                String fe = IO.removeExtension(f);
+                String nf = fe + ".jar";
+                int nfi = 2;
+                while (cpNames.contains(nf)) {
+                    nf = fe + "-" + nfi + ".jar";
+                    nfi++;
+                }
+                cpNames.add(nf);
+                File genf = new File(launcherDir, nf);
+                if (standard) {
+                    IO.copy(new FileInputStream(f), new FileOutputStream(genf), true);
+                    ini.put(k, genf.getName());
+                } else {
+                    LauncherHelper.runResourceEditor("/J", launcherFile, f);
+                    ini.remove(k);
+                }
+            }
+        }
+
+        // Now remove unwanted ini items
+        ini.remove("vm.location");
+        ini.remove("working.directory");
+        if ("false".equals(ini.get("dde.enabled"))) {
+            ini.remove("dde.enabled");
+            ini.remove("dde.server.name");
+            ini.remove("dde.topic");
+            ini.remove("dde.window.class");
+        }
+        if ("".equals(ini.get("log"))) {
+            ini.remove("log.overwrite");
+        }
+        if ("".equals(ini.get("splash.image"))) {
+            ini.remove("splash.autohide");
+        }
+
+        // Create ini file
+        File launcherIni = new File(launcherDir, IO.removeExtension(launcherFile) + ".ini");
+        LauncherHelper.buildIniFile(launcherIni, ini);
+
+        // Embed ini file if required
+        if (!standard) {
+            LauncherHelper.runResourceEditor("/N", launcherFile, launcherIni);
+            launcherIni.delete();
+        }
     }
 }

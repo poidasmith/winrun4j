@@ -56,7 +56,7 @@ class IO
 
     public static void jar(File directory, File manifest, File jar) throws IOException {
         JarOutputStream jos = new JarOutputStream(new FileOutputStream(jar));
-        if (manifest != null) {
+        if (manifest != null && manifest.exists() && manifest.isFile()) {
             jos.putNextEntry(new ZipEntry("META-INF/MANIFEST.MF"));
             copy(new FileInputStream(manifest), jos, false);
         }
@@ -72,5 +72,15 @@ class IO
             }
         }
         jos.close();
+    }
+
+    public static String removeExtension(File f) {
+        if (f == null)
+            return null;
+        String n = f.getName();
+        int idx = n.lastIndexOf('.');
+        if (idx == -1)
+            return n;
+        return n.substring(0, idx);
     }
 }

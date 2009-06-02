@@ -21,9 +21,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -83,7 +83,7 @@ public class LauncherHelper
     public static Map generateIni(VMRunnerConfiguration configuration,
             ILaunchConfiguration launchConfig, String vmLocation, boolean debug, int port)
             throws CoreException {
-        Map ini = new HashMap();
+        Map ini = new TreeMap();
         ini.put("main.class", configuration.getClassToLaunch());
         if (vmLocation != null)
             ini.put("vm.location", vmLocation);
