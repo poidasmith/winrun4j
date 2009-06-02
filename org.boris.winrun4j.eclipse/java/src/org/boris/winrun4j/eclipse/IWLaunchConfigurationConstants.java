@@ -35,6 +35,7 @@ interface IWLaunchConfigurationConstants
     String ATTR_LAUNCHER_ICON = "launcher.icon";
     String ATTR_EXPORT_TYPE = "launcher.export.type";
     String ATTR_LAUNCHER_TYPE = "launcher.exe.type";
+    String ATTR_WILDCARD_CLASSPATH = "launcher.wildcard.classpath";
 
     // How we export the final launcher
     public static final int EXPORT_TYPE_STANDARD = 1;

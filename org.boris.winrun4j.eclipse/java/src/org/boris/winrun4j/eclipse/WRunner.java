@@ -209,6 +209,8 @@ class WRunner extends AbstractVMRunner
         int launcherType = launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.ATTR_LAUNCHER_TYPE,
                 IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_WIN);
+        boolean wildcardCp = launchConfig.getAttribute(
+                IWLaunchConfigurationConstants.ATTR_WILDCARD_CLASSPATH, false);
 
         // Copy over launcher
         monitor.beginTask(WMessages.WRunner_generateLauncher_task, 1);
@@ -258,7 +260,10 @@ class WRunner extends AbstractVMRunner
                 if (standard) {
                     IO.copy(new FileInputStream(tf), new FileOutputStream(genf), true);
                     tf.delete();
-                    ini.put(k, genf.getName());
+                    if (wildcardCp)
+                        ini.remove(k);
+                    else
+                        ini.put(k, genf.getName());
                 } else {
                     LauncherHelper.runResourceEditor("/J", launcherFile, tf, false); //$NON-NLS-1$
                     ini.remove(k);
@@ -275,7 +280,10 @@ class WRunner extends AbstractVMRunner
                 File genf = new File(launcherDir, nf);
                 if (standard) {
                     IO.copy(new FileInputStream(f), new FileOutputStream(genf), true);
-                    ini.put(k, genf.getName());
+                    if (wildcardCp)
+                        ini.remove(k);
+                    else
+                        ini.put(k, genf.getName());
                 } else {
                     LauncherHelper.runResourceEditor("/J", launcherFile, f, false); //$NON-NLS-1$
                     ini.remove(k);
@@ -297,6 +305,10 @@ class WRunner extends AbstractVMRunner
         }
         if ("".equals(ini.get(IWINIConstants.SPLASH_IMAGE))) { //$NON-NLS-1$
             ini.remove(IWINIConstants.SPLASH_AUTOHIDE);
+        }
+        if (wildcardCp) {
+            ini.put(IWINIConstants.CLASSPATH_PREFIX + 1, "*.jar");
+            ini.put(IWINIConstants.CLASSPATH_PREFIX + 2, "*.zip");
         }
 
         // Create ini file

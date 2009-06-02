@@ -51,6 +51,7 @@ public class WExportWizardPage extends WizardPage
     private static final String SETTING_ICON = "WinRun4J.export.icon"; //$NON-NLS-1$
     private static final String SETTING_EXPORT_TYPE = "WinRun4J.export.exportType"; //$NON-NLS-1$
     private static final String SETTING_LAUNCHER_TYPE = "WinRun4J.export.launcherType"; //$NON-NLS-1$
+    private static final String SETTING_WILDCARD_CLASSPATH = "WinRun4J.export.wildcardClasspath";
     private Map launchConfigs = new TreeMap();
 
     // UI elements
@@ -59,6 +60,7 @@ public class WExportWizardPage extends WizardPage
     private Combo outputDirectoryCombo;
     private Combo launcherIconCombo;
     private Combo exportTypeCombo;
+    private Button wildcardClasspathCheck;
     private Combo launcherTypeCombo;
 
     // Model data
@@ -90,6 +92,10 @@ public class WExportWizardPage extends WizardPage
 
     public int getLauncherType() {
         return launcherTypeCombo.getSelectionIndex() + 1;
+    }
+
+    public boolean isWildcardClasspath() {
+        return wildcardClasspathCheck.getSelection();
     }
 
     public void createControl(Composite parent) {
@@ -182,18 +188,26 @@ public class WExportWizardPage extends WizardPage
         etl.setText(WMessages.WExportWizardPage_exportType);
         GridHelper.setHorizontalSpan(etl, 2);
         exportTypeCombo = new Combo(composite, SWT.READ_ONLY);
-        exportTypeCombo.setItems(new String[] { WMessages.WExportWizardPage_exportTypeStandard, WMessages.WExportWizardPage_exportTypeEmbedIni,
+        exportTypeCombo.setItems(new String[] { WMessages.WExportWizardPage_exportTypeStandard,
+                WMessages.WExportWizardPage_exportTypeEmbedIni,
                 WMessages.WExportWizardPage_exportTypeFat });
         exportTypeCombo.select(0);
         GridHelper.setHorizontalSpan(exportTypeCombo, 2);
+
+        // Wildcard classpath
+        wildcardClasspathCheck = new Button(composite, SWT.CHECK);
+        wildcardClasspathCheck.setText("Wildcard Classpath");
+        GridHelper.setHorizontalSpan(wildcardClasspathCheck, 2);
 
         // Launcher type
         Label ltl = new Label(composite, SWT.NULL);
         ltl.setText(WMessages.WExportWizardPage_launcherType);
         GridHelper.setHorizontalSpan(ltl, 2);
         launcherTypeCombo = new Combo(composite, SWT.READ_ONLY);
-        launcherTypeCombo.setItems(new String[] { WMessages.WExportWizardPage_launcherType32W, WMessages.WExportWizardPage_launcherType32C,
-                WMessages.WExportWizardPage_launcherType64W, WMessages.WExportWizardPage_launcherType64C });
+        launcherTypeCombo.setItems(new String[] { WMessages.WExportWizardPage_launcherType32W,
+                WMessages.WExportWizardPage_launcherType32C,
+                WMessages.WExportWizardPage_launcherType64W,
+                WMessages.WExportWizardPage_launcherType64C });
         launcherTypeCombo.select(0);
         GridHelper.setHorizontalSpan(launcherTypeCombo, 2);
 
@@ -294,15 +308,11 @@ public class WExportWizardPage extends WizardPage
             return false;
         }
         if (launcherNameText.getText().equals("")) { //$NON-NLS-1$
-            setMessage(
-                    WMessages.WExportWizardPage_specifyLauncher,
-                    WARNING);
+            setMessage(WMessages.WExportWizardPage_specifyLauncher, WARNING);
             return false;
         }
         if (outputDirectoryCombo.getText().equals("")) { //$NON-NLS-1$
-            setMessage(
-                    WMessages.WExportWizardPage_specifyOutputDir,
-                    WARNING);
+            setMessage(WMessages.WExportWizardPage_specifyOutputDir, WARNING);
             return false;
         }
         return this.launchConfig != null && this.launcherFile != null;
@@ -320,6 +330,7 @@ public class WExportWizardPage extends WizardPage
         updateSettingList(id, SETTING_ICON_LIST, launcherIconCombo.getText());
         id.put(SETTING_EXPORT_TYPE, getExportType());
         id.put(SETTING_LAUNCHER_TYPE, getLauncherType());
+        id.put(SETTING_WILDCARD_CLASSPATH, wildcardClasspathCheck.getSelection());
     }
 
     public void updateSettingList(IDialogSettings id, String setting, String value) {
@@ -365,6 +376,7 @@ public class WExportWizardPage extends WizardPage
         if (val != 0)
             val--;
         launcherTypeCombo.select(val);
+        wildcardClasspathCheck.setSelection(id.getBoolean(SETTING_WILDCARD_CLASSPATH));
     }
 
 }
