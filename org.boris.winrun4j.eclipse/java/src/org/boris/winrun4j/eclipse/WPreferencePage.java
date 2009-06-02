@@ -1,5 +1,6 @@
 package org.boris.winrun4j.eclipse;
 
+import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
@@ -36,6 +37,13 @@ public class WPreferencePage extends FieldEditorPreferencePage implements IWorkb
         // Location to winrun4j library source
         addField(new StringFieldEditor(IWPreferenceConstants.LIBRARY_SRC, "&Source Location:",
                 getFieldEditorParent()));
+
+        // Default log level
+        ComboFieldEditor cfe = new ComboFieldEditor(IWPreferenceConstants.DEFAULT_LOG_LEVEL,
+                "&Default Log Level:", new String[][] { { "", "" }, { "info", "info" },
+                        { "warn", "warn" }, { "error", "error" }, { "none", "none" } },
+                getFieldEditorParent());
+        addField(cfe);
     }
 
     public void init(IWorkbench workbench) {

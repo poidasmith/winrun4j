@@ -133,7 +133,8 @@ public class LauncherHelper
             }
         }
         ini.put(IWINIConstants.LOG_LEVEL, launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_LOG_LEVEL, (String) null));
+                IWLaunchConfigurationConstants.PROP_LOG_LEVEL, WActivator
+                        .getPreference(IWPreferenceConstants.DEFAULT_LOG_LEVEL)));
         ini.put(IWINIConstants.LOG_FILE, launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_LOG_FILE, (String) null));
         ini.put(IWINIConstants.LOG_OVERWRITE, Boolean.toString(launchConfig.getAttribute(

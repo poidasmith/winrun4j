@@ -103,4 +103,8 @@ public class WActivator extends AbstractUIPlugin
         }
         return id;
     }
+
+    public static String getPreference(String key) {
+        return getDefault().getPreferenceStore().getString(key);
+    }
 }

@@ -73,11 +73,11 @@ class WRunner extends AbstractVMRunner
 
     public void doRun(VMRunnerConfiguration configuration, ILaunch launch, IProgressMonitor monitor)
             throws CoreException {
-
         int port = -1;
         if (debug) {
             port = SocketUtil.findFreePort();
         }
+
         String jvm = LauncherHelper.getJVMPath(vmInstall);
         Map ini = LauncherHelper.generateIni(configuration, launchConfig, jvm, debug, port);
         File launcher = null;

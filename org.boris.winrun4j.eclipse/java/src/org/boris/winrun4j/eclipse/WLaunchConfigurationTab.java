@@ -85,7 +85,9 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         t.setFont(font);
         t.setText(WMessages.WLaunchConfigurationTab_singleInstance);
         this.singleInstanceCombo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
-        this.singleInstanceCombo.setItems(new String[] { "", WMessages.WLaunchConfigurationTab_process, WMessages.WLaunchConfigurationTab_singleInstance_window, WMessages.WLaunchConfigurationTab_singleInstance_dde }); //$NON-NLS-1$
+        this.singleInstanceCombo
+                .setItems(new String[] {
+                        "", WMessages.WLaunchConfigurationTab_process, WMessages.WLaunchConfigurationTab_singleInstance_window, WMessages.WLaunchConfigurationTab_singleInstance_dde }); //$NON-NLS-1$
         this.singleInstanceCombo.setFont(font);
         this.singleInstanceCombo.addSelectionListener(this);
 
@@ -94,8 +96,12 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         t.setFont(font);
         t.setText(WMessages.WLaunchConfigurationTab_processPr);
         this.processPriorityCombo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
-        this.processPriorityCombo.setItems(new String[] { "", WMessages.WLaunchConfigurationTab_processPr_idle, WMessages.WLaunchConfigurationTab_processPr_below, WMessages.WLaunchConfigurationTab_processPr_normal, //$NON-NLS-1$
-                WMessages.WLaunchConfigurationTab_processPr_above, WMessages.WLaunchConfigurationTab_processPr_high, WMessages.WLaunchConfigurationTab_processPr_realtime });
+        this.processPriorityCombo
+                .setItems(new String[] {
+                        "", WMessages.WLaunchConfigurationTab_processPr_idle, WMessages.WLaunchConfigurationTab_processPr_below, WMessages.WLaunchConfigurationTab_processPr_normal, //$NON-NLS-1$
+                        WMessages.WLaunchConfigurationTab_processPr_above,
+                        WMessages.WLaunchConfigurationTab_processPr_high,
+                        WMessages.WLaunchConfigurationTab_processPr_realtime });
         this.processPriorityCombo.setFont(font);
         this.processPriorityCombo.addSelectionListener(this);
         this.processPriorityCombo.setVisibleItemCount(7);
@@ -218,7 +224,9 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
         t.setFont(font);
         t.setText(WMessages.WLaunchConfigurationTab_logLevel);
         this.logLevelCombo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
-        this.logLevelCombo.setItems(new String[] { "", WMessages.WLaunchConfigurationTab_logLevel_info, WMessages.WLaunchConfigurationTab_logLevel_warn, WMessages.WLaunchConfigurationTab_logLevel_error, WMessages.WLaunchConfigurationTab_logLevel_none }); //$NON-NLS-1$
+        this.logLevelCombo
+                .setItems(new String[] {
+                        "", WMessages.WLaunchConfigurationTab_logLevel_info, WMessages.WLaunchConfigurationTab_logLevel_warn, WMessages.WLaunchConfigurationTab_logLevel_error, WMessages.WLaunchConfigurationTab_logLevel_none }); //$NON-NLS-1$
         this.logLevelCombo.setFont(font);
         this.logLevelCombo.addSelectionListener(this);
         gd = new GridData();
@@ -360,7 +368,8 @@ public class WLaunchConfigurationTab extends AbstractLaunchConfigurationTab impl
 
     protected void browseForSplashImage() {
         FileDialog fd = new FileDialog(getShell());
-        fd.setFilterExtensions(new String[] { WMessages.WLaunchConfigurationTab_splash_filterList });
+        fd
+                .setFilterExtensions(new String[] { WMessages.WLaunchConfigurationTab_splash_filterList });
         fd.setText(WMessages.WLaunchConfigurationTab_splashSelect_message);
         String f = fd.open();
         if (f != null)
