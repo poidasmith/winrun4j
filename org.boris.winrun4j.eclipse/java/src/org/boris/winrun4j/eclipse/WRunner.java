@@ -199,8 +199,9 @@ class WRunner extends AbstractVMRunner
         File launcherDir = launcherFile.getParentFile();
         File launcherIcon = new File(launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.ATTR_LAUNCHER_ICON, (String) null));
-        boolean standard = launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.ATTR_STANDARD_LAUNCHER, false);
+        int exportType = launchConfig.getAttribute(IWLaunchConfigurationConstants.ATTR_EXPORT_TYPE,
+                IWLaunchConfigurationConstants.EXPORT_TYPE_STANDARD);
+        boolean standard = IWLaunchConfigurationConstants.EXPORT_TYPE_FAT != exportType;
 
         // Copy over launcher
         monitor.beginTask("Generating launcher file", 1);
@@ -228,7 +229,8 @@ class WRunner extends AbstractVMRunner
                 String nf = f.getName();
                 String nft = IO.removeExtension(f);
                 if (nf.equals("bin")) {
-                    nft = f.getParentFile().getName() + ".jar";
+                    nft = f.getParentFile().getName();
+                    nf = nft + ".jar";
                 }
                 int nfi = 2;
                 while (cpNames.contains(nf)) {
@@ -294,7 +296,7 @@ class WRunner extends AbstractVMRunner
         LauncherHelper.buildIniFile(launcherIni, ini);
 
         // Embed ini file if required
-        if (!standard) {
+        if (exportType != IWLaunchConfigurationConstants.EXPORT_TYPE_STANDARD) {
             LauncherHelper.runResourceEditor("/N", launcherFile, launcherIni);
             launcherIni.delete();
         }

@@ -30,6 +30,8 @@ Misc
 		? generate as one large class file (ie. trims down class files)
 	
 - Add vm.type option (ie. "client" or "server")
+- Allow vm.permsize.percent, vm.permsize.preferred
+- Think about vm memory "profiles", eg. dynamic app (large perm size), static server etc...
 
 - Add flag to register file associations on startup?
 - Add java utility to register file associations:
@@ -37,6 +39,8 @@ Misc
 	- FileAssociation.isRegistered(".java");
 	
 - Read only key handle to registry key api
+
+- Flag for registering native methods on launcher library (switch off for speed)
 	
 Resources
 =========

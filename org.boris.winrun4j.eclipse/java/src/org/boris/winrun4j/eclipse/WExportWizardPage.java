@@ -49,16 +49,17 @@ public class WExportWizardPage extends WizardPage
     private static final String SETTING_OUTPUTDIR_LIST = "WinRun4J.export.outputDirList";
     private static final String SETTING_ICON_LIST = "WinRun4J.export.iconList";
     private static final String SETTING_ICON = "WinRun4J.export.icon";
+    private static final String SETTING_EXPORT_TYPE = "WinRun4J.export.exportType";
     private static final String SETTING_LAUNCHER_TYPE = "WinRun4J.export.launcherType";
     private Map launchConfigs = new TreeMap();
 
     // UI elements
-    private Combo outputDirectoryCombo;
     private Combo launchConfigurationCombo;
-    private Combo launcherIconCombo;
-    private Button launcherTypeRadioStandard;
-    private Button launcherTypeRadioSingle;
     private Text launcherNameText;
+    private Combo outputDirectoryCombo;
+    private Combo launcherIconCombo;
+    private Combo exportTypeCombo;
+    private Combo launcherTypeCombo;
 
     // Model data
     private ILaunchConfiguration launchConfig;
@@ -83,8 +84,12 @@ public class WExportWizardPage extends WizardPage
         return launcherIcon;
     }
 
-    public boolean isStandardLauncher() {
-        return launcherTypeRadioStandard.getSelection();
+    public int getExportType() {
+        return exportTypeCombo.getSelectionIndex() + 1;
+    }
+
+    public int getLauncherType() {
+        return launcherTypeCombo.getSelectionIndex() + 1;
     }
 
     public void createControl(Composite parent) {
@@ -172,17 +177,25 @@ public class WExportWizardPage extends WizardPage
             }
         });
 
+        // Export type
+        Label etl = new Label(composite, SWT.NULL);
+        etl.setText("Export Type:");
+        GridHelper.setHorizontalSpan(etl, 2);
+        exportTypeCombo = new Combo(composite, SWT.READ_ONLY);
+        exportTypeCombo.setItems(new String[] { "Standard", "Standard, with embedded INI",
+                "Fat Executable" });
+        exportTypeCombo.select(0);
+        GridHelper.setHorizontalSpan(exportTypeCombo, 2);
+
         // Launcher type
         Label ltl = new Label(composite, SWT.NULL);
         ltl.setText("Launcher Type:");
         GridHelper.setHorizontalSpan(ltl, 2);
-        launcherTypeRadioStandard = new Button(composite, SWT.RADIO);
-        launcherTypeRadioStandard.setText("Standard");
-        launcherTypeRadioStandard.setSelection(true);
-        GridHelper.setHorizontalSpan(launcherTypeRadioStandard, 2);
-        launcherTypeRadioSingle = new Button(composite, SWT.RADIO);
-        launcherTypeRadioSingle.setText("Fat Executable (with jars embedded)");
-        GridHelper.setHorizontalSpan(launcherTypeRadioSingle, 2);
+        launcherTypeCombo = new Combo(composite, SWT.READ_ONLY);
+        launcherTypeCombo.setItems(new String[] { "32-bit Windows", "32-bit Console",
+                "64-bit Windows", "64-bit Console" });
+        launcherTypeCombo.select(0);
+        GridHelper.setHorizontalSpan(launcherTypeCombo, 2);
 
         Dialog.applyDialogFont(composite);
         setControl(composite);
@@ -305,7 +318,8 @@ public class WExportWizardPage extends WizardPage
         updateSettingList(id, SETTING_OUTPUTDIR_LIST, outputDirectoryCombo.getText());
         id.put(SETTING_ICON, launcherIconCombo.getText());
         updateSettingList(id, SETTING_ICON_LIST, launcherIconCombo.getText());
-        id.put(SETTING_LAUNCHER_TYPE, launcherTypeRadioSingle.getSelection());
+        id.put(SETTING_EXPORT_TYPE, getExportType());
+        id.put(SETTING_LAUNCHER_TYPE, getLauncherType());
     }
 
     public void updateSettingList(IDialogSettings id, String setting, String value) {
@@ -335,10 +349,22 @@ public class WExportWizardPage extends WizardPage
         if (sil != null)
             launcherIconCombo.setItems(sil);
         UIHelper.select(launcherIconCombo, id.get(SETTING_ICON));
-        if (id.getBoolean(SETTING_LAUNCHER_TYPE)) {
-            launcherTypeRadioSingle.setSelection(true);
-            launcherTypeRadioStandard.setSelection(false);
+        int val = 0;
+        try {
+            val = id.getInt(SETTING_EXPORT_TYPE);
+        } catch (NumberFormatException e) {
         }
+        if (val != 0)
+            val--;
+        exportTypeCombo.select(val);
+        val = 0;
+        try {
+            val = id.getInt(SETTING_LAUNCHER_TYPE);
+        } catch (NumberFormatException e) {
+        }
+        if (val != 0)
+            val--;
+        launcherTypeCombo.select(val);
     }
 
 }

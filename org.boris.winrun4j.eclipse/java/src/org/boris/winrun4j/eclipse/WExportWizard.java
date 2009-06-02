@@ -42,8 +42,9 @@ public class WExportWizard extends Wizard implements IExportWizard
             if (icon != null)
                 lc.setAttribute(IWLaunchConfigurationConstants.ATTR_LAUNCHER_ICON, icon
                         .getAbsolutePath());
-            lc.setAttribute(IWLaunchConfigurationConstants.ATTR_STANDARD_LAUNCHER, ewp
-                    .isStandardLauncher());
+            lc.setAttribute(IWLaunchConfigurationConstants.ATTR_EXPORT_TYPE, ewp.getExportType());
+            lc.setAttribute(IWLaunchConfigurationConstants.ATTR_LAUNCHER_TYPE, ewp
+                    .getLauncherType());
             Launch l = new Launch(lc, IWLaunchConfigurationConstants.LAUNCH_TYPE_EXPORT, null);
             lcd.launch(lc, l.getLaunchMode(), l, new NullProgressMonitor());
             return true;
