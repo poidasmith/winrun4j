@@ -4,9 +4,10 @@ Release 0.4.0
 - implemented --WinRun4J:ExecuteINI
 - fix for splash.autohide enable/disable option
 - support for Version Information and Manifests in resource editor
-
+- fix for service startup args
 
 support for other launchers in eclipse plugin?
+service helper class (maybe a callable, with start/stop).
 
 Misc
 ====
