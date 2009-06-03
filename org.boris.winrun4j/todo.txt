@@ -1,3 +1,12 @@
+Release 0.4.0
+=============
+- Eclipse plugin (launch, export, library)
+- implemented --WinRun4J:ExecuteINI
+- fix for splash.autohide enable/disable option
+- support for Version Information and Manifests in resource editor
+
+
+support for other launchers in eclipse plugin?
 
 Misc
 ====

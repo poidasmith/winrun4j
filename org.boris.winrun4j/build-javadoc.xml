@@ -1,0 +1,7 @@
+<project name="WinRun4J-Javadoc" default="build">
+	<property name="release.dir" value="F:\Development\Releases"/>
+	
+	<target name="build">
+		<javadoc sourcepath="java/src" packagenames="*" destdir="${release.dir}/winrun4j-javadoc"/>
+	</target>
+</project>
