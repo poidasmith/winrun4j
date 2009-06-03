@@ -87,6 +87,11 @@ public class LauncherHelper
     }
 
     public static File createTemporaryLauncher(int launcherType) throws IOException {
+        String ll = WActivator.getPreference(IWPreferenceConstants.LAUNCHER_LOCATION);
+        if (!Lang.isEmpty(ll)) {
+            return new File(ll);
+        }
+
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher.exe");
         launcher.deleteOnExit();
@@ -132,9 +137,12 @@ public class LauncherHelper
                 ini.put("arg." + (i + 1), args[i]);
             }
         }
-        ini.put(IWINIConstants.LOG_LEVEL, launchConfig.getAttribute(
-                IWLaunchConfigurationConstants.PROP_LOG_LEVEL, WActivator
-                        .getPreference(IWPreferenceConstants.DEFAULT_LOG_LEVEL)));
+        String llp = WActivator.getPreference(IWPreferenceConstants.DEFAULT_LOG_LEVEL);
+        String ll = launchConfig.getAttribute(IWLaunchConfigurationConstants.PROP_LOG_LEVEL,
+                (String) null);
+        if (Lang.isEmpty(ll))
+            ll = llp;
+        ini.put(IWINIConstants.LOG_LEVEL, ll);
         ini.put(IWINIConstants.LOG_FILE, launchConfig.getAttribute(
                 IWLaunchConfigurationConstants.PROP_LOG_FILE, (String) null));
         ini.put(IWINIConstants.LOG_OVERWRITE, Boolean.toString(launchConfig.getAttribute(

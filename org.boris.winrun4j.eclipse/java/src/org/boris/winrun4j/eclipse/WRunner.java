@@ -37,6 +37,7 @@ import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.ListeningConnector;
+import com.sun.jdi.connect.TransportTimeoutException;
 
 class WRunner extends AbstractVMRunner
 {
@@ -96,7 +97,7 @@ class WRunner extends AbstractVMRunner
         }
 
         try {
-            monitor.subTask(WMessages.WRunner_extractLauncher_task);
+            monitor.beginTask(WMessages.WRunner_extractLauncher_task, 0);
             launcher = LauncherHelper
                     .createTemporaryLauncher(IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_WIN);
             monitor.worked(1);
@@ -105,7 +106,7 @@ class WRunner extends AbstractVMRunner
         }
 
         try {
-            monitor.subTask(WMessages.WRunner_generateINI_task);
+            monitor.beginTask(WMessages.WRunner_generateINI_task, 0);
             inf = LauncherHelper.buildTemporaryIniFile(ini);
             monitor.worked(1);
         } catch (Exception e) {
@@ -124,6 +125,8 @@ class WRunner extends AbstractVMRunner
         if (debug) {
             Connector.IntegerArgument pa = (Connector.IntegerArgument) m.get("port"); //$NON-NLS-1$
             pa.setValue(port);
+            Connector.IntegerArgument ta = (Connector.IntegerArgument) m.get("timeout");
+            ta.setValue(100);
             try {
                 lc.startListening(m);
             } catch (Throwable e) {
@@ -155,14 +158,25 @@ class WRunner extends AbstractVMRunner
 
         // Check for debugger
         if (debug) {
-            try {
-                VirtualMachine vm = lc.accept(m);
+            VirtualMachine vm = null;
+            while (true) {
+                try {
+                    vm = lc.accept(m);
+                    break;
+                } catch (TransportTimeoutException e) {
+                    try {
+                        p.exitValue();
+                        break;
+                    } catch (IllegalThreadStateException ex) {
+                    }
+                } catch (Exception e) {
+                    abort(WMessages.WRunner_attachDebug_error, e, IStatus.ERROR);
+                }
+            }
+            if (vm != null) {
                 JDIDebugModel.newDebugTarget(launch, vm, renderDebugTarget(configuration
                         .getClassToLaunch(), port), process, true, false, configuration
                         .isResumeOnStartup());
-            } catch (Exception e) {
-                monitor.done();
-                abort(WMessages.WRunner_attachDebug_error, e, IStatus.ERROR);
             }
         }
 
