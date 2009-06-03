@@ -34,6 +34,7 @@ int PrintUsage()
 	printf("  /J\t\tAdds a JAR file.\n");
 	printf("  /E\t\tExtracts a JAR file from the EXE/DLL.\n");
 	printf("  /S\t\tSets the splash image.\n");
+	printf("  /M\t\tSets the manifest.\n");
 	printf("  /H\t\tAdds an HTML file the EXE/DLL.\n");
 	printf("  /C\t\tClears all resources from the EXE/DLL.\n");
 	printf("  /L\t\tLists the resources in the EXE/DLL.\n");
@@ -45,7 +46,7 @@ int PrintUsage()
 	return 1;
 }
 
-void PrintScriptHelp() 
+int PrintScriptHelp() 
 {
 	printf("Use /R to set a series of resource options on a single executable.\n\n");
 	printf("RCEDIT /R <exe/dll> <script file>\n\n");
@@ -69,6 +70,79 @@ void PrintScriptHelp()
 	printf("version.info.ProductName=...\n");
 	printf("version.info.ProductVersion=...\n");
 	printf("version.info.SpecialBuild=...\n");
+
+	return 0;
+}
+
+int ExecuteResourceScript(LPSTR exeFile, LPSTR iniFile, bool clear)
+{
+	// Clear existing if required
+	if(clear) {
+		if(!Resource::ClearResources(exeFile))
+			return 1;
+	}
+
+	dictionary* ini = iniparser_load(iniFile);
+	if(!ini) {
+		Log::Error("Could not load INI file: %s", iniFile);
+		return 1;
+	}
+
+	// Store INI file
+	char* appIni = iniparser_getstr(ini, ":ini");
+	if(appIni) {
+		if(!Resource::SetINI(exeFile, appIni))
+			return 1;
+	}
+
+	// Store icons
+	TCHAR key[MAX_PATH];
+	for(int i = 1; i <= 100; i++) {
+		sprintf(key, ":icon.%d", i);
+		char* iconFile = iniparser_getstr(ini, key);
+		if(iconFile) {
+			if(i == 1) {
+				if(!Resource::SetIcon(exeFile, iconFile))
+					return 1;
+			} else {
+				if(!Resource::AddIcon(exeFile, iconFile))
+					return 1;
+			}
+		} else if(i > 10) {
+			break;
+		}
+	}
+
+	// Store jars
+	for(int i = 1; i <= 100; i++) {
+		sprintf(key, ":jar.%d", i);
+		char* jarFile = iniparser_getstr(ini, key);
+		if(jarFile) {
+			if(!Resource::AddJar(exeFile, jarFile))
+				return 1;
+		} else if(i > 10) {
+			break;
+		}
+	}
+
+	// Store HTML
+	for(int i = 1; i <= 100; i++) {
+		sprintf(key, ":html.%d", i);
+		char* htmlFile = iniparser_getstr(ini, key);
+		if(htmlFile) {
+			if(!Resource::AddHTML(exeFile, htmlFile))
+				return 1;
+		} else if(i > 10) {
+			break;
+		}
+	}
+
+	// Check for version information (we require version.FileVersion)
+	char* fileVer = iniparser_getstr(ini, ":version.FileVersion");
+	if(fileVer) {
+	}
+
+	return 0;
 }
 
 int main(int argc, char* argv[])
@@ -82,57 +156,76 @@ int main(int argc, char* argv[])
 
 	// TODO 
 	//  - add checks on icon import to ensure a valid icon
-	//  - recognize more resource types when listing
-	//  - 
+
+	bool ok = true;
 	
 	if(strcmp(argv[1], "/I") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR iconFile = argv[3];
-		Resource::SetIcon(exeFile, iconFile);
+		ok = Resource::SetIcon(exeFile, iconFile);
 	} else if(strcmp(argv[1], "/A") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR iconFile = argv[3];
-		Resource::AddIcon(exeFile, iconFile);
+		ok = Resource::AddIcon(exeFile, iconFile);
 	} else if(strcmp(argv[1], "/N") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR iniFile = argv[3];
-		Resource::SetINI(exeFile, iniFile);
+		ok = Resource::SetINI(exeFile, iniFile);
 	} else if(strcmp(argv[1], "/J") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR jarFile = argv[3];
-		Resource::AddJar(exeFile, jarFile);
+		ok = Resource::AddJar(exeFile, jarFile);
 	} else if(strcmp(argv[1], "/H") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR htmlFile = argv[3];
-		Resource::AddHTML(exeFile, htmlFile);
+		ok = Resource::AddHTML(exeFile, htmlFile);
 	} else if(strcmp(argv[1], "/S") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR splashFile = argv[3];
-		Resource::SetSplash(exeFile, splashFile);
+		ok = Resource::SetSplash(exeFile, splashFile);
+	} else if(strcmp(argv[1], "/M") == 0) {
+		if(argc != 4) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		LPSTR manifestFile = argv[3];
+		ok = Resource::SetManifest(exeFile, manifestFile);
+	} else if(strcmp(argv[1], "/R") == 0) {
+		if(argc != 4) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		LPSTR iniFile = argv[3];
+		return ExecuteResourceScript(exeFile, iniFile, false);
+	} else if(strcmp(argv[1], "/W") == 0) {
+		if(argc != 4) return PrintUsage();
+		LPSTR exeFile = argv[2];
+		LPSTR iniFile = argv[3];
+		return ExecuteResourceScript(exeFile, iniFile, true);
 	} else if(strcmp(argv[1], "/C") == 0) {
 		if(argc != 3) return PrintUsage();
 		LPSTR exeFile = argv[2];
-		Resource::ClearResources(exeFile);
+		ok = Resource::ClearResources(exeFile);
 	} else if(strcmp(argv[1], "/L") == 0) {
 		if(argc != 3) return PrintUsage();
 		LPSTR exeFile = argv[2];
-		Resource::ListResources(exeFile);
+		ok = Resource::ListResources(exeFile);
 	} else if(strcmp(argv[1], "/P") == 0) {
 		if(argc != 3) return PrintUsage();
 		LPSTR exeFile = argv[2];
-		Resource::ListINI(exeFile);
+		ok = Resource::ListINI(exeFile);
 	} else if(strcmp(argv[1], "/D") == 0) {
-		PrintScriptHelp();
+		return PrintScriptHelp();
 	} else {
 		return PrintUsage();
 	}
 
-	return 0;
+	if(ok) {
+		Log::Info("OK");
+	}
+		
+	return ok ? 0 : 1;
 }
 

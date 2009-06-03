@@ -51,12 +51,12 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT /*uFmt*/, HCONV /*hconv*/, HDDEDA
 			return (HDDEDATA) 1;
 		break;
 
-	case XTYP_EXECUTE: {
+	case XTYP_EXECUTE:
 		DdeGetData(hdata, (LPBYTE) g_execute, MAX_PATH, 0);
 		DDE::Execute(g_execute);
+		VM::DetachCurrentThread();
 		return (HDDEDATA) 1;
 		break;
-					   }
 	}
 
 	return 0;

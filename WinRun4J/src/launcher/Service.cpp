@@ -350,10 +350,11 @@ int Service::Main(DWORD argc, LPSTR* argv)
 	jclass stringClass = env->FindClass("java/lang/String");
 	jobjectArray args = env->NewObjectArray(argc - 1, stringClass, NULL);
 	for(UINT i = 0; i < argc - 1; i++) {
-		env->SetObjectArrayElement(args, i, env->NewStringUTF(argv[i]));
+		env->SetObjectArrayElement(args, i, env->NewStringUTF(argv[i+1]));
 	}
+	env->NewGlobalRef(args);
 
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ServiceMainThread, 0, 0, (LPDWORD) args);
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ServiceMainThread, (LPDWORD) args, 0, 0);
 	g_serviceStatus.dwCurrentState = SERVICE_RUNNING;
 	SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus);
 

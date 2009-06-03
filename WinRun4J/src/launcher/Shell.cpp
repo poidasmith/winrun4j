@@ -59,6 +59,7 @@ int Shell::CheckSingleInstance(dictionary* ini)
 	GetModuleFileName(0, thisModule, MAX_PATH);
 	HANDLE h = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	PROCESSENTRY32 e;
+	e.dwSize = sizeof(PROCESSENTRY32);
 	char otherModule[MAX_PATH];
 
 	if(Process32First(h, &e)) {
@@ -92,7 +93,7 @@ int Shell::CheckSingleInstance(dictionary* ini)
 				return !EnumWindows(EnumWindowsProcSingleInstance, e.th32ProcessID);
 			}
 		}
-	}
+	} 
 
 	return 0;
 }

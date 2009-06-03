@@ -74,6 +74,7 @@ public:
 	static bool AddJar(LPSTR exeFile, LPSTR jarFile);
 	static bool AddHTML(LPSTR exeFile, LPSTR htmlFile);
 	static bool SetSplash(LPSTR exeFile, LPSTR splashFile);
+	static bool SetManifest(LPSTR exeFile, LPSTR manifestFile);
 	static bool ClearResources(LPSTR exeFile);
 	static bool ListResources(LPSTR exeFile);
 	static bool ListINI(LPSTR exeFile);

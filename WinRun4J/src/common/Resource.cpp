@@ -111,6 +111,13 @@ bool Resource::SetSplash(LPSTR exeFile, LPSTR splashFile)
 	return SetFile(exeFile, splashFile, RT_SPLASH_FILE, MAKEINTRESOURCE(1), 0, false);
 }
 
+// Set the manifest file
+bool Resource::SetManifest(LPSTR exeFile, LPSTR manifestFile)
+{
+	return SetFile(exeFile, manifestFile, RT_MANIFEST, MAKEINTRESOURCE(1), 0, false);
+}
+
+
 // Prints the contents of the  INI  file
 bool Resource::ListINI(LPSTR exeFile)
 {
