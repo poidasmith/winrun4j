@@ -95,6 +95,12 @@
             id="org.boris.winrun4j.eclipse.WPreferencePage"
             name="WinRun4J">
       </page>
+      <page
+            category="org.boris.winrun4j.eclipse.WPreferencePage"
+            class="org.boris.winrun4j.eclipse.WDebugPreferencePage"
+            id="org.boris.winrun4j.eclipse.WDebugPreferencePage"
+            name="Debug">
+      </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">

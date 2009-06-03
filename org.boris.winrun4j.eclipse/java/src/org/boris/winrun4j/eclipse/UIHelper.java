@@ -15,6 +15,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 
 class UIHelper
 {
@@ -48,4 +49,16 @@ class UIHelper
         g.setLayoutData(gd);
         return g;
     }
+
+    public static Group createGroup(Composite parent, String text, int columns, int hspan, int fill) {
+        Group g = new Group(parent, SWT.NONE);
+        g.setLayout(new GridLayout(columns, false));
+        g.setText(text);
+        g.setFont(parent.getFont());
+        GridData gd = new GridData(fill);
+        gd.horizontalSpan = hspan;
+        g.setLayoutData(gd);
+        return g;
+    }
+
 }
