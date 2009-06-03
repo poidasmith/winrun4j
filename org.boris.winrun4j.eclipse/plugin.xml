@@ -7,7 +7,7 @@
             delegate="org.boris.winrun4j.eclipse.WLaunchDelegate"
             id="org.boris.winrun4j.eclipse.launch"
             modes="run, debug"
-            name="WinRun4J"
+            name="%launchConfigurationType.name"
             sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
             sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
       </launchConfigurationType>
@@ -32,10 +32,10 @@
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             class="org.boris.winrun4j.eclipse.WLaunchShortcut"
-            description="Runs a local Java application using the WinRun4J launcher"
+            description="%shortcut.description"
             icon="icons/winrun4j.gif"
             id="org.boris.winrun4j.eclipse.launch.shortcut"
-            label="WinRun4J Application"
+            label="%shortcut.label"
             modes="run, debug">
                  <contextualLaunch>
            <enablement>
@@ -68,7 +68,7 @@
       <classpathContainerPage
             class="org.boris.winrun4j.eclipse.WClasspathContainerPage"
             id="org.boris.winrun4j.eclipse.WINRUN4J_CONTAINER"
-            name="WinRun4J">
+            name="%classpathContainerPage.name">
       </classpathContainerPage>
    </extension>
    <extension
@@ -78,9 +78,9 @@
             class="org.boris.winrun4j.eclipse.WExportWizard"
             icon="icons/winrun4j.gif"
             id="org.boris.winrun4j.eclipse.ExportWizard"
-            name="WinRun4J Executable">
+            name="%wizard.name">
          <description>
-            Export all resources required to run an application into a WinRun4J executable launcher on the local file system.
+            %wizard.description
          </description>
          <selection
                class="org.eclipse.core.resources.IResource">
@@ -93,13 +93,13 @@
             category="org.eclipse.jdt.ui.preferences.JavaBasePreferencePage"
             class="org.boris.winrun4j.eclipse.WPreferencePage"
             id="org.boris.winrun4j.eclipse.WPreferencePage"
-            name="WinRun4J">
+            name="%page.name.WinRun4j">
       </page>
       <page
             category="org.boris.winrun4j.eclipse.WPreferencePage"
             class="org.boris.winrun4j.eclipse.WDebugPreferencePage"
             id="org.boris.winrun4j.eclipse.WDebugPreferencePage"
-            name="Debug">
+            name="%page.name.Debug">
       </page>
    </extension>
    <extension

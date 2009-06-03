@@ -39,19 +39,19 @@ public class LauncherHelper
         String path = null;
         switch (launcherType) {
         case IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_CONSOLE:
-            path = "/launcher/WinRun4Jc.exe";
+            path = "/launcher/WinRun4Jc.exe"; //$NON-NLS-1$
             break;
         case IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_WIN:
-            path = "/launcher/WinRun4J.exe";
+            path = "/launcher/WinRun4J.exe"; //$NON-NLS-1$
             break;
         case IWLaunchConfigurationConstants.LAUNCHER_TYPE_64_CONSOLE:
-            path = "/launcher/WinRun4J64c.exe";
+            path = "/launcher/WinRun4J64c.exe"; //$NON-NLS-1$
             break;
         case IWLaunchConfigurationConstants.LAUNCHER_TYPE_64_WIN:
-            path = "/launcher/WinRun4J64.exe";
+            path = "/launcher/WinRun4J64.exe"; //$NON-NLS-1$
             break;
         default:
-            throw new IOException("Invalid launcher type: " + launcherType);
+            throw new IOException(WMessages.LauncherHelper_invalidLauncherType + launcherType);
         }
         InputStream is;
         if (!Lang.isEmpty(lc)
@@ -64,7 +64,7 @@ public class LauncherHelper
     }
 
     public static File buildTemporaryIniFile(Map ini) throws IOException {
-        File f = File.createTempFile("winrun4j-", ".ini");
+        File f = File.createTempFile("winrun4j-", ".ini"); //$NON-NLS-1$ //$NON-NLS-2$
         f.deleteOnExit();
         buildIniFile(f, ini);
         return f;
@@ -78,7 +78,7 @@ public class LauncherHelper
             String v = (String) ini.get(k);
             if (k != null && !Lang.isEmpty(v)) {
                 pw.print(k);
-                pw.print("=");
+                pw.print("="); //$NON-NLS-1$
                 pw.println(v);
             }
         }
@@ -92,8 +92,8 @@ public class LauncherHelper
             return new File(ll);
         }
 
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher.exe");
+        File tmpDir = new File(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+        File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher.exe"); //$NON-NLS-1$
         launcher.deleteOnExit();
         if (launcher.exists()) {
             return launcher;
@@ -113,10 +113,10 @@ public class LauncherHelper
         String[] vmargs = configuration.getVMArguments();
         int offset = 1;
         if (debug) {
-            ini.put(IWINIConstants.VMARG_PREFIX + 1, "-Xdebug");
-            ini.put(IWINIConstants.VMARG_PREFIX + 2, "-Xnoagent");
+            ini.put(IWINIConstants.VMARG_PREFIX + 1, "-Xdebug"); //$NON-NLS-1$
+            ini.put(IWINIConstants.VMARG_PREFIX + 2, "-Xnoagent"); //$NON-NLS-1$
             ini.put(IWINIConstants.VMARG_PREFIX + 3,
-                    "-Xrunjdwp:transport=dt_socket,suspend=y,address=" + port);
+                    "-Xrunjdwp:transport=dt_socket,suspend=y,address=" + port); //$NON-NLS-1$
             offset = 4;
         }
         if (vmargs != null) {
@@ -134,7 +134,7 @@ public class LauncherHelper
         String[] args = configuration.getProgramArguments();
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
-                ini.put("arg." + (i + 1), args[i]);
+                ini.put("arg." + (i + 1), args[i]); //$NON-NLS-1$
             }
         }
         String llp = WActivator.getPreference(IWPreferenceConstants.DEFAULT_LOG_LEVEL);
@@ -170,11 +170,11 @@ public class LauncherHelper
     }
 
     public static String getJVMPath(IVMInstall vmInstall) {
-        File f = new File(vmInstall.getInstallLocation(), "bin" + File.separatorChar + "client"
-                + File.separatorChar + "jvm.dll");
+        File f = new File(vmInstall.getInstallLocation(), "bin" + File.separatorChar + "client" //$NON-NLS-1$ //$NON-NLS-2$
+                + File.separatorChar + "jvm.dll"); //$NON-NLS-1$
         if (!f.exists()) {
-            f = new File(vmInstall.getInstallLocation(), "jre" + File.separatorChar + "bin"
-                    + File.separatorChar + "client" + File.separatorChar + "jvm.dll");
+            f = new File(vmInstall.getInstallLocation(), "jre" + File.separatorChar + "bin" //$NON-NLS-1$ //$NON-NLS-2$
+                    + File.separatorChar + "client" + File.separatorChar + "jvm.dll"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return f.getAbsolutePath();
     }
@@ -184,8 +184,8 @@ public class LauncherHelper
 
         File rcEdit = null;
         URL rcUrl = is64bit ? FileLocator.toFileURL(WActivator
-                .getBundleEntry("/launcher/RCEDIT64.exe")) : FileLocator.toFileURL(WActivator
-                .getBundleEntry("/launcher/RCEDIT.exe"));
+                .getBundleEntry("/launcher/RCEDIT64.exe")) : FileLocator.toFileURL(WActivator //$NON-NLS-1$
+                .getBundleEntry("/launcher/RCEDIT.exe")); //$NON-NLS-1$
         try {
             rcEdit = new File(rcUrl.toURI());
         } catch (URISyntaxException e) {

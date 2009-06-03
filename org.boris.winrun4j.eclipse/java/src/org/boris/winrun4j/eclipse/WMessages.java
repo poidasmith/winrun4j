@@ -15,10 +15,11 @@ class WMessages extends NLS
 {
     private static final String BUNDLE_NAME = "org.boris.winrun4j.eclipse.WMessages"; //$NON-NLS-1$
 
+    public static String LauncherHelper_invalidLauncherType;
+
     public static String WExportWizard_title;
     public static String WExportWizardPage_title;
     public static String WExportWizardPage_description;
-    public static String WExportWizardPage_launchConfigLabel;
     public static String WPreferencePage_description;
     public static String WClasspathContainer_description;
     public static String WClasspathContainerPage_title;

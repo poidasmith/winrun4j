@@ -20,3 +20,4 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.4
 Bundle-Activator: org.boris.winrun4j.eclipse.WActivator
 Bundle-ActivationPolicy: lazy
 Eclipse-PlatformFilter: (osgi.ws=win32)
+Bundle-Localization: plugin
