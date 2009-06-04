@@ -1,11 +1,11 @@
-Release 0.4.0
+Release 0.3.2
 =============
-- Eclipse plugin (launch, export, library)
 - implemented --WinRun4J:ExecuteINI
 - fix for splash.autohide enable/disable option
-- support for Version Information and Manifests in resource editor
 - fix for service startup args
 - fix for dde activate thread hang
+
+- Eclipse plugin (launch, export, library)
 
 support for other launchers in eclipse plugin?
 service helper class (maybe a callable, with start/stop).
