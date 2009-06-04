@@ -34,7 +34,9 @@ int PrintUsage()
 	printf("  /J\t\tAdds a JAR file.\n");
 	printf("  /E\t\tExtracts a JAR file from the EXE/DLL.\n");
 	printf("  /S\t\tSets the splash image.\n");
+/*
 	printf("  /M\t\tSets the manifest.\n");
+*/
 	printf("  /H\t\tAdds an HTML file the EXE/DLL.\n");
 	printf("  /C\t\tClears all resources from the EXE/DLL.\n");
 	printf("  /L\t\tLists the resources in the EXE/DLL.\n");
@@ -56,6 +58,8 @@ int PrintScriptHelp()
 	printf("icon.n=<extra icon file>\n");
 	printf("jar.1=<jar file>\n");
 	printf("html.1=<html file>\n");
+
+/*
 	printf("version.FileVersion=x,y,z,a\n");
 	printf("version.ProductVersion=x,y,z,a\n");
 	printf("version.info.Comments=...\n");
@@ -70,6 +74,7 @@ int PrintScriptHelp()
 	printf("version.info.ProductName=...\n");
 	printf("version.info.ProductVersion=...\n");
 	printf("version.info.SpecialBuild=...\n");
+*/
 
 	return 0;
 }
