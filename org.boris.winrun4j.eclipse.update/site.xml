@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.boris.winrun4j.eclipse_0.1.0.jar" id="org.boris.winrun4j.eclipse" version="0.1.0" os="win32" ws="win32,wpf"/>
+</site>
