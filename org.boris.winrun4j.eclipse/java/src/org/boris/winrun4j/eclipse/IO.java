@@ -83,4 +83,36 @@ class IO
             return n;
         return n.substring(0, idx);
     }
+    
+    public static Process exec(String[] args, boolean wait) throws IOException {
+        final Process p = Runtime.getRuntime().exec(args);
+        
+        Thread stdout = threadedCopy(p.getInputStream(), System.out, false);
+        Thread stderr = threadedCopy(p.getErrorStream(), System.out, false);
+        if(wait) {
+            try {
+                stdout.join();
+            } catch (InterruptedException e) {
+            }
+            try {
+                stderr.join();
+            } catch (InterruptedException e) {
+            }
+        }
+
+        return p;
+    }
+    
+    public static Thread threadedCopy(final InputStream is, final OutputStream os, final boolean close) {
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    copy(is, os, close);
+                } catch (IOException e) {
+                }
+            }});
+        t.setDaemon(true);
+        t.start();
+        return t;
+    }
 }

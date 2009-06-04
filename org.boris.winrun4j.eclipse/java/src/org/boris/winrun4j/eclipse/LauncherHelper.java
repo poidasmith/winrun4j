@@ -9,17 +9,14 @@
  *******************************************************************************/
 package org.boris.winrun4j.eclipse;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
@@ -181,25 +178,15 @@ public class LauncherHelper
 
     public static Process runResourceEditor(String option, File exeFile, File resourceFile,
             boolean is64bit) throws IOException {
-
-        File rcEdit = null;
-        URL rcUrl = is64bit ? FileLocator.toFileURL(WActivator
-                .getBundleEntry("/launcher/RCEDIT64.exe")) : FileLocator.toFileURL(WActivator //$NON-NLS-1$
-                .getBundleEntry("/launcher/RCEDIT.exe")); //$NON-NLS-1$
-        try {
-            rcEdit = new File(rcUrl.toURI());
-        } catch (URISyntaxException e) {
-            rcEdit = new File(rcUrl.getPath());
-        }
-        ProcessBuilder pb = new ProcessBuilder(new String[] { rcEdit.getAbsolutePath(), option,
-                exeFile.getAbsolutePath(), resourceFile.getAbsolutePath() });
-
-        Process p = pb.start();
-        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line = null;
-        while ((line = br.readLine()) != null) {
-            System.out.println(line);
-        }
+        String entry = is64bit ? "/launcher/RCEDIT64.exe":"/launcher/RCEDIT.exe";
+        URL rcUrl = FileLocator.toFileURL(WActivator.getBundleEntry(entry)); 
+        File rcTemp = File.createTempFile("rcedit-", ".exe");
+        rcTemp.deleteOnExit();
+        IO.copy(rcUrl.openStream(), new FileOutputStream(rcTemp), true);
+        Process p = IO.exec(new String[] { rcTemp.getAbsolutePath(), option,
+                exeFile.getAbsolutePath(), resourceFile.getAbsolutePath() }, true);
+        p.destroy();
+        rcTemp.delete();
 
         return p;
     }
