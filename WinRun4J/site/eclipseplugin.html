@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<title>WinRun4J</title>
+		<link rel="shortcut icon" href="http://winrun4j.sourceforge.net/favicon.ico" type="image/vnd.microsoft.icon"/>
+		<link rel="stylesheet" href="style.css" type="text/css"/>
+		<meta name="description" content="Configurable java launcher for windows"/>
+		<meta name="keywords" content="java, launcher, windows, icon, splash, screen, memory, open source"/>
+		<meta http-equiv="pragma" content="no-cache"/>
+	</head>
+	<body>
+
+	<div id="heading">
+		<div class="title"><a href="index.html"><img border="0" src="WinRun4J.gif"></a>WinRun4J</div>
+		<div class="subtitle">Configurable Java Launcher for Windows</div>
+	</div>
+	
+		<div class="section">
+			<div class="section-title">Eclipse Plugin</div>
+			<div class="section-content">
+			The Eclipse Plugin for WinRun4J provides a deep level of integration of the launcher
+			within the Eclipse IDE. It has the following features:
+			<ul>
+			<li>Launch any Java Application with WinRun4J (via right-click or launch configuration)</li>
+			<li>Export your Java Application as a single Windows Executable (with necessary jars embedded)</li>
+			<li>Provides improved windows integration from Eclipse (eg. JNI access to Registry).
+			</ul>
+			</div>
+		</div>
+		<div class="section">
+			<div class="section-title">Download</div>
+			<div class="section-content">
+			The eclipse plugin for WinRun4J can be downloaded from the eclipse Update Site: 
+			<br/><br/>
+			<b>http://winrun4j.sourceforge.net/</b>
+			<br/><br/>
+			</ul>
+			</div>
+		</div>
+		<div class="section">
+			<div class="section-title">Usage</div>
+			<div class="section-content">
+			To launch a java application using WinRun4J simply right-click on any runnable java class (ie. with a main method) and 
+			select Run As->WinRun4J Application:
+			
+			<br/><br/>
+			<img src="launchapp.gif"/>
+			<br/><br/>
+			
+			You will then see the following output in the console view:
+
+			<br/><br/>
+			<img src="launchoutput.gif"/>
+			<br/><br/>
+			
+			The amount of output (eg. logging) and other details can be configured on the launch configuration tab:
+			
+			<br/><br/>
+			<img src="launchconfig.gif"/>
+			<br/><br/>
+			
+			You can add the WinRun4J JNI java library to your project's classpath by right-clicking on the project and
+			selecting Build Path->Add Libraries. Select WinRun4J and click Next->Finish. You should see:
+			
+			<br/><br/>
+			<img src="launcherlibrary.gif"/>
+			<br/><br/>
+			
+			And finally, you can export your application as a single Windows Executable with (optionally) all the
+			neccessary JARs embedded inside the launcher executable. Go to File->Export... and select Java/WinRun4J Executable:
+			
+			<br/><br/>
+			<img src="launchexport1.gif"/>
+			<br/><br/>
+			
+			Click Next and then select the WinRun4J launch configuration (from above), the name you want
+			for the executable, the output directory and (optionally) a launcher icon:
+			
+			<br/><br/>
+			<img src="launchexport2.gif"/>
+			<br/><br/>
+			
+			</div>
+		</div>
+
+	</div>
+    <div id="footer">
+		<div class="footer"/>
+		<table style="border:0px;width:750px">
+		<tr style="border:0px;vertical-align:top">
+		<td style="border:0px;vertical-align:top;width:619px">
+        <a href="http://www.opensource.org/docs/definition.php"><img border="0" alt="Open Source" src="http://opensource.org/trademarks/open_source_button.png" style="width:88px;height:31px" /></a>
+        <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=222420&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
+        </td>
+        <td align="right" style="border:0px;vertical-align:top">
+        <a href="http://winrun4j.sourceforge.net/"><img border="0" alt="WinRun4J - Configurable Java Launcher for Windows" src="others/winrun4j.gif"/></a>
+        <a href="http://xlloop.sourceforge.net/"><img border="0" alt="XLLoop - Excel Functions in Java, Javascript, Ruby, Python, Erlang" src="others/xlloop.gif"/></a>
+        <a href="http://variantcodec.sourceforge.net/"><img border="0" alt="VariantCodec - Generic Data Structure Serialization Library for Java" src="others/variantcodec.gif"/></a>
+        <a href="http://jvst.sourceforge.net/"><img border="0" alt="JVST - VST Interface for Java" src="others/jvst.gif"/></a>
+        <a href="http://jxll.sourceforge.net/"><img border="0" alt="JXLL - Excel Addin Interaction Library" src="others/jxll.gif"/></a>
+        <a href="http://expr4j.sourceforge.net/"><img border="0" alt="Expr4J - Expression Calculation Engine for Java" src="others/expr4j.gif"/></a>
+        </td>
+        </tr>
+        </table>
+    </div>
+</body>
+</html>
