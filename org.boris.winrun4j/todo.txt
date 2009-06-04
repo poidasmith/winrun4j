@@ -5,9 +5,13 @@ Release 0.4.0
 - fix for splash.autohide enable/disable option
 - support for Version Information and Manifests in resource editor
 - fix for service startup args
+- fix for dde activate thread hang
 
 support for other launchers in eclipse plugin?
 service helper class (maybe a callable, with start/stop).
+
+- should stdout go to console when logging to file? what about console version?
+	- maybe an option in the ini "log.std.tofile=false"
 
 Misc
 ====
