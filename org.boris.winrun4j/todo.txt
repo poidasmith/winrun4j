@@ -12,6 +12,8 @@ service helper class (maybe a callable, with start/stop).
 
 - should stdout go to console when logging to file? what about console version?
 	- maybe an option in the ini "log.std.tofile=false"
+	
+
 
 Misc
 ====
@@ -55,6 +57,9 @@ Misc
 - Read only key handle to registry key api
 
 - Flag for registering native methods on launcher library (switch off for speed)
+
+- Improve console/log output when registering services
+- Maybe move service name and description to ini file so we don't have to start vm when registering
 	
 Resources
 =========
