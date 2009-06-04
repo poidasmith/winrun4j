@@ -3,7 +3,7 @@
 <repository name='file:/F:/eclipse/workspace/org.boris.winrun4j.eclipse.update/ - metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1244106182031'/>
+    <property name='p2.timestamp' value='1244130874421'/>
   </properties>
   <units size='8'>
     <unit id='tooling.source.default' version='1.0.0' singleton='false'>
