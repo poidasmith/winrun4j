@@ -23,6 +23,18 @@ import java.util.zip.ZipEntry;
 
 class IO
 {
+    public static boolean is64Bit(File exe) throws IOException {
+        InputStream is = new FileInputStream(exe);
+        int magic = is.read() | is.read() << 8;
+        if(magic != 0x5A4D) 
+            throw new IOException("Invalid Exe");
+        for(int i = 0; i < 58; i++) is.read();
+        int address = is.read() | is.read() << 8 | is.read() << 16 | is.read() << 24;
+        for(int i = 0; i < address - 60; i++) is.read();
+        int machineType = is.read() | is.read() << 8;
+        return machineType == 0x8664;
+    }
+
     public static void copy(InputStream r, OutputStream w, boolean close) throws IOException {
         byte[] buf = new byte[4096];
         int len = 0;

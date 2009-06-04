@@ -79,7 +79,14 @@ class WRunner extends AbstractVMRunner
             port = SocketUtil.findFreePort();
         }
 
-        String jvm = LauncherHelper.getJVMPath(vmInstall);
+        File javaExe = new File(new File(vmInstall.getInstallLocation(), "bin"), "java.exe");
+        boolean is64 = false;
+        try {
+            is64 = IO.is64Bit(javaExe);
+        } catch (IOException e) {
+            abort(WMessages.WRunner_extractLauncher_error, e, IStatus.ERROR);
+        }
+        String jvm = LauncherHelper.getJVMPath(vmInstall, is64);
         Map ini = LauncherHelper.generateIni(configuration, launchConfig, jvm, debug, port);
         File launcher = null;
         File inf = null;
@@ -98,8 +105,9 @@ class WRunner extends AbstractVMRunner
 
         try {
             monitor.beginTask(WMessages.WRunner_extractLauncher_task, 0);
+            int lt = is64 ? IWLaunchConfigurationConstants.LAUNCHER_TYPE_64_WIN : IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_WIN;
             launcher = LauncherHelper
-                    .createTemporaryLauncher(IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_WIN);
+                    .createTemporaryLauncher(lt);
             monitor.worked(1);
         } catch (Exception e) {
             abort(WMessages.WRunner_extractLauncher_error, e, IStatus.ERROR);

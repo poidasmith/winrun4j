@@ -88,9 +88,21 @@ public class LauncherHelper
         if (!Lang.isEmpty(ll)) {
             return new File(ll);
         }
+        
+        String suffix = "";
+        switch(launcherType) {
+        case IWLaunchConfigurationConstants.LAUNCHER_TYPE_32_CONSOLE:
+            suffix = "c";
+            break;
+        case IWLaunchConfigurationConstants.LAUNCHER_TYPE_64_CONSOLE:
+            suffix = "64c";
+            break;
+        case IWLaunchConfigurationConstants.LAUNCHER_TYPE_64_WIN:
+            suffix = "64";
+        }
 
         File tmpDir = new File(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
-        File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher.exe"); //$NON-NLS-1$
+        File launcher = new File(tmpDir, WActivator.getVersionedIdentifier() + "-launcher" + suffix + ".exe"); //$NON-NLS-1$
         launcher.deleteOnExit();
         if (launcher.exists()) {
             return launcher;
@@ -166,12 +178,13 @@ public class LauncherHelper
         return ini;
     }
 
-    public static String getJVMPath(IVMInstall vmInstall) {
+    public static String getJVMPath(IVMInstall vmInstall, boolean server) {
+        String vmType = server ? "server" : "client";
         File f = new File(vmInstall.getInstallLocation(), "bin" + File.separatorChar + "client" //$NON-NLS-1$ //$NON-NLS-2$
                 + File.separatorChar + "jvm.dll"); //$NON-NLS-1$
         if (!f.exists()) {
             f = new File(vmInstall.getInstallLocation(), "jre" + File.separatorChar + "bin" //$NON-NLS-1$ //$NON-NLS-2$
-                    + File.separatorChar + "client" + File.separatorChar + "jvm.dll"); //$NON-NLS-1$ //$NON-NLS-2$
+                    + File.separatorChar + vmType + File.separatorChar + "jvm.dll"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return f.getAbsolutePath();
     }
