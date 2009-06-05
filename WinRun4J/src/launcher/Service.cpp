@@ -178,6 +178,9 @@ int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
 // We expect the commandline to be "--WinRun4J:RegisterService"
 int Service::Register(dictionary* ini)
 {
+	// Set the current working directory if specified
+	WinRun4J::SetWorkingDirectory(ini);
+
 	int result = WinRun4J::StartVM(StripArg0(GetCommandLine()), ini);
 	if(result) {
 		return result;
