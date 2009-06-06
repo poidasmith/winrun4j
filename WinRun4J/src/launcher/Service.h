@@ -22,9 +22,6 @@ public:
 	static int Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[]);
 
 	// Internal methods
-	static const char* GetName();
-	static const char* GetDescription();
-	static int GetControlsAccepted();
 	static int Control(DWORD opCode);
 	static int Main(DWORD argc, LPSTR* argv);
 

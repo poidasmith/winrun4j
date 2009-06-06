@@ -16,18 +16,19 @@
 #include "../WinRun4J.h"
 
 static char* g_serviceId = 0;
+static int g_controlsAccepted = 0;
 static int g_returnCode = 0;
 SERVICE_STATUS g_serviceStatus;
 SERVICE_STATUS_HANDLE g_serviceStatusHandle;
 jclass g_serviceClass;
 jobject g_serviceInstance;
 jmethodID g_controlMethod;
-jmethodID g_controlsAcceptMethod;
-jmethodID g_getNameMethod;
-jmethodID g_getDescriptionMethod;
 jmethodID g_mainMethod;
 
 #define SERVICE_ID ":service.id"
+#define SERVICE_NAME ":service.name"
+#define SERVICE_DESCRIPTION ":service.description"
+#define SERVICE_CONTROLS ":service.controls"
 #define SERVICE_STARTUP ":service.startup"
 #define SERVICE_DEPENDENCY ":service.dependency"
 #define SERVICE_USER ":service.user"
@@ -80,7 +81,7 @@ void WINAPI ServiceStart(DWORD argc, LPTSTR *argv)
 {
 	g_serviceStatus.dwServiceType = SERVICE_WIN32;
 	g_serviceStatus.dwCurrentState = SERVICE_START_PENDING;
-	g_serviceStatus.dwControlsAccepted = Service::GetControlsAccepted();
+	g_serviceStatus.dwControlsAccepted = g_controlsAccepted;
 	g_serviceStatus.dwWin32ExitCode = 0;
 	g_serviceStatus.dwServiceSpecificExitCode = 0;
 	g_serviceStatus.dwWaitHint = 0;
@@ -102,6 +103,47 @@ int Service::Initialise(dictionary* ini)
 	if(g_serviceId == NULL) {
 		Log::Error("Service ID not specified");
 		return 1;
+	}
+
+	// Parse controls accepted
+	char* controls = iniparser_getstr(ini, SERVICE_CONTROLS);
+	if(controls) {
+		int len = strlen(controls);
+		int nb = 0;
+		for(int i = 0; i < len; i++) {
+			if(controls[i] == '|') {
+				controls[i] = 0;
+				nb++;
+			}
+		}
+		char* p = controls;
+		char* e = controls + len;
+		for(int i = 0; i <= nb; i++) {
+			int plen = strlen(p);
+			StrTrim(p, " ");
+			if(strcmp("stop", p) == 0) {
+				g_controlsAccepted |= SERVICE_ACCEPT_STOP;
+			} else if(strcmp("shutdown", p) == 0) {
+				g_controlsAccepted |= SERVICE_ACCEPT_SHUTDOWN;
+			} else if(strcmp("pause", p) == 0) {
+				g_controlsAccepted |= SERVICE_ACCEPT_PAUSE_CONTINUE;
+			} else if(strcmp("param", p) == 0) {
+				g_controlsAccepted |= SERVICE_ACCEPT_PARAMCHANGE;
+			} else if(strcmp("netbind", p) == 0) {
+				g_controlsAccepted |= SERVICE_ACCEPT_NETBINDCHANGE;
+			} else if(strcmp("hardware", p) == 0) {
+				g_controlsAccepted |= SERVICE_ACCEPT_HARDWAREPROFILECHANGE;
+			} else if(strcmp("power", p) == 0) {
+				g_controlsAccepted |= SERVICE_ACCEPT_POWEREVENT;
+			} else if(strcmp("session", p) == 0) {
+				g_controlsAccepted |= SERVICE_ACCEPT_SESSIONCHANGE;
+			}
+
+			p += plen + 1;
+			if(p >= e) break;
+		}
+	} else {
+		g_controlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
 	}
 
 	// Initialise JNI members
@@ -126,24 +168,6 @@ int Service::Initialise(dictionary* ini)
 	g_controlMethod = env->GetMethodID(g_serviceClass, "doRequest", "(I)I");
 	if(g_controlMethod == NULL) {
 		Log::Error("Could not find control method class");
-		return 1;
-	}
-
-	g_controlsAcceptMethod = env->GetMethodID(g_serviceClass, "getControlsAccepted", "()I");
-	if(g_controlsAcceptMethod == NULL) {
-		Log::Error("Could not find control getControlsAccepted class");
-		return 1;
-	}
-
-	g_getNameMethod = env->GetMethodID(g_serviceClass, "getName", "()Ljava/lang/String;");
-	if(g_getNameMethod == NULL) {
-		Log::Error("Could not find control getName class");
-		return 1;
-	}
-
-	g_getDescriptionMethod = env->GetMethodID(g_serviceClass, "getDescription", "()Ljava/lang/String;");
-	if(g_getNameMethod == NULL) {
-		Log::Error("Could not find control getDescription class");
 		return 1;
 	}
 
@@ -178,17 +202,24 @@ int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
 // We expect the commandline to be "--WinRun4J:RegisterService"
 int Service::Register(dictionary* ini)
 {
-	// Set the current working directory if specified
-	WinRun4J::SetWorkingDirectory(ini);
-
-	int result = WinRun4J::StartVM(StripArg0(GetCommandLine()), ini);
-	if(result) {
-		return result;
+	g_serviceId = iniparser_getstr(ini, SERVICE_ID);
+	if(g_serviceId == NULL) {
+		Log::Error("Service ID not specified");
+		return 1;
 	}
 
-	result = Initialise(ini);
-	if(result != 0) {
-		return result;
+	// Grab service name
+	char* name = iniparser_getstr(ini, SERVICE_NAME);
+	if(!name) {
+		Log::Error("Service name not specified");
+		return 1;
+	}
+
+	// Grab service description
+	char* description = iniparser_getstr(ini, SERVICE_DESCRIPTION);
+	if(!description) {
+		Log::Error("Service description not specified");
+		return 1;
 	}
 
 	// Check for startup mode override
@@ -259,7 +290,7 @@ int Service::Register(dictionary* ini)
 		Log::Error("Could not access service manager: %d", error);
 		return error;
 	}
-	SC_HANDLE s = CreateService(h, g_serviceId, GetName(), SERVICE_ALL_ACCESS, 
+	SC_HANDLE s = CreateService(h, g_serviceId, name, SERVICE_ALL_ACCESS, 
 		SERVICE_WIN32_OWN_PROCESS, startupMode,
 		SERVICE_ERROR_NORMAL, quotePath, loadOrderGroup, NULL, (LPCTSTR)depList, user, pwd);
 	if(!s) {
@@ -275,10 +306,9 @@ int Service::Register(dictionary* ini)
 	strcat(path, g_serviceId);
 	HKEY key;
 	RegOpenKey(HKEY_LOCAL_MACHINE, path, &key);
-	const char* desc = GetDescription();
-	RegSetValueEx(key, "Description", 0, REG_SZ, (BYTE*) desc, strlen(desc));
+	RegSetValueEx(key, "Description", 0, REG_SZ, (BYTE*) description, strlen(description));
 
-	return 0;
+ 	return 0;
 }
 
 // We expect the commandline to be "--WinRun4J:UnregisterService"
@@ -302,29 +332,8 @@ int Service::Unregister(dictionary* ini)
 		Log::Error("Could not open service: %d", error);
 		return error;
 	}
+
 	return DeleteService(s);
-}
-
-const char* Service::GetName()
-{
-	JNIEnv* env = VM::GetJNIEnv();
-	jstring name = (jstring) env->CallObjectMethod(g_serviceInstance, g_getNameMethod);
-	jboolean iscopy = false;
-	return env->GetStringUTFChars(name, &iscopy);
-}
-
-const char* Service::GetDescription()
-{
-	JNIEnv* env = VM::GetJNIEnv();
-	jstring name = (jstring) env->CallObjectMethod(g_serviceInstance, g_getDescriptionMethod);
-	jboolean iscopy = false;
-	return env->GetStringUTFChars(name, &iscopy);
-}
-
-int Service::GetControlsAccepted()
-{
-	JNIEnv* env = VM::GetJNIEnv();
-	return env->CallIntMethod(g_serviceInstance, g_controlsAcceptMethod);
 }
 
 int Service::Control(DWORD opCode)
