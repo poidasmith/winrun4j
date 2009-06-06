@@ -13,7 +13,7 @@ public abstract class AbstractService implements Service
 {
     protected volatile boolean shutdown = false;
 
-    public int doRequest(int control) throws ServiceException {
+    public int serviceRequest(int control) throws ServiceException {
         switch (control) {
         case SERVICE_CONTROL_STOP:
         case SERVICE_CONTROL_SHUTDOWN:

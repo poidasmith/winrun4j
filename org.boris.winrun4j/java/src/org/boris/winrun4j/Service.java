@@ -39,7 +39,7 @@ public interface Service
      * 
      * @throws ServiceException If an error occurs.
      */
-    public int doRequest(int control) throws ServiceException;
+    public int serviceRequest(int control) throws ServiceException;
 
     /**
      * Run the service.
