@@ -15,7 +15,7 @@ import org.boris.winrun4j.ServiceException;
 
 public class TestServiceArgs extends AbstractService
 {
-    public int main(String[] args) throws ServiceException {
+    public int serviceMain(String[] args) throws ServiceException {
         if (args == null) {
             Log.error("Null Args");
         } else {

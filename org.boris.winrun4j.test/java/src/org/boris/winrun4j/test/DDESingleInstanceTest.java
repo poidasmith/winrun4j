@@ -16,20 +16,22 @@ import org.boris.winrun4j.Log;
 public class DDESingleInstanceTest
 {
     public static void main(String[] args) throws Exception {
-    	DDE.addActivationListener(new ActivationListener() {
-			public void activate() {
-				Log.info("Activate");
-			}});
-    	ready();
-    	System.out.println("Hello world!");
+        DDE.addActivationListener(new ActivationListener() {
+            public void activate() {
+                Log.info("Activate");
+            }
+        });
+        ready();
+        System.out.println("Hello world!");
     }
-    
+
     public static native void ready();
-    
+
     public static void execute(String command) {
+        System.out.println("Execute: " + command);
     }
-    
+
     public static void activate() {
-    	System.out.println("Activating...");
+        System.out.println("Activating...");
     }
 }

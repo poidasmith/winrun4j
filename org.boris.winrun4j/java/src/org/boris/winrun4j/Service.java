@@ -50,5 +50,5 @@ public interface Service
      * 
      * @throws ServiceException If an error occurs.
      */
-    public int main(String[] args) throws ServiceException;
+    public int serviceMain(String[] args) throws ServiceException;
 }
