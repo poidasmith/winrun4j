@@ -7,8 +7,8 @@ import org.boris.winrun4j.ServiceException;
 /**
  * A basic service.
  */
-public class ServiceTest implements Service {
-    private int returnCode = 0;
+public class ServiceTest implements Service
+{
     private volatile boolean shutdown = false;
 
     public int doRequest(int request) throws ServiceException {
@@ -21,18 +21,6 @@ public class ServiceTest implements Service {
         return 0;
     }
 
-    public int getControlsAccepted() {
-        return SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
-    }
-
-    public String getName() {
-        return "WinRun4J Test Service";
-    }
-
-    public String getDescription() {
-        return "An example service using WinRun4J.";
-    }
-
     public int main(String[] args) throws ServiceException {
         int count = 0;
         while (!shutdown) {
@@ -42,10 +30,9 @@ public class ServiceTest implements Service {
             }
 
             if (++count % 10 == 0)
-                EventLog.report("WinRun4J Test Service", EventLog.INFORMATION,
-                        "Ping");
+                EventLog.report("WinRun4J Test Service", EventLog.INFORMATION, "Ping");
         }
 
-        return returnCode;
+        return 0;
     }
 }

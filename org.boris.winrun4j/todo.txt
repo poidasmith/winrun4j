@@ -1,9 +1,11 @@
-Release 0.3.2
+Release 0.3.3
 =============
-- implemented --WinRun4J:ExecuteINI
-- fix for splash.autohide enable/disable option
-- fix for service startup args
-- fix for dde activate thread hang
+
+- Moved service name, description and controls accepted to INI file
+- Implemented FileAssociations helper class
+- Implemented RegistryPath helper class
+- Added AbstractService helper class
+
 
 - Eclipse plugin (launch, export, library)
 
@@ -39,12 +41,6 @@ Misc
 	- log rolling after specified size
 	- maybe integrate log4j - ie. add a logger factory on the log class?
 	
-- Launcher for eclipse
-	- run/debug with launcher from eclipse (generate ini on the fly)
-	- probably need to make --WinRun4J:ExecuteINI work properly
-	- generate launcher with embedded classes/jars via right-click
-		? generate as one large class file (ie. trims down class files)
-	
 - Add vm.type option (ie. "client" or "server")
 - Allow vm.permsize.percent, vm.permsize.preferred
 - Think about vm memory "profiles", eg. dynamic app (large perm size), static server etc...
@@ -60,6 +56,9 @@ Misc
 
 - Improve console/log output when registering services
 - Maybe move service name and description to ini file so we don't have to start vm when registering
+- Allow setting of environment variables in INI? 
+- Should se WINRUN4J_INI_DIR environment variable on startup so it can be used in INI file
+  
 	
 Resources
 =========

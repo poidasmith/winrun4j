@@ -12,13 +12,6 @@ package org.boris.winrun4j;
 public abstract class AbstractService implements Service
 {
     protected volatile boolean shutdown = false;
-    private String name;
-    private String description;
-
-    public AbstractService(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
 
     public int doRequest(int control) throws ServiceException {
         switch (control) {
@@ -28,18 +21,6 @@ public abstract class AbstractService implements Service
             break;
         }
         return 0;
-    }
-
-    public int getControlsAccepted() {
-        return SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public boolean isShutdown() {
