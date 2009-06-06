@@ -35,7 +35,7 @@
 						<li>Supports embedding (inside the executable) the INI file. See <a href="#Embed">Embedded Resources</a> section below.</li>
 						<li>Supports embedding a splash image.</li>
 						<li>Supports embedding JAR files. These will be included in the classpath (without extraction). This is currently BETA quality.</li>
-						<li><b>NEW:</b> There is now an <a href="eclipseplugin.html">Eclipse Plugin for WinRun4J</a>.</li>
+						<li><a href="eclipseplugin.html">Eclipse Plugin</a> for integrated launching, debugging and exporting as an executable bundle.</li>
 				</ul>
 				<p>
 					WinRun4J is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
@@ -46,6 +46,10 @@
 			<div class="section-title">Download</div>
 			<div class="section-content">
 				The latest <a href="https://sourceforge.net/project/showfiles.php?group_id=195634">download</a> is available from the Project Page.
+				<br/><br/>
+				The latest version of the <a href="eclipseplugin.html">Eclipse Plugin for WinRun4J</a> can be downloaded from within Eclipse using the following Update URL:
+				<br/><br/>
+				<b>http://winrun4j.sourceforge.net/</b>
 			</div>
 		</div>
 		<div class="section">
@@ -175,6 +179,18 @@ given the physical memory available.</td>
 					<tr>
 						<td>service.id</td>
 						<td>This is the ID of the service (used for registration)</td>
+					</tr>
+					<tr>
+						<td>service.name</td>
+						<td>The name of the service. This will appear in the service control panel.</td>
+					</tr>
+					<tr>
+						<td>service.description</td>
+						<td>The description on the service. This will appear in the service control panel.</td>
+					</tr>
+					<tr>
+						<td>service.controls</td>
+						<td>The control commands accepted by the service. This can one or multiple of "stop", "shutdown", "pause", "param", "netbind", "hardward", "power", "session". For multiple simply OR together (eg. service.controls=stop|shutdown). The default is "stop|shutdown".</td>
 					</tr>
 					<tr>
 						<td>service.startup</td>
@@ -340,47 +356,28 @@ file.1.description=Java Source File
 <pre>
 package org.boris.winrun4j.test;
 
-import org.boris.winrun4j.*;
+import org.boris.winrun4j.AbstractService;
+import org.boris.winrun4j.EventLog;
+import org.boris.winrun4j.ServiceException;
 
-public class ServiceTest implements Service {
-    private int returnCode = 0;
-    private boolean shutdown = false;
-    
-    public int doRequest(int request) throws ServiceException {
-        switch(request) {
-        case SERVICE_CONTROL_SHUTDOWN:
-        case SERVICE_CONTROL_STOP:
-            shutdown = true;
-            break;
-        }
-        return 0;
-    }
-
-    public int getControlsAccepted() {
-        return SERVICE_ACCEPT_SHUTDOWN | SERVICE_ACCEPT_STOP;
-    }
-
-    public String getName() {
-        return "WinRun4J Test Service";
-    }
-
-    public String getDescription() {
-        return "An example service using WinRun4J.";
-    }
-
-    public int main(String[] args) throws ServiceException {
+/**
+ * A basic service.
+ */
+public class ServiceTest extends AbstractService
+{
+    public int serviceMain(String[] args) throws ServiceException {
         int count = 0;
-        while(!shutdown) {
+        while (!shutdown) {
             try {
-                Thread.sleep(60000);
+                Thread.sleep(6000);
             } catch (InterruptedException e) {
             }
-            
-            if(++count % 5 == 0) 
+
+            if (++count % 10 == 0)
                 EventLog.report("WinRun4J Test Service", EventLog.INFORMATION, "Ping");
         }
-        
-        return returnCode;
+
+        return 0;
     }
 }
 </pre>
@@ -388,6 +385,9 @@ public class ServiceTest implements Service {
 <pre>
 service.class=org.boris.winrun4j.test.ServiceTest
 service.id=ServiceTest
+service.name=WinRun4J Test Service
+service.description=An example service using WinRun4J.
+
 classpath.1=*.jar
 
 vmarg.1=-Xdebug
@@ -399,6 +399,13 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.3.3
+				<ul>
+				   <li>Moved service name, description and controls accepted to INI file</li>
+				   <li>Refactored Service interface and added AbstractService helper class</li>
+			       <li>Implemented FileAssociations helper class</li>
+				   <li>Implemented RegistryPath helper class</li>
+				</ul>
 				V0.3.2
 				<ul>
 					<li>Implemented --WinRun4J:ExecuteINI built-in command - allows the launcher
