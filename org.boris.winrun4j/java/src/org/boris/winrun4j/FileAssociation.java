@@ -77,7 +77,29 @@ public class FileAssociation
         verbs.put(fv.getVerb(), fv);
     }
 
+    public String[] getVerbs() {
+        return (String[]) verbs.keySet().toArray(new String[0]);
+    }
+
+    public FileVerb getVerb(String v) {
+        return (FileVerb) verbs.get(v);
+    }
+
     public void addOpenWith(String ow) {
         openWithList.add(ow);
+    }
+
+    public int getOpenWithCount() {
+        return openWithList.size();
+    }
+
+    public String getOpenWith(int index) {
+        return (String) openWithList.get(index);
+    }
+
+    public void addFileVerb(String verb, String command) {
+        FileVerb fv = new FileVerb(verb);
+        fv.setCommand(command);
+        put(fv);
     }
 }

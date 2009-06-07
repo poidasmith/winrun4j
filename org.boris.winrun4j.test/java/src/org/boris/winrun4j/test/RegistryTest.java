@@ -13,7 +13,6 @@ import org.boris.variant.util.VariantObjectSerializer;
 import org.boris.winrun4j.FileAssociation;
 import org.boris.winrun4j.FileAssociations;
 import org.boris.winrun4j.RegistryKey;
-import org.boris.winrun4j.RegistryPath;
 
 public class RegistryTest
 {
@@ -33,15 +32,6 @@ public class RegistryTest
 
     public static void testFileAss() throws Exception {
         System.out.println(VariantObjectSerializer.encode(FileAssociations.load(".acw")));
-    }
-
-    public static void testSimpleOutput() throws Exception {
-        System.out.println(RegistryPath
-                .getString("HKEY_LOCAL_MACHINE/SOFTWARE/Ericsson/Erlang/5.6.2/@"));
-        System.out.println(RegistryPath
-                .getString("HKEY_LOCAL_MACHINE\\SOFTWARE\\Apple Inc.\\Bonjour\\@FileVersion"));
-        System.out.println(RegistryPath
-                .getString("HKEY_LOCAL_MACHINE\\SOFTWARE\\Apple Inc.\\Bonjour\\@Version"));
     }
 
     public static void testCreate() throws Exception {

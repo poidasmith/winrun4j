@@ -4,7 +4,7 @@ Release 0.3.3
 - Moved service name, description and controls accepted to INI file
 - Refactored Service interface and added AbstractService helper class
 - Implemented FileAssociations helper class
-- Greatly improved the registry API
+- Greatly improved the Registry API
 - Added AbstractService helper class
 
 
