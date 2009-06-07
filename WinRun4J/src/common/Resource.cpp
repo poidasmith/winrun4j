@@ -230,8 +230,12 @@ bool Resource::AddHTML(LPSTR exeFile, LPSTR htmlFile)
 	}
 	if(len == 0) len--;
 	strcpy(htmlName, &htmlFile[len+1]);
+	len = strlen(htmlName);
+	for(int i = 0; i < len; i++) {
+		htmlName[i] = toupper(htmlName[i]);
+	}
 
-	return SetFile(exeFile, htmlFile, RT_HTML, htmlName, 0, false);
+	return SetFile(exeFile, htmlFile, RT_HTML, htmlName, 0, true);
 }
 
 bool Resource::SetFile(LPSTR exeFile, LPSTR resFile, LPCTSTR lpType, LPCTSTR lpName, DWORD magic, bool zeroTerminate)
