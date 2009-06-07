@@ -10,6 +10,7 @@
 package org.boris.winrun4j.test;
 
 import org.boris.variant.util.VariantObjectSerializer;
+import org.boris.winrun4j.FileAssociation;
 import org.boris.winrun4j.FileAssociations;
 import org.boris.winrun4j.RegistryKey;
 import org.boris.winrun4j.RegistryPath;
@@ -19,7 +20,8 @@ public class RegistryTest
     public static void main(String[] args) throws Exception {
         // testTypes();
         // testFileAss();
-        testCreate();
+        // testCreate();
+        testFileAssSave();
     }
 
     public static void testTypes() throws Exception {
@@ -62,5 +64,16 @@ public class RegistryTest
         System.out.println(s.getString(null));
         sf.deleteSubKey("WinRun4J");
         System.out.println(s.exists());
+    }
+
+    public static void testFileAssSave() throws Exception {
+        FileAssociation fa = new FileAssociation(".winrun4j");
+        fa.setName("WinRun4JLaunch");
+        fa.setDescription("WinRun4J Launcher File");
+        fa.setPerceivedType("text");
+        fa.addOpenWith("WinRun4J.exe");
+        fa.addFileVerb("open", "WinRun4J.exe --WinRun4J:ExecuteINI %1");
+        FileAssociations.delete(fa);
+        FileAssociations.save(fa);
     }
 }
