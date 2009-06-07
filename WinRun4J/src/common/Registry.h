@@ -21,10 +21,10 @@ public:
 private:
 	// Key methods
 	static jlong OpenKey(JNIEnv* env, jobject self, jlong rootKey, jstring keyPath);
+	static jlong CreateSubKey(JNIEnv* env, jobject self, jlong rootKey, jstring subKey);
 	static void CloseKey(JNIEnv* env, jobject self, jlong handle);
 	static jobjectArray GetSubKeyNames(JNIEnv* env, jobject self, jlong handle);
 	static jobjectArray GetValueNames(JNIEnv* env, jobject self, jlong handle);
-	static jlong CreateSubKey(JNIEnv* env, jobject self, jlong handle, jstring name);
 	static jlong CreateValue(JNIEnv* env, jobject self, jlong handle, jstring name);
 	static void DeleteKey(JNIEnv* env, jobject self, jlong handle);
 	static void DeleteValue(JNIEnv* env, jobject self, jlong parent, jstring name);

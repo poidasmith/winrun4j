@@ -165,13 +165,13 @@ int Service::Initialise(dictionary* ini)
 		return 1;
 	}
 
-	g_controlMethod = env->GetMethodID(g_serviceClass, "doRequest", "(I)I");
+	g_controlMethod = env->GetMethodID(g_serviceClass, "serviceRequest", "(I)I");
 	if(g_controlMethod == NULL) {
 		Log::Error("Could not find control method class");
 		return 1;
 	}
 
-	g_mainMethod = env->GetMethodID(g_serviceClass, "main", "([Ljava/lang/String;)I");
+	g_mainMethod = env->GetMethodID(g_serviceClass, "serviceMain", "([Ljava/lang/String;)I");
 	if(g_mainMethod == NULL) {
 		Log::Error("Could not find control main class");
 		return 1;

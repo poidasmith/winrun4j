@@ -4,7 +4,7 @@ Release 0.3.3
 - Moved service name, description and controls accepted to INI file
 - Refactored Service interface and added AbstractService helper class
 - Implemented FileAssociations helper class
-- Implemented RegistryPath helper class
+- Greatly improved the registry API
 - Added AbstractService helper class
 
 
@@ -16,7 +16,8 @@ service helper class (maybe a callable, with start/stop).
 - should stdout go to console when logging to file? what about console version?
 	- maybe an option in the ini "log.std.tofile=false"
 	
-
+- fix registry api for null key names
+- support for unicode in registry 
 
 Misc
 ====

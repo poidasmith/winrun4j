@@ -9,17 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
-import java.nio.ByteBuffer;
-
-public class Resources
+public interface ResourceEnumCallback
 {
-    public static native ByteBuffer find(String module, ResourceId name, ResourceId type,
-            int language);
-
-    public static native void enumerate(String module, EnumCallback callback);
-
-    public interface EnumCallback
-    {
-        void onResource(ResourceId type, ResourceId name, int language);
-    }
+    void onResource(ResourceId type, ResourceId name, int language);
 }

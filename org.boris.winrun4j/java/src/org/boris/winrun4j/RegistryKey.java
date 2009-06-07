@@ -9,16 +9,34 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A class that wraps a registry key.
  */
-public class RegistryKey {
+public class RegistryKey
+{
     // Root key constants
-    public static final long HKEY_CLASSES_ROOT = 0x80000000;
-    public static final long HKEY_CURRENT_USER = 0x80000001;
-    public static final long HKEY_LOCAL_MACHINE = 0x80000002;
-    public static final long HKEY_USERS = 0x80000003;
-    public static final long HKEY_CURRENT_CONFIG = 0x80000005;
+    public static final RegistryKey HKEY_CLASSES_ROOT = new RegistryKey(0x80000000);
+    public static final RegistryKey HKEY_CURRENT_USER = new RegistryKey(0x80000001);
+    public static final RegistryKey HKEY_LOCAL_MACHINE = new RegistryKey(0x80000002);
+    public static final RegistryKey HKEY_USERS = new RegistryKey(0x80000003);
+    public static final RegistryKey HKEY_CURRENT_CONFIG = new RegistryKey(0x80000005);
+
+    // Root key names
+    private static Map rootNames = new HashMap();
+    static {
+        rootNames.put("HKEY_CLASSES_ROOT", HKEY_CLASSES_ROOT);
+        rootNames.put("HKEY_CURRENT_USER", HKEY_CURRENT_USER);
+        rootNames.put("HKEY_LOCAL_MACHINE", HKEY_LOCAL_MACHINE);
+        rootNames.put("HKEY_USERS", HKEY_USERS);
+        rootNames.put("HKEY_CURRENT_CONFIG", HKEY_CURRENT_CONFIG);
+    }
+
+    public static RegistryKey getRootKey(String name) {
+        return (RegistryKey) rootNames.get(name);
+    }
 
     // Value type constants
     public static final int TYPE_NONE = 0x00000001;
@@ -34,454 +52,460 @@ public class RegistryKey {
     public static final int TYPE_QWORD_LITTLE_ENDIAN = 10;
 
     // The underlying registry handle.
-    private long parent;
-    private long handle;
-    private String name;
+    private RegistryKey parent;
+    private boolean isRoot;
+    private long handle; // The root handle
+    private String[] path;
 
     /**
      * Creates a new RegistryKey object.
-     *
+     * 
      * @param key.
      * @param path.
      */
-    public RegistryKey(long key, String path) {
-        this.parent = key;
-        this.name = path;
+    private RegistryKey(long key) {
+        this.isRoot = true;
+        this.handle = key;
+    }
 
-        // Handle root key case
-        if (path == null) {
-            this.handle = key;
+    /**
+     * Creates a new RegistryKey object.
+     * 
+     * @param parent.
+     * @param path.
+     */
+    public RegistryKey(RegistryKey parent, String path) {
+        this.parent = parent;
+        this.handle = parent.handle;
+        if (parent.isRoot) {
+            this.path = new String[] { path };
+        } else {
+            this.path = new String[parent.path.length + 1];
+            System.arraycopy(parent.path, 0, this.path, 0, parent.path.length);
+            this.path[parent.path.length] = path;
         }
     }
 
     /**
      * Creates a new RegistryKey object.
-     *
+     * 
      * @param parent.
      * @param path.
      */
-    public RegistryKey(RegistryKey parent, String path) {
-        this.parent = parent.handle;
-        this.name = path;
+    public RegistryKey(RegistryKey parent, String[] path) {
+        this.parent = parent;
+        this.handle = parent.handle;
+        if (parent.isRoot) {
+            this.path = path;
+        } else {
+            this.path = new String[parent.path.length + path.length];
+            System.arraycopy(parent.path, 0, this.path, 0, parent.path.length);
+            System.arraycopy(path, 0, this.path, parent.path.length, path.length);
+        }
     }
 
     /**
-     * Opens the key.
-     *
-     * @return boolean.
+     * Indicates if this registry key exists.
      */
-    public boolean open() {
-        handle = openKeyHandle(parent, name);
-
-        return handle != 0;
+    public boolean exists() {
+        if (isRoot)
+            return true;
+        long h = openKeyHandle(handle, path);
+        closeKeyHandle(h);
+        return h != 0;
     }
 
     /**
-     * Closes the key.
+     * Opens up the key for this path. Windows doesn't provide a way to open up
+     * a path.
      */
-    public void close() {
-        closeKeyHandle(handle);
-        handle = 0;
-    }
-
-    /**
-     * Indicates if the key is open.
-     *
-     * @return boolean.
-     */
-    public boolean isOpen() {
-        return handle != 0;
+    private long openKeyHandle(long handle, String[] path) {
+        long h = handle;
+        if (path == null)
+            return h;
+        for (int i = 0; i < path.length; i++) {
+            long nh = openKeyHandle(h, path[i]);
+            if (h != handle)
+                closeKeyHandle(h);
+            h = nh;
+        }
+        return h;
     }
 
     /**
      * Gets the subkeys for this key.
-     *
+     * 
      * @return String[].
      */
     public String[] getSubKeyNames() {
-        return getSubKeyNames(handle);
+        long h = openKeyHandle(handle, path);
+        String[] res = getSubKeyNames(h);
+        closeKeyHandle(h);
+        return res;
     }
 
     /**
      * Gets a subkey of a particular name (or null).
-     *
+     * 
      * @param name.
-     *
+     * 
      * @return RegistryKey.
      */
     public RegistryKey getSubKey(String name) {
-        return new RegistryKey(handle, name);
+        return new RegistryKey(this, name);
+    }
+
+    /**
+     * Creates a sub key.
+     * 
+     * @param name
+     * @return RegistryKey.
+     */
+    public RegistryKey createSubKey(String name) {
+        long h = openKeyHandle(handle, path);
+        if (h != 0) {
+            long n = createSubKey(h, name);
+            closeKeyHandle(h);
+            if (n != 0) {
+                closeKeyHandle(n);
+                return new RegistryKey(this, name);
+            }
+        }
+
+        return null;
     }
 
     /**
      * Gets the values for this key.
-     *
+     * 
      * @return String[].
      */
     public String[] getValueNames() {
-        return getValueNames(handle);
+        long h = openKeyHandle(handle, path);
+        String[] res = getValueNames(h);
+        closeKeyHandle(h);
+        return res;
     }
 
     /**
-     * Gets the name of the key.
-     *
+     * Gets the path of the key.
+     * 
      * @return String.
      */
-    public String getName() {
-        return name;
+    public String[] getPath() {
+        return path;
     }
 
     /**
      * Gets the parent key.
-     *
+     * 
      * @return RegistryKey.
      */
     public RegistryKey getParent() {
-        return null;
+        return parent;
     }
 
     /**
      * Deletes this key.
      */
     public void delete() {
-        deleteKey(handle);
-        handle = 0;
+        if (!isRoot) {
+            long h = openKeyHandle(handle, path);
+            deleteKey(h);
+            closeKeyHandle(h);
+        }
     }
 
     /**
      * Gets the type of a value.
-     *
+     * 
      * @param name.
-     *
+     * 
      * @return int.
      */
     public long getType(String name) {
-        return getType(handle, name);
+        long h = openKeyHandle(handle, path);
+        long res = getType(h, name);
+        closeKeyHandle(h);
+        return res;
     }
 
     /**
      * Gets a string.
-     *
+     * 
      * @param name.
      */
     public String getString(String name) {
-        return getString(handle, name);
+        long h = openKeyHandle(handle, path);
+        String res = getString(h, name);
+        closeKeyHandle(h);
+        return res;
     }
 
     /**
      * Gets a binary value.
-     *
+     * 
      * @param name.
-     *
+     * 
      * @return byte[].
      */
     public byte[] getBinary(String name) {
-        return getBinary(handle, name);
+        long h = openKeyHandle(handle, path);
+        byte[] res = getBinary(h, name);
+        closeKeyHandle(h);
+        return res;
     }
 
     /**
      * Gets a DWORD.
-     *
+     * 
      * @param name.
-     *
+     * 
      * @return long.
      */
     public long getDoubleWord(String name) {
-        return getDoubleWord(handle, name);
+        long h = openKeyHandle(handle, path);
+        long res = getDoubleWord(h, name);
+        closeKeyHandle(h);
+        return res;
     }
 
     /**
      * Gets a value.
-     *
+     * 
      * @param name.
-     *
-     * @return long.
-     */
-    public long getDoubleWordLittleEndian(String name) {
-        return getDoubleWordLittleEndian(handle, name);
-    }
-
-    /**
-     * Gets a value.
-     *
-     * @param name.
-     *
-     * @return long.
-     */
-    public long getDoubleWordBigEndian(String name) {
-        return getDoubleWordBigEndian(handle, name);
-    }
-
-    /**
-     * Gets a value.
-     *
-     * @param name.
-     *
+     * 
      * @return String.
      */
     public String getExpandedString(String name) {
-        return getExpandedString(handle, name);
+        long h = openKeyHandle(handle, path);
+        String res = getExpandedString(h, name);
+        closeKeyHandle(h);
+        return res;
     }
 
     /**
      * Gets a value.
-     *
+     * 
      * @param name.
-     *
+     * 
      * @return String[].
      */
     public String[] getMultiString(String name) {
-        return getMultiString(handle, name);
+        long h = openKeyHandle(handle, path);
+        String[] res = getMultiString(h, name);
+        closeKeyHandle(h);
+        return res;
     }
 
     /**
      * Sets a value.
-     *
+     * 
      * @param name.
      * @param value.
      */
     public void setString(String name, String value) {
-        setString(handle, name, value);
+        long h = openKeyHandle(handle, path);
+        setString(h, name, value);
+        closeKeyHandle(h);
     }
 
     /**
      * Sets a value.
-     *
+     * 
      * @param name.
      * @param value.
      */
     public void setBinary(String name, byte[] value) {
-        setBinary(handle, name, value);
+        long h = openKeyHandle(handle, path);
+        setBinary(h, name, value);
+        closeKeyHandle(h);
     }
 
     /**
      * Sets the value.
-     *
+     * 
      * @param name.
      * @param value.
      */
     public void setDoubleWord(String name, long value) {
-        setDoubleWord(handle, name, value);
+        long h = openKeyHandle(handle, path);
+        setDoubleWord(h, name, value);
+        closeKeyHandle(h);
     }
 
     /**
      * Sets the value.
-     *
-     * @param name.
-     * @param value.
-     */
-    public void setDoubleWordLittleEndian(String name, long value) {
-        setDoubleWordLittleEndian(handle, name, value);
-    }
-
-    /**
-     * Sets the value.
-     *
-     * @param name.
-     * @param value.
-     */
-    public void setDoubleWordBigEndian(String name, long value) {
-        setDoubleWordBigEndian(handle, name, value);
-    }
-
-    /**
-     * Sets the value.
-     *
+     * 
      * @param name.
      * @param value.
      */
     public void setMultiString(String name, String[] value) {
-        setMultiString(handle, name, value);
+        long h = openKeyHandle(handle, path);
+        setMultiString(h, name, value);
+        closeKeyHandle(h);
     }
 
     /**
      * Deletes the value.
      */
     public void deleteValue(String name) {
-        deleteValue(handle, name);
+        long h = openKeyHandle(handle, path);
+        deleteValue(h, name);
+        closeKeyHandle(h);
     }
 
     /**
      * Create a key handle.
-     *
+     * 
      * @param rootKey
      * @param keyPath.
-     *
+     * 
      * @return long.
      */
-    private native long openKeyHandle(long rootKey, String keyPath);
+    public static native long openKeyHandle(long rootKey, String keyPath);
 
     /**
      * Close a key.
-     *
+     * 
      * @param handle.
      */
-    private native void closeKeyHandle(long handle);
+    public static native void closeKeyHandle(long handle);
 
     /**
      * Get the sub key names.
-     *
+     * 
      * @param handle.
-     *
+     * 
      * @return long[].
      */
-    private native String[] getSubKeyNames(long handle);
+    public static native String[] getSubKeyNames(long handle);
 
     /**
      * Gets the values.
-     *
+     * 
      * @param handle.
-     *
+     * 
      * @return String[].
      */
-    private native String[] getValueNames(long handle);
+    public static native String[] getValueNames(long handle);
+
+    /**
+     * Creates a sub key.
+     * 
+     * @param handle.
+     * @param key.
+     */
+    public static native long createSubKey(long handle, String key);
 
     /**
      * Deletes the key.
-     *
+     * 
      * @param handle.
      */
-    private native void deleteKey(long handle);
+    public static native void deleteKey(long handle);
 
     /**
      * Gets the name.
-     *
+     * 
      * @param parent.
      * @param name.
-     *
+     * 
      * @return long.
      */
-    private native long getType(long parent, String name);
+    public static native long getType(long parent, String name);
 
     /**
      * Delets the key.
-     *
+     * 
      * @param parent.
      * @param name.
      */
-    private native void deleteValue(long parent, String name);
+    public static native void deleteValue(long parent, String name);
 
     /**
      * Gets the value.
-     *
+     * 
      * @param parent.
      * @param name.
-     *
+     * 
      * @return String.
      */
-    private native String getString(long parent, String name);
+    public static native String getString(long parent, String name);
 
     /**
      * Gets the value.
-     *
+     * 
      * @param parent.
      * @param name.
-     *
+     * 
      * @return byte[].
      */
-    private native byte[] getBinary(long parent, String name);
+    public static native byte[] getBinary(long parent, String name);
 
     /**
      * Gets the value.
-     *
+     * 
      * @param parent.
      * @param name.
-     *
+     * 
      * @return long.
      */
-    private native long getDoubleWord(long parent, String name);
+    public static native long getDoubleWord(long parent, String name);
 
     /**
      * Gets the value.
-     *
+     * 
      * @param parent.
      * @param name.
-     *
-     * @return long.
-     */
-    private native long getDoubleWordLittleEndian(long parent, String name);
-
-    /**
-     * Gets the value.
-     *
-     * @param parent.
-     * @param name.
-     *
-     * @return long.
-     */
-    private native long getDoubleWordBigEndian(long parent, String name);
-
-    /**
-     * Gets the value.
-     *
-     * @param parent.
-     * @param name.
-     *
+     * 
      * @return String.
      */
-    private native String getExpandedString(long parent, String name);
+    public static native String getExpandedString(long parent, String name);
 
     /**
      * Gets the value.
-     *
+     * 
      * @param parent.
      * @param name.
-     *
+     * 
      * @return String[].
      */
-    private native String[] getMultiString(long parent, String name);
+    public static native String[] getMultiString(long parent, String name);
 
     /**
      * Sets the value.
-     *
+     * 
      * @param parent.
      * @param name.
      * @param value.
      */
-    private native void setString(long parent, String name, String value);
+    public static native void setString(long parent, String name, String value);
 
     /**
      * Sets the value.
-     *
+     * 
      * @param parent.
      * @param name.
      * @param value.
      */
-    private native void setBinary(long parent, String name, byte[] value);
+    public static native void setBinary(long parent, String name, byte[] value);
 
     /**
      * Sets the value.
-     *
+     * 
      * @param parent.
      * @param name.
      * @param value.
      */
-    private native void setDoubleWord(long parent, String name, long dword);
+    public static native void setDoubleWord(long parent, String name, long dword);
 
     /**
      * Sets the value.
-     *
+     * 
      * @param parent.
      * @param name.
      * @param value.
      */
-    private native void setDoubleWordLittleEndian(long parent, String name, long dword);
-
-    /**
-     * Sets the value.
-     *
-     * @param parent.
-     * @param name.
-     * @param value.
-     */
-    private native void setDoubleWordBigEndian(long parent, String name, long dword);
-
-    /**
-     * Sets the value.
-     *
-     * @param parent.
-     * @param name.
-     * @param value.
-     */
-    private native void setMultiString(long parent, String name, String[] value);
+    public static native void setMultiString(long parent, String name, String[] value);
 }

@@ -7,19 +7,11 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.test;
 
-import java.nio.ByteBuffer;
-
-public class Resources
+public class FileAssocationsTest
 {
-    public static native ByteBuffer find(String module, ResourceId name, ResourceId type,
-            int language);
-
-    public static native void enumerate(String module, EnumCallback callback);
-
-    public interface EnumCallback
-    {
-        void onResource(ResourceId type, ResourceId name, int language);
+    public static void main(String[] args) throws Exception {
+        // 
     }
 }

@@ -10,6 +10,6 @@ package org.boris.winrun4j;
 public class TestMainException
 {
     public static void main(String[] args) throws Exception {
-        throw new Exception("An exception thrown from main method");
+        // throw new Exception("An exception thrown from main method");
     }
 }

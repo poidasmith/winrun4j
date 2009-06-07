@@ -16,7 +16,8 @@ import org.boris.winrun4j.Log;
 import org.boris.winrun4j.RegistryKey;
 import org.boris.winrun4j.SplashScreen;
 
-public class WinRunTest {
+public class WinRunTest
+{
     public static void main(String[] args) throws Exception {
         final JFrame frame = new JFrame();
         StringBuffer ab = new StringBuffer();
@@ -64,20 +65,17 @@ public class WinRunTest {
         sb.append("\nLast Error:" + Log.getLastError() + "\n");
 
         // Test event log
-        EventLog.report("WinRun4J Test", EventLog.INFORMATION,
-                "A test information log");
+        EventLog.report("WinRun4J Test", EventLog.INFORMATION, "A test information log");
 
         // Test registry
         sb.append("\n\nRegistry Test\n=============\n\n");
         RegistryKey key = new RegistryKey(RegistryKey.HKEY_CURRENT_USER,
                 "Control Panel\\Appearance\\Schemes");
-        key.open();
         String[] names = key.getValueNames();
         for (int i = 0; i < names.length && i < 5; i++) {
             sb.append(names[i]);
             sb.append("\n");
         }
-        key.close();
 
         text.setText(sb.toString());
         frame.getContentPane().add(new JScrollPane(text));
@@ -86,8 +84,8 @@ public class WinRunTest {
         SplashScreen.setTextFont("Arial", 14);
         SplashScreen.setTextColor(170, 170, 170);
         for (int i = 0; i < 24; i++) {
-            SplashScreen.setText("WinRun4J splash message".substring(0, i),
-                    (int) (280 - (i * 10)), 240);
+            SplashScreen.setText("WinRun4J splash message".substring(0, i), (int) (280 - (i * 10)),
+                    240);
             Thread.sleep(100);
         }
         Thread.sleep(2000);
