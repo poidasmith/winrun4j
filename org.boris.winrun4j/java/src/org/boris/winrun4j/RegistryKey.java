@@ -206,12 +206,12 @@ public class RegistryKey
     }
 
     /**
-     * Deletes this key.
+     * Deletes the sub key.
      */
-    public void delete() {
+    public void deleteSubKey(String subKey) {
         if (!isRoot) {
             long h = openKeyHandle(handle, path);
-            deleteKey(h);
+            deleteSubKey(h, subKey);
             closeKeyHandle(h);
         }
     }
@@ -399,11 +399,11 @@ public class RegistryKey
     public static native long createSubKey(long handle, String key);
 
     /**
-     * Deletes the key.
+     * Deletes the sub key.
      * 
      * @param handle.
      */
-    public static native void deleteKey(long handle);
+    public static native void deleteSubKey(long handle, String key);
 
     /**
      * Gets the name.

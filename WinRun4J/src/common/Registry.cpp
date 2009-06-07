@@ -104,10 +104,12 @@ jobjectArray Registry::GetValueNames(JNIEnv* env, jobject /*self*/, jlong handle
 	return arr;
 }
 
-void Registry::DeleteKey(JNIEnv* /*env*/, jobject /*self*/, jlong handle)
+void Registry::DeleteSubKey(JNIEnv* env, jobject /*self*/, jlong handle, jstring subKey)
 {
-	if(handle != 0)
-		RegDeleteKey((HKEY) handle, 0);
+	const char* sk = subKey ? env->GetStringUTFChars(subKey, 0) : 0;
+	if(handle != 0 && sk != 0)
+		RegDeleteKey((HKEY) handle, sk);
+	if(sk) env->ReleaseStringUTFChars(subKey, sk);
 }
 
 void Registry::DeleteValue(JNIEnv* env, jobject /*self*/, jlong parent, jstring name)
@@ -116,7 +118,7 @@ void Registry::DeleteValue(JNIEnv* env, jobject /*self*/, jlong parent, jstring 
 		return;
 
 	jboolean iscopy = false;
-	const char* str = env->GetStringUTFChars(name, &iscopy);
+	const char* str = name ? env->GetStringUTFChars(name, &iscopy) : 0;
 	RegDeleteValue((HKEY) parent, str);
 	env->ReleaseStringUTFChars(name, str);
 }
@@ -291,9 +293,9 @@ bool Registry::RegisterNatives(JNIEnv *env)
 	methods[0].fnPtr = (void*) CloseKey;
 	methods[0].name = "closeKeyHandle";
 	methods[0].signature = "(J)V";
-	methods[1].fnPtr = (void*) DeleteKey;
-	methods[1].name = "deleteKey";
-	methods[1].signature = "(J)V";
+	methods[1].fnPtr = (void*) DeleteSubKey;
+	methods[1].name = "deleteSubKey";
+	methods[1].signature = "(JLjava/lang/String;)V";
 	methods[2].fnPtr = (void*) DeleteValue;
 	methods[2].name = "deleteValue";
 	methods[2].signature = "(JLjava/lang/String;)V";

@@ -42,8 +42,8 @@ bool EventLog::Report(JNIEnv* env, jobject self, jstring source, jint type, jstr
 		return false;
 
 	jboolean iscopy = false;
-	const char* src = env->GetStringUTFChars(source, &iscopy);
-	const char* m = env->GetStringUTFChars(msg, &iscopy);
+	const char* src = source ? env->GetStringUTFChars(source, &iscopy) : 0;
+	const char* m = msg ? env->GetStringUTFChars(msg, &iscopy) : 0;
 
 	HANDLE h = RegisterEventSource(0, src);
 	if(h == NULL) {

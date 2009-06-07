@@ -284,7 +284,7 @@ void SplashScreen::SetTextFont(JNIEnv* env, jobject self, jstring typeface, jint
 {
 	if(!g_hWnd) return;
 	jboolean iscopy = false;
-	const char* t = env->GetStringUTFChars(typeface, &iscopy);
+	const char* t = typeface ? env->GetStringUTFChars(typeface, &iscopy) : 0;
 	HDC hdc = GetDC(NULL);
 	DWORD h = -MulDiv(size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
 	HFONT hf = CreateFont(h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, t);
@@ -298,7 +298,7 @@ void SplashScreen::SetText(JNIEnv* env, jobject self, jstring text, jint x, jint
 	if(!g_hWnd) return;
 	g_textSet = true;
 	jboolean iscopy = false;
-	const char* t = env->GetStringUTFChars(text, &iscopy);
+	const char* t = text ? env->GetStringUTFChars(text, &iscopy) : 0;
 	strcpy(g_text, t);
 	g_textX = x;
 	g_textY = y;

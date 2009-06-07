@@ -126,7 +126,7 @@ char* JNI::CallStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name)
 	}
 
 	jboolean iscopy = false;
-	const char* chars = env->GetStringUTFChars(str, &iscopy);
+	const char* chars = str ? env->GetStringUTFChars(str, &iscopy) : 0;
 	char* tmp = strdup(chars);
 	env->ReleaseStringUTFChars(str, chars);
 	return tmp;
@@ -180,7 +180,7 @@ jobjectArray JNI::ListJars(JNIEnv* env, jobject self, jstring library)
 	HMODULE hm = NULL;
 	if(library) {
 		jboolean iscopy = false;
-		const char* c = env->GetStringUTFChars(library, &iscopy);
+		const char* c = library ? env->GetStringUTFChars(library, &iscopy) : 0;
 		hm = LoadLibrary(c);
 		if(!hm)
 			return NULL;
@@ -211,7 +211,7 @@ jobject JNI::GetJar(JNIEnv* env, jobject self, jstring library, jstring jarName)
 	HMODULE hm = NULL;
 	if(library) {
 		jboolean iscopy = false;
-		const char* c = env->GetStringUTFChars(library, &iscopy);
+		const char* c = library ?env->GetStringUTFChars(library, &iscopy) : 0; 
 		hm = LoadLibrary(c);
 		if(!hm)
 			return NULL;
@@ -221,7 +221,7 @@ jobject JNI::GetJar(JNIEnv* env, jobject self, jstring library, jstring jarName)
 		return NULL;
 
 	jboolean iscopy = false;
-	const char* jn = env->GetStringUTFChars(jarName, &iscopy);
+	const char* jn = jarName ? env->GetStringUTFChars(jarName, &iscopy) : 0;
 
 	int resId = 1;
 	HRSRC hs;

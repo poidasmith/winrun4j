@@ -26,7 +26,7 @@ private:
 	static jobjectArray GetSubKeyNames(JNIEnv* env, jobject self, jlong handle);
 	static jobjectArray GetValueNames(JNIEnv* env, jobject self, jlong handle);
 	static jlong CreateValue(JNIEnv* env, jobject self, jlong handle, jstring name);
-	static void DeleteKey(JNIEnv* env, jobject self, jlong handle);
+	static void DeleteSubKey(JNIEnv* env, jobject self, jlong handle, jstring subKey);
 	static void DeleteValue(JNIEnv* env, jobject self, jlong parent, jstring name);
 
 	// Value methods

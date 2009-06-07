@@ -49,8 +49,14 @@ public class RegistryTest
             return;
         }
 
+        System.out.println(sf.getSubKey("WinRun4J").exists());
         RegistryKey s = sf.createSubKey("WinRun4J");
+        System.out.println(s.exists());
         s.setString("Something", "Else");
         s.setString(null, "Test");
+        s.deleteValue("Something");
+        s.deleteValue(null);
+        sf.deleteSubKey("WinRun4J");
+        System.out.println(s.exists());
     }
 }

@@ -155,7 +155,7 @@ jobjectArray INI::GetKeys(JNIEnv* env, jobject self)
 jstring INI::GetKey(JNIEnv* env, jobject self, jstring key)
 {
 	jboolean iscopy = false;
-	const char* keyStr = env->GetStringUTFChars(key, &iscopy);
+	const char* keyStr = key ? env->GetStringUTFChars(key, &iscopy) : 0;
 	char* value = iniparser_getstr(g_ini, (char*) keyStr);
 	if(value == NULL) {
 		return NULL;

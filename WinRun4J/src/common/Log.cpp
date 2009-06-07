@@ -239,7 +239,7 @@ void JNICALL Log::LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str)
 		return;
 
 	jboolean iscopy = false;
-	const char* format = env->GetStringUTFChars(str, &iscopy);
+	const char* format = str ? env->GetStringUTFChars(str, &iscopy) : 0;
 	// TODO - logging level to string
 	switch(jlevel) {
 		case info: Info(format); break;
@@ -256,7 +256,7 @@ void JNICALL Log::SetLastErrorJ(JNIEnv* env, jobject self, jstring str)
 	jboolean iscopy = false;
 	if(env->ExceptionOccurred())
 		env->ExceptionClear();
-	const char* chars = env->GetStringUTFChars(str, &iscopy);
+	const char* chars = str ? env->GetStringUTFChars(str, &iscopy) : 0;
 	Log::SetLastError(chars);
 	env->ReleaseStringUTFChars(str, chars); 
 }
