@@ -57,7 +57,7 @@ struct VM {
 	static int StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance);
 	static int CleanupVM();
 	static JavaVM* GetJavaVM();
-	static JNIEnv* GetJNIEnv();
+	static JNIEnv* GetJNIEnv(bool daemon=false);
 	static void DetachCurrentThread();
 	
 public:

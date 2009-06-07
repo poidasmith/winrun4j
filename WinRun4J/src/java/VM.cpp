@@ -35,11 +35,15 @@ JavaVM* VM::GetJavaVM()
 	return jvm;
 }
 
-JNIEnv* VM::GetJNIEnv()
+JNIEnv* VM::GetJNIEnv(bool daemon)
 {
 	if(!jvm) return NULL;
 	JNIEnv* env = 0;
-	jvm->AttachCurrentThread((void**) &env, NULL);
+	if(daemon) {
+		jvm->AttachCurrentThreadAsDaemon((void**) &env, NULL);
+	} else {
+		jvm->AttachCurrentThread((void**) &env, NULL);
+	}
 	return env;
 }
 

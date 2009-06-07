@@ -54,7 +54,6 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT /*uFmt*/, HCONV /*hconv*/, HDDEDA
 	case XTYP_EXECUTE:
 		DdeGetData(hdata, (LPBYTE) g_execute, MAX_PATH, 0);
 		DDE::Execute(g_execute);
-		VM::DetachCurrentThread();
 		return (HDDEDATA) 1;
 		break;
 	}
@@ -179,7 +178,7 @@ bool DDE::NotifySingleInstance(dictionary* ini)
 
 void DDE::Execute(LPSTR lpExecuteStr)
 {
-	JNIEnv* env = VM::GetJNIEnv();
+	JNIEnv* env = VM::GetJNIEnv(true);
 	if(env == NULL) return;
 	if(g_class == NULL) return;
 	if(g_executeMethodID == NULL) return;

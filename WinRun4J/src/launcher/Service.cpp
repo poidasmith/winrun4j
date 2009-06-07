@@ -15,15 +15,19 @@
 #include "../java/VM.h"
 #include "../WinRun4J.h"
 
-static char* g_serviceId = 0;
-static int g_controlsAccepted = 0;
-static int g_returnCode = 0;
-SERVICE_STATUS g_serviceStatus;
-SERVICE_STATUS_HANDLE g_serviceStatusHandle;
-jclass g_serviceClass;
-jobject g_serviceInstance;
-jmethodID g_controlMethod;
-jmethodID g_mainMethod;
+namespace 
+{
+	char* g_serviceId = 0;
+	int g_controlsAccepted = 0;
+	int g_returnCode = 0;
+	SERVICE_STATUS g_serviceStatus;
+	SERVICE_STATUS_HANDLE g_serviceStatusHandle;
+	jclass g_serviceClass;
+	jobject g_serviceInstance;
+	jmethodID g_controlMethod;
+	jmethodID g_mainMethod;
+	HANDLE g_event;
+}
 
 #define SERVICE_ID ":service.id"
 #define SERVICE_NAME ":service.name"
@@ -202,6 +206,8 @@ int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
 // We expect the commandline to be "--WinRun4J:RegisterService"
 int Service::Register(dictionary* ini)
 {
+	Log::Info("Registering Service...");
+
 	g_serviceId = iniparser_getstr(ini, SERVICE_ID);
 	if(g_serviceId == NULL) {
 		Log::Error("Service ID not specified");
@@ -314,6 +320,8 @@ int Service::Register(dictionary* ini)
 // We expect the commandline to be "--WinRun4J:UnregisterService"
 int Service::Unregister(dictionary* ini)
 {
+	Log::Info("Unregistering Service...");
+
 	const char* serviceId = iniparser_getstr(ini, SERVICE_ID);
 	if(serviceId == NULL) {
 		Log::Error("Service ID not specified");
@@ -345,6 +353,10 @@ int Service::Control(DWORD opCode)
 DWORD ServiceMainThread(LPVOID lpParam)
 {
 	JNIEnv* env = VM::GetJNIEnv();
+
+	// Now signal launcher thread
+	SetEvent(g_event);
+
 	g_returnCode = env->CallIntMethod(g_serviceInstance, g_mainMethod, (jobjectArray) lpParam);
 
 	VM::CleanupVM();
@@ -366,9 +378,15 @@ int Service::Main(DWORD argc, LPSTR* argv)
 	}
 	env->NewGlobalRef(args);
 
+	// Create the event
+	g_event = CreateEvent(0, TRUE, FALSE, 0);
+
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ServiceMainThread, (LPDWORD) args, 0, 0);
 	g_serviceStatus.dwCurrentState = SERVICE_RUNNING;
 	SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus);
+
+	// Need to wait for service thread to attach
+	WaitForSingleObject(g_event, INFINITE);
 
 	// Detach this thread so it doesn't block
 	VM::DetachCurrentThread();

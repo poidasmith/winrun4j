@@ -237,7 +237,7 @@ bool Resource::AddHTML(LPSTR exeFile, LPSTR htmlFile)
 		htmlName[i] = toupper(htmlName[i]);
 	}
 
-	return SetFile(exeFile, htmlFile, RT_HTML, htmlName, 0, true);
+	return SetFile(exeFile, htmlFile, RT_HTML, htmlName, 0, false);
 }
 
 bool Resource::SetFile(LPSTR exeFile, LPSTR resFile, LPCTSTR lpType, LPCTSTR lpName, DWORD magic, bool zeroTerminate)
@@ -349,7 +349,11 @@ BOOL EnumLangsFunc(HANDLE hModule, LPCTSTR lpType, LPCTSTR lpName, WORD wLang, L
 {
 	ResourceInfoList* pRil = (ResourceInfoList*) lParam;
 	pRil->ri[pRil->count].lpType = lpType;
-	pRil->ri[pRil->count].lpName = lpName;
+	if(IS_INTRESOURCE(lpName)) {
+		pRil->ri[pRil->count].lpName = lpName;
+	} else {
+		pRil->ri[pRil->count].lpName = strdup(lpName);
+	}
 	pRil->ri[pRil->count].wLang = wLang;
 	pRil->count++;
 	return pRil->count < pRil->max;
@@ -454,7 +458,7 @@ bool Resource::ListResources(LPSTR exeFile)
 		} else if(lpType == RT_FONTDIR) {
 			printf("Font Dir\t%04x\n", lpName);
 		} else if(lpType == RT_HTML) {
-			printf("HTML\t%04x\n", lpName);
+			printf("HTML\t\t%s\n", lpName);
 		} else if(lpType == RT_GROUP_CURSOR) {
 			printf("Group Cursor\t%04x\n", lpName);
 		} else if(lpType == RT_MANIFEST) {
