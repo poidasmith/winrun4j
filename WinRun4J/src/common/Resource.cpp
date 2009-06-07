@@ -230,6 +230,8 @@ bool Resource::AddHTML(LPSTR exeFile, LPSTR htmlFile)
 	}
 	if(len == 0) len--;
 	strcpy(htmlName, &htmlFile[len+1]);
+
+	// Named resources must be in uppercase...
 	len = strlen(htmlName);
 	for(int i = 0; i < len; i++) {
 		htmlName[i] = toupper(htmlName[i]);
