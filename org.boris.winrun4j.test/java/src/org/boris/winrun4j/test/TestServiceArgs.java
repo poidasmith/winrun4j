@@ -27,7 +27,7 @@ public class TestServiceArgs extends AbstractService
 
         while (!shutdown) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(10);
                 Log.info("TestServiceArgs running...");
             } catch (InterruptedException e) {
             }

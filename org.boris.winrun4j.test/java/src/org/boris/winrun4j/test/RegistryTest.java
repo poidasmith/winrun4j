@@ -17,8 +17,8 @@ import org.boris.winrun4j.RegistryKey;
 public class RegistryTest
 {
     public static void main(String[] args) throws Exception {
-        // testTypes();
-        // testFileAss();
+        testTypes();
+        testFileAss();
         // testCreate();
         testFileAssSave();
     }
@@ -59,10 +59,11 @@ public class RegistryTest
     public static void testFileAssSave() throws Exception {
         FileAssociation fa = new FileAssociation(".winrun4j");
         fa.setName("WinRun4JLaunch");
-        fa.setDescription("WinRun4J Launcher File");
+        fa.setDescription("WinRun4J Launcher Configuration");
         fa.setPerceivedType("text");
         fa.addOpenWith("WinRun4J.exe");
-        fa.addFileVerb("open", "WinRun4J.exe --WinRun4J:ExecuteINI %1");
+        fa.setIcon("F:\\Development\\tools\\WinRun4J.exe");
+        fa.addFileVerb("open", "F:\\Development\\tools\\WinRun4J.exe --WinRun4J:ExecuteINI %1");
         FileAssociations.delete(fa);
         FileAssociations.save(fa);
     }

@@ -99,11 +99,21 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 				char logExtension[MAX_PATH];
 				GetFullPathName(logfile, MAX_PATH, fullLog, 0);
 				GetFileDirectory(fullLog, logDir);
-				GetFileNameSansExtension(fullLog, logPrefix);
-				strcat(logDir, logPrefix);
+				char* prefix = iniparser_getstr(ini, LOG_ROLL_PREFIX);
+				if(prefix) {
+					strcat(logDir, prefix);
+				} else {
+					GetFileNameSansExtension(fullLog, logPrefix);
+					strcat(logDir, logPrefix);
+				}
 				g_logRollPrefix = strdup(logDir);
-				GetFileExtension(fullLog, logExtension);
-				g_logRollSuffix = strdup(logExtension);
+				char* suffix = iniparser_getstr(ini, LOG_ROLL_SUFFIX);
+				if(suffix) {
+					g_logRollSuffix = strdup(suffix);
+				} else {
+					GetFileExtension(fullLog, logExtension);
+					g_logRollSuffix = strdup(logExtension);
+				}
 			}
 		} else {
 			Log::Error("Could not open log file");
