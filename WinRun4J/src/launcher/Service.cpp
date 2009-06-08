@@ -301,7 +301,11 @@ int Service::Register(dictionary* ini)
 		SERVICE_ERROR_NORMAL, quotePath, loadOrderGroup, NULL, (LPCTSTR)depList, user, pwd);
 	if(!s) {
 		DWORD error = GetLastError();
-		Log::Error("Could not create service: %d", error);
+		if(error == ERROR_SERVICE_EXISTS) {
+			Log::Warning("Service already exists");
+		} else {
+			Log::Error("Could not create service: %d", error);
+		}
 		return error;
 	}
 	CloseServiceHandle(s);

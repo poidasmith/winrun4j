@@ -22,17 +22,23 @@
 
 using namespace std;
 
-static TCHAR *vmargs[MAX_PATH];
-static int vmargsCount = 0;
-static bool progargsParsed = false;
-static TCHAR *progargs[MAX_PATH];
-static int progargsCount = 0;
+namespace 
+{
+	TCHAR *vmargs[MAX_PATH];
+	int vmargsCount = 0;
+	bool progargsParsed = false;
+	TCHAR *progargs[MAX_PATH];
+	int progargsCount = 0;
+	bool workingDirectorySet = false;
+}
 
 void WinRun4J::SetWorkingDirectory(dictionary* ini)
 {
+	if(workingDirectorySet) 
+		return;
 	char* dir = iniparser_getstr(ini, WORKING_DIR);
 	if(dir != NULL) {
-		// First set the current directory to the module directory
+		// First set the current directory to the module (or ini) directory
 		SetCurrentDirectory(iniparser_getstr(ini, INI_DIR));
 
 		// Now set working directory to specified (this allows for a relative working directory)
@@ -45,6 +51,7 @@ void WinRun4J::SetWorkingDirectory(dictionary* ini)
 			Log::Info("Working directory set to: %s", temp);
 		}
 	} 
+	workingDirectorySet = true;
 }
 
 void WinRun4J::SetProcessPriority(dictionary* ini)
@@ -79,6 +86,9 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 {
 	// Remove any leading whitespace
 	StrTrim(lpCmdLine, " ");
+
+	// Make sure we also log to console
+	Log::SetLogFileAndConsole(true);
 
 	// Check for RegisterDDE util request
 	if(StartsWith(lpCmdLine, "--WinRun4J:RegisterFileAssociations")) {

@@ -142,6 +142,111 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, b
 	}
 }
 
+extern void _cdecl GetFileDirectory(LPSTR filename, LPSTR output)
+{
+	int len = strlen(filename);
+	if(len == 0) {
+		output[0] = 0;
+		return;
+	}
+	int i = len-1;
+	bool found = false;
+	while(true) {
+		if(filename[i] == '\\' || filename[i] == '/') {
+			found = true;
+			break;
+		}
+		if(i == 0)
+			break;
+		i--;
+	}
+
+	if(found) {
+		i++;
+		memcpy(output, filename, i);
+		output[i] = 0;
+	} else {
+		output[0] = 0;
+	}
+}
+
+extern void _cdecl GetFileName(LPSTR filename, LPSTR output)
+{
+	int len = strlen(filename);
+	if(len == 0) {
+		output[0] = 0;
+		return;
+	}
+	int i = len-1;
+	bool found = false;
+	while(true) {
+		if(filename[i] == '\\' || filename[i] == '/') {
+			found = true;
+			break;
+		}
+		if(i == 0)
+			break;
+		i--;
+	}
+
+	if(found) i++;
+	strcpy(output, &filename[i]);
+}
+
+extern void _cdecl GetFileExtension(LPSTR filename, LPSTR output)
+{
+	int len = strlen(filename);
+	if(len == 0) {
+		output[0] = 0;
+		return;
+	}
+	int i = len-1;
+	bool found = false;
+	while(true) {
+		if(filename[i] == '.') {
+			found = true;
+			break;
+		}
+		if(i == 0)
+			break;
+		i--;
+	}
+
+	if(found)
+		strcpy(output, &filename[i]);
+	else
+		output[0] = 0;
+}
+
+extern void _cdecl GetFileNameSansExtension(LPSTR filename, LPSTR output)
+{
+	int len = strlen(filename);
+	int i = len-1;
+	if(len == 0) {
+		output[0] = 0;
+		return;
+	}
+	int dotPos = -1;
+	while(true) {
+		if(dotPos == -1 && filename[i] == '.') 
+			dotPos = i;
+		if(dotPos != -1 && (filename[i] == '/' || filename[i] == '\\'))
+			break;
+		if(i == 0)
+			break;
+		i--;
+	}
+
+	if(dotPos != -1) {
+		if(i > 0) i++;
+		memcpy(output, &filename[i], dotPos - i);
+		output[dotPos - i] = 0;
+	} else {
+		if(i > 0) i++;
+		strcpy(output, &filename[i]);
+	}
+}
+
 #ifdef TINY
 
 extern "C" void * __cdecl malloc(size_t size)

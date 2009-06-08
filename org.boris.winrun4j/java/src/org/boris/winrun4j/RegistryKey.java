@@ -110,7 +110,7 @@ public class RegistryKey
     public boolean exists() {
         if (isRoot)
             return true;
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, true);
         closeKeyHandle(h);
         return h != 0;
     }
@@ -119,12 +119,12 @@ public class RegistryKey
      * Opens up the key for this path. Windows doesn't provide a way to open up
      * a path.
      */
-    private long openKeyHandle(long handle, String[] path) {
+    private long openKeyHandle(long handle, String[] path, boolean readOnly) {
         long h = handle;
         if (path == null)
             return h;
         for (int i = 0; i < path.length; i++) {
-            long nh = openKeyHandle(h, path[i]);
+            long nh = openKeyHandle(h, path[i], readOnly);
             if (h != handle)
                 closeKeyHandle(h);
             h = nh;
@@ -138,7 +138,7 @@ public class RegistryKey
      * @return String[].
      */
     public String[] getSubKeyNames() {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, true);
         String[] res = getSubKeyNames(h);
         closeKeyHandle(h);
         return res;
@@ -162,7 +162,7 @@ public class RegistryKey
      * @return RegistryKey.
      */
     public RegistryKey createSubKey(String name) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, false);
         if (h != 0) {
             long n = createSubKey(h, name);
             closeKeyHandle(h);
@@ -181,7 +181,7 @@ public class RegistryKey
      * @return String[].
      */
     public String[] getValueNames() {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, true);
         String[] res = getValueNames(h);
         closeKeyHandle(h);
         return res;
@@ -210,7 +210,7 @@ public class RegistryKey
      */
     public void deleteSubKey(String subKey) {
         if (!isRoot) {
-            long h = openKeyHandle(handle, path);
+            long h = openKeyHandle(handle, path, false);
             deleteSubKey(h, subKey);
             closeKeyHandle(h);
         }
@@ -224,7 +224,7 @@ public class RegistryKey
      * @return int.
      */
     public long getType(String name) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, true);
         long res = getType(h, name);
         closeKeyHandle(h);
         return res;
@@ -236,7 +236,7 @@ public class RegistryKey
      * @param name.
      */
     public String getString(String name) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, true);
         String res = getString(h, name);
         closeKeyHandle(h);
         return res;
@@ -250,7 +250,7 @@ public class RegistryKey
      * @return byte[].
      */
     public byte[] getBinary(String name) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, true);
         byte[] res = getBinary(h, name);
         closeKeyHandle(h);
         return res;
@@ -264,7 +264,7 @@ public class RegistryKey
      * @return long.
      */
     public long getDoubleWord(String name) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, true);
         long res = getDoubleWord(h, name);
         closeKeyHandle(h);
         return res;
@@ -278,7 +278,7 @@ public class RegistryKey
      * @return String.
      */
     public String getExpandedString(String name) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, true);
         String res = getExpandedString(h, name);
         closeKeyHandle(h);
         return res;
@@ -292,7 +292,7 @@ public class RegistryKey
      * @return String[].
      */
     public String[] getMultiString(String name) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, true);
         String[] res = getMultiString(h, name);
         closeKeyHandle(h);
         return res;
@@ -305,7 +305,7 @@ public class RegistryKey
      * @param value.
      */
     public void setString(String name, String value) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, false);
         setString(h, name, value);
         closeKeyHandle(h);
     }
@@ -317,7 +317,7 @@ public class RegistryKey
      * @param value.
      */
     public void setBinary(String name, byte[] value) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, false);
         setBinary(h, name, value);
         closeKeyHandle(h);
     }
@@ -329,7 +329,7 @@ public class RegistryKey
      * @param value.
      */
     public void setDoubleWord(String name, long value) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, false);
         setDoubleWord(h, name, value);
         closeKeyHandle(h);
     }
@@ -341,7 +341,7 @@ public class RegistryKey
      * @param value.
      */
     public void setMultiString(String name, String[] value) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, false);
         setMultiString(h, name, value);
         closeKeyHandle(h);
     }
@@ -350,7 +350,7 @@ public class RegistryKey
      * Deletes the value.
      */
     public void deleteValue(String name) {
-        long h = openKeyHandle(handle, path);
+        long h = openKeyHandle(handle, path, false);
         deleteValue(h, name);
         closeKeyHandle(h);
     }
@@ -363,7 +363,7 @@ public class RegistryKey
      * 
      * @return long.
      */
-    public static native long openKeyHandle(long rootKey, String keyPath);
+    public static native long openKeyHandle(long rootKey, String keyPath, boolean readOnly);
 
     /**
      * Close a key.

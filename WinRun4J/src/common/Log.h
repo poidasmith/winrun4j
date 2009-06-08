@@ -22,6 +22,7 @@ enum LoggingLevel { info = 0, warning = 1, error = 2, none = 3 };
 struct Log {
 	static void Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, dictionary* ini);
 	static void SetLevel(LoggingLevel level);
+	static void SetLogFileAndConsole(bool logAndConsole);
 	static LoggingLevel GetLevel();
 	static void Info(const char* format, ...);
 	static void Warning(const char* format, ...);
@@ -38,6 +39,7 @@ struct Log {
 private:
 	static void LogIt(LoggingLevel loggingLevel, const char* marker, const char* format, va_list args);
 	static void RedirectIOToConsole();
+	static void RollLog();
 
 #ifndef NO_JAVA
 	static void JNICALL LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str);

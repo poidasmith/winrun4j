@@ -95,30 +95,18 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 	iniparser_setstr(ini, MODULE_NAME, filename);
 
 	// strip off filename to get module directory
-	strcpy(filedir, filename);
-	for(int i = strlen(filename) - 1; i >= 0; i--) {
-		if(filedir[i] == '\\') {
-			filedir[i] = 0;
-			break;
-		}
-	}
+	GetFileDirectory(filename, filedir);
 	iniparser_setstr(ini, MODULE_DIR, filedir);
+
+	// stip off filename to get ini directory
+	GetFileDirectory(inifile, filedir);
+	iniparser_setstr(ini, INI_DIR, filedir);
 
 	// Log init
 	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL), ini);
 	Log::Info("Module Name: %s", filename);
 	Log::Info("Module INI: %s", inifile);
 	Log::Info("Module Dir: %s", filedir);
-
-	// stip off filename to get ini directory
-	strcpy(filedir, inifile);
-	for(int i = strlen(inifile) - 1; i >= 0; i--) {
-		if(filedir[i] == '\\' || filedir[i] == '/') {
-			filedir[i] = 0;
-			break;
-		}
-	}
-	iniparser_setstr(ini, INI_DIR, filedir);
 	Log::Info("INI Dir: %s", filedir);
 
 	// Store a reference to be used by JNI functions

@@ -12,13 +12,18 @@
 #include "Log.h"
 #include "../java/JNI.h"
 
-jlong Registry::OpenKey(JNIEnv* env, jobject /*self*/, jlong rootKey, jstring subKey)
+jlong Registry::OpenKey(JNIEnv* env, jobject /*self*/, jlong rootKey, jstring subKey, bool readOnly)
 {
 	jboolean iscopy = false;
 	const char* sk = subKey ? env->GetStringUTFChars(subKey, &iscopy) : 0;
 	HKEY key;
-
-	LONG result = RegOpenKeyEx((HKEY) rootKey, sk, 0, KEY_ALL_ACCESS, &key);
+	DWORD access = readOnly ? KEY_READ : KEY_ALL_ACCESS;
+#ifdef X64
+	access |= KEY_WOW64_64KEY;
+#else
+	access |= KEY_WOW64_32KEY;
+#endif
+	LONG result = RegOpenKeyEx((HKEY) rootKey, sk, 0, access, &key);
 
 	if(subKey) env->ReleaseStringUTFChars(subKey, sk);
 
@@ -34,8 +39,11 @@ jlong Registry::CreateSubKey(JNIEnv* env, jobject /*self*/, jlong rootKey, jstri
 	jboolean iscopy = false;
 	const char* sk = subKey ? env->GetStringUTFChars(subKey, &iscopy) : 0;
 	HKEY key;
-
-	LONG result = RegCreateKeyEx((HKEY) rootKey, sk, 0, 0, 0, KEY_ALL_ACCESS, 0, &key, 0);
+	DWORD access = KEY_ALL_ACCESS;
+#ifdef X64
+	access |= KEY_WOW64_64KEY;
+#endif
+	LONG result = RegCreateKeyEx((HKEY) rootKey, sk, 0, 0, 0, access, 0, &key, 0);
 
 	if(subKey) env->ReleaseStringUTFChars(subKey, sk);
 
@@ -108,7 +116,11 @@ void Registry::DeleteSubKey(JNIEnv* env, jobject /*self*/, jlong handle, jstring
 {
 	const char* sk = subKey ? env->GetStringUTFChars(subKey, 0) : 0;
 	if(handle != 0 && sk != 0)
+#ifdef X64
+		RegDeleteKeyEx((HKEY) handle, sk, KEY_WOW64_64KEY, 0);
+#else
 		RegDeleteKey((HKEY) handle, sk);
+#endif
 	if(sk) env->ReleaseStringUTFChars(subKey, sk);
 }
 
@@ -325,7 +337,7 @@ bool Registry::RegisterNatives(JNIEnv *env)
 	methods[10].signature = "(J)[Ljava/lang/String;";
 	methods[11].fnPtr = (void*) OpenKey;
 	methods[11].name = "openKeyHandle";
-	methods[11].signature = "(JLjava/lang/String;)J";
+	methods[11].signature = "(JLjava/lang/String;Z)J";
 	methods[12].fnPtr = (void*) SetBinary;
 	methods[12].name = "setBinary";
 	methods[12].signature = "(JLjava/lang/String;[B)V";

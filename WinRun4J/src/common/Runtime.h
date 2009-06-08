@@ -34,5 +34,9 @@ extern bool _cdecl StrTrimInChars(LPSTR trimChars, char c);
 extern void _cdecl StrTrim(LPSTR str, LPSTR trimChars);
 extern void _cdecl StrTruncate(LPSTR target, LPSTR source, size_t len);
 extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, bool includeFirst = false);
+extern void _cdecl GetFileDirectory(LPSTR filename, LPSTR output);
+extern void _cdecl GetFileName(LPSTR filename, LPSTR output);
+extern void _cdecl GetFileExtension(LPSTR filename, LPSTR output);
+extern void _cdecl GetFileNameSansExtension(LPSTR filename, LPSTR output);
 
 #endif 

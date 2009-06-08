@@ -20,7 +20,7 @@ public:
 
 private:
 	// Key methods
-	static jlong OpenKey(JNIEnv* env, jobject self, jlong rootKey, jstring keyPath);
+	static jlong OpenKey(JNIEnv* env, jobject self, jlong rootKey, jstring keyPath, bool readOnly);
 	static jlong CreateSubKey(JNIEnv* env, jobject self, jlong rootKey, jstring subKey);
 	static void CloseKey(JNIEnv* env, jobject self, jlong handle);
 	static jobjectArray GetSubKeyNames(JNIEnv* env, jobject self, jlong handle);

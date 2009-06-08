@@ -5,16 +5,14 @@ Release 0.3.3
 - Refactored Service interface and added AbstractService helper class
 - Implemented FileAssociations helper class
 - Greatly improved the Registry API
+- Option to log to console and file
+- Log file rolling
+- Fix for relative log file path
 
-
-
-support for other launchers in eclipse plugin?
 service helper class (maybe a callable, with start/stop).
 
-- should stdout go to console when logging to file? what about console version?
-	- maybe an option in the ini "log.std.tofile=false"
-	
 - support for unicode in registry 
+- support for x64 access (done just needs testing)
 
 Misc
 ====
@@ -28,6 +26,8 @@ Misc
 	- see here for customizing a messagebox to give further options:
 		http://www.codeguru.com/cpp/w-p/win32/messagebox/article.php/c10873
     - option to enable/disable this feature
+    
+    - error message when single instance kicks in (eg. like firefox "Another instance of ....")
     
     notfound.title=
     notfound.message=
@@ -45,19 +45,17 @@ Misc
 - Think about vm memory "profiles", eg. dynamic app (large perm size), static server etc...
 
 - Add flag to register file associations on startup?
-- Add java utility to register file associations:
-	- FileAssociation.register(".java");
-	- FileAssociation.isRegistered(".java");
-	
 - Read only key handle to registry key api
 
 - Flag for registering native methods on launcher library (switch off for speed)
+	- perhaps switch off by default (eclipse launcher can detect if library is present?)
+	- jni.register=true
 
-- Improve console/log output when registering services
-- Maybe move service name and description to ini file so we don't have to start vm when registering
 - Allow setting of environment variables in INI? 
-- Should se WINRUN4J_INI_DIR environment variable on startup so it can be used in INI file
+- Should set WINRUN4J_DIR environment variable on startup so it can be used in INI file
   
+  
+- generate event log message dlls on the fly using pecoff4j?
 	
 Resources
 =========
@@ -89,9 +87,16 @@ Splash Screen
 Service Support
 ===============
 
-- add checking for JVM hang
+- add checking for JVM hang 
+	- the normal way is to have a native thread that attempts to call a java method (eg. System.timeinmiss)
+	  if this fails to return in a "reasonable" length of time we have a problem i guess...
+- restart the app
+	- This could be achieved by creating a new built in command called "--WinRun4J:Restart <PID> <args>"
+	  We wait for the PID to die then relaunch itself with args.
+	- Will need a special one for restarting a service...
 - automatically add -Xrs?
-- 
+
+
 
 Build/Release
 =============
