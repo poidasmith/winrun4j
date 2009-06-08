@@ -14,6 +14,13 @@ service helper class (maybe a callable, with start/stop).
 - support for unicode in registry 
 - support for x64 access (done just needs testing)
 
+Eclipse Plugin
+==============
+
+- Allow extra/arbitary properties to be specified in launcher INI
+	(eg. can use as a properties file server.port=1232) 
+- Memory settings in exporter
+
 Misc
 ====
 
