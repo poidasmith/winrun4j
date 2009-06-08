@@ -136,6 +136,26 @@ given the physical memory available.</td>
 						<td>Set to "true" to cause the log file to be overwritten each time the application/service is launched.</td>
 					</tr>
 					<tr>
+						<td>log.file.and.console</td>
+						<td>Set to "true" to output to the console and the log file (if present).</td>
+					</tr>
+					<tr>
+						<td>log.roll.size</td>
+						<td>A decimal value in megabytes for the max log size before rolling. Old logs
+						    are moved to logname-[timestamp].extension.
+						</td>
+					</tr>
+					<tr>
+						<td>log.roll.prefix</td>
+						<td>Customizes the rolled log file prefix to [prefix]-[timestamp].extension
+						</td>
+					</tr>
+					<tr>
+						<td>log.roll.suffix</td>
+						<td>Customizes the rolled log file suffix to [prefix]-[timestamp][suffix]
+						</td>
+					</tr>
+					<tr>
 						<td>splash.image</td>
 						<td>The name of the splash image file to display (This can be gif, jpg or bmp).
 						This will auto-hide itself when it detects the first application window.</td>
@@ -401,10 +421,13 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 			<div class="section-content">
 				V0.3.3
 				<ul>
-				   <li>Moved service name, description and controls accepted to INI file</li>
-				   <li>Refactored Service interface and added AbstractService helper class</li>
-			       <li>Implemented FileAssociations helper class</li>
-				   <li>Implemented RegistryPath helper class</li>
+					<li>Moved service name, description and controls accepted to INI file</li>
+					<li>Refactored Service interface and added AbstractService helper class</li>
+					<li>Implemented FileAssociations helper class</li>
+					<li>Greatly improved the Registry API</li>
+					<li>Option to log to console and file</li>
+					<li>Log file rolling</li>
+					<li>Fix for relative log file path</li>
 				</ul>
 				V0.3.2
 				<ul>
