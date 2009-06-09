@@ -14,12 +14,23 @@ service helper class (maybe a callable, with start/stop).
 - support for unicode in registry 
 - support for x64 access (done just needs testing)
 
+- generate a bunch of precanned launchers for things:
+	- lisp interpreter exe using jatha
+	- maybe rss to email
+	- twitter to file (eg. backup?) (this could just be rss)
+	- implement dir or ls
+	- implement a cdx command - it knows or indexes all directory names and pattern matches
+	- curl: http://curl.haxx.se/docs/manpage.html
+
 Eclipse Plugin
 ==============
 
 - Allow extra/arbitary properties to be specified in launcher INI
 	(eg. can use as a properties file server.port=1232) 
 - Memory settings in exporter
+- Option to use only a selection of items to include in export
+	 (build up resource selection tree from classpath)
+	 (option to recursively check for dependencies (ie. grab class files, check import statements))
 
 Misc
 ====
