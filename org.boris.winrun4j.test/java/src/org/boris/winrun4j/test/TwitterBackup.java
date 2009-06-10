@@ -56,54 +56,59 @@ public class TwitterBackup
 
         int page = 1;
         int count = 0;
-        while (true) {
-            String url = user == null ? getSearchUrl(search, page) : getUserUrl(user, page);
-            System.out.println("Loading Page " + page + ": " + url);
-            RSSItem[] items = null;
-            try {
-                items = FeedLoader.loadItems(url);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (items == null || items.length == 0) {
-                if (count == 0) {
-                    System.out.println("No new statuses found.");
-                } else {
-                    System.out.println("Loaded " + count + " statuses.");
+        try {
+            while (true) {
+                String url = user == null ? getSearchUrl(search, page) : getUserUrl(user, page);
+                System.out.println("Loading Page " + page + ": " + url);
+                RSSItem[] items = null;
+                try {
+                    items = FeedLoader.loadItems(url);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                break;
-            }
-            boolean found = false;
-            for (int i = 0; i < items.length; i++) {
-                // String h = RSSDump.hash(items[i].toString());
-                String h = getGUID(items[i].guid);
-                boolean pastCutoff = false;
-                if (cutoff != null) {
-                    Date pubDate = FeedLoader.parsePubDate(items[i].pubDate);
-                    if (pubDate != null && pubDate.compareTo(cutoff) < 0) {
-                        pastCutoff = true;
-                        System.out.println("Reached time/date limit.");
-                    }
-                }
-                File bf = new File(outdir, h + ".xml");
-                if (pastCutoff || bf.exists()) {
+                if (items == null || items.length == 0) {
                     if (count == 0) {
                         System.out.println("No new statuses found.");
                     } else {
                         System.out.println("Loaded " + count + " statuses.");
                     }
-                    found = true;
                     break;
-                } else {
-                    String contents = XML.toString(items[i]._raw);
-                    IO.copy(new StringReader(contents), new OutputStreamWriter(
-                            new FileOutputStream(bf), "UTF-8"), true);
-                    count++;
                 }
+                boolean found = false;
+                for (int i = 0; i < items.length; i++) {
+                    // String h = RSSDump.hash(items[i].toString());
+                    String h = getGUID(items[i].guid);
+                    boolean pastCutoff = false;
+                    if (cutoff != null) {
+                        Date pubDate = FeedLoader.parsePubDate(items[i].pubDate);
+                        if (pubDate != null && pubDate.compareTo(cutoff) < 0) {
+                            pastCutoff = true;
+                            System.out.println("Reached time/date limit.");
+                        }
+                    }
+                    File bf = new File(outdir, h + ".xml");
+                    if (pastCutoff || bf.exists()) {
+                        if (count == 0) {
+                            System.out.println("No new statuses found.");
+                        } else {
+                            System.out.println("Loaded " + count + " statuses.");
+                        }
+                        found = true;
+                        break;
+                    } else {
+                        String contents = XML.toString(items[i]._raw);
+                        IO.copy(new StringReader(contents), new OutputStreamWriter(
+                                new FileOutputStream(bf), "UTF-8"), true);
+                        count++;
+                    }
+                }
+                if (found)
+                    break;
+                page++;
             }
-            if (found)
-                break;
-            page++;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 
@@ -139,7 +144,7 @@ public class TwitterBackup
         System.out.println("A backup utility for Twitter statuses.");
         System.out.println();
         System.out
-                .println("TwitterBackup -user <user> -outdir <backup_dir> [-limit #hours|day|week|month|year]");
+                .println("TwitterBackup [-user <user>|-search <search>] -outdir <backup_dir> [-limit #hours|day|week|month|year]");
         System.out.println();
     }
 
