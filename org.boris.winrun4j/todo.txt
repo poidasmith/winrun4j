@@ -114,6 +114,10 @@ Service Support
 	- Will need a special one for restarting a service...
 - automatically add -Xrs?
 
+JNI Library
+===========
+
+- Add wrapper around ShellExecute command
 
 
 Build/Release

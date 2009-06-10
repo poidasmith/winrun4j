@@ -9,7 +9,11 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-public class RSS
+public class Shell
 {
-    public RSSChannel channel;
+    public static void main(String[] args) throws Exception {
+        Runtime.getRuntime().exec(
+                new String[] { System.getenv("windir") + "\\system32\\rundll32.exe",
+                        "shell32.dll,ShellExec_RunDLL", "http://www.stackoverflow.com" });
+    }
 }

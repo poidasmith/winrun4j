@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-public class RSS
+public class RSSChannel
 {
-    public RSSChannel channel;
+    public RSSItem[] item;
 }

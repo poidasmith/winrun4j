@@ -9,7 +9,15 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-public class RSS
+import java.io.File;
+
+import org.boris.commons.io.IO;
+
+public class TwitterBackupTester
 {
-    public RSSChannel channel;
+    public static void main(String[] args) throws Exception {
+        IO.deleteDirectoryTree(new File("F:/TEMP/TwitterBackup.14634581"), false);
+        TwitterBackup.main(new String[] { "-user", "14634581", "-outdir",
+                "F:/TEMP/TwitterBackup.14634581", "-limit", "month" });
+    }
 }
