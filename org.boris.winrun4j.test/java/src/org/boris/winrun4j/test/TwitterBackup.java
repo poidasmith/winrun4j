@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -20,7 +22,6 @@ import java.util.Map;
 
 import org.boris.commons.io.IO;
 import org.boris.commons.xml.XML;
-import org.boris.commons.xml.XMLObjectSerializer;
 
 /**
  * Saves your twitter statuses to a directory.
@@ -31,8 +32,9 @@ import org.boris.commons.xml.XMLObjectSerializer;
  */
 public class TwitterBackup
 {
-    private static String user = "14634581";
-    private static File outdir = new File("F:/TEMP/TwitterBackup1." + user);
+    private static String user;
+    private static String search;
+    private static File outdir;
     private static String limit;
 
     public static void main(String[] args) throws Exception {
@@ -55,11 +57,11 @@ public class TwitterBackup
         int page = 1;
         int count = 0;
         while (true) {
-            String url = getUrl(user, page);
+            String url = user == null ? getSearchUrl(search, page) : getUserUrl(user, page);
             System.out.println("Loading Page " + page + ": " + url);
             RSSItem[] items = null;
             try {
-                items = RSSLoader.loadItems(url);
+                items = FeedLoader.loadItems(url);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -77,7 +79,7 @@ public class TwitterBackup
                 String h = getGUID(items[i].guid);
                 boolean pastCutoff = false;
                 if (cutoff != null) {
-                    Date pubDate = RSSLoader.parsePubDate(items[i].pubDate);
+                    Date pubDate = FeedLoader.parsePubDate(items[i].pubDate);
                     if (pubDate != null && pubDate.compareTo(cutoff) < 0) {
                         pastCutoff = true;
                         System.out.println("Reached time/date limit.");
@@ -93,7 +95,7 @@ public class TwitterBackup
                     found = true;
                     break;
                 } else {
-                    String contents = XML.toString(XMLObjectSerializer.encode(items[i], "item"));
+                    String contents = XML.toString(items[i]._raw);
                     IO.copy(new StringReader(contents), new OutputStreamWriter(
                             new FileOutputStream(bf), "UTF-8"), true);
                     count++;
@@ -144,13 +146,14 @@ public class TwitterBackup
     private static boolean parseArgs(String[] args) {
         Map m = Args.valueOf(args, true);
         user = getString(m, "USER");
+        search = getString(m, "SEARCH");
         String of = getString(m, "OUTDIR");
         if (of != null)
             outdir = new File(of);
         limit = getString(m, "LIMIT");
         if (limit != null)
             limit = limit.toLowerCase();
-        return user != null && outdir != null;
+        return (search != null || user != null) && outdir != null;
     }
 
     private static String getString(Map m, Object k) {
@@ -171,8 +174,13 @@ public class TwitterBackup
         return url.substring(url.lastIndexOf('/'));
     }
 
-    public static String getUrl(String user, int page) {
-        return "http://twitter.com/statuses/user_timeline/" + user + ".rss?page=" + page;
+    public static String getUserUrl(String user, int page) throws UnsupportedEncodingException {
+        return "http://twitter.com/statuses/user_timeline/" + URLEncoder.encode(user, "UTF-8")
+                + ".rss?page=" + page;
     }
 
+    public static String getSearchUrl(String search, int page) throws UnsupportedEncodingException {
+        return "http://search.twitter.com/search.rss?q=" + URLEncoder.encode(search, "UTF-8")
+                + "&page=" + page;
+    }
 }

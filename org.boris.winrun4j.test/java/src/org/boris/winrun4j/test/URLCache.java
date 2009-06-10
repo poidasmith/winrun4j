@@ -23,7 +23,7 @@ public class URLCache
         int page = 1;
         cacheDir.mkdirs();
         while (true) {
-            String url = TwitterBackup.getUrl(user, page);
+            String url = TwitterBackup.getUserUrl(user, page);
             System.out.println("Caching Page " + page + ": " + url);
             cache(url);
             page++;
@@ -31,11 +31,11 @@ public class URLCache
     }
 
     public static File getCachedUrl(String url) throws Exception {
-        return new File(cacheDir, RSSLoader.hash(url));
+        return new File(cacheDir, FeedLoader.hash(url));
     }
 
     public static void cache(String url) throws Exception {
-        File cacheFile = new File(cacheDir, RSSLoader.hash(url));
+        File cacheFile = new File(cacheDir, FeedLoader.hash(url));
         IO.copy(IO.openUrl(url), new FileWriter(cacheFile), true);
     }
 }

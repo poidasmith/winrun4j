@@ -17,7 +17,9 @@ public class TwitterBackupTester
 {
     public static void main(String[] args) throws Exception {
         IO.deleteDirectoryTree(new File("F:/TEMP/TwitterBackup.14634581"), false);
-        TwitterBackup.main(new String[] { "-user", "14634581", "-outdir",
+        // TwitterBackup.main(new String[] { "-user", "14634581", "-outdir",
+        // "F:/TEMP/TwitterBackup.14634581", "-limit", "month" });
+        TwitterBackup.main(new String[] { "-search", "winrun4j", "-outdir",
                 "F:/TEMP/TwitterBackup.14634581", "-limit", "month" });
     }
 }

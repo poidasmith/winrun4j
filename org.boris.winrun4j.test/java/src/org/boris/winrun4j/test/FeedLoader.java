@@ -23,7 +23,7 @@ import org.boris.commons.xml.XMLObjectSerializer;
 import org.boris.variant.codec.SourceCodec;
 import org.w3c.dom.Document;
 
-public class RSSLoader
+public class FeedLoader
 {
     private static final SimpleDateFormat pubDateFormat1 = new SimpleDateFormat(
             "dd MMM yyyy HH:mm:ss Z");

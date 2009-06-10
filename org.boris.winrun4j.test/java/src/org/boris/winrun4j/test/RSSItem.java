@@ -9,14 +9,16 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
+import org.w3c.dom.Element;
+
 public class RSSItem
 {
+    public Element _raw;
     public String title;
     public String description;
     public String pubDate;
     public String guid;
     public String link;
-    public String hash;
 
     public static final String NL = "\n";
 
