@@ -178,7 +178,7 @@ void Log::LogIt(LoggingLevel loggingLevel, const char* marker, const char* forma
 	if(!format) return;
 
 	char tmp[4096];
-	vsprintf_s(tmp, 4096, format, args);
+	vsprintf(tmp, format, args);
 #ifdef DEBUG_LOG
 	if(marker) {
 		OutputDebugString(marker);
@@ -282,7 +282,7 @@ void Log::SetLastError(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 	Log::Error(format, args);
-	vsprintf_s(g_errorText, MAX_PATH, format, args);
+	vsprintf(g_errorText, format, args);
 	va_end(args);
 }
 

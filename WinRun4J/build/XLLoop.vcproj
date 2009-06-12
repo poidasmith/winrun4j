@@ -45,7 +45,7 @@
 				UseUnicodeResponseFiles="true"
 				Optimization="0"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="DEBUG_LOG,NO_JAVA,TINY"
+				PreprocessorDefinitions="DEBUG_LOG,NO_JAVA"
 				IgnoreStandardIncludePath="false"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -73,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../lib/xlcall32.lib Ws2_32.lib ../lib/wcrt.lib"
+				AdditionalDependencies="Ws2_32.lib wininet.lib ../lib/xlcall32.lib ../lib/msvcrt.lib ../lib/yajl.lib ../lib/BufferOverflowU.lib"
 				OutputFile="$(OutDir)\$(ProjectName)-Debug.xll"
 				LinkIncremental="2"
 				GenerateManifest="false"
@@ -207,7 +207,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\xll\HttpProtocol.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\common\INI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xll\JSONCodec.cpp"
 				>
 			</File>
 			<File
@@ -249,7 +257,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\xll\HttpProtocol.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\common\INI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xll\JSONCodec.h"
 				>
 			</File>
 			<File

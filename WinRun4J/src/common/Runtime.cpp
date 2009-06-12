@@ -247,18 +247,6 @@ extern void _cdecl GetFileNameSansExtension(LPSTR filename, LPSTR output)
 	}
 }
 
-#ifdef TINY
-
-extern "C" void * __cdecl malloc(size_t size)
-{
-    return HeapAlloc( GetProcessHeap(), 0, size );
-}
-
-extern "C" void __cdecl free(void * p)
-{
-    HeapFree( GetProcessHeap(), 0, p );
-}
-
 extern "C" char * _cdecl strdup(const char *str)
 {
     char *r;
@@ -270,6 +258,22 @@ extern "C" char * _cdecl strdup(const char *str)
 extern "C" char * _cdecl _strdup(const char *src)
 {
 	return strdup(src);
+}
+
+extern "C" void __cdecl _wassert(int e)
+{
+}
+
+#ifdef TINY
+
+extern "C" void * __cdecl malloc(size_t size)
+{
+    return HeapAlloc( GetProcessHeap(), 0, size );
+}
+
+extern "C" void __cdecl free(void * p)
+{
+    HeapFree( GetProcessHeap(), 0, p );
 }
 
 extern "C" errno_t _cdecl strcpy_s(char *dest, rsize_t size, const char *source)
