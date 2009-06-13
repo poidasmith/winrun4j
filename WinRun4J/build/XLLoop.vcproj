@@ -139,7 +139,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				WholeProgramOptimization="false"
-				PreprocessorDefinitions="NO_JAVA,TINY"
+				PreprocessorDefinitions="NO_JAVA"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -160,7 +160,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../lib/xlcall32.lib Ws2_32.lib ../lib/wcrt.lib"
+				AdditionalDependencies="Ws2_32.lib wininet.lib ../lib/xlcall32.lib ../lib/msvcrt.lib ../lib/yajl.lib ../lib/BufferOverflowU.lib"
 				OutputFile="$(OutDir)\$(ProjectName).xll"
 				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="true"
