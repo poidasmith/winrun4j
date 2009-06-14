@@ -160,7 +160,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib wininet.lib ../lib/xlcall32.lib ../lib/msvcrt.lib ../lib/yajl.lib ../lib/BufferOverflowU.lib"
+				AdditionalDependencies="Ws2_32.lib winhttp.lib ../lib/xlcall32.lib ../lib/msvcrt.lib ../lib/yajl.lib ../lib/BufferOverflowU.lib"
 				OutputFile="$(OutDir)\$(ProjectName).xll"
 				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="true"
