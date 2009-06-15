@@ -124,6 +124,8 @@ Build/Release
 =============
 
 - console version option to add "Press any key to continue..." at the end ??
+- console version JNI access to change console title.
+
 - possibly split out win32 features from core executable
 	* registry access
 	* event log
