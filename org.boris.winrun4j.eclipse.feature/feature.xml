@@ -2,7 +2,7 @@
 <feature
       id="org.boris.winrun4j.eclipse"
       label="WinRun4J Eclipse Plugin"
-      version="0.1.0"
+      version="0.1.1"
       provider-name="Boris Inc."
       os="win32">
 
