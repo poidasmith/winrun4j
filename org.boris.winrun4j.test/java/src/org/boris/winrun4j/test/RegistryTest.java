@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-import org.boris.variant.util.VariantObjectSerializer;
 import org.boris.winrun4j.FileAssociation;
 import org.boris.winrun4j.FileAssociations;
 import org.boris.winrun4j.RegistryKey;
@@ -25,13 +24,13 @@ public class RegistryTest
 
     public static void testTypes() throws Exception {
         RegistryKey k = RegistryKey.HKEY_CLASSES_ROOT.getSubKey("WMZFile");
-        System.out.println(VariantObjectSerializer.encode(k.getBinary("EditFlags")));
+        /*System.out.println(VariantObjectSerializer.encode(k.getBinary("EditFlags")));
         System.out.println(VariantObjectSerializer.encode(k
-                .getDoubleWord("PreferExecuteOnMismatch")));
+                .getDoubleWord("PreferExecuteOnMismatch")));*/
     }
 
     public static void testFileAss() throws Exception {
-        System.out.println(VariantObjectSerializer.encode(FileAssociations.load(".acw")));
+        /*System.out.println(VariantObjectSerializer.encode(FileAssociations.load(".acw")));*/
     }
 
     public static void testCreate() throws Exception {
