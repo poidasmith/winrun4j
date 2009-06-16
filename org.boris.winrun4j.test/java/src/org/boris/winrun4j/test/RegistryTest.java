@@ -18,7 +18,7 @@ public class RegistryTest
     public static void main(String[] args) throws Exception {
         testTypes();
         testFileAss();
-        // testCreate();
+        testCreate();
         testFileAssSave();
     }
 
