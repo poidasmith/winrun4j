@@ -3,14 +3,20 @@
 <repository name='file:/F:/eclipse/workspace/org.boris.winrun4j.eclipse.update/ - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1.0.0'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1244130874421'/>
+    <property name='p2.timestamp' value='1245219178796'/>
   </properties>
   <mappings size='3'>
     <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
     <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
     <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
   </mappings>
-  <artifacts size='4'>
+  <artifacts size='6'>
+    <artifact classifier='org.eclipse.update.feature' id='org.boris.winrun4j.eclipse' version='0.1.1'>
+      <properties size='2'>
+        <property name='artifact.size' value='4978'/>
+        <property name='download.size' value='4978'/>
+      </properties>
+    </artifact>
     <artifact classifier='osgi.bundle' id='org.boris.winrun4j.eclipse' version='0.1.0'>
       <properties size='3'>
         <property name='artifact.size' value='142238'/>
@@ -22,6 +28,13 @@
       <properties size='3'>
         <property name='artifact.size' value='356530'/>
         <property name='download.size' value='356530'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='org.boris.winrun4j.eclipse' version='0.1.1'>
+      <properties size='3'>
+        <property name='artifact.size' value='360741'/>
+        <property name='download.size' value='360741'/>
         <property name='download.contentType' value='application/zip'/>
       </properties>
     </artifact>
