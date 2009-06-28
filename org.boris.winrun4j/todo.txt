@@ -121,6 +121,7 @@ JNI Library
 	 - keyboard hooks
 	 - system listeners (font changes, themes, logout)
 	 - windows version/info
+	 - environment variables
 
 Build/Release
 =============

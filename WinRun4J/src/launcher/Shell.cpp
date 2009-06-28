@@ -98,8 +98,13 @@ int Shell::CheckSingleInstance(dictionary* ini)
 	return 0;
 }
 
+
+
 bool Shell::RegisterNatives(JNIEnv *env)
 {
 	Log::Info("Registering natives for Shell class");
+
+	
+
 	return false;
 }
