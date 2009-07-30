@@ -59,13 +59,16 @@ Misc
 
 - Allow setting of environment variables in INI? 
 - Should set WINRUN4J_DIR environment variable on startup so it can be used in INI file
-  
+- Allow getting of environment variables (so to provide access from 1.4)  
   
 - generate event log message dlls on the fly using pecoff4j?
 
 - look at i/o completion ports. maybe possible to multiplex stdout to console and log file.
 
+- look at shutdown hooks - see if they work.
 
+- integrate monitor directory ReadDirectoryChanges()
+	
 	
 Resources
 =========
@@ -122,6 +125,44 @@ JNI Library
 	 - system listeners (font changes, themes, logout)
 	 - windows version/info
 	 - environment variables
+	 
+Implement file move ex operation (ie. To move a file "later")
+Check that shutdown hooks work. 
+JNI util: Expand environment variables...
+
+
+- get commandline
+- get current directory
+- hasShutdownStarted?
+- machine name
+- new line char
+- operation system version
+- processor count
+- system directory (Gets the fully qualified path of the system
+directory.)
+- tick count (num milliseconds since machine started)
+- get user domain ( Gets the network domain name associated with the
+current user.)
+- get user interactive (Gets a value indicating whether the current
+process is running in user interactive mode.)
+- get command line args
+- get environment variable
+- expand a string containing env vars
+- get folder path (desktopm, programs, personal, mydocs, favourites,
+startup, recent, sendto, startmenu, my music...)
+- get logical drives
+
+Add filesystem monitor library.
+Look at generic dde support.
+Jruby windows service wrapper? 
+- file permissions (set readable/writeable etc..)
+
+= proper console api (eg. Ability to write to area of console)
+= guid generator
+
+
+
+
 
 Build/Release
 =============
