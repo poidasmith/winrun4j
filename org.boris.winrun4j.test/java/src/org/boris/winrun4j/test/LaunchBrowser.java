@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-public class Shell
+public class LaunchBrowser
 {
     public static void main(String[] args) throws Exception {
         Runtime.getRuntime().exec(

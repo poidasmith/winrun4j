@@ -10,9 +10,11 @@
 
 #include "Shell.h"
 #include "../common/Log.h"
+#include "../java/JNI.h"
 #include "DDE.h"
 #include <tlhelp32.h>
 #include <psapi.h>
+#include <shfolder.h>
 
 #define SINGLE_INSTANCE_OPTION ":single.instance"
 
@@ -30,6 +32,7 @@ BOOL CALLBACK EnumWindowsProcSingleInstance(HWND hWnd, LPARAM lParam)
 			return FALSE;
 		}
 	}
+
 	return TRUE;
 }
 
@@ -98,13 +101,151 @@ int Shell::CheckSingleInstance(dictionary* ini)
 	return 0;
 }
 
+jstring Shell::GetLogicalDrives(JNIEnv* env, jobject self)
+{
+	char buf[MAX_PATH];
+	DWORD len = GetLogicalDriveStrings(MAX_PATH, buf);
+	if(len > 0 && len <= MAX_PATH) {
+		// First count the number of strings present
+		int driveCount = 0;
+		for(int i = 0; i < len-1; i++) {
+			if(buf[i] == 0)
+				buf[i] = '|';
+		}
 
+		return env->NewStringUTF(buf);
+	}
+	return NULL;
+}
+
+jstring Shell::GetFolderPath(JNIEnv* env, jobject self, jint type)
+{
+	char path[MAX_PATH];
+	if(SUCCEEDED(SHGetFolderPath(NULL, type, NULL, 0, path)))
+		return env->NewStringUTF(path);
+	return NULL;
+}
+
+jstring Shell::GetEnvironmentVariable(JNIEnv* env, jobject self, jstring name)
+{
+	if(!name)
+		return NULL;
+	jboolean iscopy = false;
+	const char* str = env->GetStringUTFChars(name, &iscopy);
+	char buf[4096];
+	int len = ::GetEnvironmentVariable(str, buf, 4096);
+	if(!len || len > 4096)
+		return NULL;
+	return env->NewStringUTF(buf);
+}
+
+jobject Shell::GetEnvironmentStrings(JNIEnv* env, jobject self, jintArray arr)
+{
+	LPCH envs = ::GetEnvironmentStrings();
+	env->SetIntArrayRegion(arr, 0, 1, (const jint*) &envs);
+	char* prev = envs;
+	while(true) {
+		char* c = prev+1;
+		if(!*prev && !*c)
+			break;
+		prev = c;
+	}
+	return env->NewDirectByteBuffer(envs, (jlong) (prev - envs + 1));
+}
+
+void Shell::FreeEnvironmentStrings(JNIEnv* env, jobject self, jint p)
+{
+	::FreeEnvironmentStrings((LPCH) p);
+}
+
+jstring Shell::ExpandEnvironmentString(JNIEnv* env, jobject self, jstring str)
+{
+	if(!str)
+		return NULL;
+	jboolean iscopy = false;
+	const char* ch = env->GetStringUTFChars(str, &iscopy);
+	char buf[4096];
+	int size = ::ExpandEnvironmentStrings(ch, buf, 4096);
+	if(size > 4096)
+		return NULL;
+	return env->NewStringUTF(buf);
+}
+
+jstring Shell::GetCommandLine(JNIEnv* env, jobject self)
+{
+	return env->NewStringUTF(::GetCommandLine());
+}
+
+jintArray Shell::GetOSVersionNumbers(JNIEnv* env, jobject self)
+{
+	OSVERSIONINFOEX os;
+	os.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((LPOSVERSIONINFO) &os);
+	jintArray res = env->NewIntArray(9);
+	env->SetIntArrayRegion(res, 0, 1, (const jint*) &os.dwMajorVersion);
+	env->SetIntArrayRegion(res, 1, 1, (const jint*) &os.dwMinorVersion);
+	env->SetIntArrayRegion(res, 2, 1, (const jint*) &os.dwBuildNumber);
+	env->SetIntArrayRegion(res, 3, 1, (const jint*) &os.dwPlatformId);
+	env->SetIntArrayRegion(res, 4, 1, (const jint*) &os.wServicePackMajor);
+	env->SetIntArrayRegion(res, 5, 1, (const jint*) &os.wServicePackMinor);
+	env->SetIntArrayRegion(res, 6, 1, (const jint*) &os.wSuiteMask);
+	env->SetIntArrayRegion(res, 7, 1, (const jint*) &os.wProductType);
+	env->SetIntArrayRegion(res, 8, 1, (const jint*) &os.wReserved);
+	return res;
+}
+
+jstring Shell::GetOSVersionCSD(JNIEnv* env, jobject self)
+{
+	OSVERSIONINFOEX os;
+	os.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((LPOSVERSIONINFO) &os);
+	return env->NewStringUTF(os.szCSDVersion);
+}
 
 bool Shell::RegisterNatives(JNIEnv *env)
 {
 	Log::Info("Registering natives for Shell class");
 
+	jclass clazz = JNI::FindClass(env, "org/boris/winrun4j/Shell");
+	if(clazz == NULL) {
+		Log::Warning("Could not find Log class");
+		return false;
+	}
 	
+	JNINativeMethod nm[9];
+	nm[0].name = "getLogicalDriveStrings";
+	nm[0].signature = "()Ljava/lang/String;";
+	nm[0].fnPtr = (void*) GetLogicalDrives;
+	nm[1].name = "getFolderPathString";
+	nm[1].signature = "(I)Ljava/lang/String;";
+	nm[1].fnPtr = (void*) GetFolderPath;
+	nm[2].name = "getEnvironmentVariable";
+	nm[2].signature = "(Ljava/lang/String;)Ljava/lang/String;";
+	nm[2].fnPtr = (void*) GetEnvironmentVariable;
+	nm[3].name = "getEnvironmentStrings";
+	nm[3].signature = "([I)Ljava/nio/ByteBuffer;";
+	nm[3].fnPtr = (void*) GetEnvironmentStrings;
+	nm[4].name = "freeEnvironmentStrings";
+	nm[4].signature = "(I)V";
+	nm[4].fnPtr = (void*) FreeEnvironmentStrings;
+	nm[5].name = "expandEnvironmentString";
+	nm[5].signature = "(Ljava/lang/String;)Ljava/lang/String;";
+	nm[5].fnPtr = (void*) ExpandEnvironmentString;
+	nm[6].name = "getCommandLine";
+	nm[6].signature = "()Ljava/lang/String;";
+	nm[6].fnPtr = (void*) GetCommandLine;
+	nm[7].name = "getOSVersionNumbers";
+	nm[7].signature = "()[I";
+	nm[7].fnPtr = (void*) GetOSVersionNumbers;
+	nm[8].name = "getOSVersionCSD";
+	nm[8].signature = "()Ljava/lang/String;";
+	nm[8].fnPtr = (void*) GetOSVersionCSD;
+	env->RegisterNatives(clazz, nm, 9);
+
+	if(env->ExceptionCheck()) {
+		JNI::PrintStackTrace(env);
+		return false;
+	}
 
 	return false;
 }
