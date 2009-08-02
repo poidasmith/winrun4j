@@ -226,14 +226,15 @@ jlong Shell::RegisterDirectoryChangeListener(JNIEnv* env, jobject self,
 
 	jboolean iscopy = false;
 	const char* dir = env->GetStringUTFChars(directory, &iscopy);
-	HANDLE hDir = CreateFile(dir, FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OVERLAPPED, 0, 0, 0, 0, 0);
-	if(!hDir)
+	HANDLE hDir = CreateFile(dir, FILE_LIST_DIRECTORY, FILE_SHARE_READ, 
+		0, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OVERLAPPED, 0);
+	if(hDir == INVALID_HANDLE_VALUE)
 		return 0;
 	DIROL* dol = (DIROL*) malloc(sizeof(DIROL));
 	dol->hDir = hDir;
 	dol->pBuffer = (char*) malloc(bufferSize);
 	BOOL res = ReadDirectoryChangesW(hDir, dol->pBuffer, bufferSize, subtree, 
-		notifyFilter, 0, &dol->overlapped, OnDirectoryChanges);
+		notifyFilter, 0, (LPOVERLAPPED) dol, OnDirectoryChanges);
 	if(!res) {
 		CloseHandle(hDir);
 		return 0;
@@ -305,7 +306,7 @@ bool Shell::RegisterNatives(JNIEnv *env)
 	}
 
 	g_fsmClass = clazz;
-	g_fsmCallbackMethod = env->GetStaticMethodID(g_fsmClass, "callback", "(JLjava/io/ByteBuffer;)V");
+	g_fsmCallbackMethod = env->GetStaticMethodID(g_fsmClass, "callback", "(JLjava/nio/ByteBuffer;)V");
 	if(g_fsmCallbackMethod == NULL) {
 		JNI::ClearException(env);
 		Log::Warning("Could not find FileSystemMonitor.callback method");
