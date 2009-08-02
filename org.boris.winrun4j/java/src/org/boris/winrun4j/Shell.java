@@ -93,11 +93,28 @@ public class Shell
         return (String[]) args.toArray(new String[args.size()]);
     }
 
+    /**
+     * Gets the version info for this os.
+     */
     public static OSVersionInfo getVersionInfo() {
         int[] v = getOSVersionNumbers();
         String csd = getOSVersionCSD();
         return new OSVersionInfo(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], csd);
     }
+
+    /**
+     * Gets the number of milliseconds elapsed since the system started.
+     */
+    public static native long getTickCount();
+
+    /**
+     * Advance move file operation (@see MoveFileFlags).
+     */
+    public static boolean moveFile(File oldName, File newName, int flags) {
+        return moveFile(oldName.getAbsolutePath(), newName.getAbsolutePath(), flags);
+    }
+
+    private static native boolean moveFile(String existingFilename, String newFilename, int flags);
 
     private static native String getLogicalDriveStrings();
 

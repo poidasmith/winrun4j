@@ -33,6 +33,8 @@ private:
 	static jlong RegisterDirectoryChangeListener(JNIEnv* env, jobject self, 
 		jstring directory, jboolean subtree, jint notifyFilter, jint bufferSize);
 	static void CloseDirectoryHandle(JNIEnv* env, jobject self, jlong handle);	
+	static jlong GetTickCount(JNIEnv* env, jobject self);
+	static jboolean MoveFile(JNIEnv* env, jobject self, jstring oldname, jstring newname, jint flags);
 };
 
 #endif // SHELL_H

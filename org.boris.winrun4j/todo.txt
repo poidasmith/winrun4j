@@ -6,7 +6,10 @@ Release Notes for WinRun4J 0.3.4
 	- get environment variables
 	- get command line
 	- get OS version info
-	
+	- get tick count since machine started
+- Added file system monitor (to detect file changes in a directory)
+- Added binary resource API (load/extract resources from an EXE/DLL)
+
 	
 	
 	
@@ -152,19 +155,10 @@ JNI util: Expand environment variables...
 - new line char
 - operation system version
 - processor count
-- system directory (Gets the fully qualified path of the system
-directory.)
-- tick count (num milliseconds since machine started)
 - get user domain ( Gets the network domain name associated with the
 current user.)
 - get user interactive (Gets a value indicating whether the current
 process is running in user interactive mode.)
-- get command line args
-- get environment variable
-- expand a string containing env vars
-- get folder path (desktopm, programs, personal, mydocs, favourites,
-startup, recent, sendto, startmenu, my music...)
-- get logical drives
 
 Add filesystem monitor library.
 Look at generic dde support.

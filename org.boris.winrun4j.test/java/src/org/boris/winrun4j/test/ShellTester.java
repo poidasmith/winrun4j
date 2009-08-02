@@ -48,5 +48,11 @@ public class ShellTester
         System.out.println("Version Info");
         System.out.println(Reflection.toString(Shell.getVersionInfo()));
         System.out.println();
+
+        System.out.println("Tick Count");
+        for (int i = 0; i < 10; i++)
+            System.out.println(Shell.getTickCount());
+
+        System.out.println(System.getProperty("user.dir"));
     }
 }

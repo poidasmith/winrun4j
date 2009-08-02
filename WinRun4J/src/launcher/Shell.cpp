@@ -252,6 +252,21 @@ void Shell::CloseDirectoryHandle(JNIEnv* env, jobject self, jlong handle)
 	free(dol);
 }
 
+jlong Shell::GetTickCount(JNIEnv* env, jobject self)
+{
+	return ::GetTickCount();
+}
+
+jboolean Shell::MoveFile(JNIEnv* env, jobject self, jstring oldname, jstring newname, jint flags)
+{
+	if(!oldname || !newname)
+		return false;
+	jboolean iscopy = false;
+	const char* oldstr = env->GetStringUTFChars(oldname, &iscopy);
+	const char* newstr = env->GetStringUTFChars(newname, &iscopy);
+	return ::MoveFileEx(oldstr, newstr, flags);
+}
+
 bool Shell::RegisterNatives(JNIEnv *env)
 {
 	Log::Info("Registering natives for Shell class");
@@ -263,7 +278,7 @@ bool Shell::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 	
-	JNINativeMethod nm[9];
+	JNINativeMethod nm[11];
 	nm[0].name = "getLogicalDriveStrings";
 	nm[0].signature = "()Ljava/lang/String;";
 	nm[0].fnPtr = (void*) GetLogicalDrives;
@@ -291,7 +306,13 @@ bool Shell::RegisterNatives(JNIEnv *env)
 	nm[8].name = "getOSVersionCSD";
 	nm[8].signature = "()Ljava/lang/String;";
 	nm[8].fnPtr = (void*) GetOSVersionCSD;
-	env->RegisterNatives(clazz, nm, 9);
+	nm[9].name = "getTickCount";
+	nm[9].signature = "()J";
+	nm[9].fnPtr = (void*) GetTickCount;
+	nm[10].name = "moveFile";
+	nm[10].signature = "(Ljava/lang/String;Ljava/lang/String;I)Z";
+	nm[10].fnPtr = (void*) MoveFile;
+	env->RegisterNatives(clazz, nm, 11);
 
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);
