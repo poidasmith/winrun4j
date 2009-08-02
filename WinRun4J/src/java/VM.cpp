@@ -267,7 +267,7 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 	MEMORYSTATUS ms;
 	GlobalMemoryStatus(&ms);
 	int overallMax = 1530;
-	int availMax = (int)(ms.dwTotalPhys/1024/1024) - 80;
+	int availMax = (ms.dwTotalPhys/1024/1024) - 80;
 
 	// Look for preferred VM size
 	TCHAR* PreferredHeapSizeStr = iniparser_getstr(ini, HEAP_SIZE_PREFERRED);

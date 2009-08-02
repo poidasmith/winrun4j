@@ -30,6 +30,9 @@ private:
 	static jstring GetCommandLine(JNIEnv* env, jobject self);
 	static jintArray GetOSVersionNumbers(JNIEnv* env, jobject self);
 	static jstring GetOSVersionCSD(JNIEnv* env, jobject self);
+	static jlong RegisterDirectoryChangeListener(JNIEnv* env, jobject self, 
+		jstring directory, jboolean subtree, jint notifyFilter, jint bufferSize);
+	static void CloseDirectoryHandle(JNIEnv* env, jobject self, jlong handle);	
 };
 
 #endif // SHELL_H

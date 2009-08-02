@@ -7,9 +7,16 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
 
-public interface FileSystemListener
-{
-    void fileChange(int eventType, String filename);
-}
+#ifndef SUPERVISOR_H
+#define SUPERVISOR_H
+
+#include "../common/Runtime.h"
+#include <jni.h>
+
+// Restart app/service and detect JVM crash/hang
+class Supervisor {
+public:
+};
+
+#endif // SUPERVISOR_H

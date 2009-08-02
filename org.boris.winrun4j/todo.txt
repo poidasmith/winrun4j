@@ -1,3 +1,17 @@
+Release Notes for WinRun4J 0.3.4
+================================
+
+- Added Shell utilities:
+	- get logical drives
+	- get environment variables
+	- get command line
+	- get OS version info
+	
+	
+	
+	
+	
+
 
 - support for unicode in registry 
 - support for x64 access (done just needs testing)

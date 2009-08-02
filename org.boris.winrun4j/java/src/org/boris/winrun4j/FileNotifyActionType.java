@@ -9,7 +9,11 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
-public interface FileSystemListener
+public interface FileNotifyActionType
 {
-    void fileChange(int eventType, String filename);
+    int FILE_ACTION_ADDED = 1;
+    int FILE_ACTION_REMOVED = 2;
+    int FILE_ACTION_MODIFIED = 3;
+    int FILE_ACTION_RENAMED_OLD_NAME = 4;
+    int FILE_ACTION_RENAMED_NEW_NAME = 5;
 }

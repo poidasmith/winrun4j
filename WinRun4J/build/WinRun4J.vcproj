@@ -42,10 +42,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/c"
+				AdditionalOptions="/c /QIfist"
 				Optimization="0"
 				AdditionalIncludeDirectories="DEBUG_LOG"
-				PreprocessorDefinitions="DEBUG_LOG,TINY"
+				PreprocessorDefinitions="DEBUG_LOG"
 				ExceptionHandling="0"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseUnicodeResponseFiles="false"
-				AdditionalDependencies="../lib/wcrt.lib psapi.lib user32.lib ole32.lib olepro32.lib advapi32.lib gdi32.lib"
+				AdditionalDependencies="../lib/msvcrt.lib psapi.lib user32.lib ole32.lib olepro32.lib advapi32.lib gdi32.lib ../lib/BufferOverflowU.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
 				IgnoreAllDefaultLibraries="true"
@@ -220,10 +220,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/QIfist"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
 				WholeProgramOptimization="false"
-				PreprocessorDefinitions="TINY"
 				ExceptionHandling="0"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
@@ -246,7 +246,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG"
-				AdditionalDependencies="../lib/wcrt.lib psapi.lib user32.lib ole32.lib olepro32.lib Advapi32.lib Gdi32.lib"
+				AdditionalDependencies="../lib/msvcrt.lib psapi.lib user32.lib ole32.lib olepro32.lib Advapi32.lib Gdi32.lib ../lib/BufferOverflowU.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
 				IgnoreAllDefaultLibraries="true"
@@ -744,6 +744,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\launcher\Supervisor.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\java\VM.cpp"
 				>
 			</File>
@@ -811,6 +815,10 @@
 			</File>
 			<File
 				RelativePath="..\src\launcher\SplashScreen.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\launcher\Supervisor.h"
 				>
 			</File>
 			<File

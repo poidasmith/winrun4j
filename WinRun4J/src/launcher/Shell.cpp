@@ -11,6 +11,7 @@
 #include "Shell.h"
 #include "../common/Log.h"
 #include "../java/JNI.h"
+#include "../java/VM.h"
 #include "DDE.h"
 #include <tlhelp32.h>
 #include <psapi.h>
@@ -106,8 +107,6 @@ jstring Shell::GetLogicalDrives(JNIEnv* env, jobject self)
 	char buf[MAX_PATH];
 	DWORD len = GetLogicalDriveStrings(MAX_PATH, buf);
 	if(len > 0 && len <= MAX_PATH) {
-		// First count the number of strings present
-		int driveCount = 0;
 		for(int i = 0; i < len-1; i++) {
 			if(buf[i] == 0)
 				buf[i] = '|';
@@ -202,13 +201,64 @@ jstring Shell::GetOSVersionCSD(JNIEnv* env, jobject self)
 	return env->NewStringUTF(os.szCSDVersion);
 }
 
+jclass g_fsmClass;
+jmethodID g_fsmCallbackMethod;
+
+typedef struct _DIROL {
+	OVERLAPPED overlapped;
+	char* pBuffer;
+	HANDLE hDir;
+} DIROL;
+
+VOID CALLBACK OnDirectoryChanges(DWORD errCode, DWORD numBytes, LPOVERLAPPED overlapped)
+{
+	JNIEnv* env = VM::GetJNIEnv(true);
+	DIROL* dol = (DIROL*) overlapped;
+	jobject buf = env->NewDirectByteBuffer(dol->pBuffer, numBytes);
+	env->CallStaticVoidMethod(g_fsmClass, g_fsmCallbackMethod, (jlong) dol->hDir, buf);
+}
+
+jlong Shell::RegisterDirectoryChangeListener(JNIEnv* env, jobject self, 
+	jstring directory, jboolean subtree, jint notifyFilter, jint bufferSize)
+{
+	if(!directory)
+		return 0;
+
+	jboolean iscopy = false;
+	const char* dir = env->GetStringUTFChars(directory, &iscopy);
+	HANDLE hDir = CreateFile(dir, FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OVERLAPPED, 0, 0, 0, 0, 0);
+	if(!hDir)
+		return 0;
+	DIROL* dol = (DIROL*) malloc(sizeof(DIROL));
+	dol->hDir = hDir;
+	dol->pBuffer = (char*) malloc(bufferSize);
+	BOOL res = ReadDirectoryChangesW(hDir, dol->pBuffer, bufferSize, subtree, 
+		notifyFilter, 0, &dol->overlapped, OnDirectoryChanges);
+	if(!res) {
+		CloseHandle(hDir);
+		return 0;
+	}
+
+	return (jlong) dol;
+}
+
+void Shell::CloseDirectoryHandle(JNIEnv* env, jobject self, jlong handle)
+{
+	if(!handle) return;
+	DIROL* dol = (DIROL*) handle;
+	CloseHandle(dol->hDir);
+	free(dol->pBuffer);
+	free(dol);
+}
+
 bool Shell::RegisterNatives(JNIEnv *env)
 {
 	Log::Info("Registering natives for Shell class");
 
 	jclass clazz = JNI::FindClass(env, "org/boris/winrun4j/Shell");
 	if(clazz == NULL) {
-		Log::Warning("Could not find Log class");
+		JNI::ClearException(env);
+		Log::Warning("Could not find Shell class");
 		return false;
 	}
 	
@@ -247,5 +297,33 @@ bool Shell::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 
-	return false;
+	clazz = JNI::FindClass(env, "org/boris/winrun4j/FileSystemMonitor");
+	if(clazz == NULL) {
+		JNI::ClearException(env);
+		Log::Warning("Could not find FileSystemMonitor class");
+		return false;
+	}
+
+	g_fsmClass = clazz;
+	g_fsmCallbackMethod = env->GetStaticMethodID(g_fsmClass, "callback", "(JLjava/io/ByteBuffer;)V");
+	if(g_fsmCallbackMethod == NULL) {
+		JNI::ClearException(env);
+		Log::Warning("Could not find FileSystemMonitor.callback method");
+		return false;
+	}
+
+	nm[0].name = "register";
+	nm[0].signature = "(Ljava/lang/String;ZII)J";
+	nm[0].fnPtr = (void*) RegisterDirectoryChangeListener;
+	nm[1].name = "closeHandle";
+	nm[1].signature = "(J)V";
+	nm[1].fnPtr = (void*) CloseDirectoryHandle;
+	env->RegisterNatives(clazz, nm, 2);
+
+	if(env->ExceptionCheck()) {
+		JNI::PrintStackTrace(env);
+		return false;
+	}
+
+	return true;
 }

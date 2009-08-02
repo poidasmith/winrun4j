@@ -22,7 +22,7 @@ public class Shell
     }
 
     /**
-     * Retrieves a special folder path (@see FoldPathType).
+     * Retrieves a special folder path (@see FolderPathType).
      */
     public static File getFolderPath(int type) {
         String s = getFolderPathString(type);
