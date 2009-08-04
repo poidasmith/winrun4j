@@ -264,6 +264,7 @@ jboolean Shell::MoveFile(JNIEnv* env, jobject self, jstring oldname, jstring new
 	jboolean iscopy = false;
 	const char* oldstr = env->GetStringUTFChars(oldname, &iscopy);
 	const char* newstr = env->GetStringUTFChars(newname, &iscopy);
+	DebugBreak();
 	return ::MoveFileEx(oldstr, newstr, flags);
 }
 

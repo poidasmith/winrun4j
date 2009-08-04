@@ -14,6 +14,7 @@
 #include "launcher/DDE.h"
 #include "launcher/Service.h"
 #include "launcher/EventLog.h"
+#include "launcher/Native.h"
 #include "common/Registry.h"
 
 #define PROCESS_PRIORITY ":process.priority"
@@ -303,6 +304,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	Registry::RegisterNatives(env);
 	Shell::RegisterNatives(env);
 	EventLog::RegisterNatives(env);
+	Native::RegisterNatives(env);
 
 	// Startup DDE if requested
 	bool ddeInit = DDE::Initialize(hInstance, env, ini);

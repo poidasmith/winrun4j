@@ -13,7 +13,7 @@ import java.io.File;
 
 import org.boris.winrun4j.Shell;
 
-public class ShellTester
+public class ShellTester implements Runnable
 {
     public static void main(String[] args) throws Exception {
         System.out.println("Logical Drives");
@@ -54,5 +54,11 @@ public class ShellTester
             System.out.println(Shell.getTickCount());
 
         System.out.println(System.getProperty("user.dir"));
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new ShellTester()));
+    }
+
+    public void run() {
+        System.out.println("Shutting down...");
     }
 }

@@ -724,6 +724,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\launcher\Native.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\common\Registry.cpp"
 				>
 			</File>
@@ -787,6 +791,10 @@
 			</File>
 			<File
 				RelativePath="..\src\common\Log.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\launcher\Native.h"
 				>
 			</File>
 			<File

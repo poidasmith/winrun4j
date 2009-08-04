@@ -7,6 +7,7 @@ Release Notes for WinRun4J 0.3.4
 	- get command line
 	- get OS version info
 	- get tick count since machine started
+	- file move operation (eg. delay until reboot)
 - Added file system monitor (to detect file changes in a directory)
 - Added binary resource API (load/extract resources from an EXE/DLL)
 
