@@ -36,11 +36,11 @@ public class Native
 
     public static native void free(long handle);
 
-    public static native void memset(long handle, byte[] buf, int size);
+    public static native void memcpy(long handle, byte[] buf, int size);
 
-    public static native ByteBuffer fromPointer(long handle);
+    public static native ByteBuffer fromPointer(long handle, long size);
 
-    public static native long intCall(long handle, byte[] stack, int size);
+    public static native long intCall(long handle, int[] stack, int size);
 
-    public static native double doubleCall(long handle, byte[] stack, int size);
+    public static native double doubleCall(long handle, int[] stack, int size);
 }
