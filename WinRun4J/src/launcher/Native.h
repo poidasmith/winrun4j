@@ -26,8 +26,8 @@ private:
 	static void Free(JNIEnv* env, jobject self, jlong handle);
 	static void MemCpy(JNIEnv* env, jobject self, jlong handle, jbyteArray buf, jint size);
 	static jobject FromPointer(JNIEnv* env, jobject self, jlong hanedle, jlong size);
-	static jlong IntCall(JNIEnv* env, jobject self, jlong handle, jintArray stack, jint size);
-	static jdouble DoubleCall(JNIEnv* env, jobject self, jlong handle, jintArray stack, jint size);
+	static jlong IntCall(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size);
+	static jdouble DoubleCall(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size);
 };
 
 #endif // EVENTLOG_H

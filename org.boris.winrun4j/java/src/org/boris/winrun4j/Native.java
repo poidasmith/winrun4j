@@ -40,7 +40,12 @@ public class Native
 
     public static native ByteBuffer fromPointer(long handle, long size);
 
-    public static native long intCall(long handle, int[] stack, int size);
+    public static long intCall(long handle, NativeStack stack) {
+        byte[] b = stack.toBytes();
+        return intCall(handle, b, b.length);
+    }
 
-    public static native double doubleCall(long handle, int[] stack, int size);
+    public static native long intCall(long handle, byte[] stack, int size);
+
+    public static native double doubleCall(long handle, byte[] stack, int size);
 }

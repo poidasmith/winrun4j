@@ -46,10 +46,10 @@ bool Native::RegisterNatives(JNIEnv *env)
 	nm[6].signature = "(JJ)Ljava/nio/ByteBuffer;";
 	nm[6].fnPtr = (void*) FromPointer;
 	nm[7].name = "intCall";
-	nm[7].signature = "(J[II)J";
+	nm[7].signature = "(J[BI)J";
 	nm[7].fnPtr = (void*) IntCall;
 	nm[8].name = "doubleCall";
-	nm[8].signature = "(J[II)D";
+	nm[8].signature = "(J[BI)D";
 	nm[8].fnPtr = (void*) DoubleCall;
 	env->RegisterNatives(clazz, nm, 9);
 
@@ -108,14 +108,15 @@ jobject Native::FromPointer(JNIEnv* env, jobject self, jlong handle, jlong size)
 	return env->NewDirectByteBuffer((void*) handle, size);
 }
 
-jlong Native::IntCall(JNIEnv* env, jobject self, jlong handle, jintArray stack, jint size)
+jlong Native::IntCall(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size)
 {
 	jboolean iscopy;
 	int* p = !stack ? (int*) 0 : (int*)env->GetPrimitiveArrayCritical(stack, &iscopy);
-	for(int i = 0; i < size; i++) {
-		int v = *p;
+	if(!p && size > 0)
+		return 0;
+	for(int i = 0; i < size; i+=4) {
 		__asm {
-			push v
+			push dword ptr [p]
 		}
 		p++;
 	}
@@ -125,15 +126,16 @@ jlong Native::IntCall(JNIEnv* env, jobject self, jlong handle, jintArray stack, 
 		call fp
 		mov dword ptr[r], eax
 	}
+	env->ReleasePrimitiveArrayCritical(stack, p, 0);
 	return (jlong) r;
 }
 
-jdouble Native::DoubleCall(JNIEnv* env, jobject self, jlong handle, jintArray stack, jint size)
+jdouble Native::DoubleCall(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size)
 {
 	jboolean iscopy;
-	int* p = !stack ? (int*) 0 : (int*) env->GetPrimitiveArrayCritical(stack, &iscopy);
+	char* p = !stack ? (char*) 0 : (char*) env->GetPrimitiveArrayCritical(stack, &iscopy);
 	for(int i = 0; i < size; i++) {
-		int v = *p;
+		char v = *p;
 		__asm {
 			push v
 		}
