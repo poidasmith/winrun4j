@@ -23,7 +23,7 @@ bool Native::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 	
-	JNINativeMethod nm[11];
+	JNINativeMethod nm[7];
 	nm[0].name = "loadLibrary";
 	nm[0].signature = "(Ljava/lang/String;)J";
 	nm[0].fnPtr = (void*) LoadLibrary;
@@ -39,19 +39,13 @@ bool Native::RegisterNatives(JNIEnv *env)
 	nm[4].name = "free";
 	nm[4].signature = "(J)V";
 	nm[4].fnPtr = (void*) Free;
-	nm[5].name = "memcpy";
-	nm[5].signature = "(J[BI)V";
-	nm[5].fnPtr = (void*) MemCpy;
-	nm[6].name = "fromPointer";
-	nm[6].signature = "(JJ)Ljava/nio/ByteBuffer;";
-	nm[6].fnPtr = (void*) FromPointer;
-	nm[7].name = "intCall";
-	nm[7].signature = "(J[BI)J";
-	nm[7].fnPtr = (void*) IntCall;
-	nm[8].name = "doubleCall";
-	nm[8].signature = "(J[BI)D";
-	nm[8].fnPtr = (void*) DoubleCall;
-	env->RegisterNatives(clazz, nm, 9);
+	nm[5].name = "fromPointer";
+	nm[5].signature = "(JJ)Ljava/nio/ByteBuffer;";
+	nm[5].fnPtr = (void*) FromPointer;
+	nm[6].name = "call";
+	nm[6].signature = "(J[BI)J";
+	nm[6].fnPtr = (void*) Call;
+	env->RegisterNatives(clazz, nm, 7);
 
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);
@@ -94,29 +88,21 @@ void Native::Free(JNIEnv* env, jobject self, jlong handle)
 	::free((void*) handle);
 }
 
-void Native::MemCpy(JNIEnv* env, jobject self, jlong handle, jbyteArray buf, jint size)
-{
-	if(!buf) return;
-	jboolean iscopy;
-	void* p = env->GetPrimitiveArrayCritical(buf, &iscopy);
-	::memcpy((void*) handle, p, size);
-	env->ReleasePrimitiveArrayCritical(buf, p, 0);
-}
-
 jobject Native::FromPointer(JNIEnv* env, jobject self, jlong handle, jlong size)
 {
 	return env->NewDirectByteBuffer((void*) handle, size);
 }
 
-jlong Native::IntCall(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size)
+jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size)
 {
 	jboolean iscopy;
 	int* p = !stack ? (int*) 0 : (int*)env->GetPrimitiveArrayCritical(stack, &iscopy);
 	if(!p && size > 0)
 		return 0;
 	for(int i = 0; i < size; i+=4) {
+		int v = *p;
 		__asm {
-			push dword ptr [p]
+			push v
 		}
 		p++;
 	}
@@ -128,24 +114,4 @@ jlong Native::IntCall(JNIEnv* env, jobject self, jlong handle, jbyteArray stack,
 	}
 	env->ReleasePrimitiveArrayCritical(stack, p, 0);
 	return (jlong) r;
-}
-
-jdouble Native::DoubleCall(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size)
-{
-	jboolean iscopy;
-	char* p = !stack ? (char*) 0 : (char*) env->GetPrimitiveArrayCritical(stack, &iscopy);
-	for(int i = 0; i < size; i++) {
-		char v = *p;
-		__asm {
-			push v
-		}
-		p++;
-	}
-	double r;
-	FARPROC fp = (FARPROC) handle;
-	__asm {
-		call fp
-		fstp r
-	}
-	return (jdouble) r;
 }

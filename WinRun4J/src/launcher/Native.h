@@ -24,10 +24,8 @@ private:
 	static jlong GetProcAddress(JNIEnv* env, jobject self, jlong handle, jstring name);
 	static jlong Malloc(JNIEnv* env, jobject self, jint size);
 	static void Free(JNIEnv* env, jobject self, jlong handle);
-	static void MemCpy(JNIEnv* env, jobject self, jlong handle, jbyteArray buf, jint size);
 	static jobject FromPointer(JNIEnv* env, jobject self, jlong hanedle, jlong size);
-	static jlong IntCall(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size);
-	static jdouble DoubleCall(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size);
+	static jlong Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size);
 };
 
 #endif // EVENTLOG_H

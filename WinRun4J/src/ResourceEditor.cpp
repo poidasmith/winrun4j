@@ -234,11 +234,27 @@ int main5(int argc, char* argv[])
 	return ok ? 0 : 1;
 }
 
+typedef struct _s {
+	int p;
+	double v;
+	void* x;
+} s;
 
+s test()
+{
+	s t;
+	t.p = 1;
+	return t;
+}
+
+double testD()
+{
+	return 1.0;
+}
 
 void main()
 {
-	char buf[1024];
-	DWORD len = 1024;
-	GetLogicalDriveStrings(len, buf);
+	s tr = test();
+	double d = testD();
+	tr.p = 1;
 }
