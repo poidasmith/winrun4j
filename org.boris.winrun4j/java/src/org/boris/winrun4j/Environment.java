@@ -26,6 +26,9 @@ public class Environment
             "GetEnvironmentStringsA");
     private static long procFreeEnvStrings = Native.getProcAddress(kernel32,
             "FreeEnvironmentStringsA");
+    private static long procExpandEnvStrings = Native.getProcAddress(kernel32,
+            "ExpandEnvironmentStringsA");
+    private static long procGetCommandLine = Native.getProcAddress(kernel32, "GetCommandLineA");
     private static long procGetTickCount = Native.getProcAddress(kernel32, "GetTickCount");
     private static long procDebugBreak = Native.getProcAddress(kernel32, "DebugBreak");
 
@@ -110,11 +113,51 @@ public class Environment
     }
 
     public static String expandEnvironmentString(String var) {
-        return null;
+        if (var == null)
+            return null;
+        long str = NativeHelper.toNativeString(var);
+        long buf = Native.malloc(4096);
+        NativeStack ns = new NativeStack();
+        ns.addArg32(str);
+        ns.addArg32(buf);
+        ns.addArg32(4096);
+        long res = NativeHelper.call(procExpandEnvStrings, ns);
+        String rs = null;
+        if (res > 0 && res <= 4096) {
+            rs = NativeHelper.getString(buf, 4096, false);
+        }
+        Native.free(str);
+        Native.free(buf);
+        return rs;
     }
 
     public static String[] getCommandLineArgs() {
-        return null;
+        long res = Native.call(procGetCommandLine, null, 0);
+        String s = NativeHelper.getString(res, 1024, false);
+        boolean inQuote = false;
+        ArrayList args = new ArrayList();
+        StringBuffer sb = new StringBuffer();
+        int len = s.length();
+        for (int i = 0; i < len; i++) {
+            char c = s.charAt(i);
+            if (c == '"') {
+                inQuote = !inQuote;
+            }
+            if (c == ' ') {
+                if (inQuote) {
+                    sb.append(c);
+                } else {
+                    args.add(sb.toString());
+                    sb.setLength(0);
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+        if (sb.length() > 0)
+            args.add(sb.toString());
+
+        return (String[]) args.toArray(new String[args.size()]);
     }
 
     public static OSVersionInfo getVersionInfo() {

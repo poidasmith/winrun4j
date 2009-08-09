@@ -44,6 +44,8 @@ public class NativeHelper
     }
 
     public static long call(long proc, NativeStack stack) {
+        if (proc == 0)
+            throw new NullPointerException("Invalid procedure address");
         byte[] b = null;
         if (stack != null)
             b = stack.toBytes();
