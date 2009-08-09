@@ -238,11 +238,11 @@ typedef struct _s {
 	int p;
 	double v;
 	void* x;
-} s;
+} mystruct;
 
-s test()
+mystruct test()
 {
-	s t;
+	mystruct t;
 	t.p = 1;
 	return t;
 }
@@ -252,9 +252,12 @@ double testD()
 	return 1.0;
 }
 
+void test(bool b, char c, short s, DWORD d, double dd, float f, mystruct t)
+{
+}
+
 void main()
 {
-	s tr = test();
-	double d = testD();
-	tr.p = 1;
+	mystruct t;
+	test(true, 'b', 1, 234, 234.3, 213.1, t);
 }

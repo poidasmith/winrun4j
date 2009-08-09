@@ -16,26 +16,40 @@ import java.nio.ByteBuffer;
  */
 public class Native
 {
-    //
-    // 1. LoadLibrary
-    // 2. FreeLibrary
-    // 3. Bind to a function (get proc address)
-    // 4. Malloc/free.
-    // 6. Access memory as ByteBuffer
-    // 7. Call a function (pass in byte array as stack), return int?
-    //
+    public static final int MAX_PATH = 260;
 
+    /**
+     * Load a native library (eg. "kernel32")
+     */
     public static native long loadLibrary(String filename);
 
+    /**
+     * Free the library.
+     */
     public static native void freeLibrary(long ptr);
 
+    /**
+     * Get a pointer to a function exported by the library.
+     */
     public static native long getProcAddress(long ptr, String name);
 
+    /**
+     * Allocate a block of memory.
+     */
     public static native long malloc(int size);
 
+    /**
+     * Free the memory.
+     */
     public static native void free(long ptr);
 
+    /**
+     * Get an accessor for a given block of memory.
+     */
     public static native ByteBuffer fromPointer(long ptr, long size);
 
+    /**
+     * Call a native function.
+     */
     public static native long call(long ptr, byte[] stack, int size);
 }

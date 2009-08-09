@@ -12,7 +12,8 @@ package org.boris.winrun4j;
 /**
  * A mechanism for adding events.
  */
-public class EventLog {
+public class EventLog
+{
     public static final int SUCCESS = 0x0000;
     public static final int ERROR = 0x0001;
     public static final int WARNING = 0x0002;
@@ -22,12 +23,14 @@ public class EventLog {
 
     /**
      * Report an event.
-     *
+     * 
      * @param source.
      * @param type.
      * @param msg.
-     *
+     * 
      * @return boolean.
      */
-    public static native boolean report(String source, int type, String msg);
+    public static boolean report(String source, int type, String msg) {
+        return false;
+    }
 }

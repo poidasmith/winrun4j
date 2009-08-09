@@ -11,8 +11,8 @@ package org.boris.winrun4j.test;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
+import org.boris.winrun4j.Environment;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeStack;
 
@@ -39,7 +39,7 @@ public class NativeTest1
     }
 
     public static void testLogicalDrives() {
-        File[] drives = GetLogicalDrives();
+        File[] drives = Environment.getLogicalDrives();
         for (int i = 0; i < drives.length; i++) {
             System.out.println(drives[i]);
         }
@@ -48,35 +48,6 @@ public class NativeTest1
     public static long intCall(long handle, NativeStack stack) {
         byte[] b = stack.toBytes();
         return Native.call(handle, b, b.length);
-    }
-
-    public static File[] GetLogicalDrives() {
-        long handle = Native.loadLibrary("kernel32");
-        long proc = Native.getProcAddress(handle, "GetLogicalDriveStringsA");
-        int len = 1024;
-        long buf = Native.malloc(len);
-        NativeStack s = new NativeStack();
-        s.addArg32(len);
-        s.addArg32(buf);
-        long res = intCall(proc, s);
-        ByteBuffer bb = Native.fromPointer(buf, res + 1);
-        ArrayList drives = new ArrayList();
-        StringBuffer sb = new StringBuffer();
-        while (true) {
-            char c = (char) bb.get();
-            if (c == 0) {
-                if (sb.length() == 0) {
-                    break;
-                } else {
-                    drives.add(new File(sb.toString()));
-                    sb.setLength(0);
-                }
-            } else {
-                sb.append(c);
-            }
-        }
-        Native.free(buf);
-        return (File[]) drives.toArray(new File[drives.size()]);
     }
 
     public static String toString(ByteBuffer bb) {
@@ -103,15 +74,4 @@ public class NativeTest1
         return sb.toString();
     }
 
-    public static void DebugBreak() {
-        long handle = Native.loadLibrary("kernel32");
-        long proc = Native.getProcAddress(handle, "DebugBreak");
-        Native.call(proc, null, 0);
-    }
-
-    public static long GetTickCount() {
-        long handle = Native.loadLibrary("kernel32");
-        long proc = Native.getProcAddress(handle, "GetTickCount");
-        return Native.call(proc, null, 0);
-    }
 }
