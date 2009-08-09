@@ -23,7 +23,7 @@ bool Native::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 	
-	JNINativeMethod nm[7];
+	JNINativeMethod nm[8];
 	nm[0].name = "loadLibrary";
 	nm[0].signature = "(Ljava/lang/String;)J";
 	nm[0].fnPtr = (void*) LoadLibrary;
@@ -45,7 +45,10 @@ bool Native::RegisterNatives(JNIEnv *env)
 	nm[6].name = "call";
 	nm[6].signature = "(J[BI)J";
 	nm[6].fnPtr = (void*) Call;
-	env->RegisterNatives(clazz, nm, 7);
+	nm[7].name = "bind";
+	nm[7].signature = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;J)Z";
+	nm[7].fnPtr = (void*) Bind;
+	env->RegisterNatives(clazz, nm, 8);
 
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);

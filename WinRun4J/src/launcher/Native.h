@@ -26,6 +26,7 @@ private:
 	static void Free(JNIEnv* env, jobject self, jlong handle);
 	static jobject FromPointer(JNIEnv* env, jobject self, jlong hanedle, jlong size);
 	static jlong Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size);
+	static jboolean Bind(JNIEnv* env, jstring clazz, jstring fn, jstring sig, jlong ptr);
 };
 
 #endif // EVENTLOG_H
