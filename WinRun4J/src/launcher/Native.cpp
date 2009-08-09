@@ -115,3 +115,35 @@ jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, ji
 	env->ReleasePrimitiveArrayCritical(stack, p, 0);
 	return (jlong) r;
 }
+
+jboolean Native::Bind(JNIEnv* env, jstring clazz, jstring fn, jstring sig, jlong ptr)
+{
+	if(!clazz || !fn || !sig || !ptr)
+		return false;
+
+	jboolean iscopy = false;
+	const char* cc = env->GetStringUTFChars(clazz, &iscopy);
+	const char* cf = env->GetStringUTFChars(fn, &iscopy);
+	const char* cs = env->GetStringUTFChars(sig, &iscopy);
+
+	jclass jc = env->FindClass(cc);
+	if(jc == NULL) {
+		JNI::ClearException(env);
+		Log::Warning("Could not find [%s] class", cc);
+		return false;
+	}
+
+	JNINativeMethod nm[1];
+	nm[0].name = (char*) cf;
+	nm[0].signature = (char*) cs;
+	nm[0].fnPtr = (void*) ptr;
+
+	env->RegisterNatives(jc, nm, 1);
+
+	if(env->ExceptionCheck()) {
+		JNI::PrintStackTrace(env);
+		return false;
+	}
+
+	return true;
+}
