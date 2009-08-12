@@ -224,6 +224,7 @@
 				Optimization="1"
 				FavorSizeOrSpeed="2"
 				WholeProgramOptimization="false"
+				PreprocessorDefinitions="NDEBUG"
 				ExceptionHandling="0"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
@@ -708,10 +709,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\launcher\EventLog.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\common\INI.cpp"
 				>
 			</File>
@@ -775,10 +772,6 @@
 			</File>
 			<File
 				RelativePath="..\src\common\Dictionary.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\launcher\EventLog.h"
 				>
 			</File>
 			<File

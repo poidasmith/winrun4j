@@ -22,11 +22,6 @@
 #define INI_RES_MAGIC MAKEFOURCC('I','N','I',' ')
 #define JAR_RES_MAGIC MAKEFOURCC('J','A','R',' ')
 
-#ifdef NDEBUG
-#pragma comment(linker, "/FILEALIGN:0x200")
-#pragma comment(linker, "/ALIGN:0x200")
-#endif
-
 extern LPSTR _cdecl StripArg0(LPSTR lpCmdLine);
 extern size_t _cdecl FindNextArg(LPSTR lpCmdLine, size_t start, size_t len);
 extern bool _cdecl StartsWith(LPSTR str, LPSTR substr);

@@ -13,7 +13,7 @@ import java.io.File;
 
 import org.boris.winrun4j.Environment;
 
-public class ShellTester implements Runnable
+public class EnvironmentTester implements Runnable
 {
     public static void main(String[] args) throws Exception {
         System.out.println("Logical Drives");
@@ -55,7 +55,7 @@ public class ShellTester implements Runnable
 
         System.out.println(System.getProperty("user.dir"));
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new ShellTester()));
+        Runtime.getRuntime().addShutdownHook(new Thread(new EnvironmentTester()));
     }
 
     public void run() {

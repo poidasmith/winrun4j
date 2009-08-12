@@ -11,19 +11,22 @@ package org.boris.winrun4j;
 
 public class DirectoryManagement
 {
+    public static final int MOVEFILE_REPLACE_EXISTING = 0x00000001;
+    public static final int MOVEFILE_COPY_ALLOWED = 0x00000002;
+    public static final int MOVEFILE_DELAY_UNTIL_REBOOT = 0x00000004;
+    public static final int MOVEFILE_WRITE_THROUGH = 0x00000008;
+    public static final int MOVEFILE_CREATE_HARDLINK = 0x00000010;
+    public static final int MOVEFILE_FAIL_IF_NOT_TRACKABLE = 0x00000020;
+
     private static long library = Native.loadLibrary("kernel32");
     private static long moveFileProc = Native.getProcAddress(library, "MoveFileExA");
 
     public static boolean moveFile(String existingName, String newName, int flags) {
         if (existingName == null || newName == null)
             throw new NullPointerException();
-        long e = NativeHelper.toNativeString(existingName);
-        long n = NativeHelper.toNativeString(newName);
-        NativeStack ns = new NativeStack();
-        ns.addArg32(e);
-        ns.addArg32(n);
-        ns.addArg32(flags);
-        boolean res = NativeHelper.call(moveFileProc, ns) == 1;
+        long e = NativeHelper.toNativeString(existingName, false);
+        long n = NativeHelper.toNativeString(newName, false);
+        boolean res = NativeHelper.call(moveFileProc, e, n, flags) == 1;
         Native.free(e);
         Native.free(n);
         return res;

@@ -7,14 +7,13 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.test;
 
-public interface MoveFileFlags
+import org.boris.winrun4j.EventLog;
+
+public class EventLogTester
 {
-    int MOVEFILE_REPLACE_EXISTING = 0x00000001;
-    int MOVEFILE_COPY_ALLOWED = 0x00000002;
-    int MOVEFILE_DELAY_UNTIL_REBOOT = 0x00000004;
-    int MOVEFILE_WRITE_THROUGH = 0x00000008;
-    int MOVEFILE_CREATE_HARDLINK = 0x00000010;
-    int MOVEFILE_FAIL_IF_NOT_TRACKABLE = 0x00000020;
+    public static void main(String[] args) throws Exception {
+        EventLog.report("EventLogTester", EventLog.SUCCESS, "A log from Native wrapper versoin");
+    }
 }

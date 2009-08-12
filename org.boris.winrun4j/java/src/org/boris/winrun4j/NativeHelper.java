@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 public class NativeHelper
@@ -30,11 +31,16 @@ public class NativeHelper
         return sb.toString();
     }
 
-    public static long toNativeString(Object o) {
+    public static long toNativeString(Object o, boolean wideChar) {
         if (o == null)
             return 0;
 
-        byte[] b = o.toString().getBytes();
+        byte[] b;
+        try {
+            b = o.toString().getBytes(wideChar ? "UTF-16" : "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
         int len = b.length + 1;
         long buf = Native.malloc(len);
         ByteBuffer bb = Native.fromPointer(buf, len);
@@ -51,5 +57,43 @@ public class NativeHelper
             b = stack.toBytes();
         int len = b != null ? b.length : 0;
         return Native.call(proc, b, len);
+    }
+
+    public static long call(long proc) {
+        return call(proc, (NativeStack) null);
+    }
+
+    public static long call(long proc, long[] args) {
+        return call(proc, new NativeStack(args));
+    }
+
+    public static long call(long proc, long arg1) {
+        return call(proc, new NativeStack(new long[] { arg1 }));
+    }
+
+    public static long call(long proc, long arg1, long arg2) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2 }));
+    }
+
+    public static long call(long proc, long arg1, long arg2, long arg3) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3 }));
+    }
+
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4 }));
+    }
+
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5 }));
+    }
+
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5,
+            long arg6) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6 }));
+    }
+
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5,
+            long arg6, long arg7) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 }));
     }
 }

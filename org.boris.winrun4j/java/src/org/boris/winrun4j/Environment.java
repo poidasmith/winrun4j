@@ -35,10 +35,7 @@ public class Environment
     public static File[] getLogicalDrives() {
         int len = 1024;
         long buf = Native.malloc(len);
-        NativeStack s = new NativeStack();
-        s.addArg32(len);
-        s.addArg32(buf);
-        long res = NativeHelper.call(procGetLogicalDrive, s);
+        long res = NativeHelper.call(procGetLogicalDrive, len, buf);
         ByteBuffer bb = Native.fromPointer(buf, res + 1);
         ArrayList drives = new ArrayList();
         StringBuffer sb = new StringBuffer();
@@ -61,13 +58,7 @@ public class Environment
 
     public static File getFolderPath(int type) {
         long buf = Native.malloc(Native.MAX_PATH);
-        NativeStack ns = new NativeStack();
-        ns.addArg32(0);
-        ns.addArg32(type);
-        ns.addArg32(0);
-        ns.addArg32(0);
-        ns.addArg32(buf);
-        NativeHelper.call(procGetFolderPath, ns);
+        NativeHelper.call(procGetFolderPath, 0, type, 0, 0, buf);
         String res = NativeHelper.getString(buf, Native.MAX_PATH, false);
         Native.free(buf);
         if (res == null || res.length() == 0)
@@ -78,13 +69,9 @@ public class Environment
     public static String getEnvironmentVariable(String var) {
         if (var == null)
             return null;
-        long buf = NativeHelper.toNativeString(var);
+        long buf = NativeHelper.toNativeString(var, false);
         long rbuf = Native.malloc(4096);
-        NativeStack ns = new NativeStack();
-        ns.addArg32(buf);
-        ns.addArg32(rbuf);
-        ns.addArg32(4096);
-        long res = NativeHelper.call(procGetEnvVar, ns);
+        long res = NativeHelper.call(procGetEnvVar, buf, rbuf, 4096);
         if (res == 0)
             return null;
         if (res > 4096)
@@ -96,7 +83,7 @@ public class Environment
     }
 
     public static Properties getEnvironmentVariables() {
-        long buf = Native.call(procGetEnvStrings, null, 0);
+        long buf = NativeHelper.call(procGetEnvStrings);
         ByteBuffer bb = Native.fromPointer(buf, 32767);
         Properties p = new Properties();
         while (true) {
@@ -106,22 +93,16 @@ public class Environment
             int idx = s.indexOf('=');
             p.put(s.substring(0, idx), s.substring(idx + 1));
         }
-        NativeStack ns = new NativeStack();
-        ns.addArg32(buf);
-        NativeHelper.call(procFreeEnvStrings, ns);
+        NativeHelper.call(procFreeEnvStrings, buf);
         return p;
     }
 
     public static String expandEnvironmentString(String var) {
         if (var == null)
             return null;
-        long str = NativeHelper.toNativeString(var);
+        long str = NativeHelper.toNativeString(var, false);
         long buf = Native.malloc(4096);
-        NativeStack ns = new NativeStack();
-        ns.addArg32(str);
-        ns.addArg32(buf);
-        ns.addArg32(4096);
-        long res = NativeHelper.call(procExpandEnvStrings, ns);
+        long res = NativeHelper.call(procExpandEnvStrings, str, buf, 4096);
         String rs = null;
         if (res > 0 && res <= 4096) {
             rs = NativeHelper.getString(buf, 4096, false);
@@ -165,10 +146,10 @@ public class Environment
     }
 
     public static long getTickCount() {
-        return Native.call(procGetTickCount, null, 0);
+        return NativeHelper.call(procGetTickCount);
     }
 
     public static void debugBreak() {
-        Native.call(procDebugBreak, null, 0);
+        NativeHelper.call(procDebugBreak);
     }
 }

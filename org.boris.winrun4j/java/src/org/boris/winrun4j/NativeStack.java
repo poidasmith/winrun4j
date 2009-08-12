@@ -16,6 +16,13 @@ public class NativeStack
     byte[] stack = new byte[1024];
     int ptr = 1023;
 
+    public NativeStack() {
+    }
+
+    public NativeStack(long[] args) {
+        add(args);
+    }
+
     public void addArg32(long handle) {
         addArg32((int) handle);
     }
@@ -25,6 +32,11 @@ public class NativeStack
         push(value >> 16);
         push(value >> 8);
         push(value);
+    }
+
+    public void add(long[] args) {
+        for (int i = 0; i < args.length; i++)
+            addArg32(args[i]);
     }
 
     public byte[] toBytes() {
