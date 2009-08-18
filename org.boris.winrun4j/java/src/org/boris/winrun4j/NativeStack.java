@@ -9,8 +9,6 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
-import java.util.Arrays;
-
 public class NativeStack
 {
     byte[] stack = new byte[1024];
@@ -23,11 +21,16 @@ public class NativeStack
         add(args);
     }
 
-    public void addArg32(long handle) {
-        addArg32((int) handle);
+    public void add64(long handle) {
+        add(handle >> 32);
+        add(handle & 0x0ffffffff);
     }
 
-    public void addArg32(int value) {
+    public void add(double value) {
+        add(Double.doubleToLongBits(value));
+    }
+
+    public void add(long value) {
         push(value >> 24);
         push(value >> 16);
         push(value >> 8);
@@ -36,14 +39,16 @@ public class NativeStack
 
     public void add(long[] args) {
         for (int i = 0; i < args.length; i++)
-            addArg32(args[i]);
+            add(args[i]);
     }
 
     public byte[] toBytes() {
-        return Arrays.copyOfRange(stack, ptr + 1, 1024);
+        byte[] a = new byte[1023 - ptr];
+        System.arraycopy(stack, ptr + 1, a, 0, a.length);
+        return a;
     }
 
-    private void push(int b) {
+    private void push(long b) {
         stack[ptr] = (byte) (b & 0xff);
         ptr--;
     }

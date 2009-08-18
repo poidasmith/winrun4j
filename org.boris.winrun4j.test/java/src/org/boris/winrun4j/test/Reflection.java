@@ -15,6 +15,8 @@ import java.lang.reflect.Modifier;
 public class Reflection
 {
     public static String toString(Object o) {
+        if (o == null)
+            return "null";
         StringBuilder sb = new StringBuilder();
         Field[] fields = o.getClass().getDeclaredFields();
         for (Field f : fields) {

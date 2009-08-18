@@ -24,6 +24,10 @@ public class NativeTest1
         // testLogicalDrives();
     }
 
+    public static void callWithDouble() throws Exception {
+
+    }
+
     public static void testMemory() {
         long ptr = Native.malloc(10);
         ByteBuffer bb = Native.fromPointer(ptr, 10);

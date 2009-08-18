@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 
 public class NativeHelper
 {
-    public static String getString(long ptr, int size, boolean wideChar) {
+    public static String getString(long ptr, long size, boolean wideChar) {
         ByteBuffer bb = Native.fromPointer(ptr, size);
         return getString(bb, wideChar);
     }
@@ -79,21 +79,27 @@ public class NativeHelper
         return call(proc, new NativeStack(new long[] { arg1, arg2, arg3 }));
     }
 
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4) {
-        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4 }));
+    public static long call(long proc, long arg1, long arg2, long arg3,
+            long arg4) {
+        return call(proc,
+                new NativeStack(new long[] { arg1, arg2, arg3, arg4 }));
     }
 
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5) {
-        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5 }));
+    public static long call(long proc, long arg1, long arg2, long arg3,
+            long arg4, long arg5) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4,
+                arg5 }));
     }
 
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5,
-            long arg6) {
-        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6 }));
+    public static long call(long proc, long arg1, long arg2, long arg3,
+            long arg4, long arg5, long arg6) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4,
+                arg5, arg6 }));
     }
 
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5,
-            long arg6, long arg7) {
-        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 }));
+    public static long call(long proc, long arg1, long arg2, long arg3,
+            long arg4, long arg5, long arg6, long arg7) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4,
+                arg5, arg6, arg7 }));
     }
 }
