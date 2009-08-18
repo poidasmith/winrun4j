@@ -53,6 +53,8 @@ public class EnvironmentTester implements Runnable
         for (int i = 0; i < 10; i++)
             System.out.println(Environment.getTickCount());
 
+        System.out.printf("Current Process Id: %d\n", Environment.getCurrentProcessId());
+
         System.out.println(System.getProperty("user.dir"));
 
         Runtime.getRuntime().addShutdownHook(new Thread(new EnvironmentTester()));

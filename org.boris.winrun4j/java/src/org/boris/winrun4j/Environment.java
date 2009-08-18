@@ -31,6 +31,7 @@ public class Environment
     private static long procGetCommandLine = Native.getProcAddress(kernel32, "GetCommandLineA");
     private static long procGetTickCount = Native.getProcAddress(kernel32, "GetTickCount");
     private static long procDebugBreak = Native.getProcAddress(kernel32, "DebugBreak");
+    private static long getCurrentProcId = Native.getProcAddress(kernel32, "GetCurrentProcessId");
 
     public static File[] getLogicalDrives() {
         int len = 1024;
@@ -147,6 +148,10 @@ public class Environment
 
     public static long getTickCount() {
         return NativeHelper.call(procGetTickCount);
+    }
+
+    public static long getCurrentProcessId() {
+        return NativeHelper.call(getCurrentProcId);
     }
 
     public static void debugBreak() {
