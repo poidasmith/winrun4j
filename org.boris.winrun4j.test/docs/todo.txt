@@ -19,3 +19,37 @@ grab method id (pass into callback code)
 generic callback 
 
 test double cll method.
+
+
+AssemblyInstructions
+- i.mov(EAX, 0x2434);
+- i.push(EAX);
+- i.mov(ECX, ESP);
+- i.label("tempo");
+- i.cmp(DL, 0x05);
+- i.jne("tempo");
+- i.sub(ESP, 8);
+- i.call(0x04423433434);
+- i.add(ESP, 4);
+- i.push(0);
+- i.pop(EBP);
+
+- i.write(ByteBuffer b);
+
+
+
+Binding
+=======
+
+public class BindingTest 
+{
+    static {
+       Native.bind("kernel32"); //default library
+    }
+    
+    public static native long GetTickCount();
+    
+    @Native(library="shell32")
+    public static native String GetUserName();
+}
+
