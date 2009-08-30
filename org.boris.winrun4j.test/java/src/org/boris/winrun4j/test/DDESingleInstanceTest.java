@@ -9,29 +9,18 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-import org.boris.winrun4j.ActivationListener;
 import org.boris.winrun4j.DDE;
-import org.boris.winrun4j.Log;
+import org.boris.winrun4j.DDEExecuteListener;
 
 public class DDESingleInstanceTest
 {
     public static void main(String[] args) throws Exception {
-        DDE.addActivationListener(new ActivationListener() {
-            public void activate() {
-                Log.info("Activate");
+        DDE.addListener(new DDEExecuteListener() {
+            public void execute(String command) {
+                System.out.println(command);
             }
         });
-        ready();
+        DDE.ready();
         System.out.println("Hello world!");
-    }
-
-    public static native void ready();
-
-    public static void execute(String command) {
-        System.out.println("Execute: " + command);
-    }
-
-    public static void activate() {
-        System.out.println("Activating...");
     }
 }

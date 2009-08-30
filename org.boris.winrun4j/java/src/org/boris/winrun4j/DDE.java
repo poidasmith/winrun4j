@@ -16,23 +16,22 @@ import java.util.Set;
 /**
  * A manager for DDE.
  */
-public class DDE {
-    private static Set fileAssociationListeners = new LinkedHashSet();
-    private static Set activationListeners = new LinkedHashSet();
+public class DDE
+{
+    private static Set listeners = new LinkedHashSet();
 
     /**
      * To be called by the application when it is ready to receive DDE messages.
      */
     public static native void ready();
-    
+
     /**
-     * Add a file association listener.
+     * Add a listener.
      * 
      * @param listener.
      */
-    public static void addFileAssocationListener(
-            FileAssociationListener listener) {
-        DDE.fileAssociationListeners.add(listener);
+    public static void addListener(DDEExecuteListener listener) {
+        DDE.listeners.add(listener);
     }
 
     /**
@@ -41,31 +40,10 @@ public class DDE {
      * @param command.
      */
     public static void execute(String command) {
-        Iterator i = fileAssociationListeners.iterator();
+        Iterator i = listeners.iterator();
         while (i.hasNext()) {
-            FileAssociationListener listener = (FileAssociationListener) i
-                    .next();
+            DDEExecuteListener listener = (DDEExecuteListener) i.next();
             listener.execute(command);
-        }
-    }
-
-    /**
-     * Add an activation listener.
-     * 
-     * @param listener
-     */
-    public static void addActivationListener(ActivationListener listener) {
-        activationListeners.add(listener);
-    }
-
-    /**
-     * This will be called as part of the single instance.
-     */
-    public static void activate() {
-        Iterator i = activationListeners.iterator();
-        while (i.hasNext()) {
-            ActivationListener listener = (ActivationListener) i.next();
-            listener.activate();
         }
     }
 }

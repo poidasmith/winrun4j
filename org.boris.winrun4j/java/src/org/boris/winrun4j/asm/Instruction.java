@@ -9,9 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.asm;
 
-public class Instruction
+public interface Instruction
 {
-    private byte[] value;
-    private String label;
-    private String operand;
+    int sizeInBytes();
 }

@@ -12,11 +12,12 @@ package org.boris.winrun4j;
 /**
  * A listener for an execute call.
  */
-public interface FileAssociationListener {
+public interface DDEExecuteListener
+{
     /**
-     * Execute based on the given command line.
-     *
-     * @param cmdLine.
+     * Execute based on the given command (line).
+     * 
+     * @param commnd.
      */
-    void execute(String cmdLine);
+    void execute(String command);
 }

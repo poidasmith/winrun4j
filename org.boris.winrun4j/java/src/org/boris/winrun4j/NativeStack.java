@@ -26,8 +26,12 @@ public class NativeStack
         add(handle & 0x0ffffffff);
     }
 
+    public void add(float value) {
+        add(Float.floatToIntBits(value));
+    }
+
     public void add(double value) {
-        add(Double.doubleToLongBits(value));
+        add64(Double.doubleToLongBits(value));
     }
 
     public void add(long value) {
@@ -42,6 +46,12 @@ public class NativeStack
             add(args[i]);
     }
 
+    public void add(byte[] stack) {
+        for (int i = 0; i < stack.length; i++) {
+            this.stack[ptr--] = stack[i];
+        }
+    }
+
     public byte[] toBytes() {
         byte[] a = new byte[1023 - ptr];
         System.arraycopy(stack, ptr + 1, a, 0, a.length);
@@ -49,7 +59,6 @@ public class NativeStack
     }
 
     private void push(long b) {
-        stack[ptr] = (byte) (b & 0xff);
-        ptr--;
+        stack[ptr--] = (byte) (b & 0xff);
     }
 }

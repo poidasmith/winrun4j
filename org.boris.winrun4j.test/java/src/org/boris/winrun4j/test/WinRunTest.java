@@ -7,10 +7,9 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
-import org.boris.winrun4j.ActivationListener;
 import org.boris.winrun4j.DDE;
+import org.boris.winrun4j.DDEExecuteListener;
 import org.boris.winrun4j.EventLog;
-import org.boris.winrun4j.FileAssociationListener;
 import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.RegistryKey;
@@ -65,7 +64,8 @@ public class WinRunTest
         sb.append("\nLast Error:" + Log.getLastError() + "\n");
 
         // Test event log
-        EventLog.report("WinRun4J Test", EventLog.INFORMATION, "A test information log");
+        EventLog.report("WinRun4J Test", EventLog.INFORMATION,
+                "A test information log");
 
         // Test registry
         sb.append("\n\nRegistry Test\n=============\n\n");
@@ -84,8 +84,8 @@ public class WinRunTest
         SplashScreen.setTextFont("Arial", 14);
         SplashScreen.setTextColor(170, 170, 170);
         for (int i = 0; i < 24; i++) {
-            SplashScreen.setText("WinRun4J splash message".substring(0, i), (int) (280 - (i * 10)),
-                    240);
+            SplashScreen.setText("WinRun4J splash message".substring(0, i),
+                    (int) (280 - (i * 10)), 240);
             Thread.sleep(100);
         }
         Thread.sleep(2000);
@@ -94,17 +94,10 @@ public class WinRunTest
         System.err.println("Testing stderr stream redirection from Java");
         System.out.println("Random: " + Math.random());
 
-        // Add file association listener
-        DDE.addFileAssocationListener(new FileAssociationListener() {
+        // Add DDE listener
+        DDE.addListener(new DDEExecuteListener() {
             public void execute(String cmdLine) {
                 text.setText(cmdLine + "\n" + text.getText());
-            }
-        });
-
-        DDE.addActivationListener(new ActivationListener() {
-            public void activate() {
-                text.setText("Activation occurred\n" + text.getText());
-                frame.toFront();
             }
         });
 

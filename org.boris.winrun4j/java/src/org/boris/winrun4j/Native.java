@@ -51,10 +51,11 @@ public class Native
     /**
      * Call a native function.
      */
-    public static native long call(long ptr, byte[] stack, int size);
+    public static native long call(long ptr, byte[] stack, int stackSize);
 
     /**
      * Binds a function pointer to a native method.
      */
-    public static native boolean bind(String clazz, String fn, String sig, long ptr);
+    public static native boolean bind(String clazz, String fn, String sig,
+            long ptr);
 }

@@ -7,8 +7,18 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.asm;
 
-public interface ActivationListener {
-    void activate();
+public class PUSH
+{
+    private byte[] code;
+    private String asm;
+
+    public PUSH(byte value) {
+        code = new byte[] { 0x6A, value };
+        asm = "PUSH " + Integer.toHexString(value & 0xff);
+    }
+
+    public PUSH(Register r) {
+    }
 }

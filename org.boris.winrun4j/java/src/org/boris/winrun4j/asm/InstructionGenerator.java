@@ -32,9 +32,13 @@ public class InstructionGenerator
     }
 
     public void push(Register source) {
+        if (source.size == 32) {
+            byte operand = (byte) (0x50 | source.offset);
+        }
     }
 
     public void push(int value) {
+
     }
 
     public void pop(Register target) {

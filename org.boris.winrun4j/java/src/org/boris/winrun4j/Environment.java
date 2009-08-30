@@ -20,18 +20,24 @@ public class Environment
     private static long shell32 = Native.loadLibrary("shell32");
     private static long procGetLogicalDrive = Native.getProcAddress(kernel32,
             "GetLogicalDriveStringsA");
-    private static long procGetFolderPath = Native.getProcAddress(shell32, "SHGetFolderPathA");
-    private static long procGetEnvVar = Native.getProcAddress(kernel32, "GetEnvironmentVariableA");
+    private static long procGetFolderPath = Native.getProcAddress(shell32,
+            "SHGetFolderPathA");
+    private static long procGetEnvVar = Native.getProcAddress(kernel32,
+            "GetEnvironmentVariableA");
     private static long procGetEnvStrings = Native.getProcAddress(kernel32,
             "GetEnvironmentStringsA");
     private static long procFreeEnvStrings = Native.getProcAddress(kernel32,
             "FreeEnvironmentStringsA");
     private static long procExpandEnvStrings = Native.getProcAddress(kernel32,
             "ExpandEnvironmentStringsA");
-    private static long procGetCommandLine = Native.getProcAddress(kernel32, "GetCommandLineA");
-    private static long procGetTickCount = Native.getProcAddress(kernel32, "GetTickCount");
-    private static long procDebugBreak = Native.getProcAddress(kernel32, "DebugBreak");
-    private static long getCurrentProcId = Native.getProcAddress(kernel32, "GetCurrentProcessId");
+    private static long procGetCommandLine = Native.getProcAddress(kernel32,
+            "GetCommandLineA");
+    private static long procGetTickCount = Native.getProcAddress(kernel32,
+            "GetTickCount");
+    private static long procDebugBreak = Native.getProcAddress(kernel32,
+            "DebugBreak");
+    private static long getCurrentProcId = Native.getProcAddress(kernel32,
+            "GetCurrentProcessId");
 
     public static File[] getLogicalDrives() {
         int len = 1024;
@@ -114,7 +120,7 @@ public class Environment
     }
 
     public static String[] getCommandLineArgs() {
-        long res = Native.call(procGetCommandLine, null, 0);
+        long res = NativeHelper.call(procGetCommandLine);
         String s = NativeHelper.getString(res, 1024, false);
         boolean inQuote = false;
         ArrayList args = new ArrayList();
