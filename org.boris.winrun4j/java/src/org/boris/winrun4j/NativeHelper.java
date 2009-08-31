@@ -31,6 +31,16 @@ public class NativeHelper
         return sb.toString();
     }
 
+    public static String toString(byte[] buffer) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < buffer.length; i++) {
+            if (buffer[i] == 0)
+                break;
+            sb.append((char) buffer[i]);
+        }
+        return sb.toString();
+    }
+
     public static long toNativeString(Object o, boolean wideChar) {
         if (o == null)
             return 0;
@@ -56,7 +66,14 @@ public class NativeHelper
         if (stack != null)
             b = stack.toBytes();
         int len = b != null ? b.length : 0;
-        return Native.call(proc, b, len);
+        return Native.call(proc, b, len, 0);
+    }
+
+    public static void put(ByteBuffer b, int value) {
+        b.put((byte) (value & 0xff));
+        b.put((byte) ((value >> 8) & 0xff));
+        b.put((byte) ((value >> 16) & 0xff));
+        b.put((byte) ((value >> 24) & 0xff));
     }
 
     public static long call(long proc) {
@@ -79,27 +96,26 @@ public class NativeHelper
         return call(proc, new NativeStack(new long[] { arg1, arg2, arg3 }));
     }
 
-    public static long call(long proc, long arg1, long arg2, long arg3,
-            long arg4) {
-        return call(proc,
-                new NativeStack(new long[] { arg1, arg2, arg3, arg4 }));
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4 }));
     }
 
-    public static long call(long proc, long arg1, long arg2, long arg3,
-            long arg4, long arg5) {
-        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4,
-                arg5 }));
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5 }));
     }
 
-    public static long call(long proc, long arg1, long arg2, long arg3,
-            long arg4, long arg5, long arg6) {
-        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4,
-                arg5, arg6 }));
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5,
+            long arg6) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6 }));
     }
 
-    public static long call(long proc, long arg1, long arg2, long arg3,
-            long arg4, long arg5, long arg6, long arg7) {
-        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4,
-                arg5, arg6, arg7 }));
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5,
+            long arg6, long arg7) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 }));
+    }
+
+    public static void zeroMemory(ByteBuffer b) {
+        while (b.hasRemaining())
+            b.put((byte) 0);
     }
 }

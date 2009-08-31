@@ -10,12 +10,12 @@
 package org.boris.winrun4j.test;
 
 import org.boris.winrun4j.DDE;
-import org.boris.winrun4j.DDEExecuteListener;
+import org.boris.winrun4j.DDEListener;
 
 public class DDESingleInstanceTest
 {
     public static void main(String[] args) throws Exception {
-        DDE.addListener(new DDEExecuteListener() {
+        DDE.addListener(new DDEListener() {
             public void execute(String command) {
                 System.out.println(command);
             }

@@ -12,10 +12,11 @@ package org.boris.winrun4j;
 /**
  * Log to the launcher log.
  */
-public class Log {
+public class Log
+{
     /**
      * Info log.
-     *
+     * 
      * @param msg.
      */
     public static void info(String msg) {
@@ -24,7 +25,7 @@ public class Log {
 
     /**
      * Warning log.
-     *
+     * 
      * @param msg.
      */
     public static void warning(String msg) {
@@ -33,7 +34,7 @@ public class Log {
 
     /**
      * Error log.
-     *
+     * 
      * @param msg.
      */
     public static void error(String msg) {
@@ -41,22 +42,8 @@ public class Log {
     }
 
     /**
-     * Sets the error string.
-     *
-     * @param error.
-     */
-    public static native void setLastError(String error);
-
-    /**
-     * Gets the error string for the last error.
-     *
-     * @return String.
-     */
-    public static native String getLastError();
-
-    /**
      * Internal log.
-     *
+     * 
      * @param level.
      * @param msg.
      */

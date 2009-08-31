@@ -12,10 +12,20 @@ Release Notes for WinRun4J 0.3.4
 - Added binary resource API (load/extract resources from an EXE/DLL)
 
 	
-	
-	
-	
+- Native class: release basic api plus current integration (API should be ok)
+- Once we have callbacks in place, then we can integrate service and dde, registry and
+  built-in classloader (possibly classpath expansion)
+- Also build a DLL that exposes the Native native method handlers so we can use
+  all the win32 stuff as a standalone
+  
+- task manager (process stats) as an eclipse plugin (view). allow users to 
+  view, sort, filter
+  plus extra attributes, like open ports, files
+- built-in explorer view
+- full com bridge?
 
+
+- pecoff4j: generator for DLLs (eg. list of functions to export with bindings to java functions?)
 
 - support for unicode in registry 
 - support for x64 access (done just needs testing)

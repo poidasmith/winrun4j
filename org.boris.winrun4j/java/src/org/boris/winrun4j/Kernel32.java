@@ -11,33 +11,24 @@ package org.boris.winrun4j;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Properties;
 
-public class Environment
+public class Kernel32
 {
-    private static long kernel32 = Native.loadLibrary("kernel32");
-    private static long shell32 = Native.loadLibrary("shell32");
-    private static long procGetLogicalDrive = Native.getProcAddress(kernel32,
-            "GetLogicalDriveStringsA");
-    private static long procGetFolderPath = Native.getProcAddress(shell32,
-            "SHGetFolderPathA");
-    private static long procGetEnvVar = Native.getProcAddress(kernel32,
-            "GetEnvironmentVariableA");
-    private static long procGetEnvStrings = Native.getProcAddress(kernel32,
-            "GetEnvironmentStringsA");
-    private static long procFreeEnvStrings = Native.getProcAddress(kernel32,
-            "FreeEnvironmentStringsA");
-    private static long procExpandEnvStrings = Native.getProcAddress(kernel32,
-            "ExpandEnvironmentStringsA");
-    private static long procGetCommandLine = Native.getProcAddress(kernel32,
-            "GetCommandLineA");
-    private static long procGetTickCount = Native.getProcAddress(kernel32,
-            "GetTickCount");
-    private static long procDebugBreak = Native.getProcAddress(kernel32,
-            "DebugBreak");
-    private static long getCurrentProcId = Native.getProcAddress(kernel32,
-            "GetCurrentProcessId");
+    static long kernel32 = Native.loadLibrary("kernel32");
+    static long procGetLogicalDrive = Native.getProcAddress(kernel32, "GetLogicalDriveStringsA");
+    static long procGetEnvVar = Native.getProcAddress(kernel32, "GetEnvironmentVariableA");
+    static long procGetEnvStrings = Native.getProcAddress(kernel32, "GetEnvironmentStringsA");
+    static long procFreeEnvStrings = Native.getProcAddress(kernel32, "FreeEnvironmentStringsA");
+    static long procExpandEnvStrings = Native.getProcAddress(kernel32, "ExpandEnvironmentStringsA");
+    static long procGetCommandLine = Native.getProcAddress(kernel32, "GetCommandLineA");
+    static long procGetTickCount = Native.getProcAddress(kernel32, "GetTickCount");
+    static long procDebugBreak = Native.getProcAddress(kernel32, "DebugBreak");
+    static long procGetCurrentProcessId = Native.getProcAddress(kernel32, "GetCurrentProcessId");
+    static long procGetVersionEx = Native.getProcAddress(kernel32, "GetVersionExA");
+    static long procGetLastError = Native.getProcAddress(kernel32, "GetLastError");
 
     public static File[] getLogicalDrives() {
         int len = 1024;
@@ -61,16 +52,6 @@ public class Environment
         }
         Native.free(buf);
         return (File[]) drives.toArray(new File[drives.size()]);
-    }
-
-    public static File getFolderPath(int type) {
-        long buf = Native.malloc(Native.MAX_PATH);
-        NativeHelper.call(procGetFolderPath, 0, type, 0, 0, buf);
-        String res = NativeHelper.getString(buf, Native.MAX_PATH, false);
-        Native.free(buf);
-        if (res == null || res.length() == 0)
-            return null;
-        return new File(res);
     }
 
     public static String getEnvironmentVariable(String var) {
@@ -149,7 +130,37 @@ public class Environment
     }
 
     public static OSVersionInfo getVersionInfo() {
+        long pOs = Native.malloc(156);
+        ByteBuffer b = Native.fromPointer(pOs, 156);
+        b = b.order(ByteOrder.LITTLE_ENDIAN);
+        NativeHelper.zeroMemory(b);
+        b.rewind();
+        b.putInt(156); // set dwOSVersionInfoSize;
+        long res = NativeHelper.call(procGetVersionEx, pOs);
+        if (res != 0) {
+            int maj = b.getInt();
+            int min = b.getInt();
+            int build = b.getInt();
+            int platform = b.getInt();
+            byte[] vs = new byte[128];
+            b.get(vs);
+            String ver = NativeHelper.toString(vs);
+            int serveMaj = b.getShort();
+            int serveMin = b.getShort();
+            int suite = b.getShort();
+            int prod = b.get();
+            int reserved = b.get();
+            Native.free(pOs);
+            return new OSVersionInfo(maj, min, build, platform, serveMaj, serveMin, suite, prod,
+                    reserved, ver);
+        }
+        Native.free(pOs);
+        System.out.println(getLastError());
         return null;
+    }
+
+    public static long getLastError() {
+        return NativeHelper.call(procGetLastError);
     }
 
     public static long getTickCount() {
@@ -157,7 +168,7 @@ public class Environment
     }
 
     public static long getCurrentProcessId() {
-        return NativeHelper.call(getCurrentProcId);
+        return NativeHelper.call(procGetCurrentProcessId);
     }
 
     public static void debugBreak() {

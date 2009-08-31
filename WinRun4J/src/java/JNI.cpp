@@ -40,7 +40,7 @@ void JNI::Init(JNIEnv* env)
 	}
 
 	// Simply attempt to load the embedded classloader if required
-	LoadEmbbededClassloader(env);
+	LoadEmbeddedClassloader(env);
 }
 
 jclass JNI::FindClass(JNIEnv* env, TCHAR* classStr)
@@ -256,7 +256,7 @@ jclass JNI::DefineClass(JNIEnv* env, const char* filename, const char* name, job
 	return cl;
 }
 
-void JNI::LoadEmbbededClassloader(JNIEnv* env)
+void JNI::LoadEmbeddedClassloader(JNIEnv* env)
 {
 	// First we check if there are any embedded jars
 	if(!FindResource(NULL, MAKEINTRESOURCE(1), RT_JAR_FILE))

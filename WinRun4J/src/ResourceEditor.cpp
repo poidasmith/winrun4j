@@ -259,5 +259,13 @@ void test(bool b, char c, short s, DWORD d, double dd, float f, mystruct t)
 void main()
 {
 	mystruct t;
-	test(true, 'b', 1, 234, 234.3, 213.1, t);
+	bool b = false;
+	if(12 > 3)
+		b = true;
+	OSVERSIONINFOEX ex;
+	ZeroMemory(&ex, sizeof(OSVERSIONINFOEX));
+	ex.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((LPOSVERSIONINFO) &ex);
+	int* p = (int*) &ex;
+	test(b, 'b', 1, 234, 234.3, 213.1, t);
 }

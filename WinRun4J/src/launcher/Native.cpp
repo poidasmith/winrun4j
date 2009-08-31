@@ -23,7 +23,7 @@ bool Native::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 	
-	JNINativeMethod nm[8];
+	JNINativeMethod nm[11];
 	nm[0].name = "loadLibrary";
 	nm[0].signature = "(Ljava/lang/String;)J";
 	nm[0].fnPtr = (void*) LoadLibrary;
@@ -43,12 +43,22 @@ bool Native::RegisterNatives(JNIEnv *env)
 	nm[5].signature = "(JJ)Ljava/nio/ByteBuffer;";
 	nm[5].fnPtr = (void*) FromPointer;
 	nm[6].name = "call";
-	nm[6].signature = "(J[BI)J";
+	nm[6].signature = "(J[BII)J";
 	nm[6].fnPtr = (void*) Call;
 	nm[7].name = "bind";
-	nm[7].signature = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;J)Z";
+	nm[7].signature = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;J)Z";
 	nm[7].fnPtr = (void*) Bind;
-	env->RegisterNatives(clazz, nm, 8);
+	nm[8].name = "newGlobalRef";
+	nm[8].signature = "(Ljava/lang/Object;)J";
+	nm[8].fnPtr = (void*) NewGlobalRef;
+	nm[9].name = "deleteGlobalRef";
+	nm[9].signature = "(J)V";
+	nm[9].fnPtr = (void*) DeleteGlobalRef;
+	nm[10].name = "getMethodId";
+	nm[10].signature = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;Z)J";
+	nm[10].fnPtr = (void*) GetMethodID;
+
+	env->RegisterNatives(clazz, nm, 11);
 
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);
@@ -96,7 +106,7 @@ jobject Native::FromPointer(JNIEnv* env, jobject self, jlong handle, jlong size)
 	return env->NewDirectByteBuffer((void*) handle, size);
 }
 
-jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size)
+jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size, jint convention)
 {
 	jboolean iscopy;
 	int* p = !stack ? (int*) 0 : (int*)env->GetPrimitiveArrayCritical(stack, &iscopy);
@@ -119,29 +129,21 @@ jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, ji
 	return (jlong) r;
 }
 
-jboolean Native::Bind(JNIEnv* env, jstring clazz, jstring fn, jstring sig, jlong ptr)
+jboolean Native::Bind(JNIEnv* env, jobject self, jclass clazz, jstring fn, jstring sig, jlong ptr)
 {
 	if(!clazz || !fn || !sig || !ptr)
 		return false;
 
 	jboolean iscopy = false;
-	const char* cc = env->GetStringUTFChars(clazz, &iscopy);
 	const char* cf = env->GetStringUTFChars(fn, &iscopy);
 	const char* cs = env->GetStringUTFChars(sig, &iscopy);
-
-	jclass jc = env->FindClass(cc);
-	if(jc == NULL) {
-		JNI::ClearException(env);
-		Log::Warning("Could not find [%s] class", cc);
-		return false;
-	}
 
 	JNINativeMethod nm[1];
 	nm[0].name = (char*) cf;
 	nm[0].signature = (char*) cs;
 	nm[0].fnPtr = (void*) ptr;
 
-	env->RegisterNatives(jc, nm, 1);
+	env->RegisterNatives(clazz, nm, 1);
 
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);
@@ -149,4 +151,23 @@ jboolean Native::Bind(JNIEnv* env, jstring clazz, jstring fn, jstring sig, jlong
 	}
 
 	return true;
+}
+
+jlong Native::NewGlobalRef(JNIEnv* env, jobject self, jobject obj)
+{
+	return (jlong) env->NewGlobalRef(obj);
+}
+
+
+void Native::DeleteGlobalRef(JNIEnv* env, jobject self, jlong handle)
+{
+	env->DeleteGlobalRef((jobject) handle);
+}
+
+jlong Native::GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name, jstring sig, jboolean isStatic)
+{
+	const char* ns = env->GetStringUTFChars(name, 0);
+	const char* ss = env->GetStringUTFChars(sig, 0);
+	return isStatic ? (jlong) env->GetStaticMethodID(clazz, ns, ss) : 
+		(jlong) env->GetMethodID(clazz, ns, ss);
 }

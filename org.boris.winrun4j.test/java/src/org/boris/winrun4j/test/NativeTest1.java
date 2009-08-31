@@ -12,9 +12,8 @@ package org.boris.winrun4j.test;
 import java.io.File;
 import java.nio.ByteBuffer;
 
-import org.boris.winrun4j.Environment;
+import org.boris.winrun4j.Kernel32;
 import org.boris.winrun4j.Native;
-import org.boris.winrun4j.NativeStack;
 
 public class NativeTest1
 {
@@ -43,15 +42,10 @@ public class NativeTest1
     }
 
     public static void testLogicalDrives() {
-        File[] drives = Environment.getLogicalDrives();
+        File[] drives = Kernel32.getLogicalDrives();
         for (int i = 0; i < drives.length; i++) {
             System.out.println(drives[i]);
         }
-    }
-
-    public static long intCall(long handle, NativeStack stack) {
-        byte[] b = stack.toBytes();
-        return Native.call(handle, b, b.length);
     }
 
     public static String toString(ByteBuffer bb) {

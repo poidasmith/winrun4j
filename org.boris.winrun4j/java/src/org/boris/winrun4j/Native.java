@@ -51,11 +51,25 @@ public class Native
     /**
      * Call a native function.
      */
-    public static native long call(long ptr, byte[] stack, int stackSize);
+    public static native long call(long ptr, byte[] stack, int stackSize, int convention);
 
     /**
      * Binds a function pointer to a native method.
      */
-    public static native boolean bind(String clazz, String fn, String sig,
-            long ptr);
+    public static native boolean bind(Class clazz, String fn, String sig, long ptr);
+
+    /**
+     * Creates a global reference to an object.
+     */
+    public static native long newGlobalRef(Object obj);
+
+    /**
+     * Deletes a global reference to an object.
+     */
+    public static native void deleteGlobalRef(long handle);
+
+    /**
+     * Gets a method id.
+     */
+    public static native long getMethodId(Class clazz, String name, String sig, boolean isStatic);
 }

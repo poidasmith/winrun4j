@@ -25,8 +25,11 @@ private:
 	static jlong Malloc(JNIEnv* env, jobject self, jint size);
 	static void Free(JNIEnv* env, jobject self, jlong handle);
 	static jobject FromPointer(JNIEnv* env, jobject self, jlong hanedle, jlong size);
-	static jlong Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size);
-	static jboolean Bind(JNIEnv* env, jstring clazz, jstring fn, jstring sig, jlong ptr);
+	static jlong Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size, jint convection);
+	static jboolean Bind(JNIEnv* env, jobject self, jclass clazz, jstring fn, jstring sig, jlong ptr);
+	static jlong NewGlobalRef(JNIEnv* env, jobject self, jobject obj);
+	static void DeleteGlobalRef(JNIEnv* env, jobject self, jlong handle);
+	static jlong GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name, jstring sig, jboolean isStatic);
 };
 
 #endif // EVENTLOG_H

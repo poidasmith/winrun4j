@@ -30,7 +30,7 @@ public class DDE
      * 
      * @param listener.
      */
-    public static void addListener(DDEExecuteListener listener) {
+    public static void addListener(DDEListener listener) {
         DDE.listeners.add(listener);
     }
 
@@ -42,7 +42,7 @@ public class DDE
     public static void execute(String command) {
         Iterator i = listeners.iterator();
         while (i.hasNext()) {
-            DDEExecuteListener listener = (DDEExecuteListener) i.next();
+            DDEListener listener = (DDEListener) i.next();
             listener.execute(command);
         }
     }

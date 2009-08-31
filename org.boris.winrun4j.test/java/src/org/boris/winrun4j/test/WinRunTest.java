@@ -8,7 +8,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
 import org.boris.winrun4j.DDE;
-import org.boris.winrun4j.DDEExecuteListener;
+import org.boris.winrun4j.DDEListener;
 import org.boris.winrun4j.EventLog;
 import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Log;
@@ -60,12 +60,9 @@ public class WinRunTest
         Log.info("test1");
         Log.warning("test2");
         Log.error("test3");
-        Log.setLastError("Last Error Test");
-        sb.append("\nLast Error:" + Log.getLastError() + "\n");
 
         // Test event log
-        EventLog.report("WinRun4J Test", EventLog.INFORMATION,
-                "A test information log");
+        EventLog.report("WinRun4J Test", EventLog.INFORMATION, "A test information log");
 
         // Test registry
         sb.append("\n\nRegistry Test\n=============\n\n");
@@ -84,8 +81,8 @@ public class WinRunTest
         SplashScreen.setTextFont("Arial", 14);
         SplashScreen.setTextColor(170, 170, 170);
         for (int i = 0; i < 24; i++) {
-            SplashScreen.setText("WinRun4J splash message".substring(0, i),
-                    (int) (280 - (i * 10)), 240);
+            SplashScreen.setText("WinRun4J splash message".substring(0, i), (int) (280 - (i * 10)),
+                    240);
             Thread.sleep(100);
         }
         Thread.sleep(2000);
@@ -95,7 +92,7 @@ public class WinRunTest
         System.out.println("Random: " + Math.random());
 
         // Add DDE listener
-        DDE.addListener(new DDEExecuteListener() {
+        DDE.addListener(new DDEListener() {
             public void execute(String cmdLine) {
                 text.setText(cmdLine + "\n" + text.getText());
             }

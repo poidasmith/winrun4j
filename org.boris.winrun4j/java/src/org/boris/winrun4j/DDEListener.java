@@ -10,9 +10,9 @@
 package org.boris.winrun4j;
 
 /**
- * A listener for an execute call.
+ * A listener for an dde messages.
  */
-public interface DDEExecuteListener
+public interface DDEListener
 {
     /**
      * Execute based on the given command (line).
