@@ -12,6 +12,7 @@ package org.boris.winrun4j.test;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.boris.winrun4j.Kernel32;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 
@@ -75,6 +76,7 @@ public class ResourceTest
         long mid = Native.getMethodId(ResourceTest.class, "typeCallback", "(J)I", true);
         long pf = Native.fromPointer(env, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
         long csim = Native.fromPointer(pf + (130 * 4), 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        Kernel32.debugBreak();
         long res = NativeHelper.call(csim, env, clazz, mid, 100);
         // push esp
         // push mid

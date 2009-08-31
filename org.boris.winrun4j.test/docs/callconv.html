@@ -1,0 +1,381 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><!-- saved from url=(0022)http://internet.e-mail -->
+
+
+<title>Calling conventions on the x86 platform</title>
+
+<style>
+H1
+{
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 24px;
+    FONT-FAMILY: Verdana
+}
+H2
+{
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 18px;
+    FONT-FAMILY: Verdana
+}
+H3
+{
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 16px;
+    FONT-FAMILY: Verdana
+}
+H4
+{
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 14px;
+    FONT-FAMILY: Verdana
+}
+P
+{
+    FONT-SIZE: 12px;
+    FONT-FAMILY: Arial
+}
+BODY
+{
+    FONT-SIZE: 12px;
+    FONT-FAMILY: Arial
+}
+TD
+{
+    FONT-SIZE: 12px;
+    FONT-FAMILY: Arial
+}
+.text_small
+{
+    FONT-SIZE: 10px;
+    FONT-FAMILY: Arial
+}
+.text_normal
+{
+    FONT-SIZE: 12px;
+    FONT-FAMILY: Arial
+}
+.text_large
+{
+    FONT-SIZE: 14px;
+    FONT-FAMILY: Arial
+}
+.header_normal
+{
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 18px;
+    FONT-FAMILY: Verdana
+}
+.header_small
+{
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 16px;
+    FONT-FAMILY: Verdana
+}
+.header_large
+{
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 24px;
+    FONT-FAMILY: Verdana
+}
+A
+{
+    TEXT-DECORATION: none
+}
+A:hover
+{
+    TEXT-DECORATION: underline
+}
+.border
+{
+    BORDER-RIGHT: gray 1px solid;
+    BORDER-TOP: gray 1px solid;
+    BORDER-LEFT: gray 1px solid;
+    BORDER-BOTTOM: gray 1px solid;
+    MARGIN-TOP: 0;
+    MARGIN-LEFT: 0;
+    MARGIN-RIGHT: 5;
+    MARGIN-BOTTOM: 5;
+    PADDING: 5 5 5 5;
+    DISPLAY: block;
+}
+
+</style>
+
+</head><body>
+
+
+
+<h1>Calling conventions on the x86 platform</h1>
+
+<p>2005/02/13, Andreas Jönsson</p>
+
+
+<p>This is a document that I wrote as research for the AngelCode Scripting Library. Since the library
+uses assembly to make the interaction between the script engine and the host application I needed to 
+have complete knowledge of how the calling conventions are implemented by different compilers. To my 
+surprise there were a lot more differences than I had initially thought. Most of the differences are 
+related to C++ features, so the differences can be understood as there were no standard when the compilers 
+were first written. Today there is a standard, but I believe that it doesn't mention how calling 
+conventions should be implemented. Which leads to binary incompatibility between compilers, even though 
+the source code is compatible.</p>
+
+<p>The differences doesn't stop AngelScript from supporting each of the compilers. Though new compilers 
+may have to make a few changes in order to follow the conventions used. As support for more compilers are
+added to AngelScript I will add those compilers to the article.</p>
+
+<ul>
+<li><a href="#cdecl">cdecl</a>
+</li><li><a href="#stdcall">stdcall</a>
+</li><li><a href="#thiscall">thiscall</a>
+</li><li><a href="#fastcall">fastcall</a>
+</li><li><a href="#further">further reading</a>
+</li><li><a href="#history">revision history</a>
+</li></ul>
+
+
+<hr>
+
+<a name="cdecl"></a>
+<h2>cdecl</h2>
+
+<p>This calling convention is the default for C programs and also
+global functions in C++ programs. Generally the function arguments are
+passed on the stack in reverse order so that the callee can access them
+in the correct order. The caller is responsible for popping the
+arguments after the function returns, which makes it possible to use
+the ... to send runtime defined arguments. Return values are returned
+in the registers.</p>
+
+<h3>Visual C++ / Win32</h3>
+
+<ul>
+<li>Arguments are pushed on the stack in reverse order.
+</li><li>The caller pops arguments after return.
+</li><li>Primitive data types, except floating point values, are returned in EAX or EAX:EDX depending on the size.
+</li><li>float and double are returned in fp0, i.e. the first floating point register.
+</li><li>Simple data structures with 8 bytes or less in size are returned in EAX:EDX.
+</li><li>Class objects that require special treatment by the exception
+handler are returned in memory. Classes with a defined constructor,
+destructor, or overloaded assignment operator are examples of these.
+</li><li>Objects larger than 8 bytes are returned in memory.
+</li><li>When a return is made in memory the caller passes a pointer to
+the memory location as the first parameter (hidden). The callee
+populates the memory, and returns the pointer. The caller pops the
+hidden pointer together with the rest of the arguments.
+</li></ul>
+
+<h3>MinGW g++ / Win32</h3>
+
+<ul>
+<li>Arguments are pushed on the stack in reverse order.
+</li><li>The caller pops arguments after return.
+</li><li>Primitive data types, except floating point values, are returned in EAX or EAX:EDX depending on the size.
+</li><li>float and double are returned in fp0, i.e. the first floating point register.
+</li><li>Objects with 8 bytes or less in size are returned in EAX:EDX.
+</li><li>Objects larger than 8 bytes are returned in memory.
+</li><li>Classes that have a destructor are returned in memory regardless of size.
+</li><li>When a return is made in memory the caller passes a pointer to
+the memory location as the first parameter (hidden). The callee
+populates the memory, and returns the pointer. The callee pops the
+hidden pointer from the stack when returning.
+</li><li>Classes that have a destructor are always passed by reference, even if the parameter is defined to be by value.
+</li></ul>
+
+<h3>GCC g++ / Linux</h3>
+
+<ul>
+<li>Arguments are pushed on the stack in reverse order.
+</li><li>The caller pops arguments after return.
+</li><li>Primitive data types, except floating point values, are returned in EAX or EAX:EDX depending on the size.
+</li><li>float and double are returned in fp0, i.e. the first floating point register.
+</li><li>All structures and classes are returned in memory regardless of complexity or size.
+</li><li>When a return is made in memory the caller passes a pointer to
+the memory location as the first parameter (hidden). The callee
+populates the memory, and returns the pointer. The callee pops the
+hidden pointer from the stack when returning.
+</li><li>Classes that have a destructor are always passed by reference, even if the parameter is defined to be by value.
+</li></ul>
+
+<hr>
+
+
+
+<a name="stdcall"></a>
+<h2>stdcall</h2>
+
+<p>stdcall is the calling conventions used by the Win32 API. It is basically the same as the cdecl convention 
+with the difference in that the callee is responsible for popping the arguments from the stack. This makes the 
+call slightly faster, but also prevents the use of the ... operator.</p>
+
+<h3>Visual C++ / Win32</h3>
+
+<ul>
+<li>Arguments are pushed on the stack in reverse order.
+</li><li>The callee pops arguments when returning.
+</li><li>Primitive data types, except floating point values, are returned in EAX or EAX:EDX depending on the size.
+</li><li>float and double are returned in fp0, i.e. the first floating point register.
+</li><li>Simple data structures with 8 bytes or less in size are returned in EAX:EDX.
+</li><li>Class objects that require special treatment by the exception
+handler are returned in memory. Classes with a defined constructor,
+destructor, or overloaded assignment operator are examples of these.
+</li><li>Objects larger than 8 bytes are returned in memory.
+</li><li>When a return is made in memory the caller passes a pointer to
+the memory location as the first parameter (hidden). The callee
+populates the memory, and returns the pointer. The callee pops the
+hidden pointer together with the rest of the arguments.
+</li></ul>
+
+<h3>MinGW g++ / Win32</h3>
+
+<ul>
+<li>Arguments are pushed on the stack in reverse order.
+</li><li>The callee pops arguments when returning.
+</li><li>Primitive data types, except floating point values, are returned in EAX or EAX:EDX depending on the size.
+</li><li>float and double are returned in fp0, i.e. the first floating point register.
+</li><li>Objects with 8 bytes or less in size are returned in EAX:EDX.
+</li><li>Objects larger than 8 bytes are returned in memory.
+</li><li>Classes that have a destructor are returned in memory regardless of size.
+</li><li>When a return is made in memory the caller passes a pointer to
+the memory location as the first parameter (hidden). The callee
+populates the memory, and returns the pointer. The callee pops the
+hidden pointer from the stack together with the rest of the arguments.
+</li><li>Classes that have a destructor are always passed by reference, even if the parameter is defined to be by value.
+</li></ul>
+
+<h3>GCC g++ / Linux</h3>
+
+<ul>
+<li>Arguments are pushed on the stack in reverse order.
+</li><li>The callee pops arguments when returning.
+</li><li>Primitive data types, except floating point values, are returned in EAX or EAX:EDX depending on the size.
+</li><li>float and double are returned in fp0, i.e. the first floating point register.
+</li><li>All structures and classes are returned in memory regardless of complexity and size.
+</li><li>When a return is made in memory the caller passes a pointer to
+the memory location as the first parameter (hidden). The callee
+populates the memory, and returns the pointer. The callee pops the
+hidden pointer from the stack together with the rest of the arguments.
+</li><li>Classes that have a destructor are always passed by reference, even if the parameter is defined to be by value.
+</li></ul>
+
+
+<hr>
+
+
+
+
+<a name="thiscall"></a>
+<h2>thiscall</h2>
+
+<p>This calling convention was introduced with C++. The only sure thing about it is that arguments are 
+pushed on the stack in reverse order and that the caller passes the object pointer to the function in 
+some way or other.</p>
+
+<h3>Visual C++ / Win32</h3>
+
+<ul>
+<li>Arguments are pushed on the stack in reverse order.
+</li><li>The object pointer is passed in ECX.
+</li><li>The callee pops arguments when returning.
+</li><li>Primitive data types, except floating point values, are returned in EAX or EAX:EDX depending on the size.
+</li><li>float and double are returned in fp0, i.e. the first floating point register.
+</li><li>Simple data structures with 8 bytes or less in size are returned in EAX:EDX.
+</li><li>All classes and structures are returned in memory, regardless of size.
+</li><li>When a return is made in memory the caller passes a pointer to
+the memory location as the first parameter (hidden). The callee
+populates the memory, and returns the pointer. The callee pops the
+hidden pointer together with the rest of the arguments.
+</li><li>If the method takes variable number of arguments, i.e. is
+declared with the ... operator, then the calling convention instead
+becomes that of cdecl. The object pointer is pushed on the stack as the
+first argument instead of passed in ECX, and all arguments are popped
+from the stack by the caller when the function returns.
+</li></ul>
+
+<h3>MinGW g++ / Win32</h3>
+
+<ul>
+<li>Arguments are pushed on the stack in reverse order.
+</li><li>The object pointer is pushed on the stack as the first parameter.
+</li><li>The caller pops arguments after return.
+</li><li>Primitive data types, except floating point values, are returned in EAX or EAX:EDX depending on the size.
+</li><li>float and double are returned in fp0, i.e. the first floating point register.
+</li><li>Objects with 8 bytes or less in size are returned in EAX:EDX.
+</li><li>Objects larger than 8 bytes are returned in memory.
+</li><li>Classes that have a destructor are returned in memory regardless of size.
+</li><li>When a return is made in memory the caller passes a pointer to
+the memory location as the first parameter (hidden). The callee
+populates the memory, and returns the pointer. The callee pops the
+hidden pointer from the stack when returning.
+</li><li>Classes that have a destructor are always passed by reference, even if the parameter is defined to be by value.
+</li></ul>
+
+<h3>GCC g++ / Linux</h3>
+
+<ul>
+<li>Arguments are pushed on the stack in reverse order.
+</li><li>The object pointer is pushed on the stack as the first parameter.
+</li><li>The caller pops arguments after return.
+</li><li>Primitive data types, except floating point values, are returned in EAX or EAX:EDX depending on the size.
+</li><li>float and double are returned in fp0, i.e. the first floating point register.
+</li><li>All structures and classes are returned in memory regardless of complexity and size.
+</li><li>When a return is made in memory the caller passes a pointer to
+the memory location as the first parameter (hidden). The callee
+populates the memory, and returns the pointer. The callee pops the
+hidden pointer from the stack when returning.
+</li><li>Classes that have a destructor are always passed by reference, even if the parameter is defined to be by value.
+</li></ul>
+
+
+
+<hr>
+
+
+
+
+
+<a name="fastcall"></a>
+<h2>fastcall</h2>
+
+<p>This is a special calling convention that is designed for speed. It is rarely used 
+so I haven't studied it closely, but I understand that the first arguments are passed in 
+registers while the rest are pushed on the stack as normal.</p>
+
+<h3>Visual C++ / Win32</h3>
+
+<ul>
+<li>The first two arguments are passed in ECX and EDX. The rest are passed on the stack just like cdecl
+</li></ul>
+
+
+<hr>
+
+<a name="further"></a>
+<h2>Further reading</h2>
+
+<p>Not all of these articles are directly related to calling
+conventions, but they are still a worthy read for anyone interested in
+interacting with C++ programs on a truly low level.</p>
+
+<ul>
+<li><a target="_top" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_.2f.gd.2c_2f.gr.2c_2f.gz.asp">Calling conventions</a>
+</li><li><a target="_top" href="http://www.cs.cornell.edu/courses/cs412/2001sp/resources/microsoft-calling-conventions.html">Microsoft Calling Conventions</a>
+</li><li><a target="_top" href="http://www.drpaulcarter.com/pcasm/index.php">PC Assembly Language</a>
+</li><li><a target="_top" href="http://msdn.microsoft.com/archive/default.asp?url=/archive/en-us/dnarvc/html/jangrayhood.asp">C++: Under the Hood</a>
+</li><li><a target="_top" href="http://www.codeproject.com/cpp/FastDelegate.asp">Member Function Pointers and the Fastest Possible C++ Delegates</a>
+</li></ul>
+
+<hr>
+
+<a name="history"></a>
+<h2>Revision history</h2>
+
+<ul>
+<li>2004/08/04 - Article created.
+</li><li>2005/01/19 - Added information on GCC/g++ on Linux. Made a few
+corrections on the way MinGW/g++ handles classes with declared
+destructors.
+</li><li>2005/02/13 - Added information about class methods with variable number of arguments for MSVC++.
+</li></ul>
+
+
+</body></html>
