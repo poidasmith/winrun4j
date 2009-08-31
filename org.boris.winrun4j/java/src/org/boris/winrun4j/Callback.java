@@ -7,7 +7,7 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.asm;
+package org.boris.winrun4j;
 
 import java.lang.reflect.Method;
 

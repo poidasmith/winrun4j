@@ -129,7 +129,7 @@ public class Kernel32
         return (String[]) args.toArray(new String[args.size()]);
     }
 
-    public static OSVersionInfo getVersionInfo() {
+    public static OSVersionInfo getVersionEx() {
         long pOs = Native.malloc(156);
         ByteBuffer b = Native.fromPointer(pOs, 156);
         b = b.order(ByteOrder.LITTLE_ENDIAN);

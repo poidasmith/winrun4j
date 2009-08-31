@@ -47,7 +47,7 @@ public class EnvironmentTester implements Runnable
         System.out.println();
 
         System.out.println("Version Info");
-        System.out.println(Reflection.toString(Kernel32.getVersionInfo()));
+        System.out.println(Reflection.toString(Kernel32.getVersionEx()));
         System.out.println();
 
         System.out.println("Tick Count");
