@@ -18,15 +18,11 @@ import org.boris.winrun4j.NativeHelper;
 public class ResourceTest
 {
     static long kernel32 = Native.loadLibrary("kernel32");
-    static long enumResourceTypes = Native.getProcAddress(kernel32,
-            "EnumResourceTypes");
-    static long enumResourceNames = Native.getProcAddress(kernel32,
-            "EnumResourceNames");
-    static long enumResourceLanguages = Native.getProcAddress(kernel32,
-            "EnumResourceLanguages");
+    static long enumResourceTypes = Native.getProcAddress(kernel32, "EnumResourceTypesW");
+    static long enumResourceNames = Native.getProcAddress(kernel32, "EnumResourceNamesW");
+    static long enumResourceLanguages = Native.getProcAddress(kernel32, "EnumResourceLanguagesW");
     static long java = Native.loadLibrary("jvm");
-    static long getCreateJavaVMs = Native.getProcAddress(java,
-            "JNI_GetCreatedJavaVMs");
+    static long getCreateJavaVMs = Native.getProcAddress(java, "JNI_GetCreatedJavaVMs");
 
     public static void main(String[] args) throws Exception {
         // long jvm = getJavaVm();
@@ -39,7 +35,18 @@ public class ResourceTest
         // long mid2 = Native.getMethodId(ResourceTest.class, "getJniEnv",
         // "(JZ)J", true);
         // printHex(mid2);
-        testGetResourceTypes();
+        long env = getJniEnv();
+        // while (true)
+        testGetResourceTypes(env);
+
+        // test direct buffer memeory
+        // long ptr = Native.malloc(4);
+        // while (true) {
+        // Native.fromPointer(ptr, 4).order(ByteOrder.LITTLE_ENDIAN);
+        // long c = Native.newGlobalRef(ResourceTest.class);
+        // Native.deleteGlobalRef(c);
+        // Native.getMethodId(ResourceTest.class, "typeCallback", "(I)I", true);
+        // }
     }
 
     private static void printHex(long h) {
@@ -49,8 +56,7 @@ public class ResourceTest
     public static long getJavaVm() {
         long vms = Native.malloc(4);
         NativeHelper.call(getCreateJavaVMs, vms, 1, 0);
-        ByteBuffer bb = Native.fromPointer(vms, 4).order(
-                ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer bb = Native.fromPointer(vms, 4).order(ByteOrder.LITTLE_ENDIAN);
         int vm = bb.getInt();
         Native.free(vms);
         return vm;
@@ -62,11 +68,10 @@ public class ResourceTest
 
     public static long getJniEnv(long jvm, boolean attachDaemon) {
         long penv = Native.malloc(4);
-        ByteBuffer jb = Native.fromPointer(jvm, 4).order(
-                ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer jb = Native.fromPointer(jvm, 4).order(ByteOrder.LITTLE_ENDIAN);
         long pAttachProc = jb.getInt() + (attachDaemon ? 28 : 16); // AttachCurrentThread(AsDaemon)
-        long attachProc = Native.fromPointer(pAttachProc, 4).order(
-                ByteOrder.LITTLE_ENDIAN).getInt();
+        long attachProc = Native.fromPointer(pAttachProc, 4).order(ByteOrder.LITTLE_ENDIAN)
+                .getInt();
         NativeHelper.call(attachProc, jvm, penv, 0);
         ByteBuffer bb = Native.fromPointer(penv, 4);
         bb = bb.order(ByteOrder.LITTLE_ENDIAN);
@@ -75,17 +80,26 @@ public class ResourceTest
         return env;
     }
 
-    public static void testGetResourceTypes() {
-        long env = getJniEnv();
+    public static void testGetResourceTypes(long env) {
         long clazz = Native.newGlobalRef(ResourceTest.class);
-        long mid = Native.getMethodId(ResourceTest.class, "typeCallback",
-                "(I)I", true);
-        long pf = Native.fromPointer(env, 4).order(ByteOrder.LITTLE_ENDIAN)
-                .getInt();
-        long csim = Native.fromPointer(pf + (516), 4).order(
-                ByteOrder.LITTLE_ENDIAN).getInt();
-        long res = NativeHelper.call(csim, env, clazz, mid, 100);
-        System.out.println(res);
+        long mid = Native.getMethodId(ResourceTest.class, "typeCallback", "(I)I", true);
+        long pf = Native.fromPointer(env, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        long csim = Native.fromPointer(pf + (516), 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        // for (int i = 0; i > -1; i++)
+        // NativeHelper.call(csim, env, clazz, mid, 100);
+        // System.out.println(res);
+        // Native.deleteGlobalRef(clazz);
+        // System.gc();
+
+        long callback = makeCallback(env, clazz, mid, csim);
+        printHex(callback);
+
+        while (true)
+            NativeHelper.call(enumResourceTypes, 0, callback, 0);
+        // System.out.println(res);
+        // System.out.println(Kernel32.getLastError());
+
+        // System.gc();
         // push ebp - 55
         // mov ebp, esp - 8B EC
         // push ebp - 55
@@ -98,14 +112,19 @@ public class ResourceTest
         // ret - C2 04 00
     }
 
-    public long makeCallback(long env, long clazz, long mid, long csim) {
-        long ptr = Native.malloc(30);
-        ByteBuffer bb = Native.fromPointer(ptr, 30).order(
-                ByteOrder.LITTLE_ENDIAN);
+    public static long makeCallback(long env, long clazz, long mid, long csim) {
+        printHex(env);
+        printHex(clazz);
+        printHex(mid);
+        printHex(csim);
+        long ptr = Native.malloc(36);
+        ByteBuffer bb = Native.fromPointer(ptr + 2, 35).order(ByteOrder.LITTLE_ENDIAN);
         bb.put((byte) 0x55);
         bb.put((byte) 0x8B);
         bb.put((byte) 0xEC);
         bb.put((byte) 0x55);
+        bb.put((byte) 0x68);
+        bb.putInt(100);
         bb.put((byte) 0x68);
         bb.putInt((int) mid);
         bb.put((byte) 0x68);
@@ -113,14 +132,14 @@ public class ResourceTest
         bb.put((byte) 0x68);
         bb.putInt((int) env);
         bb.put((byte) 0x9A);
-        bb.putInt((int) csim);
+        bb.putInt((int) (csim));
         bb.put((byte) 0x8B);
         bb.put((byte) 0xE5);
         bb.put((byte) 0x5D);
         bb.put((byte) 0xC2);
         bb.put((byte) 0x04);
         bb.put((byte) 0x00);
-        return ptr;
+        return ptr + 2;
     }
 
     public static int typeCallback(int stack) {
