@@ -74,7 +74,9 @@ jlong Native::LoadLibrary(JNIEnv* env, jobject self, jstring filename)
 		return 0;
 	jboolean iscopy;
 	const jchar* str = env->GetStringChars(filename, &iscopy);
-	return (jlong) ::LoadLibraryW((LPCWSTR) str);
+	jlong res = (jlong) ::LoadLibraryW((LPCWSTR) str);
+	env->ReleaseStringChars(filename, str);
+	return res;
 }
 
 void Native::FreeLibrary(JNIEnv* env, jobject self, jlong handle)
@@ -88,7 +90,9 @@ jlong Native::GetProcAddress(JNIEnv* env, jobject self, jlong handle, jstring na
 		return 0;
 	jboolean iscopy;
 	const char* str = env->GetStringUTFChars(name, &iscopy);
-	return (jlong) ::GetProcAddress((HMODULE) handle, str);
+	jlong res = (jlong) ::GetProcAddress((HMODULE) handle, str);
+	env->ReleaseStringUTFChars(name, str);
+	return res;
 }
 
 jlong Native::Malloc(JNIEnv* env, jobject self, jint size)
@@ -147,8 +151,12 @@ jboolean Native::Bind(JNIEnv* env, jobject self, jclass clazz, jstring fn, jstri
 
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);
+		env->ReleaseStringUTFChars(fn, cf);
+		env->ReleaseStringUTFChars(sig, cs);
 		return false;
 	}
+	env->ReleaseStringUTFChars(fn, cf);
+	env->ReleaseStringUTFChars(sig, cs);
 
 	return true;
 }
@@ -168,6 +176,9 @@ jlong Native::GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name,
 {
 	const char* ns = env->GetStringUTFChars(name, 0);
 	const char* ss = env->GetStringUTFChars(sig, 0);
-	return isStatic ? (jlong) env->GetStaticMethodID(clazz, ns, ss) : 
+	jlong res = isStatic ? (jlong) env->GetStaticMethodID(clazz, ns, ss) : 
 		(jlong) env->GetMethodID(clazz, ns, ss);
+	env->ReleaseStringUTFChars(name, ns);
+	env->ReleaseStringUTFChars(sig, ss);
+	return res;
 }
