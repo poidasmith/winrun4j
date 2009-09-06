@@ -29,6 +29,7 @@ public class Kernel32
     public static final long procGetCurrentProcessId = Native.getProcAddress(library, "GetCurrentProcessId");
     public static final long procGetVersionEx = Native.getProcAddress(library, "GetVersionExA");
     public static final long procGetLastError = Native.getProcAddress(library, "GetLastError");
+    public static final long procOpenScManager = Native.getProcAddress(library, "OpenSCManager");
 
     public static File[] GetLogicalDrives() {
         int len = 1024;
@@ -172,5 +173,19 @@ public class Kernel32
 
     public static void DebugBreak() {
         NativeHelper.call(procDebugBreak);
+    }
+
+    public static class OSVERSIONINFOEX
+    {
+        public int majorVersion;
+        public int minorVersion;
+        public int buildNumber;
+        public int platformId;
+        public int servicePackMajor;
+        public int servicePackMinor;
+        public int suiteMask;
+        public int productType;
+        public int reserved;
+        public String csdVersion;
     }
 }

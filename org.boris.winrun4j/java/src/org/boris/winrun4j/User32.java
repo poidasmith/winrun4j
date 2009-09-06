@@ -10,7 +10,6 @@
 package org.boris.winrun4j;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class User32
 {
@@ -60,15 +59,30 @@ public class User32
         return 0;
     }
 
-    public static long DdeIntialize(Callback callback, int afCmd) {
+    public static long DdeCallback(int type, int fmt, long conversation, long hsz1, long hsz2, long hdata,
+            long dwData1, long dwData2) {
+        return NativeHelper.call(procDdeCallback, new long[] { type, fmt, conversation, hsz1, hsz2, hdata, dwData1,
+                dwData2 });
+    }
+
+    public static long DdeClientTransaction(byte[] data, int len, long conversation, long hszItem, int fmt, int type,
+            int timeout) {
+        return 0;
+    }
+
+    public static int DdeCmpStringHandles(long hsz1, long hsz2) {
+        return (int) NativeHelper.call(procDdeCmpStringHandles, hsz1, hsz2);
+    }
+
+    public static long DdeInitialize(Callback callback, int afCmd) {
         long pid = Native.malloc(4);
         long res = NativeHelper.call(pid, callback.getPointer(), afCmd, 0);
-        long pidInst = Native.fromPointer(pid, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        long pidInst = NativeHelper.getInt(pid);
         Native.free(pid);
         return res == 0 ? 0 : pidInst;
     }
 
-    public static boolean DdeUnitialize(long handle) {
+    public static boolean DdeUninitialize(long handle) {
         return NativeHelper.call(User32.procDdeUninitialize, handle) != 0;
     }
 }
