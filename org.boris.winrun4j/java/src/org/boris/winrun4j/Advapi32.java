@@ -34,6 +34,10 @@ public class Advapi32
         return false;
     }
 
+    public static String GetServiceDisplayName(long scManager, String serviceName) {
+        return null;
+    }
+
     public static long OpenSCManager(String machineName, String databaseName, int desiredAccess) {
         long mnp = NativeHelper.toNativeString(machineName, true);
         long dnp = NativeHelper.toNativeString(databaseName, true);
