@@ -129,34 +129,33 @@ public class Kernel32
         return (String[]) args.toArray(new String[args.size()]);
     }
 
-    public static OSVersionInfo getVersionEx() {
+    public static OSVERSIONINFOEX getVersionEx() {
         long pOs = Native.malloc(156);
-        ByteBuffer b = Native.fromPointer(pOs, 156);
-        b = b.order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer b = Native.fromPointer(pOs, 156).order(ByteOrder.LITTLE_ENDIAN);
         NativeHelper.zeroMemory(b);
         b.rewind();
         b.putInt(156); // set dwOSVersionInfoSize;
         long res = NativeHelper.call(procGetVersionEx, pOs);
-        if (res != 0) {
-            int maj = b.getInt();
-            int min = b.getInt();
-            int build = b.getInt();
-            int platform = b.getInt();
-            byte[] vs = new byte[128];
-            b.get(vs);
-            String ver = NativeHelper.toString(vs);
-            int serveMaj = b.getShort();
-            int serveMin = b.getShort();
-            int suite = b.getShort();
-            int prod = b.get();
-            int reserved = b.get();
+        if (res == 0) {
             Native.free(pOs);
-            return new OSVersionInfo(maj, min, build, platform, serveMaj, serveMin, suite, prod,
-                    reserved, ver);
+            return null;
         }
+
+        OSVERSIONINFOEX info = new OSVERSIONINFOEX();
+        info.majorVersion = b.getInt();
+        info.minorVersion = b.getInt();
+        info.buildNumber = b.getInt();
+        info.platformId = b.getInt();
+        byte[] vs = new byte[128];
+        b.get(vs);
+        info.csdVersion = NativeHelper.toString(vs);
+        info.servicePackMajor = b.getShort();
+        info.servicePackMinor = b.getShort();
+        info.suiteMask = b.getShort();
+        info.productType = b.get();
+        info.reserved = b.get();
         Native.free(pOs);
-        System.out.println(getLastError());
-        return null;
+        return info;
     }
 
     public static long getLastError() {
