@@ -12,6 +12,7 @@ package org.boris.winrun4j.test;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.boris.winrun4j.Callback;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 

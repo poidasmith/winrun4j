@@ -12,7 +12,6 @@ package org.boris.winrun4j;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-
 public abstract class Callback
 {
     static long java = Native.loadLibrary("jvm");
@@ -75,26 +74,25 @@ public abstract class Callback
     public static long makeCallback(long env, long clazzOrObj, long mid, long fnPtr) {
         long ptr = Native.malloc(32);
         ByteBuffer bb = Native.fromPointer(ptr, 32).order(ByteOrder.LITTLE_ENDIAN);
-        bb.put((byte) 0x90);
-        bb.put((byte) 0x90);
-        bb.put((byte) 0x55);
-        bb.put((byte) 0x8B);
+        bb.put((byte) 0x90); // nop
+        bb.put((byte) 0x90); // nop
+        bb.put((byte) 0x55); // push ebp
+        bb.put((byte) 0x8B); // mov ebp, esp
         bb.put((byte) 0xEC);
-        // call method
         bb.put((byte) 0x55); // push ebp
         bb.put((byte) 0x68); // push mid
         bb.putInt((int) mid);
         bb.put((byte) 0x68); // push clazz
         bb.putInt((int) clazzOrObj);
-        bb.put((byte) 0x68); // 
+        bb.put((byte) 0x68); // push env
         bb.putInt((int) env);
-        bb.put((byte) 0xB8); // mov eax, csim
+        bb.put((byte) 0xB8); // mov eax, fnPtr
         bb.putInt((int) (fnPtr));
         bb.put((byte) 0xFF); // call eax
         bb.put((byte) 0xD0);
-        bb.put((byte) 0x8B);
+        bb.put((byte) 0x8B); // mov esp, ebp
         bb.put((byte) 0xE5);
-        bb.put((byte) 0x5D);
+        bb.put((byte) 0x5D); // ret
         bb.put((byte) 0xC3);
         return ptr;
     }
