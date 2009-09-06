@@ -80,4 +80,17 @@ public class Resources
     public static void printHex(long h) {
         System.out.println("0x" + Integer.toHexString((int) h));
     }
+
+    public static int EnumResourceTypes(long handle, Callback callback) {
+        return (int) NativeHelper.call(enumResourceTypes, handle, callback.getPointer(), 0);
+    }
+
+    public static int EnumResourceNames(long handle, long type, Callback callback) {
+        return (int) NativeHelper.call(enumResourceNames, handle, type, callback.getPointer(), 0);
+    }
+
+    public static int EnumResourceLanguages(long handle, long type, long name, Callback callback) {
+        return (int) NativeHelper.call(enumResourceLanguages, handle, type, name, callback
+                .getPointer(), 0);
+    }
 }

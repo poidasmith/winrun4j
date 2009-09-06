@@ -42,7 +42,7 @@ public class NativeTest1
     }
 
     public static void testLogicalDrives() {
-        File[] drives = Kernel32.getLogicalDrives();
+        File[] drives = Kernel32.GetLogicalDrives();
         for (int i = 0; i < drives.length; i++) {
             System.out.println(drives[i]);
         }

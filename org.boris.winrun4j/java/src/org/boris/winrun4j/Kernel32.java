@@ -17,20 +17,20 @@ import java.util.Properties;
 
 public class Kernel32
 {
-    static long kernel32 = Native.loadLibrary("kernel32");
-    static long procGetLogicalDrive = Native.getProcAddress(kernel32, "GetLogicalDriveStringsA");
-    static long procGetEnvVar = Native.getProcAddress(kernel32, "GetEnvironmentVariableA");
-    static long procGetEnvStrings = Native.getProcAddress(kernel32, "GetEnvironmentStringsA");
-    static long procFreeEnvStrings = Native.getProcAddress(kernel32, "FreeEnvironmentStringsA");
-    static long procExpandEnvStrings = Native.getProcAddress(kernel32, "ExpandEnvironmentStringsA");
-    static long procGetCommandLine = Native.getProcAddress(kernel32, "GetCommandLineA");
-    static long procGetTickCount = Native.getProcAddress(kernel32, "GetTickCount");
-    static long procDebugBreak = Native.getProcAddress(kernel32, "DebugBreak");
-    static long procGetCurrentProcessId = Native.getProcAddress(kernel32, "GetCurrentProcessId");
-    static long procGetVersionEx = Native.getProcAddress(kernel32, "GetVersionExA");
-    static long procGetLastError = Native.getProcAddress(kernel32, "GetLastError");
+    public static final long library = Native.loadLibrary("kernel32");
+    public static final long procGetLogicalDrive = Native.getProcAddress(library, "GetLogicalDriveStringsA");
+    public static final long procGetEnvVar = Native.getProcAddress(library, "GetEnvironmentVariableA");
+    public static final long procGetEnvStrings = Native.getProcAddress(library, "GetEnvironmentStringsA");
+    public static final long procFreeEnvStrings = Native.getProcAddress(library, "FreeEnvironmentStringsA");
+    public static final long procExpandEnvStrings = Native.getProcAddress(library, "ExpandEnvironmentStringsA");
+    public static final long procGetCommandLine = Native.getProcAddress(library, "GetCommandLineA");
+    public static final long procGetTickCount = Native.getProcAddress(library, "GetTickCount");
+    public static final long procDebugBreak = Native.getProcAddress(library, "DebugBreak");
+    public static final long procGetCurrentProcessId = Native.getProcAddress(library, "GetCurrentProcessId");
+    public static final long procGetVersionEx = Native.getProcAddress(library, "GetVersionExA");
+    public static final long procGetLastError = Native.getProcAddress(library, "GetLastError");
 
-    public static File[] getLogicalDrives() {
+    public static File[] GetLogicalDrives() {
         int len = 1024;
         long buf = Native.malloc(len);
         long res = NativeHelper.call(procGetLogicalDrive, len, buf);
@@ -54,7 +54,7 @@ public class Kernel32
         return (File[]) drives.toArray(new File[drives.size()]);
     }
 
-    public static String getEnvironmentVariable(String var) {
+    public static String GetEnvironmentVariable(String var) {
         if (var == null)
             return null;
         long buf = NativeHelper.toNativeString(var, false);
@@ -70,7 +70,7 @@ public class Kernel32
         return str;
     }
 
-    public static Properties getEnvironmentVariables() {
+    public static Properties GetEnvironmentVariables() {
         long buf = NativeHelper.call(procGetEnvStrings);
         ByteBuffer bb = Native.fromPointer(buf, 32767);
         Properties p = new Properties();
@@ -85,7 +85,7 @@ public class Kernel32
         return p;
     }
 
-    public static String expandEnvironmentString(String var) {
+    public static String ExpandEnvironmentString(String var) {
         if (var == null)
             return null;
         long str = NativeHelper.toNativeString(var, false);
@@ -100,7 +100,7 @@ public class Kernel32
         return rs;
     }
 
-    public static String[] getCommandLineArgs() {
+    public static String[] GetCommandLine() {
         long res = NativeHelper.call(procGetCommandLine);
         String s = NativeHelper.getString(res, 1024, false);
         boolean inQuote = false;
@@ -129,7 +129,7 @@ public class Kernel32
         return (String[]) args.toArray(new String[args.size()]);
     }
 
-    public static OSVERSIONINFOEX getVersionEx() {
+    public static OSVERSIONINFOEX GetVersionEx() {
         long pOs = Native.malloc(156);
         ByteBuffer b = Native.fromPointer(pOs, 156).order(ByteOrder.LITTLE_ENDIAN);
         NativeHelper.zeroMemory(b);
@@ -158,19 +158,19 @@ public class Kernel32
         return info;
     }
 
-    public static long getLastError() {
+    public static long GetLastError() {
         return NativeHelper.call(procGetLastError);
     }
 
-    public static long getTickCount() {
+    public static long GetTickCount() {
         return NativeHelper.call(procGetTickCount);
     }
 
-    public static long getCurrentProcessId() {
+    public static long GetCurrentProcessId() {
         return NativeHelper.call(procGetCurrentProcessId);
     }
 
-    public static void debugBreak() {
+    public static void DebugBreak() {
         NativeHelper.call(procDebugBreak);
     }
 }

@@ -13,8 +13,8 @@ import java.io.File;
 
 public class Shell32
 {
-    private static long shell32 = Native.loadLibrary("shell32");
-    private static long procGetFolderPath = Native.getProcAddress(shell32, "SHGetFolderPathA");
+    public static final long library = Native.loadLibrary("shell32");
+    public static final long procGetFolderPath = Native.getProcAddress(library, "SHGetFolderPathA");
 
     public static File getFolderPath(int type) {
         long buf = Native.malloc(Native.MAX_PATH);

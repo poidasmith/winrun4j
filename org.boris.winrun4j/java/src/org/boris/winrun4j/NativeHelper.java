@@ -11,6 +11,7 @@ package org.boris.winrun4j;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class NativeHelper
 {
@@ -69,6 +70,10 @@ public class NativeHelper
         return Native.call(proc, b, len, 0);
     }
 
+    public static int getInt(long ptr) {
+        return Native.fromPointer(ptr, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+    }
+
     public static void put(ByteBuffer b, int value) {
         b.put((byte) (value & 0xff));
         b.put((byte) ((value >> 8) & 0xff));
@@ -104,13 +109,11 @@ public class NativeHelper
         return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5 }));
     }
 
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5,
-            long arg6) {
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6) {
         return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6 }));
     }
 
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5,
-            long arg6, long arg7) {
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7) {
         return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 }));
     }
 

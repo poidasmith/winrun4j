@@ -18,15 +18,14 @@ public class DirectoryManagement
     public static final int MOVEFILE_CREATE_HARDLINK = 0x00000010;
     public static final int MOVEFILE_FAIL_IF_NOT_TRACKABLE = 0x00000020;
 
-    private static long library = Native.loadLibrary("kernel32");
-    private static long moveFileProc = Native.getProcAddress(library, "MoveFileExA");
+    private static long procMoveFileEx = Native.getProcAddress(Kernel32.library, "MoveFileExW");
 
-    public static boolean moveFile(String existingName, String newName, int flags) {
+    public static boolean MoveFileEx(String existingName, String newName, int flags) {
         if (existingName == null || newName == null)
             throw new NullPointerException();
-        long e = NativeHelper.toNativeString(existingName, false);
-        long n = NativeHelper.toNativeString(newName, false);
-        boolean res = NativeHelper.call(moveFileProc, e, n, flags) == 1;
+        long e = NativeHelper.toNativeString(existingName, true);
+        long n = NativeHelper.toNativeString(newName, true);
+        boolean res = NativeHelper.call(procMoveFileEx, e, n, flags) == 1;
         Native.free(e);
         Native.free(n);
         return res;
