@@ -72,7 +72,7 @@ public abstract class Callback
         return env;
     }
 
-    public static long makeCallback(long env, long clazzOrObj, long mid, long csim) {
+    public static long makeCallback(long env, long clazzOrObj, long mid, long fnPtr) {
         long ptr = Native.malloc(32);
         ByteBuffer bb = Native.fromPointer(ptr, 32).order(ByteOrder.LITTLE_ENDIAN);
         bb.put((byte) 0x90);
@@ -89,7 +89,7 @@ public abstract class Callback
         bb.put((byte) 0x68); // 
         bb.putInt((int) env);
         bb.put((byte) 0xB8); // mov eax, csim
-        bb.putInt((int) (csim));
+        bb.putInt((int) (fnPtr));
         bb.put((byte) 0xFF); // call eax
         bb.put((byte) 0xD0);
         bb.put((byte) 0x8B);
