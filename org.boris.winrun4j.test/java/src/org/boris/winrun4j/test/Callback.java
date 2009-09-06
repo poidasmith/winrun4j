@@ -7,11 +7,13 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.boris.winrun4j.Native;
+import org.boris.winrun4j.NativeHelper;
 
 public abstract class Callback
 {

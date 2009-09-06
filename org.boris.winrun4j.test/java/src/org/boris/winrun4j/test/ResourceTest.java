@@ -18,16 +18,10 @@ import org.boris.winrun4j.NativeHelper;
 public class ResourceTest
 {
     static long kernel32 = Native.loadLibrary("kernel32");
-    static long enumResourceTypes = Native.getProcAddress(kernel32,
-            "EnumResourceTypesW");
-    static long enumResourceNames = Native.getProcAddress(kernel32,
-            "EnumResourceNamesW");
-    static long enumResourceLanguages = Native.getProcAddress(kernel32,
-            "EnumResourceLanguagesW");
+    static long enumResourceTypes = Native.getProcAddress(kernel32, "EnumResourceTypesW");
+    static long enumResourceNames = Native.getProcAddress(kernel32, "EnumResourceNamesW");
+    static long enumResourceLanguages = Native.getProcAddress(kernel32, "EnumResourceLanguagesW");
     static long debugBreak = Native.getProcAddress(kernel32, "DebugBreak");
-    static long java = Native.loadLibrary("jvm");
-    static long getCreateJavaVMs = Native.getProcAddress(java,
-            "JNI_GetCreatedJavaVMs");
 
     public static void main(String[] args) throws Exception {
         // long jvm = getJavaVm();
@@ -40,7 +34,7 @@ public class ResourceTest
         // long mid2 = Native.getMethodId(ResourceTest.class, "getJniEnv",
         // "(JZ)J", true);
         // printHex(mid2);
-        long env = getJniEnv();
+        long env = Callback.getJniEnv();
         // while (true)
         testGetResourceTypes(env);
 
@@ -54,58 +48,26 @@ public class ResourceTest
         // }
     }
 
-    private static void printHex(long h) {
+    public static void printHex(long h) {
         System.out.println("0x" + Integer.toHexString((int) h));
-    }
-
-    public static long getJavaVm() {
-        long vms = Native.malloc(4);
-        NativeHelper.call(getCreateJavaVMs, vms, 1, 0);
-        ByteBuffer bb = Native.fromPointer(vms, 4).order(
-                ByteOrder.LITTLE_ENDIAN);
-        int vm = bb.getInt();
-        Native.free(vms);
-        return vm;
-    }
-
-    public static long getJniEnv() {
-        return getJniEnv(getJavaVm(), true);
-    }
-
-    public static long getJniEnv(long jvm, boolean attachDaemon) {
-        long penv = Native.malloc(4);
-        ByteBuffer jb = Native.fromPointer(jvm, 4).order(
-                ByteOrder.LITTLE_ENDIAN);
-        long pAttachProc = jb.getInt() + (attachDaemon ? 28 : 16); // AttachCurrentThread(AsDaemon)
-        long attachProc = Native.fromPointer(pAttachProc, 4).order(
-                ByteOrder.LITTLE_ENDIAN).getInt();
-        NativeHelper.call(attachProc, jvm, penv, 0);
-        ByteBuffer bb = Native.fromPointer(penv, 4);
-        bb = bb.order(ByteOrder.LITTLE_ENDIAN);
-        int env = bb.getInt();
-        Native.free(penv);
-        return env;
     }
 
     public static void testGetResourceTypes(long env) {
         long clazz = Native.newGlobalRef(ResourceTest.class);
-        long mid = Native.getMethodId(ResourceTest.class, "typeCallback",
-                "(I)I", true);
-        long pf = Native.fromPointer(env, 4).order(ByteOrder.LITTLE_ENDIAN)
-                .getInt();
-        long csim = Native.fromPointer(pf + (516), 4).order(
-                ByteOrder.LITTLE_ENDIAN).getInt();
+        long mid = Native.getMethodId(ResourceTest.class, "typeCallback", "(I)I", true);
+        long pf = Native.fromPointer(env, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        long csim = Native.fromPointer(pf + (516), 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
         // for (int i = 0; i > -1; i++)
         // NativeHelper.call(csim, env, clazz, mid, 100);
         // System.out.println(res);
         // Native.deleteGlobalRef(clazz);
         // System.gc();
 
-        long callback = makeCallback(env, clazz, mid, csim);
+        long callback = Callback.makeCallback(env, clazz, mid, csim);
         printHex(callback);
 
         // while (true)
-        NativeHelper.call(enumResourceTypes, 0, callback, 0);
+        NativeHelper.call(enumResourceTypes, 0, callback, 1);
         // System.out.println(res);
         // System.out.println(Kernel32.getLastError());
 
@@ -122,41 +84,10 @@ public class ResourceTest
         // ret - C2 04 00
     }
 
-    public static long makeCallback(long env, long clazz, long mid, long csim) {
-        // printHex(env);
-        // printHex(clazz);
-        // printHex(mid);
-        // printHex(csim);
-        long ptr = Native.malloc(200);
-        ByteBuffer bb = Native.fromPointer(ptr + 2, 198).order(
-                ByteOrder.LITTLE_ENDIAN);
-        bb.put((byte) 0x55);
-        bb.put((byte) 0x8B);
-        bb.put((byte) 0xEC);
-        // call static void method
-        bb.put((byte) 0x55); // push ebp
-        bb.put((byte) 0x68); // push mid
-        bb.putInt((int) mid);
-        bb.put((byte) 0x68); // push clazz
-        bb.putInt((int) clazz);
-        bb.put((byte) 0x68); // 
-        bb.putInt((int) env);
-        bb.put((byte) 0xB8); // mov eax, csim
-        bb.putInt((int) (csim));
-        bb.put((byte) 0xFF); // call eax
-        bb.put((byte) 0xD0);
-        bb.put((byte) 0x8B);
-        bb.put((byte) 0xE5);
-        bb.put((byte) 0x5D);
-        bb.put((byte) 0xC3);
-        return ptr + 2;
-    }
-
     public static int typeCallback(int stack) {
-        System.out.println("Hello callback " + stack);
-        ByteBuffer bb = Native.fromPointer(stack - 20, 20).order(
-                ByteOrder.LITTLE_ENDIAN);
-        for (int i = 0; i < 5; i++) {
+        System.out.println("Hello callback " + Integer.toHexString(stack));
+        ByteBuffer bb = Native.fromPointer(stack + 8, 12).order(ByteOrder.LITTLE_ENDIAN);
+        for (int i = 0; i < 3; i++) {
             printHex(bb.getInt());
         }
         return 50;
