@@ -74,6 +74,55 @@ public class User32
         return (int) NativeHelper.call(procDdeCmpStringHandles, hsz1, hsz2);
     }
 
+    public static long DdeConnect(long idInst, String service, String topic, CONVCONTEXT context) {
+        return 0;
+    }
+
+    public static long DdeConnectList(long idInst, String service, String topic, long convLst, CONVCONTEXT conext) {
+        return 0;
+    }
+
+    public static long DdeCreateDataHandle(long idInst, byte[] data, int len, int offset, String name, int format,
+            int afCmd) {
+        return 0;
+    }
+
+    public static long DdeCreateStringHandle(long idInst, String str, int codePage) {
+        return 0;
+    }
+
+    public static boolean DdeDisconnect(long conversation) {
+        return false;
+    }
+
+    public static boolean DdeDisconnectList(long convList) {
+        return false;
+    }
+
+    public static boolean DdeEnableCallback(long idInst, long conv, int cmd) {
+        return false;
+    }
+
+    public static boolean DdeFreeDataHandle(long data) {
+        return false;
+    }
+
+    public static boolean DdeFreeStringHandle(long idInst, long hsz) {
+        return false;
+    }
+
+    public static int DdeGetData(long data, byte[] buffer, int len, int offset) {
+        return 0;
+    }
+
+    public static long DdeGetLastError(long idInst) {
+        return NativeHelper.call(procDdeGetLastError, idInst);
+    }
+
+    public static boolean DdeImpersonateClient(long conv) {
+        return NativeHelper.call(procDdeImpersonateClient, conv) != 0;
+    }
+
     public static long DdeInitialize(Callback callback, int afCmd) {
         long pid = Native.malloc(4);
         long res = NativeHelper.call(pid, callback.getPointer(), afCmd, 0);
@@ -82,7 +131,54 @@ public class User32
         return res == 0 ? 0 : pidInst;
     }
 
+    public static boolean DdeKeepStringHandle(long idInst, long hsz) {
+        return NativeHelper.call(procDdeKeepStringHandle, idInst, hsz) != 0;
+    }
+
+    public static long DdeNameService(long idInst, long hsz1, long hsz2, int afCmd) {
+        return NativeHelper.call(procDdeNameService, idInst, hsz1, hsz2, afCmd);
+    }
+
+    public static boolean DdePostAdvise(long idInst, long hszTopic, long hszItem) {
+        return NativeHelper.call(procDdePostAdvise, idInst, hszTopic, hszItem) != 0;
+    }
+
+    public static int DdeQueryConvInfo(long conv, long idTransaction, long convInfo) {
+        return (int) NativeHelper.call(procDdeQueryConvInfo, conv, idTransaction, convInfo);
+    }
+
+    public static long DdeQueryNextServer(long convList, long convPrev) {
+        return NativeHelper.call(procDdeQueryNextServer, convList, convPrev);
+    }
+
+    public static int DdeQueryString(long idInst, long hsz, StringBuffer buffer, int codePage) {
+        return 0;
+    }
+
+    public static long DdeReconnect(long conv) {
+        return NativeHelper.call(procDdeReconnect, conv);
+    }
+
+    public static boolean DdeSetUserHandle(long conv, int id, int user) {
+        return NativeHelper.call(procDdeSetUserHandle, conv, id, user) != 0;
+    }
+
+    public static boolean DdeUnaccessData(long data) {
+        return NativeHelper.call(procDdeUnaccessData, data) != 0;
+    }
+
     public static boolean DdeUninitialize(long handle) {
         return NativeHelper.call(User32.procDdeUninitialize, handle) != 0;
+    }
+
+    public static class CONVCONTEXT
+    {
+        int cb;
+        int flags;
+        int countryId;
+        int codePage;
+        int langId;
+        int security;
+        int qos;
     }
 }

@@ -16,18 +16,24 @@ public class Advapi32
     public static final long procCreateService = Native.getProcAddress(library, "CreateServiceW");
     public static final long procOpenSCManager = Native.getProcAddress(library, "OpenSCManagerW");
 
+    public static boolean ChangeServiceConfig(long service, int serviceType, int startType, int errorControl,
+            String binaryPathName, String[] loadOrderGroup, String[] dependencies, String serviceStartName,
+            String password, String displayName) {
+        return false;
+    }
+
     public static boolean CloseServiceHandle(long service) {
         return NativeHelper.call(procCloseServiceHandle, service) != 0;
+    }
+
+    public static SERVICE_STATUS ControlService(long service, int control) {
+        return null;
     }
 
     public static long CreateService(long scManager, String serviceName, String displayName, int desiredAccess,
             int serviceType, int startType, int errorControl, String binaryPathName, String[] loadOrderGroup,
             String[] dependencies, String serviceStartName, String password) {
         return 0;
-    }
-
-    public static SERVICE_STATUS ControlService(long service, int control) {
-        return null;
     }
 
     public static boolean DeleteService(long service) {
@@ -75,5 +81,4 @@ public class Advapi32
         public int processId;
         public int serviceFlags;
     }
-
 }
