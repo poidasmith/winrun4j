@@ -14,12 +14,12 @@ import java.io.File;
 public class Shell32
 {
     public static final long library = Native.loadLibrary("shell32");
-    public static final long procGetFolderPath = Native.getProcAddress(library, "SHGetFolderPathA");
+    public static final long procGetFolderPath = Native.getProcAddress(library, "SHGetFolderPathW");
 
     public static File getFolderPath(int type) {
-        long buf = Native.malloc(Native.MAX_PATH);
+        long buf = Native.malloc(Native.MAX_PATH << 1);
         NativeHelper.call(procGetFolderPath, 0, type, 0, 0, buf);
-        String res = NativeHelper.getString(buf, Native.MAX_PATH, false);
+        String res = NativeHelper.getString(buf, Native.MAX_PATH, true);
         Native.free(buf);
         if (res == null || res.length() == 0)
             return null;

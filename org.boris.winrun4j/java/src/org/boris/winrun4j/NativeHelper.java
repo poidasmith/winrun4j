@@ -52,11 +52,13 @@ public class NativeHelper
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-        int len = b.length + 1;
+        int len = b.length + (wideChar ? 2 : 1);
         long buf = Native.malloc(len);
         ByteBuffer bb = Native.fromPointer(buf, len);
         bb.put(b);
         bb.put((byte) 0);
+        if (wideChar)
+            bb.put((byte) 0);
         return buf;
     }
 
@@ -72,13 +74,6 @@ public class NativeHelper
 
     public static int getInt(long ptr) {
         return Native.fromPointer(ptr, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
-    }
-
-    public static void put(ByteBuffer b, int value) {
-        b.put((byte) (value & 0xff));
-        b.put((byte) ((value >> 8) & 0xff));
-        b.put((byte) ((value >> 16) & 0xff));
-        b.put((byte) ((value >> 24) & 0xff));
     }
 
     public static long call(long proc) {
