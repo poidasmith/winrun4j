@@ -117,6 +117,11 @@ public class NativeHelper
         return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 }));
     }
 
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
+            long arg8) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 }));
+    }
+
     public static void zeroMemory(ByteBuffer b) {
         while (b.hasRemaining())
             b.put((byte) 0);

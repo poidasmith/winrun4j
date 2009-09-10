@@ -10,6 +10,7 @@
 package org.boris.winrun4j;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class User32
 {
@@ -28,6 +29,7 @@ public class User32
     public static final long procDdeDisconnectList = Native.getProcAddress(library, "DdeDisconnectList");
     public static final long procDdeEnableCallback = Native.getProcAddress(library, "DdeEnableCallback");
     public static final long procDdeFreeDataHandle = Native.getProcAddress(library, "DdeFreeDataHandle");
+    public static final long procDdeFreeStringHandle = Native.getProcAddress(library, "DdeFreeStringHandle");
     public static final long procDdeGetData = Native.getProcAddress(library, "DdeGetData");
     public static final long procDdeGetLastError = Native.getProcAddress(library, "DdeGetLastError");
     public static final long procDdeImpersonateClient = Native.getProcAddress(library, "DdeImpersonateClient");
@@ -43,6 +45,9 @@ public class User32
     public static final long procDdeUnaccessData = Native.getProcAddress(library, "DdeUnaccessData");
     public static final long procDdeUninitialize = Native.getProcAddress(library, "DdeUninitialize");
 
+    public static final int CP_WINANSI = 1004;
+    public static final int CP_WINUNICODE = 1200;
+
     public static boolean DdeAbandonTransaction(long handle, long conversation, long transaction) {
         return NativeHelper.call(procDdeAbandonTransaction, handle, conversation, transaction) != 0;
     }
@@ -56,7 +61,12 @@ public class User32
     }
 
     public static long DdeAddData(long data, byte[] buffer, int len, int offset) {
-        return 0;
+        long ptr = Native.malloc(len);
+        ByteBuffer bb = Native.fromPointer(ptr, len);
+        bb.put(buffer, 0, len);
+        long res = NativeHelper.call(procDdeAddData, data, ptr, len, offset);
+        Native.free(ptr);
+        return res;
     }
 
     public static long DdeCallback(int type, int fmt, long conversation, long hsz1, long hsz2, long hdata,
@@ -65,9 +75,14 @@ public class User32
                 dwData2 });
     }
 
-    public static long DdeClientTransaction(byte[] data, int len, long conversation, long hszItem, int fmt, int type,
+    public static long DdeClientTransaction(byte[] data, int len, long conv, long hszItem, int fmt, int type,
             int timeout) {
-        return 0;
+        long ptr = Native.malloc(len);
+        ByteBuffer bb = Native.fromPointer(ptr, len);
+        bb.put(data, 0, len);
+        long res = NativeHelper.call(procDdeClientTransaction, ptr, len, conv, hszItem, fmt, type, timeout, 0);
+        Native.free(ptr);
+        return res;
     }
 
     public static int DdeCmpStringHandles(long hsz1, long hsz2) {
@@ -75,44 +90,82 @@ public class User32
     }
 
     public static long DdeConnect(long idInst, String service, String topic, CONVCONTEXT context) {
-        return 0;
+        long hszService = DdeCreateStringHandle(idInst, service, CP_WINUNICODE);
+        long hszTopic = DdeCreateStringHandle(idInst, topic, CP_WINUNICODE);
+        long ptr = context == null ? 0 : context.toNative();
+        long res = NativeHelper.call(procDdeConnect, idInst, hszService, hszTopic, ptr);
+        DdeFreeStringHandle(idInst, hszService);
+        DdeFreeStringHandle(idInst, hszTopic);
+        if (ptr != 0)
+            Native.free(ptr);
+        return res;
     }
 
-    public static long DdeConnectList(long idInst, String service, String topic, long convLst, CONVCONTEXT conext) {
-        return 0;
+    public static long DdeConnectList(long idInst, String service, String topic, long convList, CONVCONTEXT context) {
+        long hszService = DdeCreateStringHandle(idInst, service, CP_WINUNICODE);
+        long hszTopic = DdeCreateStringHandle(idInst, topic, CP_WINUNICODE);
+        long ptr = context == null ? 0 : context.toNative();
+        long res = NativeHelper.call(procDdeConnectList, idInst, hszService, hszTopic, convList, ptr);
+        DdeFreeStringHandle(idInst, hszService);
+        DdeFreeStringHandle(idInst, hszTopic);
+        if (ptr != 0)
+            Native.free(ptr);
+        return res;
     }
 
-    public static long DdeCreateDataHandle(long idInst, byte[] data, int len, int offset, String name, int format,
+    public static long DdeCreateDataHandle(long idInst, byte[] data, int len, int offset, long hszItem, int fmt,
             int afCmd) {
-        return 0;
+        long ptr = Native.malloc(len);
+        ByteBuffer bb = Native.fromPointer(ptr, len);
+        bb.put(data, 0, len);
+        long res = NativeHelper.call(procDdeCreateDataHandle, idInst, ptr, len, offset, hszItem, fmt, afCmd);
+        Native.free(ptr);
+        return res;
     }
 
     public static long DdeCreateStringHandle(long idInst, String str, int codePage) {
-        return 0;
+        boolean wide = true;
+        if (codePage == CP_WINANSI) {
+            wide = false;
+        }
+        long ptr = NativeHelper.toNativeString(str, wide);
+        long res = NativeHelper.call(procDdeCreateStringHandle, idInst, ptr, codePage);
+        Native.free(ptr);
+        return res;
     }
 
-    public static boolean DdeDisconnect(long conversation) {
-        return false;
+    public static boolean DdeDisconnect(long conv) {
+        return NativeHelper.call(procDdeDisconnect, conv) != 0;
     }
 
     public static boolean DdeDisconnectList(long convList) {
-        return false;
+        return NativeHelper.call(procDdeDisconnectList, convList) != 0;
     }
 
     public static boolean DdeEnableCallback(long idInst, long conv, int cmd) {
-        return false;
+        return NativeHelper.call(procDdeEnableCallback, idInst, conv, cmd) != 0;
     }
 
     public static boolean DdeFreeDataHandle(long data) {
-        return false;
+        return NativeHelper.call(procDdeFreeDataHandle, data) != 0;
     }
 
     public static boolean DdeFreeStringHandle(long idInst, long hsz) {
-        return false;
+        return NativeHelper.call(procDdeFreeStringHandle, idInst, hsz) != 0;
     }
 
     public static int DdeGetData(long data, byte[] buffer, int len, int offset) {
-        return 0;
+        long ptr = 0;
+        if (buffer != null) {
+            ptr = Native.malloc(len);
+        }
+        int res = (int) NativeHelper.call(procDdeGetData, data, ptr, len, offset);
+        if (buffer != null) {
+            ByteBuffer bb = Native.fromPointer(ptr, len);
+            bb.get(buffer, 0, len);
+            Native.free(ptr);
+        }
+        return res;
     }
 
     public static long DdeGetLastError(long idInst) {
@@ -151,8 +204,18 @@ public class User32
         return NativeHelper.call(procDdeQueryNextServer, convList, convPrev);
     }
 
-    public static int DdeQueryString(long idInst, long hsz, StringBuffer buffer, int codePage) {
-        return 0;
+    public static int DdeQueryString(long idInst, long hsz, StringBuffer buffer, int len, int codePage) {
+        long ptr = 0;
+        if (buffer != null) {
+            ptr = Native.malloc(len);
+        }
+        int res = (int) NativeHelper.call(procDdeQueryString, idInst, hsz, ptr, len, codePage);
+        if (buffer != null) {
+            ByteBuffer bb = Native.fromPointer(ptr, len);
+            buffer.append(NativeHelper.getString(bb, codePage == CP_WINUNICODE));
+            Native.free(ptr);
+        }
+        return res;
     }
 
     public static long DdeReconnect(long conv) {
@@ -173,12 +236,24 @@ public class User32
 
     public static class CONVCONTEXT
     {
-        int cb;
         int flags;
         int countryId;
         int codePage;
         int langId;
         int security;
         int qos;
+
+        public long toNative() {
+            long ptr = Native.malloc(28);
+            ByteBuffer bb = Native.fromPointer(ptr, 28).order(ByteOrder.LITTLE_ENDIAN);
+            bb.putInt(28);
+            bb.putInt(flags);
+            bb.putInt(countryId);
+            bb.putInt(codePage);
+            bb.putInt(langId);
+            bb.putInt(security);
+            bb.putInt(qos);
+            return ptr;
+        }
     }
 }
