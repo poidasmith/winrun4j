@@ -176,6 +176,10 @@ public class User32
         return NativeHelper.call(procDdeImpersonateClient, conv) != 0;
     }
 
+    public static long DdeInitialize(DdeCallback callback, int afCmd) {
+        return DdeInitialize(new DdeCallbackImpl(callback), afCmd);
+    }
+
     public static long DdeInitialize(Callback callback, int afCmd) {
         long pid = Native.malloc(4);
         long res = NativeHelper.call(pid, callback.getPointer(), afCmd, 0);
@@ -254,6 +258,26 @@ public class User32
             bb.putInt(security);
             bb.putInt(qos);
             return ptr;
+        }
+    }
+
+    public interface DdeCallback
+    {
+        long callback(int type, int fmt, long conv, long hsz1, long hsz2, long data, int data1, int data2);
+    }
+
+    public static class DdeCallbackImpl extends Callback
+    {
+        private DdeCallback callback;
+
+        public DdeCallbackImpl(DdeCallback callback) {
+            this.callback = callback;
+        }
+
+        protected int callback(int stack) {
+            ByteBuffer bb = Native.fromPointer(stack + 8, 32).order(ByteOrder.LITTLE_ENDIAN);
+            return (int) callback.callback(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(),
+                    bb.getInt(), bb.getInt(), bb.getInt());
         }
     }
 }

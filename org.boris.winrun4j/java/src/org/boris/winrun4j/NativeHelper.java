@@ -15,6 +15,10 @@ import java.nio.ByteOrder;
 
 public class NativeHelper
 {
+    public static ByteBuffer getBuffer(long ptr, int size) {
+        return Native.fromPointer(ptr, size).order(ByteOrder.LITTLE_ENDIAN);
+    }
+
     public static String getString(long ptr, long size, boolean wideChar) {
         ByteBuffer bb = Native.fromPointer(ptr, size);
         return getString(bb, wideChar);

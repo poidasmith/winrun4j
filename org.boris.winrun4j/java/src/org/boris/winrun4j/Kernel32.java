@@ -18,6 +18,7 @@ import java.util.Properties;
 public class Kernel32
 {
     public static final long library = Native.loadLibrary("kernel32");
+    public static final long procGetCurrentThreadId = Native.getProcAddress(library, "GetCurrentThreadId");
     public static final long procGetLogicalDrive = Native.getProcAddress(library, "GetLogicalDriveStringsA");
     public static final long procGetEnvVar = Native.getProcAddress(library, "GetEnvironmentVariableA");
     public static final long procGetEnvStrings = Native.getProcAddress(library, "GetEnvironmentStringsA");
@@ -30,6 +31,10 @@ public class Kernel32
     public static final long procGetVersionEx = Native.getProcAddress(library, "GetVersionExA");
     public static final long procGetLastError = Native.getProcAddress(library, "GetLastError");
     public static final long procOpenScManager = Native.getProcAddress(library, "OpenSCManager");
+
+    public static long GetCurrentThreadId() {
+        return NativeHelper.call(procGetCurrentThreadId);
+    }
 
     public static File[] GetLogicalDrives() {
         int len = 1024;
