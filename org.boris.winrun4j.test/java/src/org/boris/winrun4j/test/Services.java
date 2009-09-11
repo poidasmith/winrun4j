@@ -9,10 +9,12 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
+import org.boris.winrun4j.Advapi32;
 
 public class Services
 {
     public static void main(String[] args) throws Exception {
+        long handle = Advapi32.OpenSCManager(null, null, Advapi32.SC_MANAGER_ALL_ACCESS);
 
     }
 
