@@ -54,8 +54,7 @@ public class EmbeddedClassLoader extends URLClassLoader
         for (int i = 0; i < buffers.length; i++) {
             ByteBuffer bb = buffers[i];
             bb.position(0);
-            ZipInputStream zis = new ZipInputStream(new ByteBufferInputStream(
-                    bb));
+            ZipInputStream zis = new ZipInputStream(new ByteBufferInputStream(bb));
             ZipEntry ze = null;
             try {
                 while ((ze = zis.getNextEntry()) != null) {
@@ -75,8 +74,7 @@ public class EmbeddedClassLoader extends URLClassLoader
         for (int i = 0; i < buffers.length; i++) {
             ByteBuffer bb = buffers[i];
             bb.position(0);
-            ZipInputStream zis = new ZipInputStream(new ByteBufferInputStream(
-                    bb));
+            ZipInputStream zis = new ZipInputStream(new ByteBufferInputStream(bb));
             ZipEntry ze = null;
             try {
                 while ((ze = zis.getNextEntry()) != null) {

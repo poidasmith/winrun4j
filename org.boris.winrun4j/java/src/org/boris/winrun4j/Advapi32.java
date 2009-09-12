@@ -10,7 +10,6 @@
 package org.boris.winrun4j;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class Advapi32
 {
@@ -229,8 +228,8 @@ public class Advapi32
         }
 
         protected int callback(int stack) {
-            ByteBuffer bb = Native.fromPointer(stack + 8, 44).order(ByteOrder.LITTLE_ENDIAN);
-            int argc = bb.getInt();
+            int argc = NativeHelper.getInt(stack + 8);
+            ByteBuffer bb = NativeHelper.getBuffer(stack + 12, argc * 4);
             String[] args = new String[argc];
             for (int i = 0; i < argc; i++) {
                 long ptr = NativeHelper.getInt(bb.getInt());

@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.Kernel32;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 import org.boris.winrun4j.User32;
@@ -70,7 +71,7 @@ public class Hooks
         return NativeHelper.call(procCallNextHookEx, hook, code, wParam, lParam);
     }
 
-    public static long SetWindwsHookEx(int idHook, Callback lpfn, long hMod, int threadId) {
+    public static long SetWindwsHookEx(int idHook, Callback lpfn, long hMod, long threadId) {
         return NativeHelper.call(procSetWindowsHookEx, idHook, lpfn.getPointer(), hMod, threadId);
     }
 
@@ -145,11 +146,10 @@ public class Hooks
                 return 0;
             }
         };
-        long hook = SetWindwsHookEx(WH_KEYBOARD_LL, cb, 0, 0);
-
-        System.out.println("Press <enter> to exit...");
-        System.in.read();
-
+        long hook = SetWindwsHookEx(WH_MOUSE_LL, cb, Native.loadLibrary("jvm"), 0);
+        System.out.println(hook);
+        System.out.println(Kernel32.GetLastError());
+        Thread.sleep(2000);
         UnhookWindowsHookEx(hook);
     }
 }

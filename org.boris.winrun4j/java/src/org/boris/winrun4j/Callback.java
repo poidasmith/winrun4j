@@ -59,21 +59,18 @@ public abstract class Callback
 
     public static long getJniEnv(long jvm, boolean attachDaemon) {
         long penv = Native.malloc(4);
-        ByteBuffer jb = Native.fromPointer(jvm, 4).order(ByteOrder.LITTLE_ENDIAN);
-        long pAttachProc = jb.getInt() + (attachDaemon ? 28 : 16); // AttachCurrentThread(AsDaemon)
-        long attachProc = Native.fromPointer(pAttachProc, 4).order(ByteOrder.LITTLE_ENDIAN)
-                .getInt();
+        long jvmp = NativeHelper.getInt(jvm);
+        long pAttachProc = jvmp + (attachDaemon ? 28 : 16); // AttachCurrentThread(AsDaemon)
+        long attachProc = NativeHelper.getInt(pAttachProc);
         NativeHelper.call(attachProc, jvm, penv, 0);
-        ByteBuffer bb = Native.fromPointer(penv, 4);
-        bb = bb.order(ByteOrder.LITTLE_ENDIAN);
-        int env = bb.getInt();
+        long env = NativeHelper.getInt(penv);
         Native.free(penv);
         return env;
     }
 
     public static long makeCallback(long env, long clazzOrObj, long mid, long fnPtr) {
         long ptr = Native.malloc(32);
-        ByteBuffer bb = Native.fromPointer(ptr, 32).order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer bb = NativeHelper.getBuffer(ptr, 32);
         bb.put((byte) 0x90); // nop
         bb.put((byte) 0x90); // nop
         bb.put((byte) 0x55); // push ebp
