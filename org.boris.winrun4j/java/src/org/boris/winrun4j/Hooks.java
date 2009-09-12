@@ -7,16 +7,10 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.test;
+package org.boris.winrun4j;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import org.boris.winrun4j.Callback;
-import org.boris.winrun4j.Kernel32;
-import org.boris.winrun4j.Native;
-import org.boris.winrun4j.NativeHelper;
-import org.boris.winrun4j.User32;
 
 public class Hooks
 {
@@ -129,27 +123,5 @@ public class Hooks
         public int lParam;
         public int time;
         public POINT pt;
-    }
-
-    public static void main(String[] args) throws Exception {
-        MouseProcCallback mpc = new MouseProcCallback(new MouseProc() {
-            public int cbMouseProc(int code, int id, MOUSEHOOKSTRUCT struc) {
-                System.out.println(code);
-                System.out.println(id);
-                System.out.println(Reflection.toString(struc));
-                return 0;
-            }
-        });
-        Callback cb = new Callback() {
-            protected int callback(int stack) {
-                System.out.println(stack);
-                return 0;
-            }
-        };
-        long hook = SetWindwsHookEx(WH_MOUSE_LL, cb, Native.loadLibrary("jvm"), 0);
-        System.out.println(hook);
-        System.out.println(Kernel32.GetLastError());
-        Thread.sleep(2000);
-        UnhookWindowsHookEx(hook);
     }
 }
