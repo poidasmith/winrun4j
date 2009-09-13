@@ -51,6 +51,16 @@ public class NativeHelper
         return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 }));
     }
 
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
+            long arg8, long arg9) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 }));
+    }
+
+    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
+            long arg8, long arg9, long arg10) {
+        return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10 }));
+    }
+
     public static long call(long proc, long[] args) {
         return call(proc, new NativeStack(args));
     }
@@ -72,6 +82,14 @@ public class NativeHelper
 
     public static void free(long ptr1, long ptr2) {
         free(new long[] { ptr1, ptr2 });
+    }
+
+    public static void free(long ptr1, long ptr2, long ptr3) {
+        free(new long[] { ptr1, ptr2, ptr3 });
+    }
+
+    public static void free(long ptr1, long ptr2, long ptr3, long ptr4) {
+        free(new long[] { ptr1, ptr2, ptr3, ptr4 });
     }
 
     public static void free(long[] ptrs) {
