@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
-
 public class Advapi32
 {
     public static final long library = Native.loadLibrary("Advapi32");
@@ -25,6 +24,8 @@ public class Advapi32
     public static final long procGetServiceKeyName = Native.getProcAddress(library, "GetServiceKeyNameW");
     public static final long procLockServiceDatabase = Native.getProcAddress(library, "LockServiceDatabase");
     public static final long procNotifyBootConfigStatus = Native.getProcAddress(library, "NotifyBootConfigStatus");
+    public static final long procNotifyServiceStatusChange = Native.getProcAddress(library,
+            "NotifyServiceStatusChangeW");
     public static final long procOpenSCManager = Native.getProcAddress(library, "OpenSCManagerW");
     public static final long procOpenService = Native.getProcAddress(library, "OpenServiceW");
     public static final long procQueryServiceConfig = Native.getProcAddress(library, "QueryServiceConfigW");
@@ -44,5 +45,14 @@ public class Advapi32
     public static final long procUnlockServiceDatabase = Native.getProcAddress(library, "UnlockServiceDatabase");
 
     public static final int SC_MANAGER_ALL_ACCESS = 0xF003F;
+
+    public static class GUID
+    {
+        public int data1;
+        public short data2;
+        public short data3;
+        public int data4;
+        public int data5;
+    }
 
 }

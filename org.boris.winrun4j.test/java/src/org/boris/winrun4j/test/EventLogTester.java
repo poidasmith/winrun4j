@@ -14,6 +14,6 @@ import org.boris.winrun4j.EventLog;
 public class EventLogTester
 {
     public static void main(String[] args) throws Exception {
-        EventLog.report("EventLogTester", EventLog.SUCCESS, "A log from Native wrapper versoin");
+        EventLog.report("EventLogTester", EventLog.SUCCESS, "A log from Native wrapper version");
     }
 }

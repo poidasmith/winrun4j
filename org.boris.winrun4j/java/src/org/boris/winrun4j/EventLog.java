@@ -23,8 +23,8 @@ public class EventLog
 
     // Funtion handles
     private static long advapi32 = Native.loadLibrary("advapi32");
-    private static long registerEvent = Native.getProcAddress(advapi32, "RegisterEventSourceA");
-    private static long reportEvent = Native.getProcAddress(advapi32, "ReportEventA");
+    private static long registerEvent = Native.getProcAddress(advapi32, "RegisterEventSourceW");
+    private static long reportEvent = Native.getProcAddress(advapi32, "ReportEventW");
 
     /**
      * Report an event.
@@ -36,13 +36,11 @@ public class EventLog
      * @return boolean.
      */
     public static boolean report(String source, int type, String msg) {
-        long buf = NativeHelper.toNativeString(source, false);
+        long buf = NativeHelper.toNativeString(source, true);
         long h = NativeHelper.call(registerEvent, 0, buf);
-        long m = NativeHelper.toNativeString(msg, false);
-        boolean res = NativeHelper.call(reportEvent, new long[] { h, type, 0, 0, 0, 0,
-                msg.length(), 0, m }) == 1;
-        Native.free(buf);
-        Native.free(m);
+        long m = NativeHelper.toNativeString(msg, true);
+        boolean res = NativeHelper.call(reportEvent, new long[] { h, type, 0, 0, 0, 0, msg.length() * 2, 0, m }) == 1;
+        NativeHelper.free(buf, m);
         return res;
     }
 }

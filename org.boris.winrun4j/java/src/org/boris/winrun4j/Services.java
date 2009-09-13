@@ -13,9 +13,47 @@ import java.nio.ByteBuffer;
 
 public class Services
 {
+    // Service Type
+    public static final int SERVICE_FILE_SYSTEM_DRIVER = 0x2;
+    public static final int SERVICE_KERNEL_DRIVER = 0x3;
+    public static final int SERVICE_WIN32_OWN_PROCESS = 0x10;
+    public static final int SERVICE_WIN32_SHARE_PROCESS = 0x20;
+
+    // Service Start Type
+    public static final int SERVICE_AUTO_START = 0x2;
+    public static final int SERVICE_BOOT_START = 0x0;
+    public static final int SERVICE_DEMAND_START = 0x3;
+    public static final int SERVICE_DISABLED = 0x4;
+    public static final int SERVICE_SYSTEM_START = 0x1;
+
+    // Service Error Control
+    public static final int SERVICE_ERROR_CRITICAL = 0x3;
+    public static final int SERVICE_ERROR_IGNORE = 0x0;
+    public static final int SERVICE_ERROR_NORMAL = 0x1;
+    public static final int SERVICE_ERROR_SEVERE = 0x2;
+
+    // Service Config Actions
+    public static final int SC_ACTION_NONE = 0x0;
+    public static final int SC_ACTION_REBOOT = 0x2;
+    public static final int SC_ACTION_RESTART = 0x1;
+    public static final int SC_ACTION_RUN_COMMAND = 0x3;
+
     public static boolean ChangeServiceConfig(long service, int serviceType, int startType, int errorControl,
-            String binaryPathName, String[] loadOrderGroup, String[] dependencies, String serviceStartName,
+            String binaryPathName, String loadOrderGroup, String[] dependencies, String serviceStartName,
             String password, String displayName) {
+        long pathPtr = NativeHelper.toNativeString(binaryPathName, true);
+        long loadPtr = NativeHelper.toNativeString(loadOrderGroup, true);
+        long depPtr = NativeHelper.toMultiString(dependencies, true);
+        long starPtr = NativeHelper.toNativeString(serviceStartName, true);
+        long passPtr = NativeHelper.toNativeString(password, true);
+        long dispPtr = NativeHelper.toNativeString(displayName, true);
+        boolean res = NativeHelper.call(Advapi32.procChangeServiceConfig, new long[] { service, serviceType, startType,
+                errorControl, pathPtr, loadPtr, depPtr, starPtr, passPtr, dispPtr }) != 0;
+        NativeHelper.free(new long[] { pathPtr, loadPtr, depPtr, passPtr, dispPtr });
+        return res;
+    }
+
+    public static boolean ChangeServiceConfig2(long service, int infoLevel, SERVICE_CONFIG_BASE config) {
         return false;
     }
 
@@ -24,13 +62,38 @@ public class Services
     }
 
     public static SERVICE_STATUS ControlService(long service, int control) {
-        return null;
+        long ptr = Native.malloc(28);
+        boolean res = NativeHelper.call(service, control, ptr) != 0;
+        SERVICE_STATUS status = null;
+        if (res) {
+            status = new SERVICE_STATUS();
+            ByteBuffer bb = NativeHelper.getBuffer(ptr, 28);
+            status.serviceType = bb.getInt();
+            status.currentState = bb.getInt();
+            status.controlsAccepted = bb.getInt();
+            status.win32ExitCode = bb.getInt();
+            status.serviceSpecificExitCode = bb.getInt();
+            status.checkPoint = bb.getInt();
+            status.waitHint = bb.getInt();
+        }
+        NativeHelper.free(ptr);
+        return status;
     }
 
     public static long CreateService(long scManager, String serviceName, String displayName, int desiredAccess,
-            int serviceType, int startType, int errorControl, String binaryPathName, String[] loadOrderGroup,
+            int serviceType, int startType, int errorControl, String binaryPathName, String loadOrderGroup,
             String[] dependencies, String serviceStartName, String password) {
-        return 0;
+        long snPtr = NativeHelper.toNativeString(serviceName, true);
+        long dnPtr = NativeHelper.toNativeString(displayName, true);
+        long bpPtr = NativeHelper.toNativeString(binaryPathName, true);
+        long loPtr = NativeHelper.toNativeString(loadOrderGroup, true);
+        long depPtr = NativeHelper.toMultiString(dependencies, true);
+        long ssPtr = NativeHelper.toNativeString(serviceStartName, true);
+        long psPtr = NativeHelper.toNativeString(password, true);
+        long handle = NativeHelper.call(Advapi32.procCreateService, new long[] { scManager, snPtr, dnPtr,
+                desiredAccess, serviceType, startType, errorControl, bpPtr, loPtr, depPtr, ssPtr, psPtr });
+        NativeHelper.free(new long[] { snPtr, dnPtr, bpPtr, loPtr, ssPtr, psPtr });
+        return handle;
     }
 
     public static boolean DeleteService(long service) {
@@ -62,8 +125,7 @@ public class Services
         if (res) {
             displayName = NativeHelper.getString(dnPtr, 1024, true);
         }
-        Native.free(dnPtr);
-        Native.free(szPtr);
+        NativeHelper.free(new long[] { snPtr, dnPtr, szPtr });
         return displayName;
     }
 
@@ -79,8 +141,7 @@ public class Services
         if (res) {
             displayName = NativeHelper.getString(dnPtr, 1024, true);
         }
-        Native.free(dnPtr);
-        Native.free(szPtr);
+        NativeHelper.free(new long[] { snPtr, dnPtr, szPtr });
         return serviceName;
     }
 
@@ -93,6 +154,12 @@ public class Services
     }
 
     public static long NotifyServiceStatusChange(long service, int notifyMask, SERVICE_NOTIFY notify) {
+        long ptr = 0;
+        if (notify != null) {
+
+        }
+        long handle = NativeHelper.call(Advapi32.procNotifyServiceStatusChange, service, notifyMask, ptr);
+        NativeHelper.free(ptr);
         return 0;
     }
 
@@ -156,6 +223,59 @@ public class Services
         return false;
     }
 
+    public static abstract class SERVICE_CONFIG_BASE
+    {
+    }
+
+    public static class SERVICE_DELAYED_AUTO_START extends SERVICE_CONFIG_BASE
+    {
+        public boolean delayedAutoStart;
+    }
+
+    public static class SERVICE_DESCRIPTION extends SERVICE_CONFIG_BASE
+    {
+        public String description;
+    }
+
+    public static class SERVICE_FAILURE_ACTIONS extends SERVICE_CONFIG_BASE
+    {
+        public int resetPeriod;
+        public String rebootMsg;
+        public String command;
+        public SC_ACTION[] actions;
+    }
+
+    public static class SERVICE_FAILURE_ACTIONS_FLAG extends SERVICE_CONFIG_BASE
+    {
+        public boolean failureActionsOnNonCrashFailures;
+    }
+
+    public static class SERVICE_PREFERRED_NODE_INFO extends SERVICE_CONFIG_BASE
+    {
+        public int preferredNode;
+        public boolean delete;
+    }
+
+    public static class SERVICE_PRESHUTDOWN_INFO extends SERVICE_CONFIG_BASE
+    {
+        public int preshutdownTimeout;
+    }
+
+    public static class SEVICE_REQUIRED_PRIVELEGES_INFO extends SERVICE_CONFIG_BASE
+    {
+        public String requiredPriveleges;
+    }
+
+    public static class SERVICE_SID_INFO extends SERVICE_CONFIG_BASE
+    {
+        public String serviceSidType;
+    }
+
+    public static class SERVICE_TRIGGER_INFO extends SERVICE_CONFIG_BASE
+    {
+        public String description;
+    }
+
     public static class SERVICE_STATUS
     {
         public int serviceType;
@@ -187,7 +307,7 @@ public class Services
 
     public static class SERVICE_NOTIFY
     {
-        public int version;
+        public int version = 2;
         public Callback notifyCallback;
         public long context;
         public int notificationStatus;
@@ -211,6 +331,26 @@ public class Services
     {
         public String serviceName;
         public Callback serviceProc;
+    }
+
+    public static class SC_ACTION
+    {
+        public int type;
+        public int delay;
+    }
+
+    public static class SERVICE_TRIGGER
+    {
+        public int triggerType;
+        public int action;
+        public Advapi32.GUID triggerSubType;
+        public TRIGGER_SPECIFIC_DATA_ITEM[] dataItems;
+    }
+
+    public static class TRIGGER_SPECIFIC_DATA_ITEM
+    {
+        public int dataType;
+        public byte[] data;
     }
 
     public interface ServiceMain

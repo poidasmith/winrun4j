@@ -215,7 +215,7 @@ public class User32
         }
         int res = (int) NativeHelper.call(procDdeQueryString, idInst, hsz, ptr, len, codePage);
         if (buffer != null) {
-            ByteBuffer bb = Native.fromPointer(ptr, len);
+            ByteBuffer bb = NativeHelper.getBuffer(ptr, len);
             buffer.append(NativeHelper.getString(bb, codePage == CP_WINUNICODE));
             Native.free(ptr);
         }

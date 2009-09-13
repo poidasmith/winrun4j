@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -66,6 +65,21 @@ public class NativeHelper
         return Native.call(proc, b, len, 0);
     }
 
+    public static void free(long ptr) {
+        if (ptr != 0)
+            Native.free(ptr);
+    }
+
+    public static void free(long ptr1, long ptr2) {
+        free(new long[] { ptr1, ptr2 });
+    }
+
+    public static void free(long[] ptrs) {
+        for (int i = 0; i < ptrs.length; i++) {
+            Native.free(ptrs[i]);
+        }
+    }
+
     public static ByteBuffer getBuffer(long ptr, int size) {
         return Native.fromPointer(ptr, size).order(ByteOrder.LITTLE_ENDIAN);
     }
@@ -89,41 +103,6 @@ public class NativeHelper
     public static String getString(long ptr, long size, boolean wideChar) {
         ByteBuffer bb = Native.fromPointer(ptr, size);
         return getString(bb, wideChar);
-    }
-
-    public static long toNativeString(Object o, boolean wideChar) {
-        if (o == null)
-            return 0;
-
-        byte[] b;
-        try {
-            b = o.toString().getBytes(wideChar ? "UTF-16" : "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-        int len = b.length + (wideChar ? 2 : 1);
-        long buf = Native.malloc(len);
-        ByteBuffer bb = Native.fromPointer(buf, len);
-        bb.put(b);
-        bb.put((byte) 0);
-        if (wideChar)
-            bb.put((byte) 0);
-        return buf;
-    }
-
-    public static String toString(byte[] buffer) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < buffer.length; i++) {
-            if (buffer[i] == 0)
-                break;
-            sb.append((char) buffer[i]);
-        }
-        return sb.toString();
-    }
-
-    public static void zeroMemory(ByteBuffer b) {
-        while (b.hasRemaining())
-            b.put((byte) 0);
     }
 
     public static long toMultiString(String[] strs, boolean wideChar) {
@@ -160,5 +139,47 @@ public class NativeHelper
             bb.put((byte) 0);
 
         return ptr;
+    }
+
+    public static long toNativeString(Object o, boolean wideChar) {
+        if (o == null)
+            return 0;
+
+        String s = o.toString();
+        if (wideChar) {
+            char[] c = s.toCharArray();
+            int len = c.length * 2 + 2;
+            long buf = Native.malloc(len);
+            ByteBuffer bb = NativeHelper.getBuffer(buf, len);
+            for (int i = 0; i < c.length; i++) {
+                bb.putChar(c[i]);
+            }
+            bb.putChar((char) 0);
+            return buf;
+        } else {
+            byte[] b;
+            b = s.getBytes();
+            int len = b.length + 1;
+            long buf = Native.malloc(len);
+            ByteBuffer bb = Native.fromPointer(buf, len);
+            bb.put(b);
+            bb.put((byte) 0);
+            return buf;
+        }
+    }
+
+    public static String toString(byte[] buffer) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < buffer.length; i++) {
+            if (buffer[i] == 0)
+                break;
+            sb.append((char) buffer[i]);
+        }
+        return sb.toString();
+    }
+
+    public static void zeroMemory(ByteBuffer b) {
+        while (b.hasRemaining())
+            b.put((byte) 0);
     }
 }
