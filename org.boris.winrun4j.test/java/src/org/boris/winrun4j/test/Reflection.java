@@ -11,14 +11,31 @@ package org.boris.winrun4j.test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Reflection
 {
     public static String toString(Object o) {
+        return toString(o, false);
+    }
+
+    public static String toString(Object o, boolean includeSuper) {
         if (o == null)
             return "null";
         StringBuilder sb = new StringBuilder();
-        Field[] fields = o.getClass().getDeclaredFields();
+        Field[] fields = null;
+        if (includeSuper) {
+            ArrayList l = new ArrayList();
+            Class c = o.getClass();
+            while (c != null && c != Object.class) {
+                l.addAll(Arrays.asList(c.getDeclaredFields()));
+                c = c.getSuperclass();
+            }
+            fields = (Field[]) l.toArray(new Field[l.size()]);
+        } else {
+            fields = o.getClass().getDeclaredFields();
+        }
         for (Field f : fields) {
             f.setAccessible(true);
             sb.append(f.getName());
@@ -69,14 +86,12 @@ public class Reflection
         return sb.toString();
     }
 
-    public static String getConstantName(Class clazz, int value)
-            throws Exception {
+    public static String getConstantName(Class clazz, int value) throws Exception {
         Field[] fields = clazz.getDeclaredFields();
         Integer valObj = new Integer(value);
         for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
-            if (Modifier.isStatic(f.getModifiers()) &&
-                    Modifier.isPublic(f.getModifiers())) {
+            if (Modifier.isStatic(f.getModifiers()) && Modifier.isPublic(f.getModifiers())) {
                 if (f.get(null).equals(valObj)) {
                     return f.getName();
                 }

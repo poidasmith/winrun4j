@@ -119,7 +119,7 @@ public class NativeHelper
     }
 
     public static String getString(long ptr, long size, boolean wideChar) {
-        ByteBuffer bb = Native.fromPointer(ptr, size);
+        ByteBuffer bb = getBuffer(ptr, (int) size);
         return getString(bb, wideChar);
     }
 
@@ -199,5 +199,9 @@ public class NativeHelper
     public static void zeroMemory(ByteBuffer b) {
         while (b.hasRemaining())
             b.put((byte) 0);
+    }
+
+    public static void setInt(long ptr, int value) {
+        getBuffer(ptr, 4).putInt(value);
     }
 }

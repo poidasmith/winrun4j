@@ -30,6 +30,8 @@ public class Kernel32
     public static final long procGetLogicalDrive = Native.getProcAddress(library, "GetLogicalDriveStringsA");
     public static final long procGetTickCount = Native.getProcAddress(library, "GetTickCount");
     public static final long procGetVersionEx = Native.getProcAddress(library, "GetVersionExA");
+    public static final long procGlobalAlloc = Native.getProcAddress(library, "GlobalAlloc");
+    public static final long procGlobalFree = Native.getProcAddress(library, "GlobalFree");
     public static final long procOpenScManager = Native.getProcAddress(library, "OpenSCManager");
 
     public static void DebugBreak() {

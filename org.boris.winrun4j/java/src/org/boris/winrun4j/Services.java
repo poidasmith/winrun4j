@@ -48,6 +48,18 @@ public class Services
     public static final int SERVICE_STOP_PENDING = 0x3;
     public static final int SERVICE_STOPPED = 0x1;
 
+    // Service Access Type
+    public static final int SERVICE_QUERY_CONFIG = 0x0001;
+    public static final int SERVICE_CHANGE_CONFIG = 0x0002;
+    public static final int SERVICE_QUERY_STATUS = 0x0004;
+    public static final int SERVICE_ENUMERATE_DEPENDENTS = 0x0008;
+    public static final int SERVICE_START = 0x0010;
+    public static final int SERVICE_STOP = 0x0020;
+    public static final int SERVICE_PAUSE_CONTINUE = 0x0040;
+    public static final int SERVICE_INTERROGATE = 0x0080;
+    public static final int SERVICE_USER_DEFINED_CONTROL = 0x0100;
+    public static final int SERVICE_ALL_ACCESS = 0x01ff;
+
     public static boolean ChangeServiceConfig(long service, int serviceType, int startType, int errorControl,
             String binaryPathName, String loadOrderGroup, String[] dependencies, String serviceStartName,
             String password, String displayName) {
@@ -112,9 +124,9 @@ public class Services
 
     public static ENUM_SERVICE_STATUS[] EnumDependentServices(long service, int serviceState) {
         long ptrBytesNeeded = Native.malloc(4);
-        long ptrNumServices = 0;
+        long ptrNumServices = Native.malloc(4);
         boolean res = NativeHelper.call(Advapi32.procEnumDependentServices, service, serviceState, 0, 0,
-                ptrBytesNeeded, 0) != 0;
+                ptrBytesNeeded, ptrNumServices) == 0;
         ENUM_SERVICE_STATUS[] deps = null;
         long ptr = 0;
         if (res) {
@@ -137,27 +149,21 @@ public class Services
     public static ENUM_SERVICE_STATUS[] EnumServiceStatus(long scManager, int serviceType, int serviceState) {
         long ptrBytesNeeded = Native.malloc(4);
         long ptrNumServices = Native.malloc(4);
-        long ptrResumeHandle = Native.malloc(4);
         long ptr = Native.malloc(1024);
         boolean res = NativeHelper.call(Advapi32.procEnumServicesStatus, scManager, serviceType, serviceState, ptr,
-                1024, ptrBytesNeeded, ptrNumServices, ptrResumeHandle) != 0;
-        System.out.println(res + " " + Kernel32.GetLastError());
+                1024, ptrBytesNeeded, ptrNumServices, 0) == 0;
+        int size = NativeHelper.getInt(ptrBytesNeeded);
         ENUM_SERVICE_STATUS[] stats = null;
-        if (res) {
-            int size = NativeHelper.getInt(ptrBytesNeeded);
-            int num = NativeHelper.getInt(ptrNumServices);
-            if (size > 0) {
-                ptr = Native.malloc(size);
-                ptrNumServices = Native.malloc(4);
-                res = NativeHelper.call(Advapi32.procEnumServicesStatus, scManager, serviceType, serviceState, ptr,
-                        size, ptrBytesNeeded, ptrNumServices, ptrResumeHandle) != 0;
-                if (res) {
-                    int numServices = NativeHelper.getInt(ptrNumServices);
-                    stats = decodeEnum(ptr, size, numServices);
-                }
+        if (res && size > 0) {
+            ptr = Native.malloc(size);
+            res = NativeHelper.call(Advapi32.procEnumServicesStatus, scManager, serviceType, serviceState, ptr, size,
+                    ptrBytesNeeded, ptrNumServices, 0) == 0;
+            if (res) {
+                int numServices = NativeHelper.getInt(ptrNumServices);
+                stats = decodeEnum(ptr, size, numServices);
             }
         }
-        NativeHelper.free(ptrBytesNeeded, ptrNumServices, ptrResumeHandle, ptr);
+        NativeHelper.free(ptrBytesNeeded, ptrNumServices, ptr);
         return stats;
     }
 
@@ -167,20 +173,17 @@ public class Services
         long ptrGroupName = NativeHelper.toNativeString(groupName, true);
         long ptrNumServices = Native.malloc(4);
         boolean res = NativeHelper.call(Advapi32.procEnumServicesStatusEx, scManager, 0, serviceType, serviceState, 0,
-                0, ptrBytesNeeded, ptrNumServices, 0, ptrGroupName) != 0;
+                0, ptrBytesNeeded, ptrNumServices, 0, ptrGroupName) == 0;
         ENUM_SERVICE_STATUS_PROCESS[] stats = null;
         long ptr = 0;
-        if (res) {
-            int size = NativeHelper.getInt(ptrBytesNeeded);
-            if (size > 0) {
-                ptr = Native.malloc(size);
-                // ptrNumServices = Native.malloc(4);
-                res = NativeHelper.call(Advapi32.procEnumServicesStatusEx, scManager, 0, serviceType, serviceState,
-                        ptr, size, ptrBytesNeeded, ptrNumServices, 0, ptrGroupName) != 0;
-                if (res) {
-                    int numServices = NativeHelper.getInt(ptrNumServices);
-                    stats = decodeEnumProc(ptr, size, numServices);
-                }
+        int size = NativeHelper.getInt(ptrBytesNeeded);
+        if (res && size > 0) {
+            ptr = Native.malloc(size);
+            res = NativeHelper.call(Advapi32.procEnumServicesStatusEx, scManager, 0, serviceType, serviceState, ptr,
+                    size, ptrBytesNeeded, ptrNumServices, 0, ptrGroupName) != 0;
+            if (res) {
+                int numServices = NativeHelper.getInt(ptrNumServices);
+                stats = decodeEnumProc(ptr, size, numServices);
             }
         }
         NativeHelper.free(ptrBytesNeeded, ptrNumServices, ptr);

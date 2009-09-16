@@ -18,7 +18,6 @@ public class User32
     public static final long procDdeAbandonTransaction = Native.getProcAddress(library, "DdeAbandonTransaction");
     public static final long procDdeAccessData = Native.getProcAddress(library, "DdeAccessData");
     public static final long procDdeAddData = Native.getProcAddress(library, "DdeAddData");
-    public static final long procDdeCallback = Native.getProcAddress(library, "DdeCallback");
     public static final long procDdeClientTransaction = Native.getProcAddress(library, "DdeClientTransaction");
     public static final long procDdeCmpStringHandles = Native.getProcAddress(library, "DdeCmpStringHandles");
     public static final long procDdeConnect = Native.getProcAddress(library, "DdeConnect");
@@ -67,12 +66,6 @@ public class User32
         long res = NativeHelper.call(procDdeAddData, data, ptr, len, offset);
         Native.free(ptr);
         return res;
-    }
-
-    public static long DdeCallback(int type, int fmt, long conversation, long hsz1, long hsz2, long hdata,
-            long dwData1, long dwData2) {
-        return NativeHelper.call(procDdeCallback, new long[] { type, fmt, conversation, hsz1, hsz2, hdata, dwData1,
-                dwData2 });
     }
 
     public static long DdeClientTransaction(byte[] data, int len, long conv, long hszItem, int fmt, int type,
