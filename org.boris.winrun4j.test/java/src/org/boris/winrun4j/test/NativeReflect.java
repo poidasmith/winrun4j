@@ -7,17 +7,8 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.test;
 
-/**
- * A listener for an dde messages.
- */
-public interface DDEListener
+public class NativeReflect
 {
-    /**
-     * Execute based on the given command (line).
-     * 
-     * @param commnd.
-     */
-    void execute(String command);
 }

@@ -54,5 +54,4 @@ public class Advapi32
         public int data4;
         public int data5;
     }
-
 }

@@ -9,8 +9,14 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-public class DDESingleInstanceTest
+public class NativeServiceTest
 {
     public static void main(String[] args) throws Exception {
+        if (args != null && args.length == 1) {
+            if ("-register".equals(args[0])) {
+            } else if ("-unregister".equals(args[0])) {
+            } else if ("-console".equals(args[0])) {
+            }
+        }
     }
 }

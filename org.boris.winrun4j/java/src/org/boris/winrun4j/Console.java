@@ -7,10 +7,8 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.test;
+package org.boris.winrun4j;
 
-public class DDESingleInstanceTest
+public class Console
 {
-    public static void main(String[] args) throws Exception {
-    }
 }
