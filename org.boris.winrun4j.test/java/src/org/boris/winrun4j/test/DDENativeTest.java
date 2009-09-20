@@ -10,6 +10,7 @@
 package org.boris.winrun4j.test;
 
 import org.boris.winrun4j.DDEML;
+import org.boris.winrun4j.WIN32;
 import org.boris.winrun4j.DDEML.DdeCallback;
 import org.boris.winrun4j.DDEML.DdeCallbackImpl;
 
@@ -17,7 +18,7 @@ public class DDENativeTest implements DdeCallback
 {
     public static void main(String[] args) throws Exception {
         DdeCallbackImpl cb = new DdeCallbackImpl(new DDENativeTest());
-        DDEML.DdeInitialize(cb, DDEML.APPCLASS_MONITOR | DDEML.MF_CALLBACKS);
+        DDEML.DdeInitialize(cb, WIN32.APPCLASS_MONITOR | WIN32.MF_CALLBACKS);
     }
 
     public long callback(int type, int fmt, long conv, long hsz1, long hsz2, long data, int data1, int data2) {

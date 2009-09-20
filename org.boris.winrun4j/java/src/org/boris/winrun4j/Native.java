@@ -16,8 +16,6 @@ import java.nio.ByteBuffer;
  */
 public class Native
 {
-    public static final int MAX_PATH = 260;
-
     /**
      * Load a native library (eg. "kernel32")
      */
@@ -51,7 +49,7 @@ public class Native
     /**
      * Call a native function.
      */
-    public static native long call(long ptr, byte[] stack, int stackSize, int convention);
+    public static native long call(long ptr, byte[] stack, int stackSize, int mode);
 
     /**
      * Binds a function pointer to a native method.

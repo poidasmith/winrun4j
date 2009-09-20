@@ -11,4 +11,5 @@ package org.boris.winrun4j;
 
 public class Console
 {
+    public static final long library = Kernel32.library;
 }

@@ -298,10 +298,6 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 
 	// Register native methods
 	JNI::Init(env);
-	Log::RegisterNatives(env);
-	INI::RegisterNatives(env);
-	SplashScreen::RegisterNatives(env);
-	Registry::RegisterNatives(env);
 	Native::RegisterNatives(env);
 
 	// Startup DDE if requested

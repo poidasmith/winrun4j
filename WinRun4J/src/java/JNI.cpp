@@ -111,7 +111,7 @@ char* JNI::CallStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name)
 {
 	jmethodID methodID = env->GetMethodID(clazz, name, "()Ljava/lang/String;");
 	if(methodID == NULL) {
-		Log::SetLastError("Could not find '%s' method", name);
+		Log::Error("Could not find '%s' method", name);
 		return NULL;
 	}
 
@@ -136,7 +136,7 @@ const bool JNI::CallBooleanMethod(JNIEnv* env, jclass clazz, jobject obj, char* 
 {
 	jmethodID methodID = env->GetMethodID(clazz, name, "()Z");
 	if(methodID == NULL) {
-		Log::SetLastError("Could not find '%s' method", name);
+		Log::Error("Could not find '%s' method", name);
 		return NULL;
 	}
 

@@ -110,7 +110,7 @@ jobject Native::FromPointer(JNIEnv* env, jobject self, jlong handle, jlong size)
 	return env->NewDirectByteBuffer((void*) handle, size);
 }
 
-jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size, jint convention)
+jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size, jint mode)
 {
 	jboolean iscopy;
 	int* p = !stack ? (int*) 0 : (int*)env->GetPrimitiveArrayCritical(stack, &iscopy);

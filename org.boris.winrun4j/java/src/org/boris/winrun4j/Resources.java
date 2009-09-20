@@ -15,10 +15,7 @@ import java.nio.ByteOrder;
 
 public class Resources
 {
-    static long kernel32 = Native.loadLibrary("kernel32");
-    static long enumResourceTypes = Native.getProcAddress(kernel32, "EnumResourceTypesW");
-    static long enumResourceNames = Native.getProcAddress(kernel32, "EnumResourceNamesW");
-    static long enumResourceLanguages = Native.getProcAddress(kernel32, "EnumResourceLanguagesW");
+    static long library = Native.loadLibrary("kernel32");
 
     public static void main(String[] args) throws Exception {
         final Callback langs = new Callback() {
@@ -50,7 +47,7 @@ public class Resources
                 printHex(type);
                 printHex(name);
                 printHex(param);
-                return (int) NativeHelper.call(enumResourceLanguages, 0, type, name, langs
+                return (int) NativeHelper.call(library, "EnumResourceLanguagesW", 0, type, name, langs
                         .getPointer(), 0);
             }
         };
@@ -64,11 +61,11 @@ public class Resources
                 printHex(module);
                 printHex(type);
                 printHex(param);
-                return (int) NativeHelper.call(enumResourceNames, 0, type, names.getPointer(), 0);
+                return (int) NativeHelper.call(library, "EnumResourceNamesW", 0, type, names.getPointer(), 0);
             }
         };
 
-        NativeHelper.call(enumResourceTypes, 0, types.getPointer(), 0);
+        NativeHelper.call(library, "EnumResourceTypesW", 0, types.getPointer(), 0);
         types.cleanup();
         names.cleanup();
         langs.cleanup();
@@ -79,15 +76,15 @@ public class Resources
     }
 
     public static int EnumResourceTypes(long handle, Callback callback) {
-        return (int) NativeHelper.call(enumResourceTypes, handle, callback.getPointer(), 0);
+        return (int) NativeHelper.call(library, "EnumResourceTypesW", handle, callback.getPointer(), 0);
     }
 
     public static int EnumResourceNames(long handle, long type, Callback callback) {
-        return (int) NativeHelper.call(enumResourceNames, handle, type, callback.getPointer(), 0);
+        return (int) NativeHelper.call(library, "EnumResourceNamesW", handle, type, callback.getPointer(), 0);
     }
 
     public static int EnumResourceLanguages(long handle, long type, long name, Callback callback) {
-        return (int) NativeHelper.call(enumResourceLanguages, handle, type, name, callback
+        return (int) NativeHelper.call(library, "EnumResourceLanguagesW", handle, type, name, callback
                 .getPointer(), 0);
     }
 }

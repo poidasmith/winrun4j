@@ -129,57 +129,9 @@ void INI::ExpandVariables(dictionary* ini)
 	}
 }
 
-#ifndef NO_JAVA
-jobjectArray INI::GetKeys(JNIEnv* env, jobject self)
+extern "C" __declspec(dllexport) dictionary* __cdecl INI_GetDictionary()
 {
-	jclass clazz = env->FindClass("java/lang/String");
-	jobjectArray keys = env->NewObjectArray(g_ini->n, clazz, NULL);
-	for(int i = 0; i < g_ini->n; i++) {
-		env->SetObjectArrayElement(keys, i, env->NewStringUTF(g_ini->key[i]));
-	}
-	return keys;
+	return g_ini;
 }
 
-jstring INI::GetKey(JNIEnv* env, jobject self, jstring key)
-{
-	jboolean iscopy = false;
-	const char* keyStr = key ? env->GetStringUTFChars(key, &iscopy) : 0;
-	char* value = iniparser_getstr(g_ini, (char*) keyStr);
-	if(value == NULL) {
-		return NULL;
-	} else {
-		return env->NewStringUTF(value);
-	}
-}
 
-bool INI::RegisterNatives(JNIEnv *env, bool useExcel)
-{
-	Log::Info("Registering natives for INI class");
-	jclass clazz;
-	JNINativeMethod methods[2];
-	if(useExcel) {
-		clazz = JNI::FindClass(env, "org/excel4j/INI");
-	} else {
-		clazz = JNI::FindClass(env, "org/boris/winrun4j/INI");
-	}
-	if(clazz == NULL) {
-		Log::Warning("Could not find INI class");
-		JNI::ClearException(env);
-		return false;
-	}
-	methods[0].fnPtr = (void*) GetKeys;
-	methods[0].name = "getPropertyKeys";
-	methods[0].signature = "()[Ljava/lang/String;";
-	methods[1].fnPtr = (void*) GetKey;
-	methods[1].name = "getProperty";
-	methods[1].signature = "(Ljava/lang/String;)Ljava/lang/String;";
-	env->RegisterNatives(clazz, methods, 2);
-	if(env->ExceptionCheck()) {
-		Log::Error("Could not register natives methods for INI class");
-		JNI::PrintStackTrace(env);
-		return false;
-	}
-
-	return true;
-}
-#endif

@@ -60,6 +60,61 @@ public class NativeHelper
             long arg8, long arg9, long arg10) {
         return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10 }));
     }
+    
+    public static long call(long library, String fn) {
+        return call(library, fn, (NativeStack) null);
+    }
+
+    public static long call(long library, String fn, long arg1) {
+        return call(library, fn, new NativeStack(new long[] { arg1 }));
+    }
+
+    public static long call(long library, String fn, long arg1, long arg2) {
+        return call(library, fn, new NativeStack(new long[] { arg1, arg2 }));
+    }
+
+    public static long call(long library, String fn, long arg1, long arg2, long arg3) {
+        return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3 }));
+    }
+
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4) {
+        return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4 }));
+    }
+
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5) {
+        return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5 }));
+    }
+
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6) {
+        return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6 }));
+    }
+
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7) {
+        return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 }));
+    }
+
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
+            long arg8) {
+        return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 }));
+    }
+
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
+            long arg8, long arg9) {
+        return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 }));
+    }
+
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
+            long arg8, long arg9, long arg10) {
+        return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10 }));
+    }
+    
+    public static long call(long library, String fn, long[] args) {
+        return call(Native.getProcAddress(library, fn), args);
+    }
+
+    public static long call(long library, String fn, NativeStack stack) {
+        return call(Native.getProcAddress(library, fn), stack);
+    }
 
     public static long call(long proc, long[] args) {
         return call(proc, new NativeStack(args));

@@ -59,6 +59,8 @@ public class Services
     public static final int SERVICE_INTERROGATE = 0x0080;
     public static final int SERVICE_USER_DEFINED_CONTROL = 0x0100;
     public static final int SERVICE_ALL_ACCESS = 0x01ff;
+    
+    private static final long library = Advapi32.library;
 
     public static boolean ChangeServiceConfig(long service, int serviceType, int startType, int errorControl,
             String binaryPathName, String loadOrderGroup, String[] dependencies, String serviceStartName,
@@ -69,7 +71,7 @@ public class Services
         long starPtr = NativeHelper.toNativeString(serviceStartName, true);
         long passPtr = NativeHelper.toNativeString(password, true);
         long dispPtr = NativeHelper.toNativeString(displayName, true);
-        boolean res = NativeHelper.call(Advapi32.procChangeServiceConfig, new long[] { service, serviceType, startType,
+        boolean res = NativeHelper.call(library, "ChangeServiceConfig", new long[] { service, serviceType, startType,
                 errorControl, pathPtr, loadPtr, depPtr, starPtr, passPtr, dispPtr }) != 0;
         NativeHelper.free(new long[] { pathPtr, loadPtr, depPtr, passPtr, dispPtr });
         return res;
@@ -80,7 +82,7 @@ public class Services
     }
 
     public static boolean CloseServiceHandle(long service) {
-        return NativeHelper.call(Advapi32.procCloseServiceHandle, service) != 0;
+        return NativeHelper.call(library, "CloseServiceHandle", service) != 0;
     }
 
     public static SERVICE_STATUS ControlService(long service, int control) {
@@ -112,20 +114,20 @@ public class Services
         long depPtr = NativeHelper.toMultiString(dependencies, true);
         long ssPtr = NativeHelper.toNativeString(serviceStartName, true);
         long psPtr = NativeHelper.toNativeString(password, true);
-        long handle = NativeHelper.call(Advapi32.procCreateService, new long[] { scManager, snPtr, dnPtr,
+        long handle = NativeHelper.call(library, "CreateService", new long[] { scManager, snPtr, dnPtr,
                 desiredAccess, serviceType, startType, errorControl, bpPtr, loPtr, depPtr, ssPtr, psPtr });
         NativeHelper.free(new long[] { snPtr, dnPtr, bpPtr, loPtr, ssPtr, psPtr });
         return handle;
     }
 
     public static boolean DeleteService(long service) {
-        return NativeHelper.call(Advapi32.procDeleteService, service) != 0;
+        return NativeHelper.call(library, "DeleteService", service) != 0;
     }
 
     public static ENUM_SERVICE_STATUS[] EnumDependentServices(long service, int serviceState) {
         long ptrBytesNeeded = Native.malloc(4);
         long ptrNumServices = Native.malloc(4);
-        boolean res = NativeHelper.call(Advapi32.procEnumDependentServices, service, serviceState, 0, 0,
+        boolean res = NativeHelper.call(library, "EnumDependentServices", service, serviceState, 0, 0,
                 ptrBytesNeeded, ptrNumServices) == 0;
         ENUM_SERVICE_STATUS[] deps = null;
         long ptr = 0;
@@ -134,7 +136,7 @@ public class Services
             if (size > 0) {
                 ptr = Native.malloc(size);
                 ptrNumServices = Native.malloc(4);
-                res = NativeHelper.call(Advapi32.procEnumDependentServices, service, serviceState, ptr, size,
+                res = NativeHelper.call(library, "EnumDependentServices", service, serviceState, ptr, size,
                         ptrBytesNeeded, ptrNumServices) != 0;
                 if (res) {
                     int numServices = NativeHelper.getInt(ptrNumServices);
@@ -150,13 +152,13 @@ public class Services
         long ptrBytesNeeded = Native.malloc(4);
         long ptrNumServices = Native.malloc(4);
         long ptr = Native.malloc(1024);
-        boolean res = NativeHelper.call(Advapi32.procEnumServicesStatus, scManager, serviceType, serviceState, ptr,
+        boolean res = NativeHelper.call(library, "EnumServicesStatus", scManager, serviceType, serviceState, ptr,
                 1024, ptrBytesNeeded, ptrNumServices, 0) == 0;
         int size = NativeHelper.getInt(ptrBytesNeeded);
         ENUM_SERVICE_STATUS[] stats = null;
         if (res && size > 0) {
             ptr = Native.malloc(size);
-            res = NativeHelper.call(Advapi32.procEnumServicesStatus, scManager, serviceType, serviceState, ptr, size,
+            res = NativeHelper.call(library, "EnumServicesStatus", scManager, serviceType, serviceState, ptr, size,
                     ptrBytesNeeded, ptrNumServices, 0) == 0;
             if (res) {
                 int numServices = NativeHelper.getInt(ptrNumServices);
@@ -172,14 +174,14 @@ public class Services
         long ptrBytesNeeded = Native.malloc(4);
         long ptrGroupName = NativeHelper.toNativeString(groupName, true);
         long ptrNumServices = Native.malloc(4);
-        boolean res = NativeHelper.call(Advapi32.procEnumServicesStatusEx, scManager, 0, serviceType, serviceState, 0,
+        boolean res = NativeHelper.call(library, "EnumServicesStatusEx", scManager, 0, serviceType, serviceState, 0,
                 0, ptrBytesNeeded, ptrNumServices, 0, ptrGroupName) == 0;
         ENUM_SERVICE_STATUS_PROCESS[] stats = null;
         long ptr = 0;
         int size = NativeHelper.getInt(ptrBytesNeeded);
         if (res && size > 0) {
             ptr = Native.malloc(size);
-            res = NativeHelper.call(Advapi32.procEnumServicesStatusEx, scManager, 0, serviceType, serviceState, ptr,
+            res = NativeHelper.call(library, "EnumServicesStatusEx", scManager, 0, serviceType, serviceState, ptr,
                     size, ptrBytesNeeded, ptrNumServices, 0, ptrGroupName) != 0;
             if (res) {
                 int numServices = NativeHelper.getInt(ptrNumServices);
@@ -197,7 +199,7 @@ public class Services
         long dnPtr = Native.malloc(1024);
         long szPtr = Native.malloc(4);
         NativeHelper.getBuffer(szPtr, 4).putInt(1024);
-        boolean res = NativeHelper.call(Advapi32.procGetServiceDisplayName, scManager, snPtr, dnPtr, szPtr) != 0;
+        boolean res = NativeHelper.call(library, "GetServiceDisplayName", scManager, snPtr, dnPtr, szPtr) != 0;
         String displayName = null;
         if (res) {
             displayName = NativeHelper.getString(dnPtr, 1024, true);
@@ -213,7 +215,7 @@ public class Services
         long dnPtr = Native.malloc(1024);
         long szPtr = Native.malloc(4);
         NativeHelper.getBuffer(szPtr, 4).putInt(1024);
-        boolean res = NativeHelper.call(Advapi32.procGetServiceKeyName, scManager, snPtr, dnPtr, szPtr) != 0;
+        boolean res = NativeHelper.call(library, "GetServiceKeyName", scManager, snPtr, dnPtr, szPtr) != 0;
         String serviceName = null;
         if (res) {
             displayName = NativeHelper.getString(dnPtr, 1024, true);
@@ -223,11 +225,11 @@ public class Services
     }
 
     public static long LockServiceDatabase(long scManager) {
-        return NativeHelper.call(Advapi32.procLockServiceDatabase, scManager);
+        return NativeHelper.call(library, "LockServiceDatabase", scManager);
     }
 
     public static boolean NotifyBootConfigStatus(boolean bootAcceptable) {
-        return NativeHelper.call(Advapi32.procNotifyBootConfigStatus, bootAcceptable ? 1 : 0) != 0;
+        return NativeHelper.call(library, "NotifyBootConfigStatus", bootAcceptable ? 1 : 0) != 0;
     }
 
     public static long NotifyServiceStatusChange(long service, int notifyMask, SERVICE_NOTIFY notify) {
@@ -235,7 +237,7 @@ public class Services
         if (notify != null) {
 
         }
-        long handle = NativeHelper.call(Advapi32.procNotifyServiceStatusChange, service, notifyMask, ptr);
+        long handle = NativeHelper.call(library, "NotifyServiceStatusChange", service, notifyMask, ptr);
         NativeHelper.free(ptr);
         return 0;
     }
@@ -243,7 +245,7 @@ public class Services
     public static long OpenSCManager(String machineName, String databaseName, int desiredAccess) {
         long mnp = NativeHelper.toNativeString(machineName, true);
         long dnp = NativeHelper.toNativeString(databaseName, true);
-        long res = NativeHelper.call(Advapi32.procOpenSCManager, mnp, dnp, desiredAccess);
+        long res = NativeHelper.call(library, "OpenSCManager", mnp, dnp, desiredAccess);
         if (mnp != 0)
             Native.free(mnp);
         if (dnp != 0)
@@ -253,7 +255,7 @@ public class Services
 
     public static long OpenService(long scManager, String serviceName, int desiredAccess) {
         long ptr = NativeHelper.toNativeString(serviceName, true);
-        long res = NativeHelper.call(Advapi32.procOpenService, scManager, ptr, desiredAccess);
+        long res = NativeHelper.call(library, "OpenService", scManager, ptr, desiredAccess);
         NativeHelper.free(ptr);
         return res;
     }
@@ -288,7 +290,7 @@ public class Services
 
     public static boolean SetServiceBits(long serviceStatus, int serviceBits, boolean setBitsOn,
             boolean updateImmediately) {
-        return NativeHelper.call(Advapi32.procSetServiceBits, serviceStatus, serviceBits, setBitsOn ? 1 : 0,
+        return NativeHelper.call(library, "SetServiceBits", serviceStatus, serviceBits, setBitsOn ? 1 : 0,
                 updateImmediately ? 1 : 0) != 0;
     }
 

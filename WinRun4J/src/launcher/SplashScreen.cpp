@@ -269,90 +269,49 @@ HBITMAP SplashScreen::LoadImageBitmap(HGLOBAL hgbl, DWORD size)
 	return hbmp;
 }
 
-
-jlong SplashScreen::GetWindowHandle(JNIEnv* env, jobject self)
+extern "C" __declspec(dllexport) HWND __cdecl SplashScreen_GetWindowHandle()
 {
-	return (jlong) g_hWnd;
+	return g_hWnd;
 }
 
-void SplashScreen::Close(JNIEnv* env, jobject self)
+extern "C" __declspec(dllexport) void __cdecl SplashScreen_Close()
 {
 	g_closeWindow = true;
 }
 
-void SplashScreen::SetTextFont(JNIEnv* env, jobject self, jstring typeface, jint size)
+extern "C" __declspec(dllexport) void __cdecl SplashScreen_SetTextFont(const char* typeface, int size)
 {
 	if(!g_hWnd) return;
-	jboolean iscopy = false;
-	const char* t = typeface ? env->GetStringUTFChars(typeface, &iscopy) : 0;
 	HDC hdc = GetDC(NULL);
 	DWORD h = -MulDiv(size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-	HFONT hf = CreateFont(h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, t);
+	HFONT hf = CreateFont(h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, typeface);
 	if(g_font)
 		DeleteObject(g_font);
 	g_font = hf;
 }
 
-void SplashScreen::SetText(JNIEnv* env, jobject self, jstring text, jint x, jint y)
+extern "C" __declspec(dllexport) void __cdecl SplashScreen_SetText(const char* text, int x, int y)
 {
 	if(!g_hWnd) return;
 	g_textSet = true;
-	jboolean iscopy = false;
-	const char* t = text ? env->GetStringUTFChars(text, &iscopy) : 0;
-	strcpy(g_text, t);
+	strcpy(g_text, text);
 	g_textX = x;
 	g_textY = y;
 	InvalidateRect(g_hWnd, NULL, FALSE);
 }
 
-void SplashScreen::SetTextColor(JNIEnv* env, jobject self, int r, int g, int b)
+
+extern "C" __declspec(dllexport) void __cdecl SplashScreen_SetTextColor(int r, int g, int b)
 {
 	if(!g_hWnd) return;
 	g_textColorSet = true;
 	g_textColor = RGB(r, g, b);
 }
 
-void SplashScreen::SetTextBgColor(JNIEnv* env, jobject self, int r, int g, int b)
+extern "C" __declspec(dllexport) void __cdecl SplashScreen_SetTextBgColor(int r, int g, int b)
 {
 	if(!g_hWnd) return;
 	g_textBkColorSet = true;
 	g_textBkColor = RGB(r, g, b);
-}
-
-void SplashScreen::RegisterNatives(JNIEnv *env)
-{
-	Log::Info("Registering natives for SplashScreen class");
-	jclass clazz = JNI::FindClass(env, "org/boris/winrun4j/SplashScreen");
-	if(clazz == NULL) {
-		Log::Warning("Could not find SplashScreen class");
-		if(env->ExceptionOccurred())
-			env->ExceptionClear();
-		return;
-	}
-
-	JNINativeMethod methods[6];
-	methods[0].fnPtr = (void*) GetWindowHandle;
-	methods[0].name = "getWindowHandle";
-	methods[0].signature = "()J";
-	methods[1].fnPtr = (void*) Close;
-	methods[1].name = "close";
-	methods[1].signature = "()V";
-	methods[2].fnPtr = (void*) SetText;
-	methods[2].name = "setText";
-	methods[2].signature = "(Ljava/lang/String;II)V";
-	methods[3].fnPtr = (void*) SetTextFont;
-	methods[3].name = "setTextFont";
-	methods[3].signature = "(Ljava/lang/String;I)V";
-	methods[4].fnPtr = (void*) SetTextColor;
-	methods[4].name = "setTextColor";
-	methods[4].signature = "(III)V";
-	methods[5].fnPtr = (void*) SetTextBgColor;
-	methods[5].name = "setTextBgColor";
-	methods[5].signature = "(III)V";
-	env->RegisterNatives(clazz, methods, 6);
-	if(env->ExceptionCheck()) {
-		JNI::PrintStackTrace(env);
-		env->ExceptionClear();
-	}
 }
 

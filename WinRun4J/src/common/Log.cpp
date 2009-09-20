@@ -272,87 +272,11 @@ void Log::Close()
 	}
 }
 
-// Set the error
-void Log::SetLastError(const char* format, ...)
+extern "C" __declspec(dllexport) void Log_LogIt(int level, const char* marker, const char* format, ...)
 {
-#ifndef NO_JAVA
-	JNI::ClearException(VM::GetJNIEnv());
-#endif
-	g_error = true;
 	va_list args;
 	va_start(args, format);
-	Log::Error(format, args);
-	vsprintf(g_errorText, format, args);
+	Log::LogIt(info, marker, format, args);
 	va_end(args);
 }
 
-#ifndef NO_JAVA
-
-const char* Log::GetLastError()
-{
-	return g_error ? g_errorText : NULL;
-}
-
-bool Log::RegisterNatives(JNIEnv* env)
-{
-	// Register Log functions
-	Log::Info("Registering natives for Log class");
-	jclass clazz = JNI::FindClass(env, "org/boris/winrun4j/Log");
-	if(clazz == NULL) {
-		Log::Warning("Could not find Log class");
-		return false;
-	}
-	
-	JNINativeMethod nm[1];
-	nm[0].name = "log";
-	nm[0].signature = "(ILjava/lang/String;)V";
-	nm[0].fnPtr = (void*) Log::LogJ;
-	env->RegisterNatives(clazz, nm, 1);
-
-	if(env->ExceptionCheck()) {
-		JNI::PrintStackTrace(env);
-		return false;
-	}
-	
-	return true;
-}
-
-void JNICALL Log::LogJ(JNIEnv* env, jobject self, jint jlevel, jstring str)
-{
-	if(g_logLevel > jlevel) return;
-	if(str == NULL)
-		return;
-
-	jboolean iscopy = false;
-	const char* format = str ? env->GetStringUTFChars(str, &iscopy) : 0;
-	// TODO - logging level to string
-	switch(jlevel) {
-		case info: Info(format); break;
-		case warning: Warning(format); break;
-		case error: Error(format); break;
-	}
-}
-
-void JNICALL Log::SetLastErrorJ(JNIEnv* env, jobject self, jstring str)
-{
-	if(str == NULL)
-		return;
-
-	jboolean iscopy = false;
-	if(env->ExceptionOccurred())
-		env->ExceptionClear();
-	const char* chars = str ? env->GetStringUTFChars(str, &iscopy) : 0;
-	Log::SetLastError(chars);
-	env->ReleaseStringUTFChars(str, chars); 
-}
-
-jstring JNICALL Log::GetLastErrorJ(JNIEnv* env, jobject self)
-{
-	const char* err = Log::GetLastError();
-	if(err == NULL)
-		return NULL;
-	else
-		return env->NewStringUTF(err);
-}
-
-#endif
