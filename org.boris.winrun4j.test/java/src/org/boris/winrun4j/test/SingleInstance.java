@@ -1,5 +1,7 @@
 package org.boris.winrun4j.test;
 
+import java.nio.ByteBuffer;
+
 import org.boris.winrun4j.Kernel32;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
@@ -39,6 +41,18 @@ public class SingleInstance
         return false;
     }
 
+    public static void decode(long ptr, PROCESSENTRY32 pe) {
+        ByteBuffer bb = NativeHelper.getBuffer(ptr, 40);
+        pe.dwSize = bb.getInt();
+        pe.cntUsage = bb.getInt();
+        pe.th32ProcessID = bb.getInt();
+        pe.th32DefaultHeapID = bb.getInt();
+        pe.th32ModuleID = bb.getInt();
+        pe.cntThreads = bb.getInt();
+        pe.pcPriClassBase = bb.getInt();
+        pe.szExeFile = NativeHelper.getString(bb.getInt(), 520, true);
+    }
+
     public static class PROCESSENTRY32
     {
         public int dwSize;
@@ -50,6 +64,6 @@ public class SingleInstance
         public int th32ParentProcessID;
         public int pcPriClassBase;
         public int dwFlags;
-        public int szExeFile;
+        public String szExeFile;
     }
 }
