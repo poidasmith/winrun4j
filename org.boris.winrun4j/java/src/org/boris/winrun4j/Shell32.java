@@ -52,6 +52,7 @@ public class Shell32
     public static final int Resources = 0x38;
     
     public static final int MAX_PATH = 260;
+    public static final int MAX_PATHW = 520;
 
     public static File getFolderPath(int type) {
         long buf = Native.malloc(MAX_PATH << 1);
