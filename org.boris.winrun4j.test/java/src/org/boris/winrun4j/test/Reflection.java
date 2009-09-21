@@ -100,4 +100,8 @@ public class Reflection
 
         return null;
     }
+
+    public static void println(Object value) {
+        System.out.println(toString(value));
+    }
 }
