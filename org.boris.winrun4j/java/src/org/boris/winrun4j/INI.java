@@ -17,12 +17,25 @@ import java.util.Properties;
 public class INI
 {
     // Known INI keys
+    public static final String MAIN_CLASS = ":main.class";
+    public static final String SERVICE_CLASS = ":service.class";
     public static final String MODULE_NAME = "winrun4j:modulename";
     public static final String MODULE_INI = "winrun4j:moduleini";
     public static final String MODULE_DIR = "winrun4j:moduledir";
     public static final String INI_DIR = "winrun4j:inidir";
     public static final String WORKING_DIR = ":working.directory";
-    public static final String MAIN_CLASS = ":main.class";
+    public static final String SINGLE_INSTANCE = ":single.instance";
+    public static final String DDE_SERVER_NAME = ":dd.server.name";
+    public static final String DDE_TOPIC = ":dde.topic";
+    public static final String SERVICE_ID = ":service.id";
+    public static final String SERVICE_NAME = ":service.name";
+    public static final String SERVICE_DESCRIPTION = ":service.description";
+    public static final String SERVICE_CONTROLS = ":service.controls";
+    public static final String SERVICE_STARTUP = ":service.startup";
+    public static final String SERVICE_DEPENDENCY = ":service.dependency";
+    public static final String SERVICE_USER = ":service.user";
+    public static final String SERVICE_PWD = ":service.password";
+    public static final String SERVICE_LOAD_ORDER_GROUP = ":service.loadordergroup";
 
     /**
      * Gets a property from the INI file.
