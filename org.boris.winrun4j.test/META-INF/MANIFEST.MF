@@ -5,3 +5,4 @@ Bundle-SymbolicName: org.boris.winrun4j.test
 Bundle-Version: 1.0.0
 Export-Package: org.boris.winrun4j.test
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.junit
