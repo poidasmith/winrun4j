@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
+import java.nio.ByteBuffer;
+
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 
@@ -59,8 +61,19 @@ public class AbstractServiceTest
         return res;
     }
 
-    public static boolean SetServiceStatus(long serviceStatus, SERVICE_STATUS status) {
-        return false;
+    public static boolean SetServiceStatus(long handle, SERVICE_STATUS status) {
+        long ptr = Native.malloc(28);
+        ByteBuffer bb = NativeHelper.getBuffer(ptr, 28);
+        bb.putInt(status.serviceType);
+        bb.putInt(status.currentState);
+        bb.putInt(status.currentState);
+        bb.putInt(status.currentState);
+        bb.putInt(status.currentState);
+        bb.putInt(status.currentState);
+        bb.putInt(status.currentState);
+        boolean res = NativeHelper.call(advapi32, "SetServiceStatus", handle, ptr) != 0;
+        Native.free(ptr);
+        return res;
     }
 
     public static int GetLastError() {
