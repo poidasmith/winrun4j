@@ -1,4 +1,4 @@
-package org.boris.winrun4j.test;
+package org.boris.winrun4j.winapi;
 
 import org.boris.winrun4j.Native;
 

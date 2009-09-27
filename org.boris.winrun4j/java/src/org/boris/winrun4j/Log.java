@@ -20,7 +20,7 @@ public class Log
      * @param msg.
      */
     public static void info(String msg) {
-        log(0, msg);
+        LogIt(0, "[info]", msg);
     }
 
     /**
@@ -29,7 +29,7 @@ public class Log
      * @param msg.
      */
     public static void warning(String msg) {
-        log(1, msg);
+        LogIt(1, "[warn]", msg);
     }
 
     /**
@@ -38,7 +38,7 @@ public class Log
      * @param msg.
      */
     public static void error(String msg) {
-        log(2, msg);
+        LogIt(2, " [err]", msg);
     }
 
     /**
@@ -47,5 +47,10 @@ public class Log
      * @param level.
      * @param msg.
      */
-    private static native void log(int level, String msg);
+    private static void LogIt(int level, String marker, String msg) {
+        long markerPtr = NativeHelper.toNativeString(marker, false);
+        long msgPtr = NativeHelper.toNativeString(msg, false);
+        NativeHelper.call(0, "Log_LogIt", level, markerPtr, msgPtr);
+        NativeHelper.free(markerPtr, msgPtr);
+    }
 }

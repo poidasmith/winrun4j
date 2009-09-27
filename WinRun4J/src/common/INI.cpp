@@ -134,4 +134,9 @@ extern "C" __declspec(dllexport) dictionary* __cdecl INI_GetDictionary()
 	return g_ini;
 }
 
+extern "C" __declspec(dllexport) const char* __cdecl INI_GetProperty(const char* key)
+{
+	return iniparser_getstr(g_ini, key);
+}
+
 

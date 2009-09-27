@@ -1,17 +1,12 @@
-package org.boris.winrun4j.test;
+package org.boris.winrun4j;
 
 import java.nio.ByteBuffer;
 import java.util.Properties;
 
-import org.boris.winrun4j.Callback;
-import org.boris.winrun4j.DDEML;
-import org.boris.winrun4j.INI;
-import org.boris.winrun4j.Kernel32;
-import org.boris.winrun4j.Log;
-import org.boris.winrun4j.Native;
-import org.boris.winrun4j.NativeHelper;
-import org.boris.winrun4j.Pointer;
-import org.boris.winrun4j.Shell32;
+import org.boris.winrun4j.winapi.DDEML;
+import org.boris.winrun4j.winapi.Kernel32;
+import org.boris.winrun4j.winapi.Pointer;
+import org.boris.winrun4j.winapi.Shell32;
 
 public class SingleInstance
 {

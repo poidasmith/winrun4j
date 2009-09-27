@@ -7,7 +7,10 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.winapi;
+
+import org.boris.winrun4j.Native;
+import org.boris.winrun4j.NativeHelper;
 
 public class DirectoryManagement
 {

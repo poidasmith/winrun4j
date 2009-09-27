@@ -10,12 +10,12 @@
 package org.boris.winrun4j.test;
 
 import org.boris.winrun4j.Callback;
-import org.boris.winrun4j.Hooks;
-import org.boris.winrun4j.Kernel32;
 import org.boris.winrun4j.Native;
-import org.boris.winrun4j.Hooks.MOUSEHOOKSTRUCT;
-import org.boris.winrun4j.Hooks.MouseProc;
-import org.boris.winrun4j.Hooks.MouseProcCallback;
+import org.boris.winrun4j.winapi.Hooks;
+import org.boris.winrun4j.winapi.Kernel32;
+import org.boris.winrun4j.winapi.Hooks.MOUSEHOOKSTRUCT;
+import org.boris.winrun4j.winapi.Hooks.MouseProc;
+import org.boris.winrun4j.winapi.Hooks.MouseProcCallback;
 
 public class HooksTest
 {

@@ -9,15 +9,16 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-import org.boris.winrun4j.Advapi32;
-import org.boris.winrun4j.Services;
-import org.boris.winrun4j.Services.ENUM_SERVICE_STATUS;
-import org.boris.winrun4j.Services.ENUM_SERVICE_STATUS_PROCESS;
+import org.boris.winrun4j.winapi.Advapi32;
+import org.boris.winrun4j.winapi.Services;
+import org.boris.winrun4j.winapi.Services.ENUM_SERVICE_STATUS;
+import org.boris.winrun4j.winapi.Services.ENUM_SERVICE_STATUS_PROCESS;
 
 public class ServicesTest
 {
     public static void main(String[] args) throws Exception {
-        testEnumDeps();
+        // testEnumDeps();
+        testGetName();
     }
 
     public static void testEnumEx() {
@@ -39,5 +40,11 @@ public class ServicesTest
                 System.out.println(Reflection.toString(ss[i], true));
             }
         }
+    }
+
+    public static void testGetName() {
+        long handle = Services.OpenSCManager(null, null, Advapi32.SC_MANAGER_ALL_ACCESS);
+        System.out.println(Services.GetServiceDisplayName(handle, "RasAuto"));
+        System.out.println(Services.GetServiceKeyName(handle, "Remote Access Auto Connection Manager"));
     }
 }

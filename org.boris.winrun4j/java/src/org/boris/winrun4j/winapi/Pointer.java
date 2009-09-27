@@ -7,9 +7,10 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.winapi;
 
-public class Console
+public class Pointer
 {
-    public static final long library = Kernel32.library;
+    public long ptr;
+    public Object value;
 }

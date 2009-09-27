@@ -1,4 +1,4 @@
-Release Notes for WinRun4J 0.3.4
+Release Notes for WinRun4J 0.4.0
 ================================
 
 - Added Shell utilities:

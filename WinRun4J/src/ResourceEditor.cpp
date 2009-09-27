@@ -150,7 +150,7 @@ int ExecuteResourceScript(LPSTR exeFile, LPSTR iniFile, bool clear)
 	return 0;
 }
 
-int main5(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
 	// Initialize the logger to dump to stdout
 	Log::Init(GetModuleHandle(NULL), 0, 0, 0);
@@ -234,38 +234,3 @@ int main5(int argc, char* argv[])
 	return ok ? 0 : 1;
 }
 
-typedef struct _s {
-	int p;
-	double v;
-	void* x;
-} mystruct;
-
-mystruct test()
-{
-	mystruct t;
-	t.p = 1;
-	return t;
-}
-
-double testD()
-{
-	return 1.0;
-}
-
-void test(bool b, char c, short s, DWORD d, double dd, float f, mystruct t)
-{
-}
-
-void main()
-{
-	mystruct t;
-	bool b = false;
-	if(12 > 3)
-		b = true;
-	OSVERSIONINFOEX ex;
-	ZeroMemory(&ex, sizeof(OSVERSIONINFOEX));
-	ex.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	GetVersionEx((LPOSVERSIONINFO) &ex);
-	int* p = (int*) &ex;
-	test(b, 'b', 1, 234, 234.3, 213.1, t);
-}

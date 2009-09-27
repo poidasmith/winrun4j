@@ -7,9 +7,9 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.winapi;
 
-public class User32
+public class Console
 {
-    public static final long library = Native.loadLibrary("user32");
+    public static final long library = Kernel32.library;
 }

@@ -11,8 +11,8 @@ package org.boris.winrun4j.test;
 
 import java.io.File;
 
-import org.boris.winrun4j.Kernel32;
-import org.boris.winrun4j.Shell32;
+import org.boris.winrun4j.winapi.Kernel32;
+import org.boris.winrun4j.winapi.Shell32;
 
 public class EnvironmentTester implements Runnable
 {

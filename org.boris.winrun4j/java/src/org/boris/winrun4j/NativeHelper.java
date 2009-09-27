@@ -11,6 +11,7 @@ package org.boris.winrun4j;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 
 public class NativeHelper
 {
@@ -60,7 +61,7 @@ public class NativeHelper
             long arg8, long arg9, long arg10) {
         return call(proc, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10 }));
     }
-    
+
     public static long call(long library, String fn) {
         return call(library, fn, (NativeStack) null);
     }
@@ -89,25 +90,27 @@ public class NativeHelper
         return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6 }));
     }
 
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7) {
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6,
+            long arg7) {
         return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 }));
     }
 
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
-            long arg8) {
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6,
+            long arg7, long arg8) {
         return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 }));
     }
 
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
-            long arg8, long arg9) {
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6,
+            long arg7, long arg8, long arg9) {
         return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 }));
     }
 
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
-            long arg8, long arg9, long arg10) {
-        return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10 }));
+    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6,
+            long arg7, long arg8, long arg9, long arg10) {
+        return call(library, fn, new NativeStack(new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9,
+                arg10 }));
     }
-    
+
     public static long call(long library, String fn, long[] args) {
         return call(Native.getProcAddress(library, fn), args);
     }
@@ -258,5 +261,42 @@ public class NativeHelper
 
     public static void setInt(long ptr, int value) {
         getBuffer(ptr, 4).putInt(value);
+    }
+
+    public static String[] getMultiString(ByteBuffer bb) {
+        ArrayList strs = new ArrayList();
+        StringBuffer sb = new StringBuffer();
+        while (true) {
+            char c = (char) bb.get();
+            if (c == 0) {
+                if (sb.length() == 0) {
+                    break;
+                } else {
+                    strs.add(sb.toString());
+                    sb.setLength(0);
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+        return (String[]) strs.toArray(new String[strs.size()]);
+    }
+
+    public static long toNative(byte[] b, int offset, int len) {
+        long ptr = Native.malloc(len);
+        ByteBuffer bb = getBuffer(ptr, len);
+        bb.put(b, offset, len);
+        return ptr;
+    }
+
+    public static byte[] toWideByteArray(String val) {
+        int len = val.length();
+        byte[] b = new byte[len << 1 + 2];
+        ByteBuffer bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN);
+        for (int i = 0; i < len; i++) {
+            bb.putChar(val.charAt(i));
+        }
+        bb.putChar((char) 0);
+        return b;
     }
 }

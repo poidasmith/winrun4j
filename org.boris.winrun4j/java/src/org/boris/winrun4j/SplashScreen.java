@@ -12,36 +12,53 @@ package org.boris.winrun4j;
 /**
  * Used to control the splash screen.
  */
-public class SplashScreen {
+public class SplashScreen
+{
     /**
      * Grabs the splash screen window handle.
      * 
      * @return long.
      */
-    public static native long getWindowHandle();
+    public static long getWindowHandle() {
+        return NativeHelper.call(0, "SplashScreen_GetWindowHandle");
+    }
 
     /**
      * Closes the splash.
      */
-    public static native void close();
+    public static void close() {
+        NativeHelper.call(0, "SplashScreen_Close");
+    }
 
     /**
      * Writes splash screen text.
      */
-    public static native void setText(String text, int x, int y);
+    public static void setText(String text, int x, int y) {
+        long ptr = NativeHelper.toNativeString(text, false);
+        NativeHelper.call(0, "SplashScreen_SetText", ptr, x, y);
+        NativeHelper.free(ptr);
+    }
 
     /**
      * Sets the splash screen text font.
      */
-    public static native void setTextFont(String text, int height);
+    public static void setTextFont(String text, int height) {
+        long ptr = NativeHelper.toNativeString(text, false);
+        NativeHelper.call(0, "SplashScreen_SetTextFont", ptr, height);
+        NativeHelper.free(ptr);
+    }
 
     /**
      * Sets the splash screen text colour.
      */
-    public static native void setTextColor(int r, int g, int b);
+    public static void setTextColor(int r, int g, int b) {
+        NativeHelper.call(0, "SplashScreen_SetTextColor", r, g, b);
+    }
 
     /**
      * Sets the splash screen background text colour.
      */
-    public static native void setTextBgColor(int r, int g, int b);
+    public static void setTextBgColor(int r, int g, int b) {
+        NativeHelper.call(0, "SplashScreen_SetBbColor", r, g, b);
+    }
 }

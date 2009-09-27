@@ -1,5 +1,7 @@
 package org.boris.winrun4j.test;
 
+import org.boris.winrun4j.Structs;
+
 import junit.framework.TestCase;
 
 public class StructsTest extends TestCase

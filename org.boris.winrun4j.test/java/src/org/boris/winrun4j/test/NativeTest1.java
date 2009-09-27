@@ -12,8 +12,8 @@ package org.boris.winrun4j.test;
 import java.io.File;
 import java.nio.ByteBuffer;
 
-import org.boris.winrun4j.Kernel32;
 import org.boris.winrun4j.Native;
+import org.boris.winrun4j.winapi.Kernel32;
 
 public class NativeTest1
 {

@@ -22,7 +22,7 @@ public class EventLog
     public static final int AUDIT_FAILURE = 0x0010;
 
     private static long library = Native.loadLibrary("advapi32");
-    
+
     /**
      * Report an event.
      * 
@@ -34,9 +34,10 @@ public class EventLog
      */
     public static boolean report(String source, int type, String msg) {
         long buf = NativeHelper.toNativeString(source, true);
-        long h = NativeHelper.call(library, "RegisterEvent", 0, buf);
+        long h = NativeHelper.call(library, "RegisterEventSourceW", 0, buf);
         long m = NativeHelper.toNativeString(msg, true);
-        boolean res = NativeHelper.call(library, "ReportEvent", new long[] { h, type, 0, 0, 0, 0, msg.length() * 2, 0, m }) == 1;
+        boolean res = NativeHelper.call(library, "ReportEventW", new long[] { h, type, 0, 0, 0, 0, msg.length() * 2, 0,
+                m }) == 1;
         NativeHelper.free(buf, m);
         return res;
     }

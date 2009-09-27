@@ -7,13 +7,16 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.winapi;
 
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Properties;
+
+import org.boris.winrun4j.Native;
+import org.boris.winrun4j.NativeHelper;
 
 public class Kernel32
 {

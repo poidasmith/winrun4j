@@ -145,7 +145,7 @@ Version* VM::FindVersion(Version* versions, DWORD numVersions, LPSTR version, LP
 	{
 		Version v;
 		v.Parse(version);
-		for(int i = 0; i < numVersions; i++) {
+		for(UINT i = 0; i < numVersions; i++) {
 			if(v.Compare(versions[i]) == 0) {
 				return &versions[i];
 			}
@@ -160,7 +160,7 @@ Version* VM::FindVersion(Version* versions, DWORD numVersions, LPSTR version, LP
 	if(max != NULL) maxV.Parse(max);
 
 	Version* maxVer = NULL;
-	for(int i = 0; i < numVersions; i++) {
+	for(UINT i = 0; i < numVersions; i++) {
 		bool higher = (min == NULL || minV.Compare(versions[i]) <= 0) &&
 			(max == NULL || maxV.Compare(versions[i]) >= 0) &&
 			(maxVer == NULL || maxVer->Compare(versions[i]) < 0);
@@ -173,7 +173,7 @@ Version* VM::FindVersion(Version* versions, DWORD numVersions, LPSTR version, LP
 
 void VM::FindVersions(Version* versions, DWORD* numVersions)
 {	
-	HKEY hKey, hVersionKey;
+	HKEY hKey;
 	DWORD length;
 	TCHAR version[MAX_PATH];
 	DWORD size = *numVersions;

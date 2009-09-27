@@ -44,14 +44,30 @@ public class INI
      * 
      * @return String.
      */
-    public static native String getProperty(String key);
+    public static String getProperty(String key) {
+        long ptr = NativeHelper.toNativeString(key, false);
+        long res = NativeHelper.call(0, "INI_GetProperty", ptr);
+        String s = NativeHelper.getString(res, 260, false);
+        NativeHelper.free(ptr);
+        return s;
+    }
 
     /**
      * Gets the keys from the INI file.
      * 
      * @return String.
      */
-    public static native String[] getPropertyKeys();
+    public static String[] getPropertyKeys() {
+        long d = NativeHelper.call(0, "INI_GetDictionary");
+        int n = NativeHelper.getInt(d);
+        long keyPtr = NativeHelper.getInt(d + 12);
+        String[] res = new String[n];
+        for (int i = 0, offset = 0; i < n; i++, offset += 4) {
+            long ptr = NativeHelper.getInt(keyPtr + offset);
+            res[i] = NativeHelper.getString(ptr, 260, false);
+        }
+        return res;
+    }
 
     /**
      * Get the set of properties as a map.

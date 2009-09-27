@@ -68,7 +68,7 @@ public abstract class Callback
         return env;
     }
 
-    public static long makeCallback(long env, long clazzOrObj, long mid, long fnPtr) {
+    public static long makeCallback(long env, long clazzOrObj, long methodId, long fnPtr) {
         long ptr = Native.malloc(32);
         ByteBuffer bb = NativeHelper.getBuffer(ptr, 32);
         bb.put((byte) 0x90); // nop
@@ -78,7 +78,7 @@ public abstract class Callback
         bb.put((byte) 0xEC);
         bb.put((byte) 0x55); // push ebp
         bb.put((byte) 0x68); // push mid
-        bb.putInt((int) mid);
+        bb.putInt((int) methodId);
         bb.put((byte) 0x68); // push clazz
         bb.putInt((int) clazzOrObj);
         bb.put((byte) 0x68); // push env

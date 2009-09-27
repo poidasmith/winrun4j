@@ -7,9 +7,13 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.winapi;
 
 import java.nio.ByteBuffer;
+
+import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.Native;
+import org.boris.winrun4j.NativeHelper;
 
 public class Services
 {
@@ -59,7 +63,7 @@ public class Services
     public static final int SERVICE_INTERROGATE = 0x0080;
     public static final int SERVICE_USER_DEFINED_CONTROL = 0x0100;
     public static final int SERVICE_ALL_ACCESS = 0x01ff;
-    
+
     private static final long library = Advapi32.library;
 
     public static boolean ChangeServiceConfig(long service, int serviceType, int startType, int errorControl,
@@ -75,10 +79,6 @@ public class Services
                 errorControl, pathPtr, loadPtr, depPtr, starPtr, passPtr, dispPtr }) != 0;
         NativeHelper.free(new long[] { pathPtr, loadPtr, depPtr, passPtr, dispPtr });
         return res;
-    }
-
-    public static boolean ChangeServiceConfig2(long service, int infoLevel, SERVICE_CONFIG_BASE config) {
-        return false;
     }
 
     public static boolean CloseServiceHandle(long service) {
@@ -114,8 +114,8 @@ public class Services
         long depPtr = NativeHelper.toMultiString(dependencies, true);
         long ssPtr = NativeHelper.toNativeString(serviceStartName, true);
         long psPtr = NativeHelper.toNativeString(password, true);
-        long handle = NativeHelper.call(library, "CreateService", new long[] { scManager, snPtr, dnPtr,
-                desiredAccess, serviceType, startType, errorControl, bpPtr, loPtr, depPtr, ssPtr, psPtr });
+        long handle = NativeHelper.call(library, "CreateService", new long[] { scManager, snPtr, dnPtr, desiredAccess,
+                serviceType, startType, errorControl, bpPtr, loPtr, depPtr, ssPtr, psPtr });
         NativeHelper.free(new long[] { snPtr, dnPtr, bpPtr, loPtr, ssPtr, psPtr });
         return handle;
     }
@@ -127,8 +127,8 @@ public class Services
     public static ENUM_SERVICE_STATUS[] EnumDependentServices(long service, int serviceState) {
         long ptrBytesNeeded = Native.malloc(4);
         long ptrNumServices = Native.malloc(4);
-        boolean res = NativeHelper.call(library, "EnumDependentServices", service, serviceState, 0, 0,
-                ptrBytesNeeded, ptrNumServices) == 0;
+        boolean res = NativeHelper.call(library, "EnumDependentServices", service, serviceState, 0, 0, ptrBytesNeeded,
+                ptrNumServices) == 0;
         ENUM_SERVICE_STATUS[] deps = null;
         long ptr = 0;
         if (res) {
@@ -152,8 +152,8 @@ public class Services
         long ptrBytesNeeded = Native.malloc(4);
         long ptrNumServices = Native.malloc(4);
         long ptr = Native.malloc(1024);
-        boolean res = NativeHelper.call(library, "EnumServicesStatus", scManager, serviceType, serviceState, ptr,
-                1024, ptrBytesNeeded, ptrNumServices, 0) == 0;
+        boolean res = NativeHelper.call(library, "EnumServicesStatus", scManager, serviceType, serviceState, ptr, 1024,
+                ptrBytesNeeded, ptrNumServices, 0) == 0;
         int size = NativeHelper.getInt(ptrBytesNeeded);
         ENUM_SERVICE_STATUS[] stats = null;
         if (res && size > 0) {
@@ -174,8 +174,8 @@ public class Services
         long ptrBytesNeeded = Native.malloc(4);
         long ptrGroupName = NativeHelper.toNativeString(groupName, true);
         long ptrNumServices = Native.malloc(4);
-        boolean res = NativeHelper.call(library, "EnumServicesStatusEx", scManager, 0, serviceType, serviceState, 0,
-                0, ptrBytesNeeded, ptrNumServices, 0, ptrGroupName) == 0;
+        boolean res = NativeHelper.call(library, "EnumServicesStatusEx", scManager, 0, serviceType, serviceState, 0, 0,
+                ptrBytesNeeded, ptrNumServices, 0, ptrGroupName) == 0;
         ENUM_SERVICE_STATUS_PROCESS[] stats = null;
         long ptr = 0;
         int size = NativeHelper.getInt(ptrBytesNeeded);
@@ -232,16 +232,6 @@ public class Services
         return NativeHelper.call(library, "NotifyBootConfigStatus", bootAcceptable ? 1 : 0) != 0;
     }
 
-    public static long NotifyServiceStatusChange(long service, int notifyMask, SERVICE_NOTIFY notify) {
-        long ptr = 0;
-        if (notify != null) {
-
-        }
-        long handle = NativeHelper.call(library, "NotifyServiceStatusChange", service, notifyMask, ptr);
-        NativeHelper.free(ptr);
-        return 0;
-    }
-
     public static long OpenSCManager(String machineName, String databaseName, int desiredAccess) {
         long mnp = NativeHelper.toNativeString(machineName, true);
         long dnp = NativeHelper.toNativeString(databaseName, true);
@@ -260,103 +250,19 @@ public class Services
         return res;
     }
 
-    public static QUERY_SERVICE_CONFIG QueryServiceConfig(long service) {
-        return null;
-    }
-
-    public static QUERY_SERVICE_CONFIG2 QueryServiceConfig2(long service, int infoLevel) {
-        return null;
-    }
-
-    public static QUERY_SERVICE_LOCK_STATUS QueryServiceLockStatus(long service) {
-        return null;
-    }
-
-    public static SERVICE_STATUS QueryServiceStatus(long service) {
-        return null;
-    }
-
-    public static SERVICE_STATUS_PROCESS QueryServiceStatusEx(long service) {
-        return null;
-    }
-
-    public static long RegisterServiceCtrlHandler(String serviceName, Callback handler) {
-        return 0;
-    }
-
-    public static long RegisterServiceCtrlHandleEx(String serviceName, Callback handler, long context) {
-        return 0;
-    }
-
-    public static boolean SetServiceBits(long serviceStatus, int serviceBits, boolean setBitsOn,
-            boolean updateImmediately) {
-        return NativeHelper.call(library, "SetServiceBits", serviceStatus, serviceBits, setBitsOn ? 1 : 0,
-                updateImmediately ? 1 : 0) != 0;
-    }
-
-    public static boolean SetServiceStatus(long serviceStatus, SERVICE_STATUS status) {
-        return false;
-    }
-
-    public static boolean StartService(long service, String[] args) {
-        return false;
-    }
-
-    public static boolean StartServiceCtrlDispatcher(SERVICE_TABLE_ENTRY[] entries) {
-        return false;
-    }
-
-    public static abstract class SERVICE_CONFIG_BASE
-    {
-    }
-
-    public static class SERVICE_DELAYED_AUTO_START extends SERVICE_CONFIG_BASE
-    {
-        public boolean delayedAutoStart;
-    }
-
-    public static class SERVICE_DESCRIPTION extends SERVICE_CONFIG_BASE
-    {
-        public String description;
-    }
-
-    public static class SERVICE_FAILURE_ACTIONS extends SERVICE_CONFIG_BASE
-    {
-        public int resetPeriod;
-        public String rebootMsg;
-        public String command;
-        public SC_ACTION[] actions;
-    }
-
-    public static class SERVICE_FAILURE_ACTIONS_FLAG extends SERVICE_CONFIG_BASE
-    {
-        public boolean failureActionsOnNonCrashFailures;
-    }
-
-    public static class SERVICE_PREFERRED_NODE_INFO extends SERVICE_CONFIG_BASE
-    {
-        public int preferredNode;
-        public boolean delete;
-    }
-
-    public static class SERVICE_PRESHUTDOWN_INFO extends SERVICE_CONFIG_BASE
-    {
-        public int preshutdownTimeout;
-    }
-
-    public static class SEVICE_REQUIRED_PRIVELEGES_INFO extends SERVICE_CONFIG_BASE
-    {
-        public String requiredPriveleges;
-    }
-
-    public static class SERVICE_SID_INFO extends SERVICE_CONFIG_BASE
-    {
-        public String serviceSidType;
-    }
-
-    public static class SERVICE_TRIGGER_INFO extends SERVICE_CONFIG_BASE
-    {
-        public String description;
+    public static boolean SetServiceStatus(long handle, SERVICE_STATUS status) {
+        long ptr = Native.malloc(28);
+        ByteBuffer bb = NativeHelper.getBuffer(ptr, 28);
+        bb.putInt(status.serviceType);
+        bb.putInt(status.currentState);
+        bb.putInt(status.controlsAccepted);
+        bb.putInt(status.win32ExitCode);
+        bb.putInt(status.serviceSpecificExitCode);
+        bb.putInt(status.checkPoint);
+        bb.putInt(status.waitHint);
+        boolean res = NativeHelper.call(library, "SetServiceStatus", handle, ptr) != 0;
+        Native.free(ptr);
+        return res;
     }
 
     public static class SERVICE_STATUS
@@ -398,18 +304,6 @@ public class Services
         public String[] serviceNames;
     }
 
-    public static class QUERY_SERVICE_CONFIG
-    {
-    }
-
-    public static abstract class QUERY_SERVICE_CONFIG2
-    {
-    }
-
-    public static class QUERY_SERVICE_LOCK_STATUS
-    {
-    }
-
     public static class SERVICE_TABLE_ENTRY
     {
         public String serviceName;
@@ -420,46 +314,6 @@ public class Services
     {
         public int type;
         public int delay;
-    }
-
-    public static class SERVICE_TRIGGER
-    {
-        public int triggerType;
-        public int action;
-        public Advapi32.GUID triggerSubType;
-        public TRIGGER_SPECIFIC_DATA_ITEM[] dataItems;
-    }
-
-    public static class TRIGGER_SPECIFIC_DATA_ITEM
-    {
-        public int dataType;
-        public byte[] data;
-    }
-
-    public interface ServiceMain
-    {
-        void serviceMain(String[] args);
-    }
-
-    public static class ServiceMainCallback extends Callback
-    {
-        private ServiceMain callback;
-
-        public ServiceMainCallback(ServiceMain callback) {
-            this.callback = callback;
-        }
-
-        protected int callback(int stack) {
-            int argc = NativeHelper.getInt(stack + 8);
-            ByteBuffer bb = NativeHelper.getBuffer(stack + 12, argc * 4);
-            String[] args = new String[argc];
-            for (int i = 0; i < argc; i++) {
-                long ptr = NativeHelper.getInt(bb.getInt());
-                args[i] = NativeHelper.getString(ptr, 1024, true);
-            }
-            callback.serviceMain(args);
-            return 0;
-        }
     }
 
     private static ENUM_SERVICE_STATUS[] decodeEnum(long ptr, int size, int numServices) {

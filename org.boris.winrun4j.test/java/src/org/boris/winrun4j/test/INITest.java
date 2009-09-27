@@ -7,20 +7,16 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.test;
 
-public class Advapi32
+import org.boris.winrun4j.INI;
+
+public class INITest
 {
-    public static final long library = Native.loadLibrary("advapi32");
-
-    public static final int SC_MANAGER_ALL_ACCESS = 0xF003F;
-
-    public static class GUID
-    {
-        public int data1;
-        public short data2;
-        public short data3;
-        public int data4;
-        public int data5;
+    public static void main(String[] args) throws Exception {
+        String[] keys = INI.getPropertyKeys();
+        for (int i = 0; i < keys.length; i++) {
+            System.out.println(keys[i] + "=" + INI.getProperty(keys[i]));
+        }
     }
 }

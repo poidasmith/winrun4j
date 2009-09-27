@@ -1,8 +1,7 @@
-package org.boris.winrun4j.test;
+package org.boris.winrun4j;
 
 import java.lang.reflect.Field;
 
-import org.boris.winrun4j.Native;
 
 public class Structs
 {

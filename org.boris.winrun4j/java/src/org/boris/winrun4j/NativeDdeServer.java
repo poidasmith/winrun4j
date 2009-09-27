@@ -9,8 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
-public class Pointer
+public class NativeDdeServer
 {
-    public long ptr;
-    public Object value;
+
 }
