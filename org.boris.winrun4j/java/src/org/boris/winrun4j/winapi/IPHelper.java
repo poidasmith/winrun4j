@@ -6,7 +6,8 @@ public class IPHelper
 {
     private static final long iphlpapi = Native.loadLibrary("iphlpapi");
 
-    public static final Object GetExtendedTcpTable(boolean order, int ulAf) {
+    public static final Object GetExtendedTcpTable(boolean order, int ulAf,
+            int tableClass) {
         return null;
     }
 }

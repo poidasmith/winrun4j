@@ -13,7 +13,7 @@ import java.io.File;
 import java.nio.ByteBuffer;
 
 import org.boris.winrun4j.Native;
-import org.boris.winrun4j.winapi.Kernel32;
+import org.boris.winrun4j.winapi.Environment;
 
 public class NativeTest1
 {
@@ -42,7 +42,7 @@ public class NativeTest1
     }
 
     public static void testLogicalDrives() {
-        File[] drives = Kernel32.GetLogicalDrives();
+        File[] drives = Environment.GetLogicalDrives();
         for (int i = 0; i < drives.length; i++) {
             System.out.println(drives[i]);
         }

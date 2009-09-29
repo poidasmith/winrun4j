@@ -9,12 +9,6 @@
  *******************************************************************************/
 package org.boris.winrun4j.winapi;
 
-import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Properties;
-
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 
@@ -26,50 +20,6 @@ public class Kernel32
         NativeHelper.call(library, "DebugBreak");
     }
 
-    public static String ExpandEnvironmentString(String var) {
-        if (var == null)
-            return null;
-        long str = NativeHelper.toNativeString(var, false);
-        long buf = Native.malloc(4096);
-        long res = NativeHelper.call(library, "ExpandEnvStrings", str, buf, 4096);
-        String rs = null;
-        if (res > 0 && res <= 4096) {
-            rs = NativeHelper.getString(buf, 4096, false);
-        }
-        Native.free(str);
-        Native.free(buf);
-        return rs;
-    }
-
-    public static String[] GetCommandLine() {
-        long res = NativeHelper.call(library, "GetCommandLine");
-        String s = NativeHelper.getString(res, 1024, false);
-        boolean inQuote = false;
-        ArrayList args = new ArrayList();
-        StringBuffer sb = new StringBuffer();
-        int len = s.length();
-        for (int i = 0; i < len; i++) {
-            char c = s.charAt(i);
-            if (c == '"') {
-                inQuote = !inQuote;
-            }
-            if (c == ' ') {
-                if (inQuote) {
-                    sb.append(c);
-                } else {
-                    args.add(sb.toString());
-                    sb.setLength(0);
-                }
-            } else {
-                sb.append(c);
-            }
-        }
-        if (sb.length() > 0)
-            args.add(sb.toString());
-
-        return (String[]) args.toArray(new String[args.size()]);
-    }
-
     public static long GetCurrentProcessId() {
         return NativeHelper.call(library, "GetCurrentProcessId");
     }
@@ -78,109 +28,60 @@ public class Kernel32
         return NativeHelper.call(library, "GetCurrentThreadId");
     }
 
-    public static String GetEnvironmentVariable(String var) {
-        if (var == null)
-            return null;
-        long buf = NativeHelper.toNativeString(var, false);
-        long rbuf = Native.malloc(4096);
-        long res = NativeHelper.call(library, "GetEnvVar", buf, rbuf, 4096);
-        if (res == 0)
-            return null;
-        if (res > 4096)
-            return null;
-        String str = NativeHelper.getString(rbuf, 4096, false);
-        Native.free(buf);
-        Native.free(rbuf);
-        return str;
-    }
-
-    public static Properties GetEnvironmentVariables() {
-        long buf = NativeHelper.call(library, "GetEnvStrings");
-        ByteBuffer bb = Native.fromPointer(buf, 32767);
-        Properties p = new Properties();
-        while (true) {
-            String s = NativeHelper.getString(bb, false);
-            if (s == null || s.length() == 0)
-                break;
-            int idx = s.indexOf('=');
-            p.put(s.substring(0, idx), s.substring(idx + 1));
-        }
-        NativeHelper.call(library, "FreeEnvStrings", buf);
-        return p;
-    }
-
     public static long GetLastError() {
         return NativeHelper.call(library, "GetLastError");
-    }
-
-    public static File[] GetLogicalDrives() {
-        int len = 1024;
-        long buf = Native.malloc(len);
-        long res = NativeHelper.call(library, "GetLogicalDrive", len, buf);
-        ByteBuffer bb = Native.fromPointer(buf, res + 1);
-        ArrayList drives = new ArrayList();
-        StringBuffer sb = new StringBuffer();
-        while (true) {
-            char c = (char) bb.get();
-            if (c == 0) {
-                if (sb.length() == 0) {
-                    break;
-                } else {
-                    drives.add(new File(sb.toString()));
-                    sb.setLength(0);
-                }
-            } else {
-                sb.append(c);
-            }
-        }
-        Native.free(buf);
-        return (File[]) drives.toArray(new File[drives.size()]);
     }
 
     public static long GetTickCount() {
         return NativeHelper.call(library, "GetTickCount");
     }
 
-    public static OSVERSIONINFOEX GetVersionEx() {
-        long pOs = Native.malloc(156);
-        ByteBuffer b = Native.fromPointer(pOs, 156).order(ByteOrder.LITTLE_ENDIAN);
-        NativeHelper.zeroMemory(b);
-        b.rewind();
-        b.putInt(156); // set dwOSVersionInfoSize;
-        long res = NativeHelper.call(library, "GetVersionEx", pOs);
-        if (res == 0) {
-            Native.free(pOs);
-            return null;
-        }
-
-        OSVERSIONINFOEX info = new OSVERSIONINFOEX();
-        info.majorVersion = b.getInt();
-        info.minorVersion = b.getInt();
-        info.buildNumber = b.getInt();
-        info.platformId = b.getInt();
-        byte[] vs = new byte[128];
-        b.get(vs);
-        info.csdVersion = NativeHelper.toString(vs);
-        info.servicePackMajor = b.getShort();
-        info.servicePackMinor = b.getShort();
-        info.suiteMask = b.getShort();
-        info.productType = b.get();
-        info.reserved = b.get();
-        Native.free(pOs);
-        return info;
+    public static String GetModuleFilename(long hModule) {
+        long ptr = Native.malloc(Shell32.MAX_PATHW);
+        NativeHelper.call(Kernel32.library, "GetModuleFileNameW", hModule, ptr,
+                Shell32.MAX_PATHW);
+        String res = NativeHelper.getString(ptr, Shell32.MAX_PATHW, true);
+        Native.free(ptr);
+        return res;
     }
 
-    public static class OSVERSIONINFOEX
+    public static void CloseHandle(long handle) {
+        NativeHelper.call(Kernel32.library, "CloseHandle", handle);
+    }
+
+    public static long CreateToolhelp32Snapshot(int dwFlags, long th32ProcessID) {
+        return NativeHelper.call(Kernel32.library, "CreateToolhelp32Snapshot",
+                dwFlags, th32ProcessID);
+    }
+
+    public static boolean Process32First(long hSnapshot, long lppe) {
+        return NativeHelper.call(Kernel32.library, "Process32FirstW",
+                hSnapshot, lppe) != 0;
+    }
+
+    public static boolean Process32Next(long hSnapshot, long lppe) {
+        return NativeHelper.call(Kernel32.library, "Process32NextW", hSnapshot,
+                lppe) != 0;
+    }
+
+    public static long OpenProcess(int dwDesiredAccess, boolean bInheritHandle,
+            long dwProcessId) {
+        return NativeHelper.call(Kernel32.library, "OpenProcess",
+                dwDesiredAccess, bInheritHandle ? 1 : 0, dwProcessId);
+    }
+
+    public static class PROCESSENTRY32
     {
-        public int buildNumber;
-        public String csdVersion;
-        public int majorVersion;
-        public int minorVersion;
-        public int platformId;
-        public int productType;
-        public int reserved;
-        public int servicePackMajor;
-        public int servicePackMinor;
-        public int suiteMask;
+        public static final int SIZE = 556;
+        public int dwSize;
+        public int cntUsage;
+        public int th32ProcessID;
+        public int th32DefaultHeapID;
+        public int th32ModuleID;
+        public int cntThreads;
+        public int th32ParentProcessID;
+        public int pcPriClassBase;
+        public int dwFlags;
+        public String szExeFile;
     }
 }
