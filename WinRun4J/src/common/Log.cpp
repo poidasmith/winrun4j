@@ -276,7 +276,7 @@ extern "C" __declspec(dllexport) void Log_LogIt(int level, const char* marker, c
 {
 	va_list args;
 	va_start(args, format);
-	Log::LogIt(info, marker, format, args);
+	Log::LogIt((LoggingLevel) level, marker, format, args);
 	va_end(args);
 }
 

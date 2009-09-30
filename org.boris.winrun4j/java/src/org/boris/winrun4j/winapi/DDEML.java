@@ -23,47 +23,38 @@ public class DDEML
     public static final int CP_WINANSI = 1004;
     public static final int CP_WINUNICODE = 1200;
 
-    public static long DdeInitialize(Pointer pidInst, Callback callback,
-            int afCmd, int ulRes) {
+    public static long DdeInitialize(Pointer pidInst, Callback callback, int afCmd, int ulRes) {
         long ptr = Native.malloc(4);
-        long res = NativeHelper.call(library, "DdeInitialize", ptr,
-                callback == null ? 0 : callback.getPointer(), afCmd, ulRes);
+        long res = NativeHelper.call(library, "DdeInitialize", ptr, callback == null ? 0 : callback.getPointer(),
+                afCmd, ulRes);
         pidInst.ptr = NativeHelper.getInt(ptr);
         Native.free(ptr);
         return res;
     }
 
-    public static long DdeCreateStringHandle(long pidInst, String str,
-            int codePage) {
-        long ptr = NativeHelper.toNativeString(str,
-                codePage == DDEML.CP_WINUNICODE);
-        long res = NativeHelper.call(library, "DdeCreateStringHandle", pidInst,
-                ptr, codePage);
+    public static long DdeCreateStringHandle(long pidInst, String str, int codePage) {
+        long ptr = NativeHelper.toNativeString(str, codePage == DDEML.CP_WINUNICODE);
+        long res = NativeHelper.call(library, "DdeCreateStringHandleW", pidInst, ptr, codePage);
         Native.free(ptr);
         return res;
     }
 
-    public static long DdeConnect(long pidInst, long server, long topic,
-            long context) {
-        return NativeHelper.call(library, "DdeConnect", pidInst, server, topic,
-                context);
+    public static long DdeConnect(long pidInst, long server, long topic, long context) {
+        return NativeHelper.call(library, "DdeConnect", pidInst, server, topic, context);
     }
 
-    public static long DdeClientTransaction(byte[] data, int len, long conv,
-            long hszItem, int fmt, int type, int timeout) {
+    public static long DdeClientTransaction(byte[] data, int len, long conv, long hszItem, int fmt, int type,
+            int timeout) {
         long ptr = Native.malloc(len);
         ByteBuffer bb = Native.fromPointer(ptr, len);
         bb.put(data, 0, len);
-        long res = NativeHelper.call(library, "DdeClientTransaction", ptr, len,
-                conv, hszItem, fmt, type, timeout, 0);
+        long res = NativeHelper.call(library, "DdeClientTransaction", ptr, len, conv, hszItem, fmt, type, timeout, 0);
         Native.free(ptr);
         return res;
     }
 
-    public static boolean DdeAbandonTransaction(long handle, long conversation,
-            long transaction) {
-        return NativeHelper.call(library, "DdeAbandonTransaction", handle,
-                conversation, transaction) != 0;
+    public static boolean DdeAbandonTransaction(long handle, long conversation, long transaction) {
+        return NativeHelper.call(library, "DdeAbandonTransaction", handle, conversation, transaction) != 0;
     }
 
     public static ByteBuffer DdeAccessData(long data) {
@@ -78,24 +69,20 @@ public class DDEML
         long ptr = Native.malloc(len);
         ByteBuffer bb = Native.fromPointer(ptr, len);
         bb.put(buffer, 0, len);
-        long res = NativeHelper.call(library, "DdeAddData", data, ptr, len,
-                offset);
+        long res = NativeHelper.call(library, "DdeAddData", data, ptr, len, offset);
         Native.free(ptr);
         return res;
     }
 
     public static int DdeCmpStringHandles(long hsz1, long hsz2) {
-        return (int) NativeHelper.call(library, "DdeCmpStringHandles", hsz1,
-                hsz2);
+        return (int) NativeHelper.call(library, "DdeCmpStringHandles", hsz1, hsz2);
     }
 
-    public static long DdeConnect(long idInst, String service, String topic,
-            CONVCONTEXT context) {
+    public static long DdeConnect(long idInst, String service, String topic, CONVCONTEXT context) {
         long hszService = DdeCreateStringHandle(idInst, service, CP_WINUNICODE);
         long hszTopic = DdeCreateStringHandle(idInst, topic, CP_WINUNICODE);
         long ptr = context == null ? 0 : context.toNative();
-        long res = NativeHelper.call(library, "DdeConnect", idInst, hszService,
-                hszTopic, ptr);
+        long res = NativeHelper.call(library, "DdeConnect", idInst, hszService, hszTopic, ptr);
         DdeFreeStringHandle(idInst, hszService);
         DdeFreeStringHandle(idInst, hszTopic);
         if (ptr != 0)
@@ -103,13 +90,11 @@ public class DDEML
         return res;
     }
 
-    public static long DdeConnectList(long idInst, String service,
-            String topic, long convList, CONVCONTEXT context) {
+    public static long DdeConnectList(long idInst, String service, String topic, long convList, CONVCONTEXT context) {
         long hszService = DdeCreateStringHandle(idInst, service, CP_WINUNICODE);
         long hszTopic = DdeCreateStringHandle(idInst, topic, CP_WINUNICODE);
         long ptr = context == null ? 0 : context.toNative();
-        long res = NativeHelper.call(library, "DdeConnectList", idInst,
-                hszService, hszTopic, convList, ptr);
+        long res = NativeHelper.call(library, "DdeConnectList", idInst, hszService, hszTopic, convList, ptr);
         DdeFreeStringHandle(idInst, hszService);
         DdeFreeStringHandle(idInst, hszTopic);
         if (ptr != 0)
@@ -117,13 +102,12 @@ public class DDEML
         return res;
     }
 
-    public static long DdeCreateDataHandle(long idInst, byte[] data, int len,
-            int offset, long hszItem, int fmt, int afCmd) {
+    public static long DdeCreateDataHandle(long idInst, byte[] data, int len, int offset, long hszItem, int fmt,
+            int afCmd) {
         long ptr = Native.malloc(len);
         ByteBuffer bb = Native.fromPointer(ptr, len);
         bb.put(data, 0, len);
-        long res = NativeHelper.call(library, "DdeCreateDataHandle", idInst,
-                ptr, len, offset, hszItem, fmt, afCmd);
+        long res = NativeHelper.call(library, "DdeCreateDataHandle", idInst, ptr, len, offset, hszItem, fmt, afCmd);
         Native.free(ptr);
         return res;
     }
@@ -137,8 +121,7 @@ public class DDEML
     }
 
     public static boolean DdeEnableCallback(long idInst, long conv, int cmd) {
-        return NativeHelper.call(library, "DdeEnableCallback", idInst, conv,
-                cmd) != 0;
+        return NativeHelper.call(library, "DdeEnableCallback", idInst, conv, cmd) != 0;
     }
 
     public static boolean DdeFreeDataHandle(long data) {
@@ -154,8 +137,7 @@ public class DDEML
         if (buffer != null) {
             ptr = Native.malloc(len);
         }
-        int res = (int) NativeHelper.call(library, "DdeGetData", data, ptr,
-                len, offset);
+        int res = (int) NativeHelper.call(library, "DdeGetData", data, ptr, len, offset);
         if (buffer != null) {
             ByteBuffer bb = Native.fromPointer(ptr, len);
             bb.get(buffer, 0, len);
@@ -178,51 +160,41 @@ public class DDEML
 
     public static long DdeInitialize(Callback callback, int afCmd) {
         long pid = Native.malloc(4);
-        long res = NativeHelper.call(pid, callback.getPointer(), afCmd, 0);
+        long res = NativeHelper.call(library, "DdeInitializeW", pid, callback.getPointer(), afCmd, 0);
         long pidInst = NativeHelper.getInt(pid);
         Native.free(pid);
-        return res == 0 ? 0 : pidInst;
+        return res != 0 ? 0 : pidInst;
     }
 
     public static boolean DdeKeepStringHandle(long idInst, long hsz) {
         return NativeHelper.call(library, "DdeKeepStringHandle", idInst, hsz) != 0;
     }
 
-    public static long DdeNameService(long idInst, long hsz1, long hsz2,
-            int afCmd) {
-        return NativeHelper.call(library, "DdeNameService", idInst, hsz1, hsz2,
-                afCmd);
+    public static long DdeNameService(long idInst, long hsz1, long hsz2, int afCmd) {
+        return NativeHelper.call(library, "DdeNameService", idInst, hsz1, hsz2, afCmd);
     }
 
     public static boolean DdePostAdvise(long idInst, long hszTopic, long hszItem) {
-        return NativeHelper.call(library, "DdePostAdvise", idInst, hszTopic,
-                hszItem) != 0;
+        return NativeHelper.call(library, "DdePostAdvise", idInst, hszTopic, hszItem) != 0;
     }
 
-    public static int DdeQueryConvInfo(long conv, long idTransaction,
-            long convInfo) {
-        return (int) NativeHelper.call(library, "DdeQueryConvInfo", conv,
-                idTransaction, convInfo);
+    public static int DdeQueryConvInfo(long conv, long idTransaction, long convInfo) {
+        return (int) NativeHelper.call(library, "DdeQueryConvInfo", conv, idTransaction, convInfo);
     }
 
     public static long DdeQueryNextServer(long convList, long convPrev) {
-        return NativeHelper.call(library, "DdeQueryNextServer", convList,
-                convPrev);
+        return NativeHelper.call(library, "DdeQueryNextServer", convList, convPrev);
     }
 
-    public static int DdeQueryString(long idInst, long hsz,
-            StringBuffer buffer, int len, int codePage) {
+    public static int DdeQueryString(long idInst, long hsz, StringBuffer buffer, int len, int codePage) {
         long ptr = 0;
         if (buffer != null) {
             ptr = Native.malloc(len);
         }
-        int res = (int) NativeHelper.call(library, "DdeQueryString", idInst,
-                hsz, ptr, len, codePage);
+        int res = (int) NativeHelper.call(library, "DdeQueryString", idInst, hsz, ptr, len, codePage);
         if (buffer != null) {
             ByteBuffer bb = NativeHelper.getBuffer(ptr, len);
-            buffer
-                    .append(NativeHelper.getString(bb,
-                            codePage == CP_WINUNICODE));
+            buffer.append(NativeHelper.getString(bb, codePage == CP_WINUNICODE));
             Native.free(ptr);
         }
         return res;
@@ -275,8 +247,7 @@ public class DDEML
 
     public interface DdeCallback
     {
-        long callback(int type, int fmt, long conv, long hsz1, long hsz2,
-                long data, int data1, int data2);
+        long ddeCallback(int type, int fmt, long conv, long hsz1, long hsz2, long data, int data1, int data2);
     }
 
     public static class DdeCallbackImpl extends Callback
@@ -288,11 +259,9 @@ public class DDEML
         }
 
         protected int callback(int stack) {
-            ByteBuffer bb = Native.fromPointer(stack + 8, 32).order(
-                    ByteOrder.LITTLE_ENDIAN);
-            return (int) callback.callback(bb.getInt(), bb.getInt(), bb
-                    .getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb
-                    .getInt(), bb.getInt());
+            ByteBuffer bb = Native.fromPointer(stack + 8, 32).order(ByteOrder.LITTLE_ENDIAN);
+            return (int) callback.ddeCallback(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb
+                    .getInt(), bb.getInt(), bb.getInt());
         }
     }
 

@@ -11,32 +11,49 @@ package org.boris.winrun4j;
 
 import java.util.Properties;
 
+import org.boris.winrun4j.winapi.DDEML;
+import org.boris.winrun4j.winapi.Gdi32;
 import org.boris.winrun4j.winapi.User32;
+import org.boris.winrun4j.winapi.DDEML.DdeCallback;
 import org.boris.winrun4j.winapi.User32.WNDCLASSEX;
 import org.boris.winrun4j.winapi.User32.WindowProc;
 import org.boris.winrun4j.winapi.User32.WindowProcCallback;
 
-public class NativeDdeServer implements Runnable, WindowProc
+public class NativeDdeServer implements Runnable, WindowProc, DdeCallback
 {
     private Thread thread;
     private String server;
+    private long hServerName;
     private String topic;
+    private long hTopic;
     private String windowClass;
     private Callback mainWndProc;
+    private Callback ddeProc;
     private long hWnd;
+    private long pidInst;
+
+    public void initialize(String server) {
+        initialize(server, "system", "WinRun4J.DDEWndClass");
+    }
+
+    public void initialize() {
+        initialize("WinRun4J");
+    }
 
     public void initialize(String server, String topic, String windowClass) {
+        Log.info("Initializing DDE...");
         this.server = server;
         this.topic = topic;
-        this.windowClass = windowClass == null ? "WinRun4J.DDEWndClass"
-                : windowClass;
+        this.windowClass = windowClass;
         this.mainWndProc = new WindowProcCallback(this);
+        thread = new Thread(this, "DDE Callback Thread");
+        thread.setDaemon(true);
+        thread.start();
     }
 
     public boolean initialize(Properties ini) {
         if (Boolean.valueOf(ini.getProperty(INI.DDE_ENABLED)).booleanValue()) {
-            initialize(ini.getProperty(INI.DDE_SERVER_NAME), ini
-                    .getProperty(INI.DDE_TOPIC), ini
+            initialize(ini.getProperty(INI.DDE_SERVER_NAME), ini.getProperty(INI.DDE_TOPIC), ini
                     .getProperty(INI.DDE_WINDOW_CLASS));
             return true;
         }
@@ -44,27 +61,53 @@ public class NativeDdeServer implements Runnable, WindowProc
     }
 
     public void uninitialize() {
-        mainWndProc.cleanup();
+        if (hServerName != 0)
+            DDEML.DdeFreeStringHandle(pidInst, hServerName);
+        if (hTopic != 0)
+            DDEML.DdeFreeStringHandle(pidInst, hTopic);
+        if (mainWndProc != null)
+            mainWndProc.cleanup();
+        if (ddeProc != null)
+            ddeProc.cleanup();
+        if (pidInst != 0)
+            DDEML.DdeUninitialize(pidInst);
+        if (hWnd != 0)
+            User32.DestroyWindow(hWnd);
     }
 
     public void run() {
         registerWindow(0, mainWndProc);
         if (!registerDde()) {
+            uninitialize();
             return;
         }
 
-        this.hWnd = User32.CreateWindowEx(0, windowClass, "WinRun4J.DDEWindow",
-                0, 0, 0, 0, 0, 0, 0, 0, 0);
+        this.hWnd = User32.CreateWindowEx(0, windowClass, "WinRun4J.DDEWindow", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        if (hWnd == 0) {
+            Log.error("Unable to create DDE window");
+            uninitialize();
+            return;
+        }
 
         runMessageLoop(0);
     }
 
     public int windowProc(long hWnd, int uMsg, long wParam, long lParam) {
-        return 0;
+        return User32.DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
 
     private boolean registerDde() {
-        return false;
+        this.ddeProc = new DDEML.DdeCallbackImpl(this);
+        this.pidInst = DDEML.DdeInitialize(ddeProc, 0);
+        if (pidInst == 0) {
+            Log.error("Could not initialize DDE");
+            return false;
+        }
+        this.hServerName = DDEML.DdeCreateStringHandle(pidInst, server, DDEML.CP_WINUNICODE);
+        this.hTopic = DDEML.DdeCreateStringHandle(pidInst, topic, DDEML.CP_WINANSI);
+        this.windowClass = windowClass == null ? "WinRun4J.DDEWndClass" : windowClass;
+        long res = DDEML.DdeNameService(pidInst, hServerName, hTopic, DDEML.DNS_REGISTER);
+        return true;
     }
 
     private void registerWindow(long hInstance, Callback mainWndProc) {
@@ -76,11 +119,13 @@ public class NativeDdeServer implements Runnable, WindowProc
         wcx.hInstance = hInstance;
         wcx.hIcon = 0;
         wcx.hCursor = User32.LoadCursor(0, 32514);
-        wcx.hbrBackground = User32.GetStockObject(1);
+        wcx.hbrBackground = Gdi32.GetStockObject(1);
         wcx.menuName = null;
         wcx.className = windowClass;
         wcx.hIconSm = 0;
-        User32.RegisterClassEx(wcx);
+        if (!User32.RegisterClassEx(wcx)) {
+            Log.error("Unable to create DDE Window class");
+        }
     }
 
     public static void runMessageLoop(long hWnd) {
@@ -90,5 +135,24 @@ public class NativeDdeServer implements Runnable, WindowProc
             User32.DispatchMessage(pMsg);
         }
         NativeHelper.free(pMsg);
+        Log.info("End of message loop: " + Thread.currentThread().getName());
+    }
+
+    public long ddeCallback(int uType, int fmt, long hConv, long hsz1, long hsz2, long hData, int data1, int data2) {
+        switch (uType) {
+        case DDEML.XTYP_CONNECT:
+            if (hsz2 == hServerName && hsz1 == hTopic)
+                return 1;
+            break;
+
+        case DDEML.XTYP_EXECUTE:
+            byte[] execute = new byte[520];
+            DDEML.DdeGetData(hData, execute, execute.length, 0);
+            String exec = new String(execute);
+            System.out.println("DDE: " + exec);
+            return 1;
+        }
+
+        return 0;
     }
 }

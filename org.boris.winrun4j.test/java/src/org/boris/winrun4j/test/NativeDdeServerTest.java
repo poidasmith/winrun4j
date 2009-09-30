@@ -9,18 +9,14 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-import org.boris.winrun4j.winapi.DDEML;
-import org.boris.winrun4j.winapi.DDEML.DdeCallback;
-import org.boris.winrun4j.winapi.DDEML.DdeCallbackImpl;
+import org.boris.winrun4j.NativeDdeServer;
 
-public class DDENativeTest implements DdeCallback
+public class NativeDdeServerTest
 {
     public static void main(String[] args) throws Exception {
-        DdeCallbackImpl cb = new DdeCallbackImpl(new DDENativeTest());
-        DDEML.DdeInitialize(cb, DDEML.APPCLASS_MONITOR | DDEML.MF_CALLBACKS);
-    }
-
-    public long ddeCallback(int type, int fmt, long conv, long hsz1, long hsz2, long data, int data1, int data2) {
-        return 0;
+        NativeDdeServer server = new NativeDdeServer();
+        server.initialize("WinRun4J");
+        System.in.read();
+        server.uninitialize();
     }
 }
