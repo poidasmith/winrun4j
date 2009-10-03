@@ -34,10 +34,10 @@ public class User32
 
     public static long CreateWindowEx(int dwExStyle, String className, String windowName, int dwStyle, int x, int y,
             int width, int height, long parent, long menu, long hInstance, long lParam) {
-        long lpClassName = NativeHelper.toNativeString(className, true);
-        long lpWindowName = NativeHelper.toNativeString(windowName, true);
-        long res = NativeHelper.call(User32.library, "CreateWindowExW", new long[] { dwExStyle, lpClassName, dwStyle,
-                x, y, width, height, parent, menu, hInstance, lParam });
+        long lpClassName = NativeHelper.toNativeString(className, false);
+        long lpWindowName = NativeHelper.toNativeString(windowName, false);
+        long res = NativeHelper.call(library, "CreateWindowExA", new long[] { dwExStyle, lpClassName, dwStyle, x, y,
+                width, height, parent, menu, hInstance, lParam });
         NativeHelper.free(lpClassName, lpWindowName);
         return res;
     }
@@ -47,7 +47,7 @@ public class User32
     }
 
     public static long LoadCursor(long hInstance, long lpCursorName) {
-        return NativeHelper.call(User32.library, "LoadCursorW", hInstance, lpCursorName);
+        return NativeHelper.call(library, "LoadCursorW", hInstance, lpCursorName);
     }
 
     public static void SetForegroundWindow(long hwnd) {
@@ -104,7 +104,7 @@ public class User32
 
     public static MSG GetMessage(long hWnd, int wMsgFilterMin, int wMsgFilterMax) {
         long ptr = Native.malloc(28);
-        long res = NativeHelper.call(User32.library, "GetMessage", ptr, hWnd, wMsgFilterMin, wMsgFilterMax);
+        long res = NativeHelper.call(library, "GetMessage", ptr, hWnd, wMsgFilterMin, wMsgFilterMax);
         MSG m = null;
         if (res != 0) {
             m = new MSG();
@@ -115,39 +115,39 @@ public class User32
     }
 
     public static boolean GetMessage(long pMsg, long hWnd, int wMsgFilterMin, int wMsgFilterMax) {
-        return NativeHelper.call(User32.library, "GetMessageW", pMsg, hWnd, wMsgFilterMin, wMsgFilterMax) != 0;
+        return NativeHelper.call(library, "GetMessageW", pMsg, hWnd, wMsgFilterMin, wMsgFilterMax) != 0;
     }
 
     public static boolean TranslateMessage(MSG m) {
         long ptr = Native.malloc(28);
         encode(ptr, m);
-        boolean res = NativeHelper.call(User32.library, "TranslateMessage", ptr) != 0;
+        boolean res = NativeHelper.call(library, "TranslateMessage", ptr) != 0;
         decode(ptr, m);
         NativeHelper.free(ptr);
         return res;
     }
 
     public static boolean TranslateMessage(long pMsg) {
-        return NativeHelper.call(User32.library, "TranslateMessage", pMsg) != 0;
+        return NativeHelper.call(library, "TranslateMessage", pMsg) != 0;
     }
 
     public static boolean DispatchMessage(MSG m) {
         long ptr = Native.malloc(28);
         encode(ptr, m);
-        boolean res = NativeHelper.call(User32.library, "DispatchMessage", ptr) != 0;
+        boolean res = NativeHelper.call(library, "DispatchMessage", ptr) != 0;
         decode(ptr, m);
         NativeHelper.free(ptr);
         return res;
     }
 
     public static boolean DispatchMessage(long pMsg) {
-        return NativeHelper.call(User32.library, "DispatchMessage", pMsg) != 0;
+        return NativeHelper.call(library, "DispatchMessage", pMsg) != 0;
     }
 
     public static boolean RegisterClassEx(WNDCLASSEX wcx) {
         long ptr = Native.malloc(WNDCLASSEX.SIZE);
-        long lpMenuName = NativeHelper.toNativeString(wcx.menuName, true);
-        long lpClassName = NativeHelper.toNativeString(wcx.className, true);
+        long lpMenuName = NativeHelper.toNativeString(wcx.menuName, false);
+        long lpClassName = NativeHelper.toNativeString(wcx.className, false);
         ByteBuffer bb = NativeHelper.getBuffer(ptr, WNDCLASSEX.SIZE);
         bb.putInt(wcx.style);
         bb.putInt((int) wcx.lpfnWndProc.getPointer());
@@ -159,7 +159,7 @@ public class User32
         bb.putInt((int) wcx.hbrBackground);
         bb.putInt((int) lpMenuName);
         bb.putInt((int) lpClassName);
-        boolean res = NativeHelper.call(User32.library, "RegisterClassExW", ptr) != 0;
+        boolean res = NativeHelper.call(library, "RegisterClassExA", ptr) != 0;
         NativeHelper.free(ptr, lpMenuName, lpClassName);
         return res;
     }

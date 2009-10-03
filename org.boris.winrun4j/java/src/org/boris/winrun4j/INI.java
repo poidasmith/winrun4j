@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
+import java.util.ArrayList;
 import java.util.Properties;
 
 /**
@@ -85,5 +86,22 @@ public class INI
         }
 
         return props;
+    }
+
+    /**
+     * Grab numbered entries from the properties.
+     */
+    public static String[] getNumberedEntries(Properties p, String baseKey) {
+        ArrayList l = new ArrayList();
+        int i = 1;
+        while (true) {
+            String v = p.getProperty(baseKey + "." + i);
+            if (v != null)
+                l.add(v);
+            i++;
+            if (i > 10 && v == null)
+                break;
+        }
+        return (String[]) l.toArray(new String[l.size()]);
     }
 }

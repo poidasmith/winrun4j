@@ -155,12 +155,13 @@ public class DDEML
     }
 
     public static long DdeInitialize(DdeCallback callback, int afCmd) {
-        return DdeInitialize(new DdeCallbackImpl(callback), afCmd);
+        return DdeInitialize(callback == null ? null : new DdeCallbackImpl(callback), afCmd);
     }
 
     public static long DdeInitialize(Callback callback, int afCmd) {
         long pid = Native.malloc(4);
-        long res = NativeHelper.call(library, "DdeInitializeW", pid, callback.getPointer(), afCmd, 0);
+        long res = NativeHelper.call(library, "DdeInitializeW", pid, callback == null ? 0 : callback.getPointer(),
+                afCmd, 0);
         long pidInst = NativeHelper.getInt(pid);
         Native.free(pid);
         return res != 0 ? 0 : pidInst;

@@ -13,6 +13,7 @@ import java.util.Properties;
 
 import org.boris.winrun4j.winapi.DDEML;
 import org.boris.winrun4j.winapi.Gdi32;
+import org.boris.winrun4j.winapi.Kernel32;
 import org.boris.winrun4j.winapi.User32;
 import org.boris.winrun4j.winapi.DDEML.DdeCallback;
 import org.boris.winrun4j.winapi.User32.WNDCLASSEX;
@@ -44,7 +45,7 @@ public class NativeDdeServer implements Runnable, WindowProc, DdeCallback
         Log.info("Initializing DDE...");
         this.server = server;
         this.topic = topic;
-        this.windowClass = windowClass;
+        this.windowClass = windowClass == null ? "WinRun4J.DDEWndClass" : windowClass;
         this.mainWndProc = new WindowProcCallback(this);
         thread = new Thread(this, "DDE Callback Thread");
         thread.setDaemon(true);
@@ -76,15 +77,16 @@ public class NativeDdeServer implements Runnable, WindowProc, DdeCallback
     }
 
     public void run() {
-        registerWindow(0, mainWndProc);
+        long hInstance = Kernel32.GetModuleHandle(0);
+        registerWindow(hInstance, mainWndProc);
         if (!registerDde()) {
             uninitialize();
             return;
         }
 
-        this.hWnd = User32.CreateWindowEx(0, windowClass, "WinRun4J.DDEWindow", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        this.hWnd = User32.CreateWindowEx(0, windowClass, "WinRun4J.DDEWindow", 0, 0, 0, 0, 0, 0, 0, hInstance, 0);
         if (hWnd == 0) {
-            Log.error("Unable to create DDE window");
+            Log.error("Unable to create DDE window: " + Kernel32.GetLastError());
             uninitialize();
             return;
         }
@@ -105,8 +107,11 @@ public class NativeDdeServer implements Runnable, WindowProc, DdeCallback
         }
         this.hServerName = DDEML.DdeCreateStringHandle(pidInst, server, DDEML.CP_WINUNICODE);
         this.hTopic = DDEML.DdeCreateStringHandle(pidInst, topic, DDEML.CP_WINANSI);
-        this.windowClass = windowClass == null ? "WinRun4J.DDEWndClass" : windowClass;
         long res = DDEML.DdeNameService(pidInst, hServerName, hTopic, DDEML.DNS_REGISTER);
+        if (res != 0) {
+            Log.error("Could not create name service");
+            return false;
+        }
         return true;
     }
 

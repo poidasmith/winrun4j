@@ -64,6 +64,15 @@ public class Services
     public static final int SERVICE_USER_DEFINED_CONTROL = 0x0100;
     public static final int SERVICE_ALL_ACCESS = 0x01ff;
 
+    // Service Control Manager Access
+    public static final int SC_MANAGER_CONNECT = 0x0001;
+    public static final int SC_MANAGER_CREATE_SERVICE = 0x0002;
+    public static final int SC_MANAGER_ENUMERATE_SERVICE = 0x0004;
+    public static final int SC_MANAGER_LOCK = 0x0008;
+    public static final int SC_MANAGER_QUERY_LOCK_STATUS = 0x0010;
+    public static final int SC_MANAGER_MODIFY_BOOT_CONFIG = 0x0020;
+    public static final int SC_MANAGER_ALL_ACCESS = 0xf003f;
+
     private static final long library = Advapi32.library;
 
     public static boolean ChangeServiceConfig(long service, int serviceType, int startType, int errorControl,
