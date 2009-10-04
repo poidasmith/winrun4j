@@ -77,7 +77,7 @@ public class NativeDdeServer implements Runnable, WindowProc, DdeCallback
     }
 
     public void run() {
-        long hInstance = Kernel32.GetModuleHandle(0);
+        long hInstance = Kernel32.GetModuleHandle(null);
         registerWindow(hInstance, mainWndProc);
         if (!registerDde()) {
             uninitialize();
@@ -106,7 +106,7 @@ public class NativeDdeServer implements Runnable, WindowProc, DdeCallback
             return false;
         }
         this.hServerName = DDEML.DdeCreateStringHandle(pidInst, server, DDEML.CP_WINUNICODE);
-        this.hTopic = DDEML.DdeCreateStringHandle(pidInst, topic, DDEML.CP_WINANSI);
+        this.hTopic = DDEML.DdeCreateStringHandle(pidInst, topic, DDEML.CP_WINUNICODE);
         long res = DDEML.DdeNameService(pidInst, hServerName, hTopic, DDEML.DNS_REGISTER);
         if (res != 0) {
             Log.error("Could not create name service");

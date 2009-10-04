@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.boris.winrun4j.winapi;
 
+import java.nio.ByteBuffer;
+
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 
@@ -32,8 +34,11 @@ public class Kernel32
         return NativeHelper.call(library, "GetCurrentThreadId");
     }
 
-    public static long GetModuleHandle(long lpModuleName) {
-        return NativeHelper.call(library, "GetModuleHandleW", lpModuleName);
+    public static long GetModuleHandle(String moduleName) {
+        long lpModuleName = NativeHelper.toNativeString(moduleName, true);
+        long res = NativeHelper.call(library, "GetModuleHandleW", lpModuleName);
+        NativeHelper.free(lpModuleName);
+        return res;
     }
 
     public static long GetLastError() {
@@ -70,6 +75,20 @@ public class Kernel32
 
     public static long OpenProcess(int dwDesiredAccess, boolean bInheritHandle, long dwProcessId) {
         return NativeHelper.call(Kernel32.library, "OpenProcess", dwDesiredAccess, bInheritHandle ? 1 : 0, dwProcessId);
+    }
+
+    public static void decode(long ptr, PROCESSENTRY32 pe) {
+        ByteBuffer bb = NativeHelper.getBuffer(ptr, PROCESSENTRY32.SIZE);
+        pe.dwSize = bb.getInt();
+        pe.cntUsage = bb.getInt();
+        pe.th32ProcessID = bb.getInt();
+        pe.th32DefaultHeapID = bb.getInt();
+        pe.th32ModuleID = bb.getInt();
+        pe.cntThreads = bb.getInt();
+        pe.th32ParentProcessID = bb.getInt();
+        pe.pcPriClassBase = bb.getInt();
+        pe.dwFlags = bb.getInt();
+        pe.szExeFile = NativeHelper.getString(bb, true);
     }
 
     public static class PROCESSENTRY32

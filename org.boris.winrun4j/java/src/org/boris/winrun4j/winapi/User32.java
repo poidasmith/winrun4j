@@ -14,7 +14,6 @@ import java.nio.ByteBuffer;
 import org.boris.winrun4j.Callback;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
-import org.boris.winrun4j.winapi.Kernel32.PROCESSENTRY32;
 
 public class User32
 {
@@ -34,9 +33,9 @@ public class User32
 
     public static long CreateWindowEx(int dwExStyle, String className, String windowName, int dwStyle, int x, int y,
             int width, int height, long parent, long menu, long hInstance, long lParam) {
-        long lpClassName = NativeHelper.toNativeString(className, false);
-        long lpWindowName = NativeHelper.toNativeString(windowName, false);
-        long res = NativeHelper.call(library, "CreateWindowExA", new long[] { dwExStyle, lpClassName, dwStyle, x, y,
+        long lpClassName = NativeHelper.toNativeString(className, true);
+        long lpWindowName = NativeHelper.toNativeString(windowName, true);
+        long res = NativeHelper.call(library, "CreateWindowExW", new long[] { dwExStyle, lpClassName, dwStyle, x, y,
                 width, height, parent, menu, hInstance, lParam });
         NativeHelper.free(lpClassName, lpWindowName);
         return res;
@@ -146,8 +145,8 @@ public class User32
 
     public static boolean RegisterClassEx(WNDCLASSEX wcx) {
         long ptr = Native.malloc(WNDCLASSEX.SIZE);
-        long lpMenuName = NativeHelper.toNativeString(wcx.menuName, false);
-        long lpClassName = NativeHelper.toNativeString(wcx.className, false);
+        long lpMenuName = NativeHelper.toNativeString(wcx.menuName, true);
+        long lpClassName = NativeHelper.toNativeString(wcx.className, true);
         ByteBuffer bb = NativeHelper.getBuffer(ptr, WNDCLASSEX.SIZE);
         bb.putInt(wcx.style);
         bb.putInt((int) wcx.lpfnWndProc.getPointer());
@@ -159,7 +158,7 @@ public class User32
         bb.putInt((int) wcx.hbrBackground);
         bb.putInt((int) lpMenuName);
         bb.putInt((int) lpClassName);
-        boolean res = NativeHelper.call(library, "RegisterClassExA", ptr) != 0;
+        boolean res = NativeHelper.call(library, "RegisterClassExW", ptr) != 0;
         NativeHelper.free(ptr, lpMenuName, lpClassName);
         return res;
     }
@@ -218,20 +217,6 @@ public class User32
         public String menuName;
         public String className;
         public long hIconSm;
-    }
-
-    public static void decode(long ptr, PROCESSENTRY32 pe) {
-        ByteBuffer bb = NativeHelper.getBuffer(ptr, PROCESSENTRY32.SIZE);
-        pe.dwSize = bb.getInt();
-        pe.cntUsage = bb.getInt();
-        pe.th32ProcessID = bb.getInt();
-        pe.th32DefaultHeapID = bb.getInt();
-        pe.th32ModuleID = bb.getInt();
-        pe.cntThreads = bb.getInt();
-        pe.th32ParentProcessID = bb.getInt();
-        pe.pcPriClassBase = bb.getInt();
-        pe.dwFlags = bb.getInt();
-        pe.szExeFile = NativeHelper.getString(bb, true);
     }
 
     public static void decode(long ptr, WINDOWINFO wi) {

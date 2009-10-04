@@ -13,6 +13,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class Reflection
 {
@@ -29,9 +31,12 @@ public class Reflection
             ArrayList l = new ArrayList();
             Class c = o.getClass();
             while (c != null && c != Object.class) {
-                l.addAll(Arrays.asList(c.getDeclaredFields()));
+                List l2 = Arrays.asList(c.getDeclaredFields());
+                Collections.reverse(l2);
+                l.addAll(l2);
                 c = c.getSuperclass();
             }
+            Collections.reverse(l);
             fields = (Field[]) l.toArray(new Field[l.size()]);
         } else {
             fields = o.getClass().getDeclaredFields();
@@ -103,5 +108,17 @@ public class Reflection
 
     public static void println(Object value) {
         System.out.println(toString(value));
+    }
+
+    public static void println(Object value, boolean includeSuper) {
+        System.out.println(toString(value, includeSuper));
+    }
+
+    public static void printArray(Object[] arr, boolean includeSuper) {
+        if (arr != null) {
+            for (int i = 0; i < arr.length; i++) {
+                println(arr[i], includeSuper);
+            }
+        }
     }
 }
