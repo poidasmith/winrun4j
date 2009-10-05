@@ -12,7 +12,6 @@ package org.boris.winrun4j.test;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,7 +30,13 @@ public class Reflection
             ArrayList l = new ArrayList();
             Class c = o.getClass();
             while (c != null && c != Object.class) {
-                List l2 = Arrays.asList(c.getDeclaredFields());
+                List l2 = new ArrayList();
+                Field[] f = c.getDeclaredFields();
+                for (int i = 0; i < f.length; i++) {
+                    if (!Modifier.isStatic(f[i].getModifiers())) {
+                        l2.add(f[i]);
+                    }
+                }
                 Collections.reverse(l2);
                 l.addAll(l2);
                 c = c.getSuperclass();
@@ -91,12 +96,14 @@ public class Reflection
         return sb.toString();
     }
 
-    public static String getConstantName(Class clazz, int value) throws Exception {
+    public static String getConstantName(Class clazz, int value)
+            throws Exception {
         Field[] fields = clazz.getDeclaredFields();
         Integer valObj = new Integer(value);
         for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
-            if (Modifier.isStatic(f.getModifiers()) && Modifier.isPublic(f.getModifiers())) {
+            if (Modifier.isStatic(f.getModifiers()) &&
+                    Modifier.isPublic(f.getModifiers())) {
                 if (f.get(null).equals(valObj)) {
                     return f.getName();
                 }
