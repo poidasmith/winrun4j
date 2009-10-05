@@ -16,6 +16,7 @@ import org.boris.winrun4j.Callback;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.winapi.Services.SERVICE_STATUS;
 
 public class AbstractServiceTest
 {
@@ -99,16 +100,5 @@ public class AbstractServiceTest
 
     public static int GetLastError() {
         return (int) NativeHelper.call(kernel32, "GetLastError");
-    }
-
-    public static class SERVICE_STATUS
-    {
-        public int serviceType;
-        public int currentState;
-        public int controlsAccepted;
-        public int win32ExitCode;
-        public int serviceSpecificExitCode;
-        public int checkPoint;
-        public int waitHint;
     }
 }

@@ -11,11 +11,14 @@ package org.boris.winrun4j.test;
 
 import java.util.Properties;
 
+import org.boris.winrun4j.Callback;
 import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.RegistryKey;
 import org.boris.winrun4j.winapi.Kernel32;
 import org.boris.winrun4j.winapi.Services;
+import org.boris.winrun4j.winapi.Services.SERVICE_STATUS;
+import org.boris.winrun4j.winapi.Services.SERVICE_TABLE_ENTRY;
 
 public class NativeServiceTest
 {
@@ -28,19 +31,53 @@ public class NativeServiceTest
                 unregister(INI.getProperties());
             } else if ("-console".equals(args[0])) {
                 // Run as a simple console app
-                new NativeServiceTest().serviceStart(args);
+                new NativeServiceTest().run(args);
                 return;
             }
         }
+
+        Properties ini = INI.getProperties();
+        NativeServiceTest t = new NativeServiceTest();
+        t.initialize(ini);
     }
 
     public void serviceCtrlHandler(int opCode) {
+        switch (opCode) {
+        }
+
+        Services.SetServiceStatus(serviceCtrlHandle, status);
     }
 
     public void serviceStart(String[] args) {
+        serviceCtrlHandle = Services.RegisterServiceCtrlHandler(serviceId, serviceCtrlProc);
+        if (serviceCtrlHandle == 0) {
+            Log.error("Error registering service ctrl handler: " + Kernel32.GetLastError());
+            return;
+        }
+
+        run(args);
     }
 
+    public void run(String[] args) {
+    }
+
+    private Callback serviceStartProc;
+    private Callback serviceCtrlProc;
+    private String serviceId;
+    private SERVICE_STATUS status;
+    private long serviceCtrlHandle;
+
     public void initialize(Properties ini) {
+        serviceId = ini.getProperty(INI.SERVICE_ID);
+        status = new SERVICE_STATUS();
+
+        SERVICE_TABLE_ENTRY[] table = new SERVICE_TABLE_ENTRY[1];
+        table[0] = new SERVICE_TABLE_ENTRY();
+        table[0].serviceName = serviceId;
+        table[0].serviceProc = serviceStartProc;
+        if (!Services.StartServiceCtrlDispatcher(table)) {
+            Log.error("Service control dispatcher error: " + Kernel32.GetLastError());
+        }
     }
 
     public static int register(Properties ini) {

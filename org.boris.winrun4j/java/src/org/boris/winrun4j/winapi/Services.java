@@ -259,6 +259,13 @@ public class Services
         return res;
     }
 
+    public static long RegisterServiceCtrlHandler(String serviceName, Callback callback) {
+        long lpServiceName = NativeHelper.toNativeString(serviceName, true);
+        long res = NativeHelper.call(library, "RegisterServiceCtrlHandlerW", lpServiceName, callback.getPointer());
+        NativeHelper.free(lpServiceName);
+        return res;
+    }
+
     public static boolean SetServiceStatus(long handle, SERVICE_STATUS status) {
         long ptr = Native.malloc(28);
         ByteBuffer bb = NativeHelper.getBuffer(ptr, 28);
@@ -271,6 +278,25 @@ public class Services
         bb.putInt(status.waitHint);
         boolean res = NativeHelper.call(library, "SetServiceStatus", handle, ptr) != 0;
         Native.free(ptr);
+        return res;
+    }
+
+    public static boolean StartServiceCtrlDispatcher(SERVICE_TABLE_ENTRY[] serviceStartTable) {
+        if (serviceStartTable == null)
+            return false;
+        int size = (serviceStartTable.length + 1) << 3;
+        long lpServiceStartTable = Native.malloc(size);
+        ByteBuffer bb = NativeHelper.getBuffer(lpServiceStartTable, size);
+        long[] sbufs = new long[serviceStartTable.length];
+        for (int i = 0; i < serviceStartTable.length; i++) {
+            sbufs[i] = NativeHelper.toNativeString(serviceStartTable[i].serviceName, true);
+            bb.putInt((int) sbufs[i]);
+            bb.putInt((int) serviceStartTable[i].serviceProc.getPointer());
+        }
+        bb.putLong(0);
+        boolean res = NativeHelper.call(library, "StartServiceCtrlDispatcherW", lpServiceStartTable) != 0;
+        NativeHelper.free(lpServiceStartTable);
+        NativeHelper.free(sbufs);
         return res;
     }
 
