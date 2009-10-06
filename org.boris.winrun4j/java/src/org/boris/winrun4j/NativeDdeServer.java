@@ -95,6 +95,7 @@ public class NativeDdeServer implements Runnable, WindowProc, DdeCallback
     }
 
     public int windowProc(long hWnd, int uMsg, long wParam, long lParam) {
+        System.out.println(hWnd);
         return User32.DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
 
