@@ -11,6 +11,7 @@
 #include "Native.h"
 #include "../common/Log.h"
 #include "../java/JNI.h"
+#include "../java/VM.h"
 
 bool Native::RegisterNatives(JNIEnv *env)
 {
@@ -181,4 +182,11 @@ jlong Native::GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name,
 	env->ReleaseStringUTFChars(name, ns);
 	env->ReleaseStringUTFChars(sig, ss);
 	return res;
+}
+
+extern "C" __declspec(dllexport) int __cdecl Native_Callback(jobject obj, jmethodID mid, int stack)
+{
+	DebugBreak();
+	JNIEnv* env = VM::GetJNIEnv(true);
+	return env->CallIntMethod(obj, mid, stack);
 }
