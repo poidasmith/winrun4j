@@ -12,13 +12,14 @@ package org.boris.winrun4j;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.boris.winrun4j.winapi.Kernel32;
+
 public abstract class Callback
 {
     static long java = Native.loadLibrary("jvm");
-    static long getCreateJavaVMs = Native.getProcAddress(java,
-            "JNI_GetCreatedJavaVMs");
-    private static long methodId = Native.getMethodId(Callback.class,
-            "callback", "(I)I", false);
+    static long getCreateJavaVMs = Native.getProcAddress(java, "JNI_GetCreatedJavaVMs");
+    private static long methodId = Native.getMethodId(Callback.class, "callback", "(I)I", false);
+    private static long debugBreak = Native.getProcAddress(Kernel32.library, "DebugBreak");
 
     private long thisRef;
     private long callbackPtr;
@@ -31,12 +32,10 @@ public abstract class Callback
         thisRef = Native.newGlobalRef(this);
         long jvm = getJavaVm();
         long env = getJniEnv(jvm, false);
-        long pf = Native.fromPointer(env, 4).order(ByteOrder.LITTLE_ENDIAN)
-                .getInt();
-        long csim = Native.fromPointer(pf + (196), 4).order(
-                ByteOrder.LITTLE_ENDIAN).getInt();
-        callbackPtr = attach ? makeAttachCallback(jvm, thisRef, methodId, csim)
-                : makeCallback(env, thisRef, methodId, csim);
+        long pf = Native.fromPointer(env, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        long csim = Native.fromPointer(pf + (196), 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        callbackPtr = attach ? makeAttachCallback(jvm, env, thisRef, methodId, csim) : makeCallback(env, thisRef,
+                methodId, csim);
     }
 
     protected abstract int callback(int stack);
@@ -57,8 +56,7 @@ public abstract class Callback
     public static long getJavaVm() {
         long vms = Native.malloc(4);
         NativeHelper.call(getCreateJavaVMs, vms, 1, 0);
-        ByteBuffer bb = Native.fromPointer(vms, 4).order(
-                ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer bb = Native.fromPointer(vms, 4).order(ByteOrder.LITTLE_ENDIAN);
         int vm = bb.getInt();
         Native.free(vms);
         return vm;
@@ -79,38 +77,49 @@ public abstract class Callback
         return env;
     }
 
-    public static long makeAttachCallback(long jvm, long clazzOrObj,
-            long methodId, long fnPtr) {
-        int jvmAttach = NativeHelper.getInt(jvm) + 28;
-        long pEnv = Native.malloc(4);
-        long pFn = Native.malloc(51);
-        ByteBuffer bb = NativeHelper.getBuffer(pFn, 51);
+    public static long makeAttachCallback(long jvm, long env, long clazzOrObj, long methodId, long fnPtr) {
+        int jvmAttachAsDaemon = NativeHelper.getInt(jvm) + 28;
+        long pFn = Native.malloc(100);
+        ByteBuffer bb = NativeHelper.getBuffer(pFn, 100);
         bb.put((byte) 0x90); // nop
         bb.put((byte) 0x90); // nop
+
+        // Setup stack frame
         bb.put((byte) 0x55); // push ebp
         bb.put((byte) 0x8B); // mov ebp, esp
         bb.put((byte) 0xEC);
-        bb.put((byte) 0x68); // push pEnv
-        bb.putInt((int) pEnv);
+
+        // Call jvmAttachAsDaemon
         bb.put((byte) 0x68); // push null
         bb.putInt(0);
+        bb.put((byte) 0x68); // push pEnv
+        bb.putInt((int) pFn + 92);
+        bb.put((byte) 0x68); // push jvm
+        bb.putInt((int) jvm);
         bb.put((byte) 0xB8); // mov eax, jvmAttach
-        bb.putInt(jvmAttach);
+        bb.putInt(jvmAttachAsDaemon);
         bb.put((byte) 0xFF); // call eax
         bb.put((byte) 0xD0);
-        bb.put((byte) 0x58); // pop eax
-        bb.put((byte) 0x58); // pop eax
+
+        /*
+        // Call callback method
         bb.put((byte) 0x55); // push ebp
         bb.put((byte) 0x68); // push mid
         bb.putInt((int) methodId);
         bb.put((byte) 0x68); // push clazz
         bb.putInt((int) clazzOrObj);
+        // bb.put((byte) 0x8D); // load effective address into eax
+        // bb.putInt((int) (pFn + 96));
+        // bb.put((byte) 0x50); // push eax
         bb.put((byte) 0x68); // push env
-        bb.putInt((int) pEnv);
+        bb.putInt((int) env);
         bb.put((byte) 0xB8); // mov eax, fnPtr
         bb.putInt((int) (fnPtr));
         bb.put((byte) 0xFF); // call eax
         bb.put((byte) 0xD0);
+        */
+
+        // Pull down stack frame and return
         bb.put((byte) 0x8B); // mov esp, ebp
         bb.put((byte) 0xE5);
         bb.put((byte) 0x5D); // ret
@@ -118,8 +127,7 @@ public abstract class Callback
         return pFn;
     }
 
-    public static long makeCallback(long env, long clazzOrObj, long methodId,
-            long fnPtr) {
+    public static long makeCallback(long env, long clazzOrObj, long methodId, long fnPtr) {
         long ptr = Native.malloc(32);
         ByteBuffer bb = NativeHelper.getBuffer(ptr, 32);
         bb.put((byte) 0x90); // nop

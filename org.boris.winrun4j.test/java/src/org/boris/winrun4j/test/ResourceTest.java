@@ -14,17 +14,14 @@ import java.nio.ByteOrder;
 
 import org.boris.winrun4j.Callback;
 import org.boris.winrun4j.Native;
-import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.NativeStack;
 
 public class ResourceTest
 {
     static long kernel32 = Native.loadLibrary("kernel32");
-    static long enumResourceTypes = Native.getProcAddress(kernel32,
-            "EnumResourceTypesW");
-    static long enumResourceNames = Native.getProcAddress(kernel32,
-            "EnumResourceNamesW");
-    static long enumResourceLanguages = Native.getProcAddress(kernel32,
-            "EnumResourceLanguagesW");
+    static long enumResourceTypes = Native.getProcAddress(kernel32, "EnumResourceTypesW");
+    static long enumResourceNames = Native.getProcAddress(kernel32, "EnumResourceNamesW");
+    static long enumResourceLanguages = Native.getProcAddress(kernel32, "EnumResourceLanguagesW");
     static long debugBreak = Native.getProcAddress(kernel32, "DebugBreak");
 
     public static void main(String[] args) throws Exception {
@@ -58,24 +55,25 @@ public class ResourceTest
 
     public static void testGetResourceTypes(long env) {
         long clazz = Native.newGlobalRef(ResourceTest.class);
-        long mid = Native.getMethodId(ResourceTest.class, "typeCallback",
-                "(I)I", true);
-        long pf = Native.fromPointer(env, 4).order(ByteOrder.LITTLE_ENDIAN)
-                .getInt();
-        long csim = Native.fromPointer(pf + (516), 4).order(
-                ByteOrder.LITTLE_ENDIAN).getInt();
+        long mid = Native.getMethodId(ResourceTest.class, "typeCallback", "(I)I", true);
+        long pf = Native.fromPointer(env, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        long csim = Native.fromPointer(pf + (516), 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
         // for (int i = 0; i > -1; i++)
         // NativeHelper.call(csim, env, clazz, mid, 100);
         // System.out.println(res);
         // Native.deleteGlobalRef(clazz);
         // System.gc();
 
-        long callback = Callback.makeAttachCallback(Callback.getJavaVm(),
-                clazz, mid, csim);
+        long callback = Callback.makeAttachCallback(Callback.getJavaVm(), env, clazz, mid, csim);
+        // long callback = Callback.makeCallback(env, clazz, mid, csim);
+        System.out.print("Callback: ");
         printHex(callback);
 
         // while (true)
-        NativeHelper.call(enumResourceTypes, 0, callback, 1);
+        System.out.println(Long.toHexString(enumResourceTypes));
+        NativeStack ns = new NativeStack(new long[] { 0, callback, 1 });
+        Native.call(enumResourceTypes, ns.toBytes(), ns.size(), 9);
+        // NativeHelper.call(enumResourceTypes, 0, callback, 1);
         // System.out.println(res);
         // System.out.println(Kernel32.getLastError());
 
@@ -94,8 +92,7 @@ public class ResourceTest
 
     public static int typeCallback(int stack) {
         System.out.println("Hello callback " + Integer.toHexString(stack));
-        ByteBuffer bb = Native.fromPointer(stack + 8, 12).order(
-                ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer bb = Native.fromPointer(stack + 8, 12).order(ByteOrder.LITTLE_ENDIAN);
         for (int i = 0; i < 3; i++) {
             printHex(bb.getInt());
         }

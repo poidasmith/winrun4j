@@ -61,4 +61,8 @@ public class NativeStack
     private void push(long b) {
         stack[ptr--] = (byte) (b & 0xff);
     }
+
+    public int size() {
+        return 1023 - ptr;
+    }
 }
