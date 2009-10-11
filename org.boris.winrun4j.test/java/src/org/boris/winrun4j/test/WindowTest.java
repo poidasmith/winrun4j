@@ -41,8 +41,9 @@ public class WindowTest implements WindowProc
     }
 
     private static long createWindow() {
-        return User32.CreateWindowEx(0x80, "WinRun4J.Test", "WinRun4J.TestWindow", 0x80000000, 100, 100, 100, 100, 0,
-                0, 0, 0);
+        return User32.CreateWindowEx(0x80, "WinRun4J.Test",
+                "WinRun4J.TestWindow", 0x80000000, 100, 100, 100, 100, 0, 0, 0,
+                0);
     }
 
     private static void registerWindow(Callback callback) {
