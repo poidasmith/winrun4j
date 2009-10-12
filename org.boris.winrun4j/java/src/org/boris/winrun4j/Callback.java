@@ -13,9 +13,8 @@ import java.nio.ByteBuffer;
 
 public abstract class Callback
 {
-    private static long methodId = Native.getMethodId(Callback.class,
-            "callback", "(I)I", false);
-    static long nativeCallback = Native.getProcAddress(0, "Native_Callback");
+    private static long methodId = Native.getMethodId(Callback.class, "callback", "(I)I", false);
+    private static long nativeCallback = Native.getProcAddress(0, "Native_Callback");
 
     private long thisRef;
     private long callbackPtr;
@@ -30,7 +29,7 @@ public abstract class Callback
         return callbackPtr;
     }
 
-    public void cleanup() {
+    public void dispose() {
         if (thisRef != 0) {
             Native.deleteGlobalRef(thisRef);
             Native.free(callbackPtr);
@@ -41,8 +40,8 @@ public abstract class Callback
 
     private void makeNativeCallback() {
         thisRef = Native.newGlobalRef(this);
-        callbackPtr = Native.malloc(32);
-        ByteBuffer bb = NativeHelper.getBuffer(callbackPtr, 32);
+        callbackPtr = Native.malloc(27);
+        ByteBuffer bb = NativeHelper.getBuffer(callbackPtr, 27);
         bb.put((byte) 0x90); // nop
         bb.put((byte) 0x90); // nop
         bb.put((byte) 0x55); // push ebp

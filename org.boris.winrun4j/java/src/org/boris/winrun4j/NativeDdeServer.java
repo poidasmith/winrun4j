@@ -67,9 +67,9 @@ public class NativeDdeServer implements Runnable, WindowProc, DdeCallback
         if (hTopic != 0)
             DDEML.DdeFreeStringHandle(pidInst, hTopic);
         if (mainWndProc != null)
-            mainWndProc.cleanup();
+            mainWndProc.dispose();
         if (ddeProc != null)
-            ddeProc.cleanup();
+            ddeProc.dispose();
         if (pidInst != 0)
             DDEML.DdeUninitialize(pidInst);
         if (hWnd != 0)

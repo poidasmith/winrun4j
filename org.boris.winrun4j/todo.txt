@@ -12,6 +12,18 @@ Release Notes for WinRun4J 0.4.0
 - Added binary resource API (load/extract resources from an EXE/DLL)
 
 	
+improvements:
+- ideally we want to share the runtime library with the jvm to avoid loading
+  an extra library - so write a runtime wrapper that detects the library
+  that the jvm wants and uses that (may notwork if ini parser requires floating
+   point parsing).
+- should fallback to setDlldirectory method on jvm loading if we cannot find the
+  correct runtime library - this should future proof us
+ 
+	
+	
+	
+	
 - Native class: release basic api plus current integration (API should be ok)
 - Once we have callbacks in place, then we can integrate service and dde, registry and
   built-in classloader (possibly classpath expansion)

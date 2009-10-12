@@ -70,9 +70,9 @@ public class Resources
         };
 
         NativeHelper.call(library, "EnumResourceTypesW", 0, types.getPointer(), 0);
-        types.cleanup();
-        names.cleanup();
-        langs.cleanup();
+        types.dispose();
+        names.dispose();
+        langs.dispose();
     }
 
     public static void printHex(long h) {
