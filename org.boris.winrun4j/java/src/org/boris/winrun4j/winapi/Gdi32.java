@@ -16,7 +16,7 @@ public class Gdi32
 {
     public static final long library = Native.loadLibrary("gdi32");
 
-    public static long GetStockObject(int fnObject) {
+    public static long getStockObject(int fnObject) {
         return NativeHelper.call(library, "GetStockObject", fnObject);
     }
 }

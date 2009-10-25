@@ -14,4 +14,5 @@ public interface WinError
     int ERROR_SUCCESS = 0;
     int NO_ERROR = 0;
     int ERROR_INSUFFICIENT_BUFFER = 122;
+    int ERROR_SERVICE_EXISTS = 1073;
 }

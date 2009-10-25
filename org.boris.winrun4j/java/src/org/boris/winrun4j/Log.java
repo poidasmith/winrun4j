@@ -9,6 +9,9 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  * Log to the launcher log.
  */
@@ -39,6 +42,16 @@ public class Log
      */
     public static void error(String msg) {
         LogIt(2, " [err]", msg);
+    }
+
+    /**
+     * Error log.
+     */
+    public static void error(Throwable t) {
+        error(t.getMessage());
+        StringWriter sw = new StringWriter();
+        t.printStackTrace(new PrintWriter(sw));
+        error(sw.toString());
     }
 
     /**

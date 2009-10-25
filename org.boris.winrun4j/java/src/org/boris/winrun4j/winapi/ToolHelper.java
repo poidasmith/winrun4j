@@ -17,16 +17,16 @@ import org.boris.winrun4j.winapi.Kernel32.PROCESSENTRY32;
 
 public class ToolHelper
 {
-    public static PROCESSENTRY32[] CreateProcessSnaphost() {
-        long handle = Kernel32.CreateToolhelp32Snapshot(2, 0);
+    public static PROCESSENTRY32[] createProcessSnaphost() {
+        long handle = Kernel32.createToolhelp32Snapshot(2, 0);
         long lppe = Native.malloc(Kernel32.PROCESSENTRY32.SIZE);
         NativeHelper.setInt(lppe, Kernel32.PROCESSENTRY32.SIZE);
         ArrayList pes = new ArrayList();
         PROCESSENTRY32 pe = new PROCESSENTRY32();
-        if (Kernel32.Process32First(handle, lppe)) {
+        if (Kernel32.process32First(handle, lppe)) {
             Kernel32.decode(lppe, pe);
             pes.add(pe);
-            while (Kernel32.Process32Next(handle, lppe)) {
+            while (Kernel32.process32Next(handle, lppe)) {
                 pe = new PROCESSENTRY32();
                 Kernel32.decode(lppe, pe);
                 pes.add(pe);

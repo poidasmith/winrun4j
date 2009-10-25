@@ -11,32 +11,42 @@ package org.boris.winrun4j.test;
 
 import org.boris.winrun4j.Callback;
 import org.boris.winrun4j.Log;
+import org.boris.winrun4j.NativeHelper;
 import org.boris.winrun4j.winapi.DDEML;
 
-public class NativeDdeClientTest
+public class NativeDdeClientTest extends DDEML.DdeCallback
 {
     public static void main(String[] args) throws Exception {
-        long pid = DDEML.DdeInitialize((Callback) null, 0);
+        Callback cb = new NativeDdeClientTest();
+        long pid = DDEML.initialize(cb, 0);
         if (pid == 0) {
             Log.error("Could not initialize DDE");
             return;
         }
 
-        long hs = DDEML.DdeCreateStringHandle(pid, "WinRun4J", DDEML.CP_WINUNICODE);
-        long ht = DDEML.DdeCreateStringHandle(pid, "system", DDEML.CP_WINUNICODE);
-        long hc = DDEML.DdeConnect(pid, hs, ht, 0);
+        long hs = DDEML.createStringHandle(pid, "WinRun4J", DDEML.CP_WINUNICODE);
+        long ht = DDEML.createStringHandle(pid, "system", DDEML.CP_WINUNICODE);
+        long hc = DDEML.connect(pid, hs, ht, 0);
         if (hc == 0) {
             Log.error("Could not connect to server");
+            cb.dispose();
             return;
         }
 
-        byte[] b = "Testing".getBytes();
-        long res = DDEML.DdeClientTransaction(b, b.length, hc, 0, 0, DDEML.XTYP_EXECUTE, DDEML.TIMEOUT_ASYNC);
+        byte[] b = NativeHelper.toBytes("Testing", true);
+        long res = DDEML.clientTransaction(b, b.length, hc, 0, 0, DDEML.XTYP_EXECUTE, DDEML.TIMEOUT_ASYNC);
         if (res == 0) {
             Log.error("Failed to send notification");
+            cb.dispose();
             return;
         }
 
-        DDEML.DdeUninitialize(pid);
+        DDEML.uninitialize(pid);
+        cb.dispose();
+    }
+
+    public long ddeCallback(int type, int fmt, long conv, long hsz1, long hsz2, long data, int data1, int data2) {
+        System.out.println(type);
+        return 0;
     }
 }

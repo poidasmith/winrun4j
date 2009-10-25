@@ -380,7 +380,7 @@ int Service::Main(DWORD argc, LPSTR* argv)
 	for(UINT i = 0; i < argc - 1; i++) {
 		env->SetObjectArrayElement(args, i, env->NewStringUTF(argv[i+1]));
 	}
-	env->NewGlobalRef(args);
+	args = env->NewGlobalRef(args);
 
 	// Create the event
 	g_event = CreateEvent(0, TRUE, FALSE, 0);

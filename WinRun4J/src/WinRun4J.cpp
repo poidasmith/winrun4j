@@ -91,36 +91,6 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 	// Make sure we also log to console
 	Log::SetLogFileAndConsole(true);
 
-	// Check for RegisterDDE util request
-	if(StartsWith(lpCmdLine, "--WinRun4J:RegisterFileAssociations")) {
-		DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
-		return 0;
-	}
-
-	// Check for UnregisterDDE util request
-	if(StartsWith(lpCmdLine, "--WinRun4J:UnregisterFileAssociations")) {
-		DDE::UnregisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
-		return 0;
-	}
-
-	// Check for Register Service util request
-	if(StartsWith(lpCmdLine, "--WinRun4J:RegisterService")) {
-		dictionary* ini = INI::LoadIniFile(hInstance);
-		if(ini == NULL) 
-			return 1;
-		Service::Register(ini);
-		return 0;
-	}
-
-	// Check for Unregister Service util request
-	if(StartsWith(lpCmdLine, "--WinRun4J:UnregisterService")) {
-		dictionary* ini = INI::LoadIniFile(hInstance);
-		if(ini == NULL) 
-			return 1;
-		Service::Unregister(ini);
-		return 0;
-	}
-
 	if(StartsWith(lpCmdLine, "--WinRun4J:ExecuteINI")) {
 		return WinRun4J::ExecuteINI(hInstance, lpCmdLine);
 	}
@@ -199,8 +169,14 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	char* mainClass = iniparser_getstr(ini, MAIN_CLASS);
 
 	// If we don't have a main class we might have a service class
-	if(mainClass == NULL)
-		mainClass = iniparser_getstr(ini, SERVICE_CLASS);
+	if(mainClass == NULL) {
+		char* serviceCls = iniparser_getstr(ini, SERVICE_CLASS);
+		if(serviceCls) {
+			iniparser_setstr(ini, MAIN_CLASS, "org.boris.winrun4j.NativeServiceHost");
+			mainClass = iniparser_getstr(ini, MAIN_CLASS);
+			Log::Info("Using service host [%s]", mainClass);
+		}
+	}
 
 	// Fix main class - ie. replace x.y.z with x/y/z for use in jni
 	if(mainClass != NULL) {
@@ -275,18 +251,11 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, LPSTR lpCmdLine)
 
 int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 {
-	// Check for single instance option
-	if(Shell::CheckSingleInstance(ini))
-		return 0;
-
 	// Set the current working directory if specified
 	WinRun4J::SetWorkingDirectory(ini);
 
 	// Display the splash screen if present
 	SplashScreen::ShowSplashImage(hInstance, ini);
-
-	// Check for process priority setting
-	WinRun4J::SetProcessPriority(ini);
 
 	// Start vm
 	int result = WinRun4J::StartVM(lpCmdLine, ini);
@@ -300,22 +269,12 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	JNI::Init(env);
 	Native::RegisterNatives(env);
 
-	// Startup DDE if requested
-	bool ddeInit = DDE::Initialize(hInstance, env, ini);
-
-	// Run the main class (or service class)
-	char* serviceCls = iniparser_getstr(ini, SERVICE_CLASS);
-	if(serviceCls != NULL)
-		Service::Run(hInstance, ini, progargsCount, progargs);
-	else
-		JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
+	// Run the main class
+	JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
 	// Check for exception - if not a service
-	if(serviceCls == NULL)
-		JNI::PrintStackTrace(env);
+	JNI::PrintStackTrace(env);
 
-	if (ddeInit) DDE::Ready();
-	
 	// Free the args memory
 	WinRun4J::FreeArgs();
 
@@ -324,9 +283,6 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 
 	// Close the log
 	Log::Close();
-
-	// Unitialize DDE
-	if(ddeInit) DDE::Uninitialize();
 
 	return result;
 }

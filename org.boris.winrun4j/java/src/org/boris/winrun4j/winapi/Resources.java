@@ -10,85 +10,216 @@
 package org.boris.winrun4j.winapi;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.util.ArrayList;
 
 import org.boris.winrun4j.Callback;
-import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
-
 
 public class Resources
 {
-    static long library = Native.loadLibrary("kernel32");
+    public static int enumResourceTypes(long handle, Callback callback) {
+        return (int) NativeHelper.call(Kernel32.library, "EnumResourceTypesW", handle, callback.getPointer(), 0);
+    }
 
-    public static void main(String[] args) throws Exception {
-        final Callback langs = new Callback() {
-            protected int callback(int stack) {
-                System.out.println("Lang callback");
-                ByteBuffer bb = Native.fromPointer(stack + 8, 20).order(ByteOrder.LITTLE_ENDIAN);
-                long module = bb.getInt();
-                long type = bb.getInt();
-                long name = bb.getInt();
-                int lang = bb.getInt();
-                long param = bb.getInt();
-                printHex(module);
-                printHex(type);
-                printHex(name);
-                printHex(lang);
-                printHex(param);
+    public static int enumResourceNames(long handle, long type, Callback callback) {
+        return (int) NativeHelper.call(Kernel32.library, "EnumResourceNamesW", handle, type, callback.getPointer(), 0);
+    }
+
+    public static int enumResourceLanguages(long handle, long type, long name, Callback callback) {
+        return (int) NativeHelper.call(Kernel32.library, "EnumResourceLanguagesW", handle, type, name, callback
+                .getPointer(), 0);
+    }
+
+    public static long findResource(long hModule, long name, long type) {
+        return NativeHelper.call(Kernel32.library, "FindResource", hModule, name, type);
+    }
+
+    public static long findResourceEx(long hModule, long name, long type, int lang) {
+        return NativeHelper.call(Kernel32.library, "FindResourceEx", hModule, name, type, lang);
+    }
+
+    public static ResourceEntry[] findResources(long hModule) {
+        final ArrayList res = new ArrayList();
+        final Callback langs = new ResourceLanguagesCallback() {
+            protected int languagesCallback(long hModule, long pType, long pName, int wLanguage, long lpParam) {
+                ResourceEntry e = new ResourceEntry(ResourceId.fromPointer(pType, true), ResourceId.fromPointer(pName,
+                        true), wLanguage);
+                res.add(e);
                 return 1;
             }
         };
-        final Callback names = new Callback() {
-            protected int callback(int stack) {
-                System.out.println("Name callback");
-                ByteBuffer bb = Native.fromPointer(stack + 8, 16).order(ByteOrder.LITTLE_ENDIAN);
-                long module = bb.getInt();
-                long type = bb.getInt();
-                long name = bb.getInt();
-                long param = bb.getInt();
-                printHex(module);
-                printHex(type);
-                printHex(name);
-                printHex(param);
-                return (int) NativeHelper.call(library, "EnumResourceLanguagesW", 0, type, name, langs
-                        .getPointer(), 0);
+        final Callback names = new ResourceNamesCallback() {
+            protected int namesCallback(long hModule, long pType, long pName, long lpParam) {
+                return enumResourceLanguages(hModule, pType, pName, langs);
             }
         };
-        final Callback types = new Callback() {
-            protected int callback(int stack) {
-                System.out.println("Type callback");
-                ByteBuffer bb = Native.fromPointer(stack + 8, 12).order(ByteOrder.LITTLE_ENDIAN);
-                long module = bb.getInt();
-                long type = bb.getInt();
-                long param = bb.getInt();
-                printHex(module);
-                printHex(type);
-                printHex(param);
-                return (int) NativeHelper.call(library, "EnumResourceNamesW", 0, type, names.getPointer(), 0);
+        final Callback types = new ResourceTypesCallback() {
+            protected int typesCallback(long hModule, long pType, long lpParam) {
+                return enumResourceNames(hModule, pType, names);
             }
         };
-
-        NativeHelper.call(library, "EnumResourceTypesW", 0, types.getPointer(), 0);
+        enumResourceTypes(hModule, types);
         types.dispose();
         names.dispose();
         langs.dispose();
+        return (ResourceEntry[]) res.toArray(new ResourceEntry[res.size()]);
     }
 
-    public static void printHex(long h) {
-        System.out.println("0x" + Integer.toHexString((int) h));
+    public static long loadResource(long hModule, long hResInfo) {
+        return NativeHelper.call(Kernel32.library, "LoadResource", hModule, hResInfo);
     }
 
-    public static int EnumResourceTypes(long handle, Callback callback) {
-        return (int) NativeHelper.call(library, "EnumResourceTypesW", handle, callback.getPointer(), 0);
+    public static long lockResource(long hResData) {
+        return NativeHelper.call(Kernel32.library, "LockResource", hResData);
     }
 
-    public static int EnumResourceNames(long handle, long type, Callback callback) {
-        return (int) NativeHelper.call(library, "EnumResourceNamesW", handle, type, callback.getPointer(), 0);
+    public static long beginUpdateResource(String filename, boolean bDeleteExistingResources) {
+        long lpFilename = NativeHelper.toNativeString(filename, true);
+        long res = NativeHelper.call(Kernel32.library, "BeginUpdateResourceW", lpFilename, bDeleteExistingResources ? 1
+                : 0);
+        NativeHelper.free(lpFilename);
+        return res;
     }
 
-    public static int EnumResourceLanguages(long handle, long type, long name, Callback callback) {
-        return (int) NativeHelper.call(library, "EnumResourceLanguagesW", handle, type, name, callback
-                .getPointer(), 0);
+    public static boolean updateResource(long hUpdate, long lpType, long lpName, int wLanguage, byte[] data) {
+        long lpData = NativeHelper.toNative(data, 0, data.length);
+        boolean res = updateResource(hUpdate, lpType, lpName, wLanguage, lpData, data.length);
+        NativeHelper.free(lpData);
+        return res;
+    }
+
+    public static boolean updateResource(long hUpdate, long lpType, long lpName, int wLanguage, long lpData, int cbData) {
+        return NativeHelper.call(Kernel32.library, "UpdateResourceW", hUpdate, lpType, lpName, wLanguage, lpData,
+                cbData) != 0;
+    }
+
+    public static boolean updateResource(long hUpdate, ResourceEntry entry, byte[] data) {
+        long lpData = NativeHelper.toNative(data, 0, data.length);
+        boolean res = updateResource(hUpdate, entry, lpData, data.length);
+        NativeHelper.free(lpData);
+        return res;
+    }
+
+    public static boolean updateResource(long hUpdate, ResourceEntry entry, long lpData, int cbData) {
+        if (entry == null || !entry.isValid())
+            return false;
+        long lpType = entry.type.toNative();
+        long lpName = entry.name.toNative();
+        boolean res = NativeHelper.call(Kernel32.library, "UpdateResourceW", hUpdate, lpType, lpName, entry.language,
+                lpData, cbData) != 0;
+        if (!entry.type.isIntResource())
+            NativeHelper.free(lpType);
+        if (!entry.name.isIntResource())
+            NativeHelper.free(lpName);
+        return res;
+    }
+
+    public static boolean endUpdateResource(long hUpdate, boolean fDiscard) {
+        return NativeHelper.call(Kernel32.library, "EndUpdateResourceW", hUpdate, fDiscard ? 1 : 0) != 0;
+    }
+
+    public static long sizeOfResource(long hModule, long hResInfo) {
+        return NativeHelper.call(Kernel32.library, "SizeOfResource", hModule, hResInfo);
+    }
+
+    public static abstract class ResourceTypesCallback extends Callback
+    {
+        protected final int callback(int stack) {
+            ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
+            return typesCallback(bb.getInt(), bb.getInt(), bb.getInt());
+        }
+
+        protected abstract int typesCallback(long hModule, long pType, long lpParam);
+    }
+
+    public static abstract class ResourceNamesCallback extends Callback
+    {
+        protected final int callback(int stack) {
+            ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
+            return namesCallback(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt());
+        }
+
+        protected abstract int namesCallback(long hModule, long pType, long pName, long lpParam);
+    }
+
+    public static abstract class ResourceLanguagesCallback extends Callback
+    {
+        protected final int callback(int stack) {
+            ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
+            return languagesCallback(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt());
+        }
+
+        protected abstract int languagesCallback(long hModule, long pType, long pName, int wLanguage, long lpParam);
+    }
+
+    public static class ICONENTRY
+    {
+        public int width;
+        public int height;
+        public int colorCount;
+        public int reserved;
+        public int planes;
+        public int bitCount;
+        public int wordsInRes;
+        public int imageOffset;
+    }
+
+    public static class ICONHEADER
+    {
+        public int reserved;
+        public int type;
+        public ICONENTRY[] entries;
+    }
+
+    public static class ICONIMAGE
+    {
+        public BITMAPINFOHEADER header;
+        public RGBQUAD colors;
+        public int[] xors;
+        public int[] ands;
+    }
+
+    public static class BITMAPINFOHEADER
+    {
+        public int biSize;
+        public int biWidth;
+        public int biHeight;
+        public int biPlanes;
+        public int biBitCount;
+        public int biCompression;
+        public int biSizeImage;
+        public int biXPelsPerMeter;
+        public int biYPelsPerMeter;
+        public int biClrUsed;
+        public int biClrImportant;
+    }
+
+    public static class RGBQUAD
+    {
+        public int rgbBlue;
+        public int rgbGreen;
+        public int rgbRed;
+        public int rgbReserved;
+    }
+
+    public static class GRPICONENTRY
+    {
+        public int width;
+        public int height;
+        public int colourCount;
+        public int reserved;
+        public int planes;
+        public int bitCount;
+        public int bytesInRes;
+        public int bytesInRes2;
+        public int reserved2;
+        public int id;
+    }
+
+    public static class GRPICONHEADER
+    {
+        public int reserved;
+        public int type;
+        public GRPICONENTRY[] entries;
     }
 }

@@ -11,3 +11,5 @@
 #include "Supervisor.h"
 #include "../common/Log.h"
 
+// 1. Check for VM hang
+// 2. Allow app to be restarted

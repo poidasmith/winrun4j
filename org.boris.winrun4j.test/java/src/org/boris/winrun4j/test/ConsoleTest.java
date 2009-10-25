@@ -9,17 +9,20 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-import org.boris.winrun4j.winapi.DDEML;
-import org.boris.winrun4j.winapi.DDEML.DdeCallback;
+import org.boris.winrun4j.winapi.Console;
 
-public class DDENativeTest extends DdeCallback
+public class ConsoleTest
 {
     public static void main(String[] args) throws Exception {
-        DdeCallback cb = new DDENativeTest();
-        DDEML.initialize(cb, DDEML.APPCLASS_MONITOR | DDEML.MF_CALLBACKS);
-    }
-
-    public long ddeCallback(int type, int fmt, long conv, long hsz1, long hsz2, long data, int data1, int data2) {
-        return 0;
+        Console.allocConsole();
+        Console.setConsoleTitle("Testing Console");
+        Console.setConsoleCtrlHandler(new Console.HandlerRoutine() {
+            public boolean handlerRoutine(int dwCtrlType) {
+                System.out.println(dwCtrlType);
+                Console.writeConsole(0, Integer.toHexString(dwCtrlType));
+                return true;
+            }
+        }, true);
+        Thread.sleep(500000);
     }
 }

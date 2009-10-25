@@ -167,7 +167,6 @@ jlong Native::NewGlobalRef(JNIEnv* env, jobject self, jobject obj)
 	return (jlong) env->NewGlobalRef(obj);
 }
 
-
 void Native::DeleteGlobalRef(JNIEnv* env, jobject self, jlong handle)
 {
 	env->DeleteGlobalRef((jobject) handle);
@@ -186,7 +185,6 @@ jlong Native::GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name,
 
 extern "C" __declspec(dllexport) int __cdecl Native_Callback(jobject obj, jmethodID mid, int stack)
 {
-	DebugBreak();
 	JNIEnv* env = VM::GetJNIEnv(true);
-	return env->CallIntMethod(obj, mid, stack);
+	return env->CallIntMethod(obj, mid, stack+8);
 }

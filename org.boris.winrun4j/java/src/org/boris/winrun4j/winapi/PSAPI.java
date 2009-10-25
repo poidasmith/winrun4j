@@ -7,7 +7,7 @@ public class PSAPI
 {
     public static final long library = Native.loadLibrary("psapi");
 
-    public static String GetModuleFilenameEx(long hProcess, int hModule) {
+    public static String getModuleFilenameEx(long hProcess, int hModule) {
         long ptr = Native.malloc(Shell32.MAX_PATHW);
         NativeHelper.call(library, "GetModuleFileNameExW", hProcess, hModule,
                 ptr, Shell32.MAX_PATHW);

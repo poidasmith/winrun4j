@@ -9,8 +9,19 @@
  *******************************************************************************/
 package org.boris.winrun4j.winapi;
 
-public class Pointer
+public class ResourceEntry
 {
-    public long ptr;
-    public Object value;
+    public final ResourceId type;
+    public final ResourceId name;
+    public final int language;
+
+    public ResourceEntry(ResourceId type, ResourceId name, int language) {
+        this.type = type;
+        this.name = name;
+        this.language = language;
+    }
+
+    public boolean isValid() {
+        return type != null && name != null;
+    }
 }

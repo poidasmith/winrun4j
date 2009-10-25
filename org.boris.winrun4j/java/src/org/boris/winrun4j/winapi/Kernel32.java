@@ -18,38 +18,38 @@ public class Kernel32
 {
     public static final long library = Native.loadLibrary("kernel32");
 
-    public static void DebugBreak() {
+    public static void debugBreak() {
         NativeHelper.call(library, "DebugBreak");
     }
 
-    public static void SetPriorityClass(long hProcess, int dwPriorityClass) {
+    public static void setPriorityClass(long hProcess, int dwPriorityClass) {
         NativeHelper.call(library, "SetPriorityClass", hProcess, dwPriorityClass);
     }
 
-    public static long GetCurrentProcessId() {
+    public static long getCurrentProcessId() {
         return NativeHelper.call(library, "GetCurrentProcessId");
     }
 
-    public static long GetCurrentThreadId() {
+    public static long getCurrentThreadId() {
         return NativeHelper.call(library, "GetCurrentThreadId");
     }
 
-    public static long GetModuleHandle(String moduleName) {
+    public static long getModuleHandle(String moduleName) {
         long lpModuleName = NativeHelper.toNativeString(moduleName, true);
         long res = NativeHelper.call(library, "GetModuleHandleW", lpModuleName);
         NativeHelper.free(lpModuleName);
         return res;
     }
 
-    public static long GetLastError() {
+    public static long getLastError() {
         return NativeHelper.call(library, "GetLastError");
     }
 
-    public static long GetTickCount() {
+    public static long getTickCount() {
         return NativeHelper.call(library, "GetTickCount");
     }
 
-    public static String GetModuleFilename(long hModule) {
+    public static String getModuleFilename(long hModule) {
         long ptr = Native.malloc(Shell32.MAX_PATHW);
         NativeHelper.call(Kernel32.library, "GetModuleFileNameW", hModule, ptr, Shell32.MAX_PATHW);
         String res = NativeHelper.getString(ptr, Shell32.MAX_PATHW, true);
@@ -57,23 +57,23 @@ public class Kernel32
         return res;
     }
 
-    public static void CloseHandle(long handle) {
+    public static void closeHandle(long handle) {
         NativeHelper.call(Kernel32.library, "CloseHandle", handle);
     }
 
-    public static long CreateToolhelp32Snapshot(int dwFlags, long th32ProcessID) {
+    public static long createToolhelp32Snapshot(int dwFlags, long th32ProcessID) {
         return NativeHelper.call(Kernel32.library, "CreateToolhelp32Snapshot", dwFlags, th32ProcessID);
     }
 
-    public static boolean Process32First(long hSnapshot, long lppe) {
+    public static boolean process32First(long hSnapshot, long lppe) {
         return NativeHelper.call(Kernel32.library, "Process32FirstW", hSnapshot, lppe) != 0;
     }
 
-    public static boolean Process32Next(long hSnapshot, long lppe) {
+    public static boolean process32Next(long hSnapshot, long lppe) {
         return NativeHelper.call(Kernel32.library, "Process32NextW", hSnapshot, lppe) != 0;
     }
 
-    public static long OpenProcess(int dwDesiredAccess, boolean bInheritHandle, long dwProcessId) {
+    public static long openProcess(int dwDesiredAccess, boolean bInheritHandle, long dwProcessId) {
         return NativeHelper.call(Kernel32.library, "OpenProcess", dwDesiredAccess, bInheritHandle ? 1 : 0, dwProcessId);
     }
 

@@ -29,21 +29,20 @@ public class WindowTest implements WindowProc
         long hWnd = createWindow();
         if (hWnd == 0)
             Log.error("Unable to create window");
-        User32.ShowWindow(hWnd, User32.SW_SHOW);
-        User32.UpdateWindow(hWnd);
+        User32.showWindow(hWnd, User32.SW_SHOW);
+        User32.updateWindow(hWnd);
 
         long pMsg = Native.malloc(28);
-        while (User32.GetMessage(pMsg, hWnd, 0, 0)) {
-            User32.TranslateMessage(pMsg);
-            User32.DispatchMessage(pMsg);
+        while (User32.getMessage(pMsg, hWnd, 0, 0)) {
+            User32.translateMessage(pMsg);
+            User32.dispatchMessage(pMsg);
         }
         NativeHelper.free(pMsg);
     }
 
     private static long createWindow() {
-        return User32.CreateWindowEx(0x80, "WinRun4J.Test",
-                "WinRun4J.TestWindow", 0x80000000, 100, 100, 100, 100, 0, 0, 0,
-                0);
+        return User32.createWindowEx(0x80, "WinRun4J.Test", "WinRun4J.TestWindow", 0x80000000, 100, 100, 100, 100, 0,
+                0, 0, 0);
     }
 
     private static void registerWindow(Callback callback) {
@@ -53,20 +52,19 @@ public class WindowTest implements WindowProc
         wcx.lpfnWndProc = callback;
         wcx.cbClsExtra = 0;
         wcx.cbWndExtra = 30;
-        wcx.hInstance = Kernel32.GetModuleHandle(null);
+        wcx.hInstance = Kernel32.getModuleHandle(null);
         wcx.hIcon = 0;
-        wcx.hCursor = User32.LoadCursor(0, 32514);
-        wcx.hbrBackground = Gdi32.GetStockObject(1);
+        wcx.hCursor = User32.loadCursor(0, 32514);
+        wcx.hbrBackground = Gdi32.getStockObject(1);
         wcx.menuName = null;
         wcx.className = "WinRun4J.Test";
         wcx.hIconSm = 0;
-        if (!User32.RegisterClassEx(wcx)) {
+        if (!User32.registerClassEx(wcx)) {
             Log.error("Unable to create DDE Window class");
         }
     }
 
     public int windowProc(long hWnd, int uMsg, long wParam, long lParam) {
-        System.out.println(hWnd);
-        return User32.DefWindowProc(hWnd, uMsg, wParam, lParam);
+        return User32.defWindowProc(hWnd, uMsg, wParam, lParam);
     }
 }

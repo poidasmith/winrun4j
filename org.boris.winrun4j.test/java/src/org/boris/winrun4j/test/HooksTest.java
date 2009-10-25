@@ -34,10 +34,10 @@ public class HooksTest
                 return 0;
             }
         };
-        long hook = Hooks.SetWindwsHookEx(Hooks.WH_MOUSE_LL, cb, Native.loadLibrary("jvm"), 0);
+        long hook = Hooks.setWindowsHookEx(Hooks.WH_MOUSE_LL, cb, Native.loadLibrary("jvm"), 0);
         System.out.println(hook);
-        System.out.println(Kernel32.GetLastError());
-        Thread.sleep(2000);
-        Hooks.UnhookWindowsHookEx(hook);
+        System.out.println(Kernel32.getLastError());
+        Thread.sleep(5000);
+        Hooks.unhookWindowsHookEx(hook);
     }
 }

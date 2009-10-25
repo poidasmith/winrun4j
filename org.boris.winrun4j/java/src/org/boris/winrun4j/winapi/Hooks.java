@@ -20,14 +20,10 @@ import org.boris.winrun4j.winapi.User32.POINT;
 
 public class Hooks
 {
-    public static final long procCallMsgFilter = Native.getProcAddress(
-            User32.library, "CallMsgFilter");
-    public static final long procCallNextHookEx = Native.getProcAddress(
-            User32.library, "CallNextHookEx");
-    public static final long procSetWindowsHookEx = Native.getProcAddress(
-            User32.library, "SetWindowsHookExW");
-    public static final long procUnhookWindowsHookEx = Native.getProcAddress(
-            User32.library, "UnhookWindowsHookEx");
+    public static final long procCallMsgFilter = Native.getProcAddress(User32.library, "CallMsgFilter");
+    public static final long procCallNextHookEx = Native.getProcAddress(User32.library, "CallNextHookEx");
+    public static final long procSetWindowsHookEx = Native.getProcAddress(User32.library, "SetWindowsHookExW");
+    public static final long procUnhookWindowsHookEx = Native.getProcAddress(User32.library, "UnhookWindowsHookEx");
 
     public static final int WH_MIN = (-1);
     public static final int WH_MSGFILTER = (-1);
@@ -47,12 +43,11 @@ public class Hooks
     public static final int WH_KEYBOARD_LL = 13;
     public static final int WH_MOUSE_LL = 14;
 
-    public static boolean CallMsgFilter(MSG msg, int code) {
+    public static boolean callMsgFilter(MSG msg, int code) {
         long ptr = 0;
         if (msg != null) {
             ptr = Native.malloc(18);
-            ByteBuffer bb = Native.fromPointer(ptr, 18).order(
-                    ByteOrder.LITTLE_ENDIAN);
+            ByteBuffer bb = Native.fromPointer(ptr, 18).order(ByteOrder.LITTLE_ENDIAN);
             bb.putInt((int) msg.hWnd);
             bb.putInt(msg.message);
             bb.putInt(msg.wParam);
@@ -72,19 +67,15 @@ public class Hooks
         return res;
     }
 
-    public static long CallNextHookEx(long hook, int code, long wParam,
-            long lParam) {
-        return NativeHelper
-                .call(procCallNextHookEx, hook, code, wParam, lParam);
+    public static long callNextHookEx(long hook, int code, long wParam, long lParam) {
+        return NativeHelper.call(procCallNextHookEx, hook, code, wParam, lParam);
     }
 
-    public static long SetWindwsHookEx(int idHook, Callback lpfn, long hMod,
-            long threadId) {
-        return NativeHelper.call(procSetWindowsHookEx, idHook, lpfn
-                .getPointer(), hMod, threadId);
+    public static long setWindowsHookEx(int idHook, Callback lpfn, long hMod, long threadId) {
+        return NativeHelper.call(procSetWindowsHookEx, idHook, lpfn.getPointer(), hMod, threadId);
     }
 
-    public static boolean UnhookWindowsHookEx(long hook) {
+    public static boolean unhookWindowsHookEx(long hook) {
         return NativeHelper.call(procUnhookWindowsHookEx, hook) != 0;
     }
 
@@ -97,7 +88,7 @@ public class Hooks
         }
 
         protected int callback(int stack) {
-            ByteBuffer bb = NativeHelper.getBuffer(stack + 8, 12);
+            ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
             int code = bb.getInt();
             int id = bb.getInt();
             MOUSEHOOKSTRUCT ms = new MOUSEHOOKSTRUCT();

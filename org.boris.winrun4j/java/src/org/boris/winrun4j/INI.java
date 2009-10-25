@@ -28,7 +28,7 @@ public class INI
     public static final String SINGLE_INSTANCE = ":single.instance";
     public static final String DDE_ENABLED = ":dde.enabled";
     public static final String DDE_WINDOW_CLASS = ":dde.window.class";
-    public static final String DDE_SERVER_NAME = ":dd.server.name";
+    public static final String DDE_SERVER_NAME = ":dde.server.name";
     public static final String DDE_TOPIC = ":dde.topic";
     public static final String SERVICE_ID = ":service.id";
     public static final String SERVICE_NAME = ":service.name";

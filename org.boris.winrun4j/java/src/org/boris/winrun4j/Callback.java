@@ -20,7 +20,7 @@ public abstract class Callback
     private long callbackPtr;
 
     public Callback() {
-        makeNativeCallback();
+        build();
     }
 
     protected abstract int callback(int stack);
@@ -38,7 +38,7 @@ public abstract class Callback
         }
     }
 
-    private void makeNativeCallback() {
+    private void build() {
         thisRef = Native.newGlobalRef(this);
         callbackPtr = Native.malloc(27);
         ByteBuffer bb = NativeHelper.getBuffer(callbackPtr, 27);
@@ -61,4 +61,10 @@ public abstract class Callback
         bb.put((byte) 0x5D); // ret
         bb.put((byte) 0xC3);
     }
+
+    public static final Callback NULL = new Callback() {
+        public int callback(int stack) {
+            return 0;
+        }
+    };
 }

@@ -5,16 +5,12 @@ import java.util.Properties;
 import org.boris.winrun4j.winapi.DDEML;
 import org.boris.winrun4j.winapi.Kernel32;
 import org.boris.winrun4j.winapi.PSAPI;
-import org.boris.winrun4j.winapi.Pointer;
 import org.boris.winrun4j.winapi.User32;
 import org.boris.winrun4j.winapi.Kernel32.PROCESSENTRY32;
 import org.boris.winrun4j.winapi.User32.WINDOWINFO;
 
-public class SingleInstance
+public class SingleInstance extends DDEML.DdeCallback
 {
-    public static void main(String[] args) throws Exception {
-    }
-
     public static boolean check(Properties ini) throws Exception {
         String singleInstance = ini.getProperty(INI.SINGLE_INSTANCE);
         if (singleInstance == null)
@@ -22,80 +18,92 @@ public class SingleInstance
 
         Callback enumWindowsProc = new Callback() {
             protected int callback(int stack) {
-                return EnumWindowsProc(NativeHelper.getInt(stack + 8), NativeHelper.getInt(stack + 12));
+                return enumWindowsProc(NativeHelper.getInt(stack), NativeHelper.getInt(stack + 4));
             }
         };
-        long procId = Kernel32.GetCurrentProcessId();
-        String moduleFile = Kernel32.GetModuleFilename(0);
+        long procId = Kernel32.getCurrentProcessId();
+        String moduleFile = Kernel32.getModuleFilename(0);
         System.out.println(moduleFile + " " + procId);
-        long handle = Kernel32.CreateToolhelp32Snapshot(2, 0);
+        long handle = Kernel32.createToolhelp32Snapshot(2, 0);
         long lppe = Native.malloc(Kernel32.PROCESSENTRY32.SIZE);
         NativeHelper.setInt(lppe, Kernel32.PROCESSENTRY32.SIZE);
         PROCESSENTRY32 pe = new PROCESSENTRY32();
-        if (Kernel32.Process32First(handle, lppe)) {
+        if (Kernel32.process32First(handle, lppe)) {
             Kernel32.decode(lppe, pe);
-            long hProcess = Kernel32.OpenProcess(0x410, false, pe.th32ProcessID);
-            String otherModule = PSAPI.GetModuleFilenameEx(hProcess, 0);
-            Kernel32.CloseHandle(hProcess);
+            long hProcess = Kernel32.openProcess(0x410, false, pe.th32ProcessID);
+            String otherModule = PSAPI.getModuleFilenameEx(hProcess, 0);
+            Kernel32.closeHandle(hProcess);
             if (procId != pe.th32ProcessID && moduleFile.equals(otherModule)) {
-                System.out.println("Found other process");
+                Log.info("Found other process");
                 Native.free(lppe);
                 return true;
             }
-            User32.EnumWindows(enumWindowsProc, pe.th32ProcessID);
-            while (Kernel32.Process32Next(handle, lppe)) {
+            User32.enumWindows(enumWindowsProc, pe.th32ProcessID);
+            while (Kernel32.process32Next(handle, lppe)) {
                 Kernel32.decode(lppe, pe);
-                hProcess = Kernel32.OpenProcess(0x410, false, pe.th32ProcessID);
-                otherModule = PSAPI.GetModuleFilenameEx(hProcess, 0);
-                Kernel32.CloseHandle(hProcess);
+                hProcess = Kernel32.openProcess(0x410, false, pe.th32ProcessID);
+                otherModule = PSAPI.getModuleFilenameEx(hProcess, 0);
+                Kernel32.closeHandle(hProcess);
                 if (procId != pe.th32ProcessID && moduleFile.equals(otherModule)) {
-                    System.out.println("Found other process");
+                    Log.info("Found other process");
                     Native.free(lppe);
                     return true;
                 }
-                User32.EnumWindows(enumWindowsProc, pe.th32ProcessID);
+                User32.enumWindows(enumWindowsProc, pe.th32ProcessID);
             }
         }
         Native.free(lppe);
         return false;
     }
 
-    public static boolean NotifySingleInstance(Properties ini) {
-        Pointer pidInst = new Pointer();
-        if (DDEML.DdeInitialize(pidInst, null, 0, 0) != 0) {
+    public static boolean notify(String appName, String topic) {
+        Callback cb = new SingleInstance();
+        long pidInst = DDEML.initialize(cb, 0);
+        if (pidInst == 0) {
             Log.warning("DDE failed to initialize");
         }
 
-        String appName = ini.getProperty(INI.DDE_SERVER_NAME);
-        String topic = ini.getProperty(INI.DDE_TOPIC);
-        long hServer = DDEML.DdeCreateStringHandle(pidInst.ptr, appName == null ? "WinRun4J" : appName,
-                DDEML.CP_WINANSI);
-        long hTopic = DDEML.DdeCreateStringHandle(pidInst.ptr, topic == null ? "system" : topic, DDEML.CP_WINANSI);
-        long conv = DDEML.DdeConnect(pidInst.ptr, hServer, hTopic, 0);
-        if (conv != 0) {
-            byte[] b = "WinRun4J.ACTIVATE".getBytes();
-            long res = DDEML.DdeClientTransaction(b, b.length, conv, 0, 0, 0x4050, -1);
-            if (res == 0) {
-                Log.error("Failed to send DDE single instance notification");
-                return false;
-            }
-        } else {
+        long hServer = DDEML.createStringHandle(pidInst, appName, DDEML.CP_WINUNICODE);
+        long hTopic = DDEML.createStringHandle(pidInst, topic, DDEML.CP_WINUNICODE);
+        long conv = DDEML.connect(pidInst, hServer, hTopic, 0);
+        if (conv == 0) {
             Log.error("Unable to create DDE conversation");
+            cb.dispose();
             return false;
         }
+
+        byte[] b = NativeHelper.toBytes("WinRun4J.ACTIVATE", true);
+        long res = DDEML.clientTransaction(b, b.length, conv, 0, 0, 0x4050, -1);
+        if (res == 0) {
+            Log.error("Failed to send DDE single instance notification");
+            cb.dispose();
+            return false;
+        }
+
+        DDEML.uninitialize(pidInst);
+        cb.dispose();
 
         return true;
     }
 
-    public static int EnumWindowsProc(long hwnd, long lParam) {
-        long procId = User32.GetWindowThreadProcessId(hwnd);
+    public static boolean notify(Properties ini) {
+        return notify(ini.getProperty(INI.DDE_SERVER_NAME), ini.getProperty(INI.DDE_TOPIC));
+    }
+
+    private static int enumWindowsProc(long hwnd, long lParam) {
+        long procId = User32.getWindowThreadProcessId(hwnd);
         if (lParam == procId) {
-            WINDOWINFO wi = User32.GetWindowInfo(hwnd);
+            WINDOWINFO wi = User32.getWindowInfo(hwnd);
             if (wi != null && (wi.dwStyle & 0x10000000) != 0) {
-                User32.SetForegroundWindow(hwnd);
+                User32.setForegroundWindow(hwnd);
                 Log.warning("Single Instance Shutdown");
             }
         }
+        return 0;
+    }
+
+    public long ddeCallback(int type, int fmt, long conv, long hsz1, long hsz2, long data, int data1, int data2) {
+        System.out.println(type);
         return 0;
     }
 }

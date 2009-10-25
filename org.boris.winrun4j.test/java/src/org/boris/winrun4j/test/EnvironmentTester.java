@@ -19,7 +19,7 @@ public class EnvironmentTester implements Runnable
 {
     public static void main(String[] args) throws Exception {
         System.out.println("Logical Drives");
-        File[] logicalDrives = Environment.GetLogicalDrives();
+        File[] logicalDrives = Environment.getLogicalDrives();
         for (File f : logicalDrives) {
             System.out.println(f);
         }
@@ -35,30 +35,30 @@ public class EnvironmentTester implements Runnable
 
         System.out.println("Environment Variables");
         System.out.printf("TEMP: %s\n", Environment
-                .GetEnvironmentVariable("TEMP"));
+                .getEnvironmentVariable("TEMP"));
         System.out.printf("TEMP2: %s\n", Environment
-                .GetEnvironmentVariable("TEMP2"));
-        System.out.println(Environment.GetEnvironmentVariables());
-        System.out.println(Environment.ExpandEnvironmentString("temp: %TEMP%"));
+                .getEnvironmentVariable("TEMP2"));
+        System.out.println(Environment.getEnvironmentVariables());
+        System.out.println(Environment.expandEnvironmentString("temp: %TEMP%"));
         System.out.println();
 
         System.out.println("Command Line Args");
-        String[] ags = Environment.GetCommandLine();
+        String[] ags = Environment.getCommandLine();
         for (String a : ags) {
             System.out.println(a);
         }
         System.out.println();
 
         System.out.println("Version Info");
-        System.out.println(Reflection.toString(Environment.GetVersionEx()));
+        System.out.println(Reflection.toString(Environment.getVersionEx()));
         System.out.println();
 
         System.out.println("Tick Count");
         for (int i = 0; i < 10; i++)
-            System.out.println(Kernel32.GetTickCount());
+            System.out.println(Kernel32.getTickCount());
 
         System.out.printf("Current Process Id: %d\n", Kernel32
-                .GetCurrentProcessId());
+                .getCurrentProcessId());
 
         System.out.println(System.getProperty("user.dir"));
 

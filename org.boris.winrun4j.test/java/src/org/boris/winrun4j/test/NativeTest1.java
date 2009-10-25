@@ -42,7 +42,7 @@ public class NativeTest1
     }
 
     public static void testLogicalDrives() {
-        File[] drives = Environment.GetLogicalDrives();
+        File[] drives = Environment.getLogicalDrives();
         for (int i = 0; i < drives.length; i++) {
             System.out.println(drives[i]);
         }

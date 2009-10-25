@@ -15,8 +15,6 @@ public class Advapi32
 {
     public static final long library = Native.loadLibrary("advapi32");
 
-    public static final int SC_MANAGER_ALL_ACCESS = 0xF003F;
-
     public static class GUID
     {
         public int data1;

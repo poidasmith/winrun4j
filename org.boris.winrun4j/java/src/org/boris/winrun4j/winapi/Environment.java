@@ -13,7 +13,7 @@ public class Environment
 {
     private static final long library = Kernel32.library;
 
-    public static String ExpandEnvironmentString(String var) {
+    public static String expandEnvironmentString(String var) {
         if (var == null)
             return null;
         long str = NativeHelper.toNativeString(var, true);
@@ -28,7 +28,7 @@ public class Environment
         return rs;
     }
 
-    public static String[] GetCommandLine() {
+    public static String[] getCommandLine() {
         long res = NativeHelper.call(library, "GetCommandLineW");
         String s = NativeHelper.getString(res, 1024, true);
         boolean inQuote = false;
@@ -57,7 +57,7 @@ public class Environment
         return (String[]) args.toArray(new String[args.size()]);
     }
 
-    public static Properties GetEnvironmentVariables() {
+    public static Properties getEnvironmentVariables() {
         long buf = NativeHelper.call(library, "GetEnvironmentStringsW");
         ByteBuffer bb = NativeHelper.getBuffer(buf, 32767);
         Properties p = new Properties();
@@ -72,7 +72,7 @@ public class Environment
         return p;
     }
 
-    public static String GetEnvironmentVariable(String var) {
+    public static String getEnvironmentVariable(String var) {
         if (var == null)
             return null;
         long buf = NativeHelper.toNativeString(var, true);
@@ -88,7 +88,7 @@ public class Environment
         return str;
     }
 
-    public static File[] GetLogicalDrives() {
+    public static File[] getLogicalDrives() {
         int len = 1024;
         long buf = Native.malloc(len);
         long res = NativeHelper.call(library, "GetLogicalDriveStringsW", len, buf);
@@ -112,7 +112,7 @@ public class Environment
         return (File[]) drives.toArray(new File[drives.size()]);
     }
 
-    public static OSVERSIONINFOEX GetVersionEx() {
+    public static OSVERSIONINFOEX getVersionEx() {
         long pOs = Native.malloc(156);
         ByteBuffer b = Native.fromPointer(pOs, 156).order(ByteOrder.LITTLE_ENDIAN);
         NativeHelper.zeroMemory(b);

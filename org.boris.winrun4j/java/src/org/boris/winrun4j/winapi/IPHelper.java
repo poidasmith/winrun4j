@@ -7,7 +7,7 @@ import org.boris.winrun4j.NativeHelper;
 
 public class IPHelper
 {
-    private static final long library = Native.loadLibrary("iphlpapi");
+    public static final long library = Native.loadLibrary("iphlpapi");
 
     public static final int TCP_TABLE_BASIC_LISTENER = 0;
     public static final int TCP_TABLE_BASIC_CONNECTIONS = 1;
@@ -22,7 +22,7 @@ public class IPHelper
     public static final int AF_INET = 2;
     public static final int AF_INET6 = 0;
 
-    public static final MIB_TCPROW[] GetExtendedTcpTable(boolean order, int ulAf, int tableClass) {
+    public static final MIB_TCPROW[] getExtendedTcpTable(boolean order, int ulAf, int tableClass) {
         if (tableClass > 5)
             return null;
         long pdwSize = Native.malloc(4);

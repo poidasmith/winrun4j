@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.boris.winrun4j.winapi;
 
-import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 
 public class DirectoryManagement
@@ -36,16 +35,13 @@ public class DirectoryManagement
     public static final int FILE_NOTIFY_CHANGE_CREATION = 0x40;
     public static final int FILE_NOTIFY_CHANGE_SECURITY = 0x100;
 
-    private static long procMoveFileEx = Native.getProcAddress(Kernel32.library, "MoveFileExW");
-
-    public static boolean MoveFileEx(String existingName, String newName, int flags) {
+    public static boolean moveFileEx(String existingName, String newName, int flags) {
         if (existingName == null || newName == null)
             throw new NullPointerException();
         long e = NativeHelper.toNativeString(existingName, true);
         long n = NativeHelper.toNativeString(newName, true);
-        boolean res = NativeHelper.call(procMoveFileEx, e, n, flags) == 1;
-        Native.free(e);
-        Native.free(n);
+        boolean res = NativeHelper.call(Kernel32.library, "MoveFileExW", e, n, flags) == 1;
+        NativeHelper.free(e, n);
         return res;
     }
 }

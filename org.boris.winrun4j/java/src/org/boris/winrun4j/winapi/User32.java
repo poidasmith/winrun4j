@@ -47,40 +47,37 @@ public class User32
     public static final int SW_FORCEMINIMIZE = 11;
     public static final int SW_MAX = 11;
 
-    public static long CreateWindowEx(int dwExStyle, String className,
-            String windowName, int dwStyle, int x, int y, int width,
-            int height, long parent, long menu, long hInstance, long lParam) {
+    public static long createWindowEx(int dwExStyle, String className, String windowName, int dwStyle, int x, int y,
+            int width, int height, long parent, long menu, long hInstance, long lParam) {
         long lpClassName = NativeHelper.toNativeString(className, true);
         long lpWindowName = NativeHelper.toNativeString(windowName, true);
-        long res = NativeHelper.call(library, "CreateWindowExW", new long[] {
-                dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, width,
-                height, parent, menu, hInstance, lParam });
+        long res = NativeHelper.call(library, "CreateWindowExW", new long[] { dwExStyle, lpClassName, lpWindowName,
+                dwStyle, x, y, width, height, parent, menu, hInstance, lParam });
         NativeHelper.free(lpClassName, lpWindowName);
         return res;
     }
 
-    public static void DestroyWindow(long hWnd) {
+    public static void destroyWindow(long hWnd) {
         NativeHelper.call(library, "DestroyWindow", hWnd);
     }
 
-    public static long LoadCursor(long hInstance, long lpCursorName) {
-        return NativeHelper.call(library, "LoadCursorW", hInstance,
-                lpCursorName);
+    public static long loadCursor(long hInstance, long lpCursorName) {
+        return NativeHelper.call(library, "LoadCursorW", hInstance, lpCursorName);
     }
 
-    public static void SetForegroundWindow(long hwnd) {
+    public static void setForegroundWindow(long hwnd) {
         NativeHelper.call(library, "SetForegroundWindow", hwnd);
     }
 
-    public static boolean ShowWindow(long hWnd, int nCmdShow) {
+    public static boolean showWindow(long hWnd, int nCmdShow) {
         return NativeHelper.call(library, "ShowWindow", hWnd, nCmdShow) != 0;
     }
 
-    public static boolean UpdateWindow(long hWnd) {
+    public static boolean updateWindow(long hWnd) {
         return NativeHelper.call(library, "UpdateWindow", hWnd) != 0;
     }
 
-    public static int GetWindowThreadProcessId(long hwnd) {
+    public static int getWindowThreadProcessId(long hwnd) {
         long ptr = Native.malloc(4);
         NativeHelper.call(library, "GetWindowThreadProcessId", hwnd, ptr);
         int res = NativeHelper.getInt(ptr);
@@ -88,12 +85,11 @@ public class User32
         return res;
     }
 
-    public static boolean EnumWindows(Callback proc, int lParam) {
-        return NativeHelper.call(library, "EnumWindows", proc.getPointer(),
-                lParam) != 0;
+    public static boolean enumWindows(Callback proc, int lParam) {
+        return NativeHelper.call(library, "EnumWindows", proc.getPointer(), lParam) != 0;
     }
 
-    public static WINDOWINFO GetWindowInfo(long hwnd) {
+    public static WINDOWINFO getWindowInfo(long hwnd) {
         long ptr = Native.malloc(WINDOWINFO.SIZE);
         NativeHelper.setInt(ptr, WINDOWINFO.SIZE);
         boolean res = NativeHelper.call(library, "GetWindowInfo", hwnd, ptr) != 0;
@@ -106,10 +102,8 @@ public class User32
         return wi;
     }
 
-    public static int DefWindowProc(long hWnd, int uMsg, long wParam,
-            long lParam) {
-        return (int) NativeHelper.call(library, "DefWindowProc", hWnd, uMsg,
-                wParam, lParam);
+    public static int defWindowProc(long hWnd, int uMsg, long wParam, long lParam) {
+        return (int) NativeHelper.call(library, "DefWindowProcW", hWnd, uMsg, wParam, lParam);
     }
 
     public interface WindowProc
@@ -126,16 +120,14 @@ public class User32
         }
 
         protected int callback(int stack) {
-            ByteBuffer bb = NativeHelper.getBuffer(stack + 8, 16);
-            return callback.windowProc(bb.getInt(), bb.getInt(), bb.getInt(),
-                    bb.getInt());
+            ByteBuffer bb = NativeHelper.getBuffer(stack, 16);
+            return callback.windowProc(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt());
         }
     }
 
-    public static MSG GetMessage(long hWnd, int wMsgFilterMin, int wMsgFilterMax) {
+    public static MSG getMessage(long hWnd, int wMsgFilterMin, int wMsgFilterMax) {
         long ptr = Native.malloc(28);
-        long res = NativeHelper.call(library, "GetMessage", ptr, hWnd,
-                wMsgFilterMin, wMsgFilterMax);
+        long res = NativeHelper.call(library, "GetMessage", ptr, hWnd, wMsgFilterMin, wMsgFilterMax);
         MSG m = null;
         if (res != 0) {
             m = new MSG();
@@ -145,43 +137,46 @@ public class User32
         return m;
     }
 
-    public static boolean GetMessage(long pMsg, long hWnd, int wMsgFilterMin,
-            int wMsgFilterMax) {
-        return NativeHelper.call(library, "GetMessageW", pMsg, hWnd,
-                wMsgFilterMin, wMsgFilterMax) != 0;
+    private static long pGetMessage = Native.getProcAddress(library, "GetMessageW");
+    private static long pTranslateMessage = Native.getProcAddress(library, "TranslateMessage");
+    private static long pDispatchMessage = Native.getProcAddress(library, "DispatchMessageW");
+
+    public static boolean getMessage(long pMsg, long hWnd, int wMsgFilterMin, int wMsgFilterMax) {
+        return NativeHelper.call(pGetMessage, pMsg, hWnd, wMsgFilterMin, wMsgFilterMax) != 0;
     }
 
-    public static boolean TranslateMessage(MSG m) {
+    public static boolean translateMessage(MSG m) {
         long ptr = Native.malloc(28);
         encode(ptr, m);
-        boolean res = NativeHelper.call(library, "TranslateMessage", ptr) != 0;
+        boolean res = NativeHelper.call(pTranslateMessage, ptr) != 0;
         decode(ptr, m);
         NativeHelper.free(ptr);
         return res;
     }
 
-    public static boolean TranslateMessage(long pMsg) {
-        return NativeHelper.call(library, "TranslateMessage", pMsg) != 0;
+    public static boolean translateMessage(long pMsg) {
+        return NativeHelper.call(pTranslateMessage, pMsg) != 0;
     }
 
-    public static boolean DispatchMessage(MSG m) {
+    public static boolean dispatchMessage(MSG m) {
         long ptr = Native.malloc(28);
         encode(ptr, m);
-        boolean res = NativeHelper.call(library, "DispatchMessage", ptr) != 0;
+        boolean res = NativeHelper.call(pDispatchMessage, ptr) != 0;
         decode(ptr, m);
         NativeHelper.free(ptr);
         return res;
     }
 
-    public static boolean DispatchMessage(long pMsg) {
-        return NativeHelper.call(library, "DispatchMessage", pMsg) != 0;
+    public static boolean dispatchMessage(long pMsg) {
+        return NativeHelper.call(pDispatchMessage, pMsg) != 0;
     }
 
-    public static boolean RegisterClassEx(WNDCLASSEX wcx) {
+    public static boolean registerClassEx(WNDCLASSEX wcx) {
         long ptr = Native.malloc(WNDCLASSEX.SIZE);
         long lpMenuName = NativeHelper.toNativeString(wcx.menuName, true);
         long lpClassName = NativeHelper.toNativeString(wcx.className, true);
         ByteBuffer bb = NativeHelper.getBuffer(ptr, WNDCLASSEX.SIZE);
+        bb.putInt(wcx.cbSize);
         bb.putInt(wcx.style);
         bb.putInt((int) wcx.lpfnWndProc.getPointer());
         bb.putInt(wcx.cbClsExtra);

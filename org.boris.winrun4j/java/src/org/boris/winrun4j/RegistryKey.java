@@ -371,7 +371,7 @@ public class RegistryKey
      * @return long.
      */
     public static long openKeyHandle(long rootKey, String keyPath, boolean readOnly) {
-        return Registry.RegOpenKeyEx(rootKey, keyPath, 0, readOnly ? 0x20019 : 0xF003F);
+        return Registry.openKeyEx(rootKey, keyPath, 0, readOnly ? 0x20019 : 0xF003F);
     }
 
     /**
@@ -380,7 +380,7 @@ public class RegistryKey
      * @param handle.
      */
     public static void closeKeyHandle(long handle) {
-        Registry.RegCloseKey(handle);
+        Registry.closeKey(handle);
     }
 
     /**
@@ -391,12 +391,12 @@ public class RegistryKey
      * @return long[].
      */
     public static String[] getSubKeyNames(long handle) {
-        QUERY_INFO info = Registry.RegQueryInfoKey(handle);
+        QUERY_INFO info = Registry.queryInfoKey(handle);
         if (info == null)
             return null;
         String[] res = new String[info.subKeyCount];
         for (int i = 0; i < res.length; i++) {
-            res[i] = Registry.RegEnumKeyEx(handle, i);
+            res[i] = Registry.enumKeyEx(handle, i);
         }
         return res;
     }
@@ -409,12 +409,12 @@ public class RegistryKey
      * @return String[].
      */
     public static String[] getValueNames(long handle) {
-        QUERY_INFO info = Registry.RegQueryInfoKey(handle);
+        QUERY_INFO info = Registry.queryInfoKey(handle);
         if (info == null)
             return null;
         String[] res = new String[info.valueCount];
         for (int i = 0; i < res.length; i++) {
-            res[i] = Registry.RegEnumValue(handle, i);
+            res[i] = Registry.enumValue(handle, i);
         }
         return res;
     }
@@ -426,7 +426,7 @@ public class RegistryKey
      * @param key.
      */
     public static long createSubKey(long handle, String key) {
-        return Registry.RegCreateKey(handle, key);
+        return Registry.createKey(handle, key);
     }
 
     /**
@@ -447,7 +447,7 @@ public class RegistryKey
      * @return long.
      */
     public static long getType(long parent, String name) {
-        return Registry.RegQueryValueType(parent, name);
+        return Registry.queryValueType(parent, name);
     }
 
     /**
@@ -469,7 +469,7 @@ public class RegistryKey
      * @return String.
      */
     public static String getString(long parent, String name) {
-        byte[] b = Registry.RegQueryValueEx(parent, name);
+        byte[] b = Registry.queryValueEx(parent, name);
         if (b == null) {
             return null;
         }
@@ -485,7 +485,7 @@ public class RegistryKey
      * @return byte[].
      */
     public static byte[] getBinary(long parent, String name) {
-        return Registry.RegQueryValueEx(parent, name);
+        return Registry.queryValueEx(parent, name);
     }
 
     /**
@@ -513,7 +513,7 @@ public class RegistryKey
      * @return String.
      */
     public static String getExpandedString(long parent, String name) {
-        byte[] b = Registry.RegQueryValueEx(parent, name);
+        byte[] b = Registry.queryValueEx(parent, name);
         if (b == null) {
             return null;
         }
@@ -544,8 +544,8 @@ public class RegistryKey
      * @param value.
      */
     public static void setString(long parent, String name, String value) {
-        byte[] b = NativeHelper.toWideByteArray(value);
-        Registry.RegSetValueEx(parent, name, Registry.REG_SZ, b, 0, b.length);
+        byte[] b = NativeHelper.toBytes(value, true);
+        Registry.setValueEx(parent, name, Registry.REG_SZ, b, 0, b.length);
     }
 
     /**
@@ -556,7 +556,7 @@ public class RegistryKey
      * @param value.
      */
     public static void setBinary(long parent, String name, byte[] value) {
-        Registry.RegSetValueEx(parent, name, 3, value, 0, value.length);
+        Registry.setValueEx(parent, name, 3, value, 0, value.length);
     }
 
     /**
@@ -570,7 +570,7 @@ public class RegistryKey
         byte[] b = new byte[4];
         ByteBuffer bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN);
         bb.putInt((int) dword);
-        Registry.RegSetValueEx(parent, name, Registry.REG_DWORD, b, 0, b.length);
+        Registry.setValueEx(parent, name, Registry.REG_DWORD, b, 0, b.length);
     }
 
     /**
@@ -584,11 +584,11 @@ public class RegistryKey
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             for (int i = 0; i < value.length; i++) {
-                bos.write(NativeHelper.toWideByteArray(value[i]));
+                bos.write(NativeHelper.toBytes(value[i], true));
             }
             bos.write(new byte[] { 0, 0 });
             byte[] b = bos.toByteArray();
-            Registry.RegSetValueEx(parent, name, Registry.REG_MULTI_SZ, b, 0, b.length);
+            Registry.setValueEx(parent, name, Registry.REG_MULTI_SZ, b, 0, b.length);
         } catch (IOException e) {
         }
     }

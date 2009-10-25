@@ -254,6 +254,25 @@ public class NativeHelper
         return sb.toString();
     }
 
+    public static byte[] toBytes(String str, boolean wideChar) {
+        int len = str.length() + 1;
+        if (wideChar)
+            len <<= 1;
+        byte[] buf = new byte[len];
+        ByteBuffer bb = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
+        for (int i = 0; i < str.length(); i++) {
+            if (wideChar)
+                bb.putChar(str.charAt(i));
+            else
+                bb.put((byte) str.charAt(i));
+        }
+        if (wideChar)
+            bb.putChar((char) 0);
+        else
+            bb.put((byte) 0);
+        return buf;
+    }
+
     public static void zeroMemory(ByteBuffer b) {
         while (b.hasRemaining())
             b.put((byte) 0);
@@ -287,16 +306,5 @@ public class NativeHelper
         ByteBuffer bb = getBuffer(ptr, len);
         bb.put(b, offset, len);
         return ptr;
-    }
-
-    public static byte[] toWideByteArray(String val) {
-        int len = val.length();
-        byte[] b = new byte[len << 1 + 2];
-        ByteBuffer bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN);
-        for (int i = 0; i < len; i++) {
-            bb.putChar(val.charAt(i));
-        }
-        bb.putChar((char) 0);
-        return b;
     }
 }

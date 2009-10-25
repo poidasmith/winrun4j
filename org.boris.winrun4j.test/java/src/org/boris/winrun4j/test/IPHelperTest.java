@@ -24,8 +24,8 @@ public class IPHelperTest
 {
     public static void main(String[] args) throws Exception {
         MIB_TCPROW[] r = IPHelper
-                .GetExtendedTcpTable(true, IPHelper.AF_INET, 5);
-        PROCESSENTRY32[] procs = ToolHelper.CreateProcessSnaphost();
+                .getExtendedTcpTable(true, IPHelper.AF_INET, 5);
+        PROCESSENTRY32[] procs = ToolHelper.createProcessSnaphost();
         Map m = mapPids(procs);
 
         for (int i = 0; i < r.length; i++) {

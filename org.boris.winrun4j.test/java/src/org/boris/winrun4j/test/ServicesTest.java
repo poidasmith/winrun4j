@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-import org.boris.winrun4j.winapi.Advapi32;
 import org.boris.winrun4j.winapi.Services;
 import org.boris.winrun4j.winapi.Services.ENUM_SERVICE_STATUS;
 import org.boris.winrun4j.winapi.Services.ENUM_SERVICE_STATUS_PROCESS;
@@ -17,13 +16,14 @@ import org.boris.winrun4j.winapi.Services.ENUM_SERVICE_STATUS_PROCESS;
 public class ServicesTest
 {
     public static void main(String[] args) throws Exception {
-        // testEnumDeps();
+        testEnumEx();
+        testEnumDeps();
         testGetName();
     }
 
     public static void testEnumEx() {
-        long handle = Services.OpenSCManager(null, null, Advapi32.SC_MANAGER_ALL_ACCESS);
-        ENUM_SERVICE_STATUS_PROCESS[] ss = Services.EnumServiceStatusEx(handle, Services.SERVICE_WIN32, 3, null);
+        long handle = Services.openSCManager(null, null, Services.SC_MANAGER_ALL_ACCESS);
+        ENUM_SERVICE_STATUS_PROCESS[] ss = Services.enumServiceStatusEx(handle, Services.SERVICE_WIN32, 3, null);
         if (ss != null) {
             for (int i = 0; i < ss.length; i++) {
                 System.out.println(Reflection.toString(ss[i], true));
@@ -32,9 +32,9 @@ public class ServicesTest
     }
 
     public static void testEnumDeps() {
-        long handle = Services.OpenSCManager(null, null, Advapi32.SC_MANAGER_ALL_ACCESS);
-        long service = Services.OpenService(handle, "PlugPlay", Services.SERVICE_ALL_ACCESS);
-        ENUM_SERVICE_STATUS[] ss = Services.EnumDependentServices(service, 3);
+        long handle = Services.openSCManager(null, null, Services.SC_MANAGER_ALL_ACCESS);
+        long service = Services.openService(handle, "PlugPlay", Services.SERVICE_ALL_ACCESS);
+        ENUM_SERVICE_STATUS[] ss = Services.enumDependentServices(service, 3);
         if (ss != null) {
             for (int i = 0; i < ss.length; i++) {
                 System.out.println(Reflection.toString(ss[i], true));
@@ -43,8 +43,8 @@ public class ServicesTest
     }
 
     public static void testGetName() {
-        long handle = Services.OpenSCManager(null, null, Advapi32.SC_MANAGER_ALL_ACCESS);
-        System.out.println(Services.GetServiceDisplayName(handle, "RasAuto"));
-        System.out.println(Services.GetServiceKeyName(handle, "Remote Access Auto Connection Manager"));
+        long handle = Services.openSCManager(null, null, Services.SC_MANAGER_ALL_ACCESS);
+        System.out.println(Services.getServiceDisplayName(handle, "RasAuto"));
+        System.out.println(Services.getServiceKeyName(handle, "Remote Access Auto Connection Manager"));
     }
 }

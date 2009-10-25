@@ -34,20 +34,20 @@ public class Registry
     public static final int REG_QWORD = 11;
     public static final int REG_QWORD_LITTLE_ENDIAN = 11;
 
-    public static long RegCloseKey(long key) {
+    public static long closeKey(long key) {
         return NativeHelper.call(library, "RegCloseKey", key);
     }
 
-    public static long RegConnectRegistry(String machineName, long key) {
+    public static long connectRegistry(String machineName, long key) {
         long ptr = Native.malloc(4);
         long str = NativeHelper.toNativeString(machineName, true);
-        NativeHelper.call(library, "ConnectRegistry", str, key, ptr);
+        NativeHelper.call(library, "RegConnectRegistry", str, key, ptr);
         long h = NativeHelper.getInt(ptr);
         NativeHelper.free(ptr, str);
         return h;
     }
 
-    public static long RegCreateKey(long key, String subKey) {
+    public static long createKey(long key, String subKey) {
         long ptr = Native.malloc(4);
         long str = NativeHelper.toNativeString(subKey, true);
         NativeHelper.call(library, "RegCreateKeyW", key, str, ptr);
@@ -63,14 +63,14 @@ public class Registry
         return res;
     }
 
-    public static long RegDeleteValue(long hKey, String valueName) {
+    public static long deleteValue(long hKey, String valueName) {
         long lpValueName = NativeHelper.toNativeString(valueName, true);
         long res = NativeHelper.call(library, "RegDeleteValueW", hKey, lpValueName);
         NativeHelper.free(lpValueName);
         return res;
     }
 
-    public static long RegOpenKeyEx(long hKey, String subKey, int options, long samDesired) {
+    public static long openKeyEx(long hKey, String subKey, int options, long samDesired) {
         long phKey = Native.malloc(4);
         long lpSubKey = NativeHelper.toNativeString(subKey, true);
         long res = NativeHelper.call(library, "RegOpenKeyExW", hKey, lpSubKey, options, samDesired, phKey);
@@ -79,7 +79,7 @@ public class Registry
         return key;
     }
 
-    public static String RegEnumKeyEx(long hKey, int index) {
+    public static String enumKeyEx(long hKey, int index) {
         long lpName = Native.malloc(520);
         long lpcName = Native.malloc(4);
         NativeHelper.setInt(lpcName, 520);
@@ -92,7 +92,7 @@ public class Registry
         return key;
     }
 
-    public static String RegEnumValue(long hKey, int index) {
+    public static String enumValue(long hKey, int index) {
         long lpValueName = Native.malloc(520);
         long lpcchValueName = Native.malloc(4);
         NativeHelper.setInt(lpcchValueName, 520);
@@ -105,7 +105,7 @@ public class Registry
         return val;
     }
 
-    public static byte[] RegQueryValueEx(long hKey, String valueName) {
+    public static byte[] queryValueEx(long hKey, String valueName) {
         long lpValueName = NativeHelper.toNativeString(valueName, true);
         long lpcbData = Native.malloc(4);
         long res = NativeHelper.call(library, "RegQueryValueExW", hKey, lpValueName, 0, 0, 0, lpcbData);
@@ -124,7 +124,7 @@ public class Registry
         return b;
     }
 
-    public static long RegQueryValueType(long hKey, String valueName) {
+    public static long queryValueType(long hKey, String valueName) {
         long lpValueName = NativeHelper.toNativeString(valueName, true);
         long lpType = Native.malloc(4);
         long res = NativeHelper.call(library, "RegQueryValueExW", hKey, lpValueName, 0, lpType, 0, 0);
@@ -136,7 +136,7 @@ public class Registry
         return type;
     }
 
-    public static long RegSetValueEx(long hKey, String valueName, int type, byte[] data, int offset, int len) {
+    public static long setValueEx(long hKey, String valueName, int type, byte[] data, int offset, int len) {
         long lpValueName = NativeHelper.toNativeString(valueName, true);
         long lpData = NativeHelper.toNative(data, offset, len);
         long res = NativeHelper.call(library, "RegSetValueExW", hKey, lpValueName, 0, type, lpData, len);
@@ -144,7 +144,7 @@ public class Registry
         return res;
     }
 
-    public static QUERY_INFO RegQueryInfoKey(long hKey) {
+    public static QUERY_INFO queryInfoKey(long hKey) {
         long lpClass = Native.malloc(520);
         long lpcClass = Native.malloc(4);
         NativeHelper.setInt(lpcClass, 520);

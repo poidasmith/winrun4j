@@ -53,12 +53,12 @@ public class Shell32
     public static final int AdminTools = 0x2f;
     public static final int AllAdminTools = 0x30;
     public static final int Resources = 0x38;
-    
+
     public static final int MAX_PATH = 260;
     public static final int MAX_PATHW = 520;
 
     public static File getFolderPath(int type) {
-        long buf = Native.malloc(MAX_PATH << 1);
+        long buf = Native.malloc(MAX_PATHW);
         NativeHelper.call(library, "SHGetFolderPathW", 0, type, 0, 0, buf);
         String res = NativeHelper.getString(buf, MAX_PATH, true);
         Native.free(buf);
