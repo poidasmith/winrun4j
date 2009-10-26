@@ -272,9 +272,6 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	// Run the main class
 	JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
-	// Check for exception - if not a service
-	JNI::PrintStackTrace(env);
-
 	// Free the args memory
 	WinRun4J::FreeArgs();
 

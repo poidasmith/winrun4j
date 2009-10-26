@@ -64,7 +64,7 @@ public class NativeServiceHost
                         return true;
                     } catch (ServiceException e) {
                         Log.error(e);
-                        System.exit(1);
+                        // System.exit(1);
                     }
                     break;
                 }
@@ -283,7 +283,7 @@ public class NativeServiceHost
         }
     }
 
-    public static class ServiceRunner implements Service, Runnable
+    public static class ServiceRunner implements Service
     {
         private final Service service;
         private final ServiceRequestCallback request;
@@ -291,7 +291,6 @@ public class NativeServiceHost
         private long statusHandle;
         private SERVICE_STATUS status = new SERVICE_STATUS();
         private String serviceId;
-        private String[] args;
 
         public ServiceRunner(Service service) {
             this.service = service;
@@ -309,33 +308,9 @@ public class NativeServiceHost
             if (!Services.startServiceCtrlDispatcher(entries)) {
                 Log.error("Service control dispatcher error: " + Kernel32.getLastError());
             }
-
-            // Wait for service start thread to launch
-            synchronized (this) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    Log.error(e);
-                }
-            }
-        }
-
-        public void run() {
-            synchronized (this) {
-                notifyAll();
-            }
-
-            setServiceStatus(Services.SERVICE_RUNNING);
-            try {
-                service.serviceMain(args);
-            } catch (Exception e) {
-                Log.error(e);
-            }
-            setServiceStatus(Services.SERVICE_STOPPED);
         }
 
         public int serviceMain(String[] args) throws ServiceException {
-            this.args = args;
             statusHandle = Services.registerServiceCtrlHandler(serviceId, request);
             if (statusHandle == 0) {
                 Log.error("Error registering service control handler: " + Kernel32.getLastError());
@@ -348,27 +323,31 @@ public class NativeServiceHost
             status.win32ExitCode = 0;
             status.serviceSpecificExitCode = 0;
             status.waitHint = 0;
-            setServiceStatus(Services.SERVICE_START_PENDING);
-            // new Thread(this).start();
-            run();
+            setServiceStatus(Services.SERVICE_RUNNING);
+            try {
+                service.serviceMain(args);
+            } catch (Exception e) {
+                Log.error(e);
+            }
+            setServiceStatus(Services.SERVICE_STOPPED);
+
             return 0;
         }
 
         public int serviceRequest(int control) throws ServiceException {
-            service.serviceRequest(control);
             switch (control) {
             case Services.SERVICE_CONTROL_PAUSE:
-                status.currentState = Services.SERVICE_PAUSED;
+                setServiceStatus(Services.SERVICE_PAUSED);
                 break;
             case Services.SERVICE_CONTROL_CONTINUE:
-                status.currentState = Services.SERVICE_RUNNING;
+                setServiceStatus(Services.SERVICE_RUNNING);
                 break;
             case Services.SERVICE_CONTROL_SHUTDOWN:
             case Services.SERVICE_CONTROL_STOP:
-                status.currentState = Services.SERVICE_STOP_PENDING;
+                setServiceStatus(Services.SERVICE_STOP_PENDING);
             }
 
-            setServiceStatus(status.currentState);
+            service.serviceRequest(control);
 
             return 0;
         }
