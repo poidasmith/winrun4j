@@ -10,7 +10,9 @@
 package org.boris.winrun4j.winapi;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
+import org.boris.winrun4j.Callback;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 
@@ -38,6 +40,15 @@ public class FileManagement
     public static final int FILE_NOTIFY_CHANGE_CREATION = 0x40;
     public static final int FILE_NOTIFY_CHANGE_SECURITY = 0x100;
 
+    public static long createFile(String fileName, int dwDesiredAccess, int dwShareMode, long lpSecurityAttributes,
+            int dwCreationDisposition, int dwFlagsAndAttributes, long hTemplateFile) {
+        long lpFileName = NativeHelper.toNativeString(fileName, true);
+        long handle = NativeHelper.call(Kernel32.library, "CreateFileW", lpFileName, dwDesiredAccess, dwShareMode,
+                lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+        NativeHelper.free(lpFileName);
+        return handle;
+    }
+
     public static boolean moveFileEx(String existingName, String newName, int flags) {
         if (existingName == null || newName == null)
             throw new NullPointerException();
@@ -58,31 +69,55 @@ public class FileManagement
         return res;
     }
 
-    public static long FindFirstFile(String fileName, WIN32_FIND_DATA findFileData) {
+    public static long findFirstFile(String fileName, WIN32_FIND_DATA findFileData) {
         if (findFileData == null)
             return 0;
         long lpFileName = NativeHelper.toNativeString(fileName, true);
         long lpFindFileData = Native.malloc(WIN32_FIND_DATA.SIZE);
-        long handle = NativeHelper.call(Kernel32.library, "FindFirstFile", lpFileName, lpFindFileData);
+        long handle = NativeHelper.call(Kernel32.library, "FindFirstFileW", lpFileName, lpFindFileData);
         if (handle != 0) {
-            ByteBuffer bb = NativeHelper.getBuffer(lpFindFileData, WIN32_FIND_DATA.SIZE);
-            findFileData.dwFileAttributes = bb.getInt();
-            findFileData.ftCreationTime = decodeFileTime(bb);
-            findFileData.ftLastAccessTime = decodeFileTime(bb);
-            findFileData.ftLastWriteTime = decodeFileTime(bb);
-            findFileData.nFileSizeHigh = bb.getInt();
-            findFileData.nFileSizeLow = bb.getInt();
-            findFileData.dwReserved0 = bb.getInt();
-            findFileData.dwReserved1 = bb.getInt();
-            byte[] cbfn = new byte[Shell32.MAX_PATHW];
-            bb.get(cbfn);
-            findFileData.cFileName = NativeHelper.toString(cbfn);
-            byte[] cbaf = new byte[28];
-            bb.get(cbaf);
-            findFileData.cAlternateFileName = NativeHelper.toString(cbaf);
+            decode(lpFindFileData, findFileData);
         }
         NativeHelper.free(lpFileName, lpFindFileData);
         return handle;
+    }
+
+    public static long findFirstChangeNotification(String pathName, boolean bWatchSubtree, int dwNotifyFilter) {
+        if (pathName == null)
+            return 0;
+        long lpPathName = NativeHelper.toNativeString(pathName, true);
+        long handle = NativeHelper.call(Kernel32.library, "FindFirstChangeNotificationW", lpPathName, bWatchSubtree ? 1
+                : 0, dwNotifyFilter);
+        NativeHelper.free(lpPathName);
+        return handle;
+    }
+
+    public static boolean findNextChangeNotification(long hChangeHandle) {
+        return NativeHelper.call(Kernel32.library, "FindNextChangeNotification", hChangeHandle) != 0;
+    }
+
+    public static boolean findCloseChangeNotification(long hChangeHandle) {
+        return NativeHelper.call(Kernel32.library, "FindCloseChangeNotification", hChangeHandle) != 0;
+    }
+
+    public static boolean findNextFile(long handle, WIN32_FIND_DATA findFileData) {
+        long lpFindFileData = Native.malloc(WIN32_FIND_DATA.SIZE);
+        boolean res = NativeHelper.call(Kernel32.library, "FindNextFileW", handle, lpFindFileData) != 0;
+        if (res) {
+            decode(lpFindFileData, findFileData);
+        }
+        NativeHelper.free(lpFindFileData);
+        return res;
+    }
+
+    public static boolean findClose(long handle) {
+        return NativeHelper.call(Kernel32.library, "FindClose", handle) != 0;
+    }
+
+    public static boolean readDirectoryChanges(long hDirectory, long lpBuffer, int dwBufferLength, boolean bWatchTree,
+            int dwNotifyFilter, long lpOverlapped, Callback completionRoutine) {
+        return NativeHelper.call(Kernel32.library, "ReadDirectoryChangesW", hDirectory, lpBuffer, dwBufferLength,
+                bWatchTree ? 1 : 0, dwNotifyFilter, 0, lpOverlapped, completionRoutine.getPointer()) != 0;
     }
 
     public static boolean setCurrentDirectory(String pathName) {
@@ -92,11 +127,42 @@ public class FileManagement
         return res;
     }
 
+    private static void decode(long ptr, WIN32_FIND_DATA findFileData) {
+        ByteBuffer bb = NativeHelper.getBuffer(ptr, WIN32_FIND_DATA.SIZE);
+        findFileData.dwFileAttributes = bb.getInt();
+        findFileData.ftCreationTime = decodeFileTime(bb);
+        findFileData.ftLastAccessTime = decodeFileTime(bb);
+        findFileData.ftLastWriteTime = decodeFileTime(bb);
+        findFileData.nFileSizeHigh = bb.getInt();
+        findFileData.nFileSizeLow = bb.getInt();
+        findFileData.dwReserved0 = bb.getInt();
+        findFileData.dwReserved1 = bb.getInt();
+        byte[] cbfn = new byte[Shell32.MAX_PATHW];
+        bb.get(cbfn);
+        findFileData.cFileName = NativeHelper.getString(cbfn, true);
+        byte[] cbaf = new byte[28];
+        bb.get(cbaf);
+        findFileData.cAlternateFileName = NativeHelper.getString(cbaf, true);
+        if (findFileData.cAlternateFileName != null && findFileData.cAlternateFileName.length() == 0)
+            findFileData.cAlternateFileName = null;
+    }
+
     private static FILETIME decodeFileTime(ByteBuffer bb) {
         FILETIME res = new FILETIME();
         res.dwLowDateTime = bb.getInt();
         res.dwHighDateTime = bb.getInt();
         return res;
+    }
+
+    private static FILE_NOTIFY_INFORMATION[] decodeFileNotifyInformation(ByteBuffer bb) {
+        ArrayList results = new ArrayList();
+        int offset = 0;
+        while ((offset = bb.getInt()) != 0) {
+            FILE_NOTIFY_INFORMATION fni = new FILE_NOTIFY_INFORMATION();
+            fni.action = bb.getInt();
+
+        }
+        return (FILE_NOTIFY_INFORMATION[]) results.toArray(new FILE_NOTIFY_INFORMATION[results.size()]);
     }
 
     public static class WIN32_FIND_DATA
@@ -118,5 +184,11 @@ public class FileManagement
     {
         public int dwLowDateTime;
         public int dwHighDateTime;
+    }
+
+    public static class FILE_NOTIFY_INFORMATION
+    {
+        public int action;
+        public String filename;
     }
 }

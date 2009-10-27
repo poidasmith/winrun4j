@@ -9,8 +9,19 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
+import org.boris.winrun4j.winapi.FileManagement;
+import org.boris.winrun4j.winapi.FileManagement.WIN32_FIND_DATA;
+
 public class FileManagementTest
 {
     public static void main(String[] args) throws Exception {
+        WIN32_FIND_DATA fd = new WIN32_FIND_DATA();
+        long handle = FileManagement.findFirstFile("f:\\*.*", fd);
+        System.out.println(handle);
+        Reflection.println(fd);
+        while (FileManagement.findNextFile(handle, fd)) {
+            Reflection.println(fd);
+        }
+        FileManagement.findClose(handle);
     }
 }

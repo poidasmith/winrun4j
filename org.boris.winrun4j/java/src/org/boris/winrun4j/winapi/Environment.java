@@ -131,7 +131,7 @@ public class Environment
         info.platformId = b.getInt();
         byte[] vs = new byte[128];
         b.get(vs);
-        info.csdVersion = NativeHelper.toString(vs);
+        info.csdVersion = NativeHelper.getString(vs, false);
         info.servicePackMajor = b.getShort();
         info.servicePackMinor = b.getShort();
         info.suiteMask = b.getShort();

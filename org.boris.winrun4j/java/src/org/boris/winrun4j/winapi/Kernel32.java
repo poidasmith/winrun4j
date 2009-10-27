@@ -77,6 +77,14 @@ public class Kernel32
         return NativeHelper.call(Kernel32.library, "OpenProcess", dwDesiredAccess, bInheritHandle ? 1 : 0, dwProcessId);
     }
 
+    public static long waitForSingleObject(long handle, int milliseconds) {
+        return NativeHelper.call(library, "WaitForSingleObject", handle, milliseconds);
+    }
+
+    public static long waitForSingleObjectEx(long hHandle, int dwMilliseconds, boolean bAlertable) {
+        return NativeHelper.call(library, "WaitForSingleObjectEx", hHandle, dwMilliseconds, bAlertable ? 1 : 0);
+    }
+
     public static void decode(long ptr, PROCESSENTRY32 pe) {
         ByteBuffer bb = NativeHelper.getBuffer(ptr, PROCESSENTRY32.SIZE);
         pe.dwSize = bb.getInt();

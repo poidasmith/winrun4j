@@ -244,14 +244,8 @@ public class NativeHelper
         }
     }
 
-    public static String toString(byte[] buffer) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < buffer.length; i++) {
-            if (buffer[i] == 0)
-                break;
-            sb.append((char) buffer[i]);
-        }
-        return sb.toString();
+    public static String getString(byte[] buffer, boolean wideChar) {
+        return getString(ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN), wideChar);
     }
 
     public static byte[] toBytes(String str, boolean wideChar) {

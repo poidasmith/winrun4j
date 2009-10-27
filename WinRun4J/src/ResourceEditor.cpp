@@ -150,7 +150,7 @@ int ExecuteResourceScript(LPSTR exeFile, LPSTR iniFile, bool clear)
 	return 0;
 }
 
-int main(int argc, char* argv[])
+int main2(int argc, char* argv[])
 {
 	// Initialize the logger to dump to stdout
 	Log::Init(GetModuleHandle(NULL), 0, 0, 0);
@@ -234,3 +234,8 @@ int main(int argc, char* argv[])
 	return ok ? 0 : 1;
 }
 
+void main()
+{
+	Log::Init(GetModuleHandle(0), 0, 0, 0);
+	Log::Info("%d", sizeof(WIN32_FIND_DATAW));
+}
