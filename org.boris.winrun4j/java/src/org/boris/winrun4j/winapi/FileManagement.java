@@ -69,6 +69,16 @@ public class FileManagement
         return res;
     }
 
+    public static long getFileSize(long hFile) {
+        long lpFileSizeHigh = Native.malloc(4);
+        long size = NativeHelper.call(Kernel32.library, "GetFileSize", hFile, lpFileSizeHigh);
+        int fileSizeHigh = NativeHelper.getInt(lpFileSizeHigh);
+        NativeHelper.free(lpFileSizeHigh);
+        if (size == 0xffffffff && Kernel32.getLastError() != 0)
+            return -1;
+        return ((long) fileSizeHigh) << 32 | size;
+    }
+
     public static long findFirstFile(String fileName, WIN32_FIND_DATA findFileData) {
         if (findFileData == null)
             return 0;
@@ -154,15 +164,31 @@ public class FileManagement
         return res;
     }
 
-    private static FILE_NOTIFY_INFORMATION[] decodeFileNotifyInformation(ByteBuffer bb) {
+    public static FILE_NOTIFY_INFORMATION[] decodeFileNotifyInformation(ByteBuffer bb) {
         ArrayList results = new ArrayList();
         int offset = 0;
         while ((offset = bb.getInt()) != 0) {
             FILE_NOTIFY_INFORMATION fni = new FILE_NOTIFY_INFORMATION();
             fni.action = bb.getInt();
-
+            int len = bb.getInt();
+            byte[] b = new byte[len];
+            bb.get(b);
+            fni.filename = NativeHelper.getString(b, true);
+            bb.position(offset);
+            results.add(fni);
         }
         return (FILE_NOTIFY_INFORMATION[]) results.toArray(new FILE_NOTIFY_INFORMATION[results.size()]);
+    }
+
+    public static abstract class FileNotifyInformationCallback extends Callback
+    {
+        protected final int callback(int stack) {
+            ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
+            return fileIoCompletionRoutine(bb.getInt(), bb.getInt(), bb.getInt());
+        }
+
+        protected abstract int fileIoCompletionRoutine(int dwErrorCode, int dwNumberOfBytesTransferred,
+                long lpOverlapped);
     }
 
     public static class WIN32_FIND_DATA
@@ -190,5 +216,13 @@ public class FileManagement
     {
         public int action;
         public String filename;
+    }
+
+    public static class OVERLAPPED
+    {
+        public int internal;
+        public int internalHigh;
+        public int offset;
+        public int offstHigh;
     }
 }
