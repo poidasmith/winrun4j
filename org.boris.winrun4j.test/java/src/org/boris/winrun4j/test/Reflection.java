@@ -47,6 +47,8 @@ public class Reflection
             fields = o.getClass().getDeclaredFields();
         }
         for (Field f : fields) {
+            if (Modifier.isStatic(f.getModifiers()))
+                continue;
             f.setAccessible(true);
             sb.append(f.getName());
             sb.append(": ");
@@ -96,14 +98,12 @@ public class Reflection
         return sb.toString();
     }
 
-    public static String getConstantName(Class clazz, int value)
-            throws Exception {
+    public static String getConstantName(Class clazz, int value) throws Exception {
         Field[] fields = clazz.getDeclaredFields();
         Integer valObj = new Integer(value);
         for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
-            if (Modifier.isStatic(f.getModifiers()) &&
-                    Modifier.isPublic(f.getModifiers())) {
+            if (Modifier.isStatic(f.getModifiers()) && Modifier.isPublic(f.getModifiers())) {
                 if (f.get(null).equals(valObj)) {
                     return f.getName();
                 }

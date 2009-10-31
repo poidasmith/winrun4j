@@ -135,7 +135,7 @@ public class Resources
     public static abstract class ResourceNamesCallback extends Callback
     {
         protected final int callback(int stack) {
-            ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
+            ByteBuffer bb = NativeHelper.getBuffer(stack, 16);
             return namesCallback(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt());
         }
 
@@ -145,7 +145,7 @@ public class Resources
     public static abstract class ResourceLanguagesCallback extends Callback
     {
         protected final int callback(int stack) {
-            ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
+            ByteBuffer bb = NativeHelper.getBuffer(stack, 20);
             return languagesCallback(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt());
         }
 

@@ -18,8 +18,20 @@ public class Kernel32
 {
     public static final long library = Native.loadLibrary("kernel32");
 
+    public static final int DONT_RESOLVE_DLL_REFERENCES = 0x00000001;
+    public static final int LOAD_LIBRARY_AS_DATAFILE = 0x00000002;
+    public static final int LOAD_WITH_ALTERED_SEARCH_PATH = 0x00000008;
+    public static final int LOAD_IGNORE_CODE_AUTHZ_LEVEL = 0x00000010;
+
     public static void debugBreak() {
         NativeHelper.call(library, "DebugBreak");
+    }
+
+    public static long loadLibraryEx(String filename, int dwFlags) {
+        long lpFilename = NativeHelper.toNativeString(filename, true);
+        long handle = NativeHelper.call(library, "LoadLibraryExW", lpFilename, 0, dwFlags);
+        NativeHelper.free(lpFilename);
+        return handle;
     }
 
     public static void setPriorityClass(long hProcess, int dwPriorityClass) {
