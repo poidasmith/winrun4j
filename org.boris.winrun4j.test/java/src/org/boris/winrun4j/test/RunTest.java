@@ -8,7 +8,7 @@ public class RunTest
         System.out.println("Hello world");
         long ptr1 = NativeHelper.toNativeString("Test Logging...", false);
         long ptr2 = NativeHelper.toNativeString("[info]", false);
-        NativeHelper.call(0, "Log_LogIt", 0, ptr2, ptr1);
+        NativeHelper.call(0, "Log_LogIt", 2, ptr2, ptr1);
         NativeHelper.free(ptr1, ptr2);
     }
 }

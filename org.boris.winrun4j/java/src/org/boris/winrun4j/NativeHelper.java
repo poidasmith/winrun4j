@@ -126,11 +126,11 @@ public class NativeHelper
     public static long call(long proc, NativeStack stack) {
         if (proc == 0)
             throw new NullPointerException("Invalid procedure address");
-        byte[] b = null;
+        int[] s = null;
         if (stack != null)
-            b = stack.toBytes();
-        int len = b != null ? b.length : 0;
-        return Native.call(proc, b, len, 0);
+            s = stack.toArray();
+        int len = s != null ? s.length : 0;
+        return Native.call(proc, s, len, 0);
     }
 
     public static void free(long ptr) {

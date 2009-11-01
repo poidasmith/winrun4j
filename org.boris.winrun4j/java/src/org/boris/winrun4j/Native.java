@@ -17,6 +17,13 @@ import java.nio.ByteBuffer;
 public class Native
 {
     /**
+     * Returns true if running in 64 bit mode.
+     */
+    public static boolean is64() {
+        return call(getProcAddress(0, "Native_Is64"), null, 0, 0) != 0;
+    }
+
+    /**
      * Load a native library (eg. "kernel32")
      */
     public static native long loadLibrary(String filename);
@@ -49,7 +56,7 @@ public class Native
     /**
      * Call a native function.
      */
-    public static native long call(long ptr, byte[] stack, int stackSize, int mode);
+    public static native long call(long ptr, int[] stack, int stackSize, int mode);
 
     /**
      * Binds a function pointer to a native method.

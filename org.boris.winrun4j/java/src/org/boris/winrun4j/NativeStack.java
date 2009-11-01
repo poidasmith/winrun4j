@@ -11,8 +11,8 @@ package org.boris.winrun4j;
 
 public class NativeStack
 {
-    byte[] stack = new byte[1024];
-    int ptr = 1023;
+    int[] stack = new int[100];
+    int ptr = stack.length - 1;
 
     public NativeStack() {
     }
@@ -35,9 +35,6 @@ public class NativeStack
     }
 
     public void add(long value) {
-        push(value >> 24);
-        push(value >> 16);
-        push(value >> 8);
         push(value);
     }
 
@@ -46,23 +43,17 @@ public class NativeStack
             add(args[i]);
     }
 
-    public void add(byte[] stack) {
-        for (int i = 0; i < stack.length; i++) {
-            this.stack[ptr--] = stack[i];
-        }
-    }
-
-    public byte[] toBytes() {
-        byte[] a = new byte[1023 - ptr];
-        System.arraycopy(stack, ptr + 1, a, 0, a.length);
-        return a;
-    }
-
     private void push(long b) {
-        stack[ptr--] = (byte) (b & 0xff);
+        stack[ptr--] = (int) (b);
     }
 
     public int size() {
-        return 1023 - ptr;
+        return stack.length - 1 - ptr;
+    }
+
+    public int[] toArray() {
+        int[] a = new int[stack.length - 1 - ptr];
+        System.arraycopy(stack, ptr + 1, a, 0, stack.length - 1 - ptr);
+        return a;
     }
 }

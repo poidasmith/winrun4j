@@ -15,12 +15,16 @@ public abstract class Callback
 {
     private static long methodId = Native.getMethodId(Callback.class, "callback", "(I)I", false);
     private static long nativeCallback = Native.getProcAddress(0, "Native_Callback");
+    private static final boolean is64 = Native.is64();
 
     private long thisRef;
     private long callbackPtr;
 
     public Callback() {
-        build();
+        if (is64)
+            build64();
+        else
+            build();
     }
 
     protected abstract int callback(int stack);
@@ -62,7 +66,16 @@ public abstract class Callback
         bb.put((byte) 0xC3);
     }
 
-    public static final Callback NULL = new Callback() {
+    private void build64() {
+        thisRef = Native.newGlobalRef(this);
+        callbackPtr = Native.malloc(27);
+        ByteBuffer bb = NativeHelper.getBuffer(callbackPtr, 27);
+        bb.put((byte) 0x90); // nop
+        bb.put((byte) 0x90); // nop
+        bb.put((byte) 0x49); // mov r8,
+    }
+
+    public static final Callback NOP = new Callback() {
         public int callback(int stack) {
             return 0;
         }

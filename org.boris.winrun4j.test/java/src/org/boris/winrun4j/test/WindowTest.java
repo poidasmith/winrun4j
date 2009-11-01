@@ -47,7 +47,6 @@ public class WindowTest implements WindowProc
 
     private static void registerWindow(Callback callback) {
         WNDCLASSEX wcx = new WNDCLASSEX();
-        wcx.cbSize = WNDCLASSEX.SIZE;
         wcx.style = User32.CS_BYTEALIGNCLIENT | User32.CS_BYTEALIGNWINDOW;
         wcx.lpfnWndProc = callback;
         wcx.cbClsExtra = 0;

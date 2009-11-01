@@ -34,10 +34,8 @@ public class EnvironmentTester implements Runnable
         System.out.println();
 
         System.out.println("Environment Variables");
-        System.out.printf("TEMP: %s\n", Environment
-                .getEnvironmentVariable("TEMP"));
-        System.out.printf("TEMP2: %s\n", Environment
-                .getEnvironmentVariable("TEMP2"));
+        System.out.printf("TEMP: %s\n", Environment.getEnvironmentVariable("TEMP"));
+        System.out.printf("TEMP2: %s\n", Environment.getEnvironmentVariable("TEMP2"));
         System.out.println(Environment.getEnvironmentVariables());
         System.out.println(Environment.expandEnvironmentString("temp: %TEMP%"));
         System.out.println();
@@ -57,13 +55,11 @@ public class EnvironmentTester implements Runnable
         for (int i = 0; i < 10; i++)
             System.out.println(Kernel32.getTickCount());
 
-        System.out.printf("Current Process Id: %d\n", Kernel32
-                .getCurrentProcessId());
+        System.out.printf("Current Process Id: %d\n", Kernel32.getCurrentProcessId());
 
         System.out.println(System.getProperty("user.dir"));
 
-        Runtime.getRuntime().addShutdownHook(
-                new Thread(new EnvironmentTester()));
+        Runtime.getRuntime().addShutdownHook(new Thread(new EnvironmentTester()));
     }
 
     public void run() {

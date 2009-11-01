@@ -60,7 +60,7 @@ public class Shell32
     public static File getFolderPath(int type) {
         long buf = Native.malloc(MAX_PATHW);
         NativeHelper.call(library, "SHGetFolderPathW", 0, type, 0, 0, buf);
-        String res = NativeHelper.getString(buf, MAX_PATH, true);
+        String res = NativeHelper.getString(buf, MAX_PATHW, true);
         Native.free(buf);
         if (res == null || res.length() == 0)
             return null;

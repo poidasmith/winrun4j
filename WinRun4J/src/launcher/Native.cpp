@@ -44,7 +44,7 @@ bool Native::RegisterNatives(JNIEnv *env)
 	nm[5].signature = "(JJ)Ljava/nio/ByteBuffer;";
 	nm[5].fnPtr = (void*) FromPointer;
 	nm[6].name = "call";
-	nm[6].signature = "(J[BII)J";
+	nm[6].signature = "(J[III)J";
 	nm[6].fnPtr = (void*) Call;
 	nm[7].name = "bind";
 	nm[7].signature = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;J)Z";
@@ -111,13 +111,14 @@ jobject Native::FromPointer(JNIEnv* env, jobject self, jlong handle, jlong size)
 	return env->NewDirectByteBuffer((void*) handle, size);
 }
 
-jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, jint size, jint mode)
+#ifndef X64
+jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jintArray stack, jint size, jint mode)
 {
 	jboolean iscopy;
 	int* p = !stack ? (int*) 0 : (int*)env->GetPrimitiveArrayCritical(stack, &iscopy);
 	if(!p && size > 0)
 		return 0;
-	for(int i = 0; i < size; i+=4) {
+	for(int i = 0; i < size; i++) {
 		int v = *p;
 		__asm {
 			push v
@@ -133,6 +134,91 @@ jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jbyteArray stack, ji
 	env->ReleasePrimitiveArrayCritical(stack, p, 0);
 	return (jlong) r;
 }
+#else
+
+typedef int (__fastcall *FP)(...);
+
+jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jintArray stack, jint size, jint mode)
+{
+	jboolean iscopy;
+	int* p = !stack ? (int*) 0 : (int*) env->GetPrimitiveArrayCritical(stack, &iscopy);
+	if(!p && size > 0)
+		return 0;
+	FP fp = (FP) handle;
+	int r = 0;
+	switch(size)
+	{
+	case 0:
+		r = fp();
+		break;
+	case 1:
+		r = fp(p[0]);
+		break;
+	case 2:
+		r = fp(p[1], p[0]);
+		break;
+	case 3:
+		r = fp(p[2], p[1], p[0]);
+		break;
+	case 4:
+		r = fp(p[3], p[2], p[1], p[0]);
+		break;
+	case 5:
+		r = fp(p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 6:
+		r = fp(p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 7:
+		r = fp(p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 8:
+		r = fp(p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 9:
+		r = fp(p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 10:
+		r = fp(p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 11:
+		r = fp(p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 12:
+		r = fp(p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 13:
+		r = fp(p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 14:
+		r = fp(p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 15:
+		r = fp(p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 16:
+		r = fp(p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 17:
+		r = fp(p[16], p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 18:
+		r = fp(p[17], p[16], p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 19:
+		r = fp(p[18], p[17], p[16], p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 20:
+		r = fp(p[19], p[18], p[17], p[16], p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
+		break;
+	case 99:
+		r = ((FP)124341345312234)(563465345245345, 23456345623453425, 346534562345452435);
+		break;
+	}
+	if(stack) env->ReleasePrimitiveArrayCritical(stack, (jint*) p, 0);
+	return (jlong) r;
+}
+#endif
 
 jboolean Native::Bind(JNIEnv* env, jobject self, jclass clazz, jstring fn, jstring sig, jlong ptr)
 {
@@ -183,8 +269,18 @@ jlong Native::GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name,
 	return res;
 }
 
+extern "C" __declspec(dllexport) int __cdecl Native_Is64()
+{
+#ifdef X64
+	return 1;
+#else
+	return 0;
+#endif
+}
+
 extern "C" __declspec(dllexport) int __cdecl Native_Callback(jobject obj, jmethodID mid, int stack)
 {
 	JNIEnv* env = VM::GetJNIEnv(true);
 	return env->CallIntMethod(obj, mid, stack+8);
 }
+
