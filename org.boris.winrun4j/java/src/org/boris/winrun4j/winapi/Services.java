@@ -255,7 +255,7 @@ public class Services
         boolean res = NativeHelper.call(library, "GetServiceKeyNameW", scManager, snPtr, dnPtr, szPtr) != 0;
         String serviceName = null;
         if (res) {
-            displayName = NativeHelper.getString(dnPtr, 1024, true);
+            serviceName = NativeHelper.getString(dnPtr, 1024, true);
         }
         NativeHelper.free(new long[] { snPtr, dnPtr, szPtr });
         return serviceName;
