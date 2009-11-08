@@ -44,7 +44,7 @@ bool Native::RegisterNatives(JNIEnv *env)
 	nm[5].signature = "(JJ)Ljava/nio/ByteBuffer;";
 	nm[5].fnPtr = (void*) FromPointer;
 	nm[6].name = "call";
-	nm[6].signature = "(J[III)J";
+	nm[6].signature = "(J[JII)J";
 	nm[6].fnPtr = (void*) Call;
 	nm[7].name = "bind";
 	nm[7].signature = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;J)Z";
@@ -112,10 +112,10 @@ jobject Native::FromPointer(JNIEnv* env, jobject self, jlong handle, jlong size)
 }
 
 #ifndef X64
-jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jintArray stack, jint size, jint mode)
+jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jlongArray stack, jint size, jint mode)
 {
 	jboolean iscopy;
-	int* p = !stack ? (int*) 0 : (int*)env->GetPrimitiveArrayCritical(stack, &iscopy);
+	jlong* p = !stack ? (jlong*) 0 : (jlong*)env->GetPrimitiveArrayCritical(stack, &iscopy);
 	if(!p && size > 0)
 		return 0;
 	for(int i = 0; i < size; i++) {
@@ -138,10 +138,10 @@ jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jintArray stack, jin
 
 typedef int (__fastcall *FP)(...);
 
-jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jintArray stack, jint size, jint mode)
+jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jlongArray stack, jint size, jint mode)
 {
 	jboolean iscopy;
-	int* p = !stack ? (int*) 0 : (int*) env->GetPrimitiveArrayCritical(stack, &iscopy);
+	jlong* p = !stack ? (jlong*) 0 : (jlong*) env->GetPrimitiveArrayCritical(stack, &iscopy);
 	if(!p && size > 0)
 		return 0;
 	FP fp = (FP) handle;
@@ -211,11 +211,8 @@ jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jintArray stack, jin
 	case 20:
 		r = fp(p[19], p[18], p[17], p[16], p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
 		break;
-	case 99:
-		r = ((FP)124341345312234)(563465345245345, 23456345623453425, 346534562345452435);
-		break;
 	}
-	if(stack) env->ReleasePrimitiveArrayCritical(stack, (jint*) p, 0);
+	if(stack) env->ReleasePrimitiveArrayCritical(stack, p, 0);
 	return (jlong) r;
 }
 #endif

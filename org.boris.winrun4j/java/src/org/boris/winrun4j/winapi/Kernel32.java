@@ -17,6 +17,7 @@ import org.boris.winrun4j.NativeHelper;
 public class Kernel32
 {
     public static final long library = Native.loadLibrary("kernel32");
+    private static final boolean is64 = NativeHelper.IS_64;
 
     public static final int DONT_RESOLVE_DLL_REFERENCES = 0x00000001;
     public static final int LOAD_LIBRARY_AS_DATAFILE = 0x00000002;
@@ -102,22 +103,26 @@ public class Kernel32
         pe.dwSize = bb.getInt();
         pe.cntUsage = bb.getInt();
         pe.th32ProcessID = bb.getInt();
+        if (is64)
+            bb.getInt(); // alignment
         pe.th32DefaultHeapID = bb.getInt();
         pe.th32ModuleID = bb.getInt();
         pe.cntThreads = bb.getInt();
         pe.th32ParentProcessID = bb.getInt();
         pe.pcPriClassBase = bb.getInt();
         pe.dwFlags = bb.getInt();
+        if (is64)
+            bb.getInt();
         pe.szExeFile = NativeHelper.getString(bb, true);
     }
 
     public static class PROCESSENTRY32
     {
-        public static final int SIZE = 556;
+        public static final int SIZE = is64 ? 568 : 556;
         public int dwSize;
         public int cntUsage;
         public int th32ProcessID;
-        public int th32DefaultHeapID;
+        public long th32DefaultHeapID;
         public int th32ModuleID;
         public int cntThreads;
         public int th32ParentProcessID;

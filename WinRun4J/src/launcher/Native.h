@@ -25,7 +25,7 @@ private:
 	static jlong Malloc(JNIEnv* env, jobject self, jint size);
 	static void Free(JNIEnv* env, jobject self, jlong handle);
 	static jobject FromPointer(JNIEnv* env, jobject self, jlong hanedle, jlong size);
-	static jlong Call(JNIEnv* env, jobject self, jlong handle, jintArray stack, jint size, jint mode);
+	static jlong Call(JNIEnv* env, jobject self, jlong handle, jlongArray stack, jint size, jint mode);
 	static jboolean Bind(JNIEnv* env, jobject self, jclass clazz, jstring fn, jstring sig, jlong ptr);
 	static jlong NewGlobalRef(JNIEnv* env, jobject self, jobject obj);
 	static void DeleteGlobalRef(JNIEnv* env, jobject self, jlong handle);

@@ -11,7 +11,7 @@ package org.boris.winrun4j;
 
 public class NativeStack
 {
-    int[] stack = new int[100];
+    long[] stack = new long[100];
     int ptr = stack.length - 1;
 
     public NativeStack() {
@@ -51,8 +51,8 @@ public class NativeStack
         return stack.length - 1 - ptr;
     }
 
-    public int[] toArray() {
-        int[] a = new int[stack.length - 1 - ptr];
+    public long[] toArray() {
+        long[] a = new long[stack.length - 1 - ptr];
         System.arraycopy(stack, ptr + 1, a, 0, stack.length - 1 - ptr);
         return a;
     }

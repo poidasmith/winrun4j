@@ -56,7 +56,7 @@ public class Native
     /**
      * Call a native function.
      */
-    public static native long call(long ptr, int[] stack, int stackSize, int mode);
+    public static native long call(long ptr, long[] stack, int stackSize, int mode);
 
     /**
      * Binds a function pointer to a native method.

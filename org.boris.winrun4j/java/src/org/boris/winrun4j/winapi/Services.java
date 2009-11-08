@@ -17,6 +17,8 @@ import org.boris.winrun4j.NativeHelper;
 
 public class Services
 {
+    private static final boolean is64 = NativeHelper.IS_64;
+
     // Service Type
     public static final int SERVICE_FILE_SYSTEM_DRIVER = 0x2;
     public static final int SERVICE_KERNEL_DRIVER = 0x3;
@@ -384,8 +386,8 @@ public class Services
         ByteBuffer bb = NativeHelper.getBuffer(ptr, size);
         for (int i = 0; i < numServices; i++) {
             ENUM_SERVICE_STATUS ess = new ENUM_SERVICE_STATUS();
-            ess.serviceName = NativeHelper.getString(bb.getInt(), 1024, true);
-            ess.displayName = NativeHelper.getString(bb.getInt(), 1024, true);
+            ess.serviceName = NativeHelper.getString(is64 ? bb.getLong() : bb.getInt(), 1024, true);
+            ess.displayName = NativeHelper.getString(is64 ? bb.getLong() : bb.getInt(), 1024, true);
             decodeStatus(bb, ess);
             deps[i] = ess;
         }
@@ -397,8 +399,8 @@ public class Services
         ByteBuffer bb = NativeHelper.getBuffer(ptr, size);
         for (int i = 0; i < numServices; i++) {
             ENUM_SERVICE_STATUS_PROCESS ess = new ENUM_SERVICE_STATUS_PROCESS();
-            ess.serviceName = NativeHelper.getString(bb.getInt(), 1024, true);
-            ess.displayName = NativeHelper.getString(bb.getInt(), 1024, true);
+            ess.serviceName = NativeHelper.getString(is64 ? bb.getLong() : bb.getInt(), 1024, true);
+            ess.displayName = NativeHelper.getString(is64 ? bb.getLong() : bb.getInt(), 1024, true);
             decodeStatusProcess(bb, ess);
             deps[i] = ess;
         }
@@ -419,5 +421,7 @@ public class Services
         s.serviceSpecificExitCode = bb.getInt();
         s.checkPoint = bb.getInt();
         s.waitHint = bb.getInt();
+        if (is64)
+            bb.getInt(); // alignment
     }
 }

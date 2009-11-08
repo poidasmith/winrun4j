@@ -15,6 +15,8 @@ import java.util.ArrayList;
 
 public class NativeHelper
 {
+    public static final boolean IS_64 = Native.is64();
+
     public static long call(long proc) {
         return call(proc, (NativeStack) null);
     }
@@ -126,7 +128,7 @@ public class NativeHelper
     public static long call(long proc, NativeStack stack) {
         if (proc == 0)
             throw new NullPointerException("Invalid procedure address");
-        int[] s = null;
+        long[] s = null;
         if (stack != null)
             s = stack.toArray();
         int len = s != null ? s.length : 0;
