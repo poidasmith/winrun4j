@@ -18,6 +18,7 @@ import org.boris.winrun4j.NativeHelper;
 public class User32
 {
     public static final long library = Native.loadLibrary("user32");
+    private static final boolean is64 = NativeHelper.IS_64;
 
     public static final int CS_VREDRAW = 0x0001;
     public static final int CS_HREDRAW = 0x0002;
@@ -178,15 +179,29 @@ public class User32
         ByteBuffer bb = NativeHelper.getBuffer(ptr, WNDCLASSEX.SIZE);
         bb.putInt(wcx.cbSize);
         bb.putInt(wcx.style);
-        bb.putInt((int) wcx.lpfnWndProc.getPointer());
+        if (is64)
+            bb.putLong(wcx.lpfnWndProc.getPointer());
+        else
+            bb.putInt((int) wcx.lpfnWndProc.getPointer());
         bb.putInt(wcx.cbClsExtra);
         bb.putInt(wcx.cbWndExtra);
-        bb.putInt((int) wcx.hInstance);
-        bb.putInt((int) wcx.hIcon);
-        bb.putInt((int) wcx.hCursor);
-        bb.putInt((int) wcx.hbrBackground);
-        bb.putInt((int) lpMenuName);
-        bb.putInt((int) lpClassName);
+        if (is64) {
+            bb.putLong(wcx.hInstance);
+            bb.putLong(wcx.hIcon);
+            bb.putLong(wcx.hCursor);
+            bb.putLong(wcx.hbrBackground);
+            bb.putLong(lpMenuName);
+            bb.putLong(lpClassName);
+            bb.putLong(wcx.hIconSm);
+        } else {
+            bb.putInt((int) wcx.hInstance);
+            bb.putInt((int) wcx.hIcon);
+            bb.putInt((int) wcx.hCursor);
+            bb.putInt((int) wcx.hbrBackground);
+            bb.putInt((int) lpMenuName);
+            bb.putInt((int) lpClassName);
+            bb.putInt((int) wcx.hIconSm);
+        }
         boolean res = NativeHelper.call(library, "RegisterClassExW", ptr) != 0;
         NativeHelper.free(ptr, lpMenuName, lpClassName);
         return res;
@@ -208,8 +223,8 @@ public class User32
         ByteBuffer bb = NativeHelper.getBuffer(ptr, 28);
         bb.putInt((int) m.hWnd);
         bb.putInt(m.message);
-        bb.putInt(m.wParam);
-        bb.putInt(m.lParam);
+        bb.putInt((int) m.wParam);
+        bb.putInt((int) m.lParam);
         bb.putInt(m.time);
         bb.putInt(m.pt.x);
         bb.putInt(m.pt.y);
@@ -223,17 +238,18 @@ public class User32
 
     public static class MSG
     {
+        public static final int SIZE = is64 ? 48 : 28;
         long hWnd;
         int message;
-        int wParam;
-        int lParam;
+        long wParam;
+        long lParam;
         int time;
         POINT pt;
     }
 
     public static class WNDCLASSEX
     {
-        public static final int SIZE = 48;
+        public static final int SIZE = is64 ? 80 : 48;
         public int cbSize = SIZE;
         public int style;
         public Callback lpfnWndProc;

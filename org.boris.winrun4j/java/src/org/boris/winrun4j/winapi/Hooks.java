@@ -50,8 +50,8 @@ public class Hooks
             ByteBuffer bb = Native.fromPointer(ptr, 18).order(ByteOrder.LITTLE_ENDIAN);
             bb.putInt((int) msg.hWnd);
             bb.putInt(msg.message);
-            bb.putInt(msg.wParam);
-            bb.putInt(msg.lParam);
+            bb.putInt((int) msg.wParam);
+            bb.putInt((int) msg.lParam);
             bb.putInt(msg.time);
             if (msg.pt != null) {
                 bb.putShort((short) msg.pt.x);
