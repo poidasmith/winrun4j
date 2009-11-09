@@ -24,6 +24,7 @@ public class Hooks
     public static final long procCallNextHookEx = Native.getProcAddress(User32.library, "CallNextHookEx");
     public static final long procSetWindowsHookEx = Native.getProcAddress(User32.library, "SetWindowsHookExW");
     public static final long procUnhookWindowsHookEx = Native.getProcAddress(User32.library, "UnhookWindowsHookEx");
+    private static final boolean is64 = NativeHelper.IS_64;
 
     public static final int WH_MIN = (-1);
     public static final int WH_MSGFILTER = (-1);
@@ -48,14 +49,23 @@ public class Hooks
         if (msg != null) {
             ptr = Native.malloc(18);
             ByteBuffer bb = Native.fromPointer(ptr, 18).order(ByteOrder.LITTLE_ENDIAN);
-            bb.putInt((int) msg.hWnd);
-            bb.putInt(msg.message);
-            bb.putInt((int) msg.wParam);
-            bb.putInt((int) msg.lParam);
-            bb.putInt(msg.time);
+            if (is64) {
+                bb.putLong(msg.hWnd);
+                bb.putInt(msg.message);
+                bb.putInt(0); // alignment
+                bb.putLong(msg.wParam);
+                bb.putLong(msg.lParam);
+                bb.putInt(msg.time);
+            } else {
+                bb.putInt((int) msg.hWnd);
+                bb.putInt(msg.message);
+                bb.putInt((int) msg.wParam);
+                bb.putInt((int) msg.lParam);
+                bb.putInt(msg.time);
+            }
             if (msg.pt != null) {
-                bb.putShort((short) msg.pt.x);
-                bb.putShort((short) msg.pt.y);
+                bb.putInt(msg.pt.x);
+                bb.putInt(msg.pt.y);
             } else {
                 bb.putInt(0);
             }
