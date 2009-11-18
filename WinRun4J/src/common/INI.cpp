@@ -67,7 +67,7 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 
 	// Check if we have already loaded an embedded INI file - if so 
 	// then we only need to load and merge the INI file (if present)
-	if(ini) {
+	if(ini && iniparser_getboolean(ini, ALLOW_INI_OVERRIDE, 1)) {
 		dictionary* ini2 = iniparser_load(inifile);
 		if(ini2) {
 			for(int i = 0; i < ini2->size; i++) {
@@ -129,6 +129,7 @@ void INI::ExpandVariables(dictionary* ini)
 	}
 }
 
+#ifndef NO_JAVA
 extern "C" __declspec(dllexport) dictionary* __cdecl INI_GetDictionary()
 {
 	return g_ini;
@@ -138,5 +139,6 @@ extern "C" __declspec(dllexport) const char* __cdecl INI_GetProperty(const char*
 {
 	return iniparser_getstr(g_ini, key);
 }
+#endif
 
 

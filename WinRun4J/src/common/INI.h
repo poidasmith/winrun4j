@@ -31,6 +31,7 @@
 #define PROG_ARG ":arg"
 #define MAIN_CLASS ":main.class"
 #define SERVICE_CLASS ":service.class"
+#define ALLOW_INI_OVERRIDE ":ini.override"
 
 class INI
 {

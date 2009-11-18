@@ -247,6 +247,21 @@ extern void _cdecl GetFileNameSansExtension(LPSTR filename, LPSTR output)
 	}
 }
 
+extern "C" char * _cdecl strrev(char *str)
+{
+	if(!str) return 0;
+	char* rstr = str + strlen(str) - 1;
+	char c;
+	while(str<rstr) {
+		c=*str;
+		*str=*rstr;
+		*rstr=c;
+		str++;
+		rstr--;
+	}
+	return str;
+}
+
 extern "C" char * _cdecl strdup(const char *str)
 {
     char *r;
