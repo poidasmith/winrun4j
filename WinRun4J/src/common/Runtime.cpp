@@ -279,6 +279,11 @@ extern "C" void __cdecl _wassert(int e)
 {
 }
 
+extern "C" int* _errno()
+{
+	return 0;
+}
+
 #ifdef TINY
 
 extern "C" void * __cdecl malloc(size_t size)

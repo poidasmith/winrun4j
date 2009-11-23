@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib ../lib/wcrt.lib ../lib/xlcall32.lib ../lib/yajl.lib"
+				AdditionalDependencies="ws2_32.lib ../lib/wcrt.lib ../lib/xlcall32.lib ../lib/yajl.lib winhttp.lib"
 				OutputFile="$(OutDir)\$(ProjectName)-Debug.xll"
 				LinkIncremental="2"
 				SuppressStartupBanner="false"
@@ -221,6 +221,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\xll\JSONCodec.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\common\Log.cpp"
 				>
 			</File>
@@ -264,6 +268,10 @@
 			</File>
 			<File
 				RelativePath="..\src\common\INI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xll\JSONCodec.h"
 				>
 			</File>
 			<File
