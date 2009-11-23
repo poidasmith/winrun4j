@@ -213,6 +213,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\xll\HttpProtocol.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\common\INI.cpp"
 				>
 			</File>
@@ -252,6 +256,10 @@
 			</File>
 			<File
 				RelativePath="..\src\common\Dictionary.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xll\HttpProtocol.h"
 				>
 			</File>
 			<File
