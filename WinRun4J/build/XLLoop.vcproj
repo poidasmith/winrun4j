@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib ../lib/wcrt.lib ../lib/xlcall32.lib ../lib/yajl.lib winhttp.lib"
+				AdditionalDependencies="winhttp.lib ws2_32.lib ../lib/msvcrt.lib ../lib/xlcall32.lib ../lib/yajl.lib"
 				OutputFile="$(OutDir)\$(ProjectName)-Debug.xll"
 				LinkIncremental="2"
 				SuppressStartupBanner="false"

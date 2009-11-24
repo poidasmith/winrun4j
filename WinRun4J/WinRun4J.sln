@@ -21,6 +21,7 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug|x64.ActiveCfg = Debug|x64
+		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug|x64.Build.0 = Debug|x64
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug-Console|Win32.ActiveCfg = Debug - Console|Win32
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug-Console|Win32.Build.0 = Debug - Console|Win32
 		{B3EC7585-646E-4D0D-850E-8CD6FADB323D}.Debug-Console|x64.ActiveCfg = Debug - Console|x64
@@ -35,7 +36,6 @@ Global
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Debug|Win32.ActiveCfg = Debug|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Debug|Win32.Build.0 = Debug|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Debug|x64.ActiveCfg = Debug|Win32
-		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Debug|x64.Build.0 = Debug|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Debug-Console|Win32.ActiveCfg = Debug|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Debug-Console|Win32.Build.0 = Debug|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Debug-Console|x64.ActiveCfg = Debug|Win32
