@@ -281,6 +281,11 @@ extern "C" void __cdecl _wassert(int e)
 
 #ifdef TINY
 
+extern "C" int __cdecl _purecall()
+{
+	return 0;
+}
+
 extern "C" int* _errno()
 {
 	return 0;
