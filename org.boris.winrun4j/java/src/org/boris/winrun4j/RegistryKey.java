@@ -435,7 +435,7 @@ public class RegistryKey
      * @param handle.
      */
     public static void deleteSubKey(long handle, String key) {
-        Registry.RegDeleteKey(handle, key);
+        Registry.deleteKey(handle, key);
     }
 
     /**
@@ -457,7 +457,7 @@ public class RegistryKey
      * @param name.
      */
     public static void deleteValue(long parent, String name) {
-        Registry.RegDeleteKey(parent, name);
+        Registry.deleteKey(parent, name);
     }
 
     /**

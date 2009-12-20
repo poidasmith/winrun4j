@@ -56,7 +56,7 @@ public class Registry
         return h;
     }
 
-    public static long RegDeleteKey(long hKey, String subKey) {
+    public static long deleteKey(long hKey, String subKey) {
         long lpSubKey = NativeHelper.toNativeString(subKey, true);
         long res = NativeHelper.call(library, "RegDeleteKeyW", hKey, lpSubKey);
         NativeHelper.free(lpSubKey);
