@@ -97,7 +97,7 @@ public class Hooks
             this.proc = proc;
         }
 
-        protected int callback(int stack) {
+        protected long callback(long stack) {
             ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
             int code = bb.getInt();
             int id = bb.getInt();

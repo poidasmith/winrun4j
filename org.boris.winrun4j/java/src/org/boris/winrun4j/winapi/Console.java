@@ -92,7 +92,7 @@ public class Console
 
     public static abstract class HandlerRoutine extends Callback
     {
-        protected int callback(int stack) {
+        protected long callback(long stack) {
             return handlerRoutine(NativeHelper.getInt(stack)) ? 1 : 0;
         }
 

@@ -29,7 +29,7 @@ public class HooksTest
             }
         });
         Callback cb = new Callback() {
-            protected int callback(int stack) {
+            protected long callback(long stack) {
                 System.out.println(stack);
                 return 0;
             }

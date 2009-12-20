@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 
 public abstract class Callback
 {
-    private static long methodId = Native.getMethodId(Callback.class, "callback", "(I)I", false);
+    private static long methodId = Native.getMethodId(Callback.class, "callback", "(J)J", false);
     private static long nativeCallback = Native.getProcAddress(0, "Native_Callback");
     private static final boolean is64 = Native.is64();
 
@@ -27,7 +27,7 @@ public abstract class Callback
             build();
     }
 
-    protected abstract int callback(int stack);
+    protected abstract long callback(long stack);
 
     public long getPointer() {
         return callbackPtr;
@@ -76,7 +76,7 @@ public abstract class Callback
     }
 
     public static final Callback NOP = new Callback() {
-        public int callback(int stack) {
+        public long callback(long stack) {
             return 0;
         }
     };

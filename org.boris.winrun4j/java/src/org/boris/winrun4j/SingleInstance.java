@@ -17,7 +17,7 @@ public class SingleInstance extends DDEML.DdeCallback
             return false;
 
         Callback enumWindowsProc = new Callback() {
-            protected int callback(int stack) {
+            protected long callback(long stack) {
                 return enumWindowsProc(NativeHelper.getInt(stack), NativeHelper.getInt(stack + 4));
             }
         };

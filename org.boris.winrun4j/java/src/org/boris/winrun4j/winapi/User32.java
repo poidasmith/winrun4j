@@ -120,7 +120,7 @@ public class User32
             this.callback = callback;
         }
 
-        protected int callback(int stack) {
+        protected long callback(long stack) {
             ByteBuffer bb = NativeHelper.getBuffer(stack, 16);
             return callback.windowProc(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt());
         }

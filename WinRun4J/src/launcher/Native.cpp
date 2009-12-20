@@ -136,7 +136,7 @@ jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jlongArray stack, ji
 }
 #else
 
-typedef int (__fastcall *FP)(...);
+typedef jlong (__fastcall *FP)(...);
 
 jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jlongArray stack, jint size, jint mode)
 {
@@ -145,7 +145,7 @@ jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jlongArray stack, ji
 	if(!p && size > 0)
 		return 0;
 	FP fp = (FP) handle;
-	int r = 0;
+	jlong r = 0;
 	switch(size)
 	{
 	case 0:
@@ -275,9 +275,9 @@ extern "C" __declspec(dllexport) int __cdecl Native_Is64()
 #endif
 }
 
-extern "C" __declspec(dllexport) int __cdecl Native_Callback(jobject obj, jmethodID mid, int stack)
+extern "C" __declspec(dllexport) jlong __cdecl Native_Callback(jobject obj, jmethodID mid, jlong stack)
 {
 	JNIEnv* env = VM::GetJNIEnv(true);
-	return env->CallIntMethod(obj, mid, stack+8);
+	return env->CallLongMethod(obj, mid, stack+8);
 }
 

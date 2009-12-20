@@ -248,7 +248,7 @@ public class NativeServiceHost
             this.service = service;
         }
 
-        protected int callback(int stack) {
+        protected long callback(long stack) {
             try {
                 return service.serviceRequest(NativeHelper.getInt(stack));
             } catch (ServiceException e) {
@@ -266,7 +266,7 @@ public class NativeServiceHost
             this.service = service;
         }
 
-        protected int callback(int stack) {
+        protected long callback(long stack) {
             int argc = NativeHelper.getInt(stack);
             ByteBuffer bb = NativeHelper.getBuffer(stack + 4, argc * 4);
             String[] args = new String[argc];

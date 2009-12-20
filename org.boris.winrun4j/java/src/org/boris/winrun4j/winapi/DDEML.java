@@ -34,8 +34,7 @@ public class DDEML
         return NativeHelper.call(library, "DdeConnect", pidInst, server, topic, context);
     }
 
-    public static long clientTransaction(byte[] data, int len, long conv, long hszItem, int fmt, int type,
-            int timeout) {
+    public static long clientTransaction(byte[] data, int len, long conv, long hszItem, int fmt, int type, int timeout) {
         long ptr = Native.malloc(len);
         ByteBuffer bb = Native.fromPointer(ptr, len);
         bb.put(data, 0, len);
@@ -93,8 +92,7 @@ public class DDEML
         return res;
     }
 
-    public static long createDataHandle(long idInst, byte[] data, int len, int offset, long hszItem, int fmt,
-            int afCmd) {
+    public static long createDataHandle(long idInst, byte[] data, int len, int offset, long hszItem, int fmt, int afCmd) {
         long ptr = Native.malloc(len);
         ByteBuffer bb = Native.fromPointer(ptr, len);
         bb.put(data, 0, len);
@@ -235,7 +233,7 @@ public class DDEML
 
     public abstract static class DdeCallback extends Callback
     {
-        protected int callback(int stack) {
+        protected long callback(long stack) {
             ByteBuffer bb = Native.fromPointer(stack, 32).order(ByteOrder.LITTLE_ENDIAN);
             return (int) ddeCallback(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb
                     .getInt(), bb.getInt());
