@@ -1,0 +1,41 @@
+
+
+
+x64 asm
+
+-- save a copy of RDI (where stack pointer is saved)
+000000013FF92D59 57               push        rdi  
+
+-- assign 4 64-bit areas for parameters
+000000013FF92D5A 48 83 EC 20      sub         rsp,20h 
+
+-- save stack pointer
+000000013FF92D5E 48 8B FC         mov         rdi,rsp 
+
+
+-- move value 8 to RCX
+000000013FF92D61 48 B9 08 00 00 00 00 00 00 00 mov         rcx,8 
+
+-- move value to 6th parameter
+000000013FEA2D82 C7 44 24 28 57 01 00 00 mov         dword ptr [rsp+28h],157h 
+
+000000013FEA2D8A 48 C7 44 24 20 00 00 00 00 mov         qword ptr [rsp+20h],0 
+-- move value to 5th parameter
+
+
+-- copy function pointer to RAX
+000000013FEE2DA6 48 B8 7A 50 85 DE 02 00 00 00 mov         rax,2DE85507Ah 
+
+-- call function pointer
+000000013FEE2DB0 FF D0            call        rax  
+
+
+
+-- remove the 4 params stored on the stack
+000000013FF92D8C 48 83 C4 20      add         rsp,20h 
+
+-- restore the saved stack pointer
+000000013FF92D90 5F               pop         rdi  
+
+-- return
+000000013FF92D91 C3               ret              
