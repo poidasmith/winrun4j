@@ -84,6 +84,7 @@ public class FileAssociations
                 v.createSubKey("command").setString(null, fv.getCommand());
                 if (fv.getDDECommand() != null) {
                     RegistryKey d = v.createSubKey("ddeexec");
+                    d.setString(null, fv.getDDECommand());
                     d.createSubKey("Application").setString(null, fv.getDDEApplication());
                     d.createSubKey("Topic").setString(null, fv.getDDETopic());
                 }

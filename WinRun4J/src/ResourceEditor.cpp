@@ -142,8 +142,8 @@ int ExecuteResourceScript(LPSTR exeFile, LPSTR iniFile, bool clear)
 		}
 	}
 
-	// Check for version information (we require version.FileVersion)
-	char* fileVer = iniparser_getstr(ini, ":version.FileVersion");
+	// Check for version information (we require version.fileversion)
+	char* fileVer = iniparser_getstr(ini, ":version.fileversion");
 	if(fileVer) {
 	}
 

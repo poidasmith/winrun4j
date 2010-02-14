@@ -120,6 +120,15 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 		return 0;
 	}
 
+	if(StartsWith(lpCmdLine, "--WinRun4J:PrintINI")) {
+		dictionary* ini = INI::LoadIniFile(hInstance);
+		if(ini == NULL) 
+			return 1;
+		for(int i = 0; i < ini->n; i++) 
+			printf("%s=%s\n", ini->key[i], ini->val[i]);
+		return 0;
+	}
+
 	if(StartsWith(lpCmdLine, "--WinRun4J:ExecuteINI")) {
 		return WinRun4J::ExecuteINI(hInstance, lpCmdLine);
 	}
