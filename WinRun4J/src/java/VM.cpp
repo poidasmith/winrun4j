@@ -266,8 +266,8 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 	// Extract memory size
 	MEMORYSTATUS ms;
 	GlobalMemoryStatus(&ms);
-	int overallMax = 1530;
-	int availMax = (int)(ms.dwTotalPhys/1024/1024) - 80;
+	int overallMax = 1230;
+	int availMax = (int)(ms.dwTotalPhys/1048576) - 80;
 
 	// Look for preferred VM size
 	TCHAR* PreferredHeapSizeStr = iniparser_getstr(ini, HEAP_SIZE_PREFERRED);
@@ -288,14 +288,16 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
 		if(percent < 0 || percent > 100) {
 			Log::Error("Error with heap size percent. Should be between 0 and 100.");
 		} else {
-			Log::Info("Percent is: %f", percent);
+			TCHAR ptmp[MAX_PATH];
+			sprintf(ptmp, "%u", (unsigned int) percent);
+			Log::Info("Percent is: %s", ptmp);
 			Log::Info("Avail Phys: %dm", availMax);
-			int size = (int)((percent/100) * (double)(availMax));
+			double size = (percent/100)*((double)availMax);
 			if(size > overallMax) {
 				size = overallMax;
 			}
 			TCHAR sizeArg[MAX_PATH];
-			sprintf(sizeArg, "-Xmx%um", size);
+			sprintf(sizeArg, "-Xmx%um", (UINT) size);
 			args[count++] = strdup(sizeArg);
 		}
 	}
