@@ -16,7 +16,8 @@ import java.util.Set;
 /**
  * A manager for DDE.
  */
-public class DDE {
+public class DDE
+{
     private static Set fileAssociationListeners = new LinkedHashSet();
     private static Set activationListeners = new LinkedHashSet();
 
@@ -24,14 +25,13 @@ public class DDE {
      * To be called by the application when it is ready to receive DDE messages.
      */
     public static native void ready();
-    
+
     /**
      * Add a file association listener.
      * 
      * @param listener.
      */
-    public static void addFileAssocationListener(
-            FileAssociationListener listener) {
+    public static void addFileAssocationListener(FileAssociationListener listener) {
         DDE.fileAssociationListeners.add(listener);
     }
 
@@ -43,8 +43,7 @@ public class DDE {
     public static void execute(String command) {
         Iterator i = fileAssociationListeners.iterator();
         while (i.hasNext()) {
-            FileAssociationListener listener = (FileAssociationListener) i
-                    .next();
+            FileAssociationListener listener = (FileAssociationListener) i.next();
             listener.execute(command);
         }
     }
@@ -61,11 +60,11 @@ public class DDE {
     /**
      * This will be called as part of the single instance.
      */
-    public static void activate() {
+    public static void activate(String cmdLine) {
         Iterator i = activationListeners.iterator();
         while (i.hasNext()) {
             ActivationListener listener = (ActivationListener) i.next();
-            listener.activate();
+            listener.activate(cmdLine);
         }
     }
 }
