@@ -34,7 +34,7 @@ static int g_buffer_siz = 0;
 #define DDE_TOPIC ":dde.topic"
 
 // Single instance
-#define DDE_EXECUTE_ACTIVATE "WinRun4J.ACTIVATE"
+#define DDE_EXECUTE_ACTIVATE "ACTIVATE"
 
 LRESULT CALLBACK DdeMainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -51,10 +51,14 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT /*uFmt*/, HCONV /*hconv*/, HDDEDA
 			return (HDDEDATA) 1;
 		break;
 
-	case XTYP_EXECUTE:
-		DdeGetData(hdata, (LPBYTE) g_execute, MAX_PATH, 0);
-		DDE::Execute(g_execute);
+	case XTYP_EXECUTE: {
+		UINT size = DdeGetData(hdata, NULL, 0, 0);
+		LPSTR execData = (LPSTR) malloc(size);
+		DdeGetData(hdata, (LPBYTE) execData, size, 0);
+		DDE::Execute(execData);
+		free(execData);
 		return (HDDEDATA) 1;
+					   }
 		break;
 	}
 
@@ -163,7 +167,12 @@ bool DDE::NotifySingleInstance(dictionary* ini)
 
 	HCONV conv = DdeConnect(g_pidInst, g_serverName, g_topic, NULL);
 	if (conv != NULL) {
-		HDDEDATA result = DdeClientTransaction((LPBYTE)DDE_EXECUTE_ACTIVATE, strlen(DDE_EXECUTE_ACTIVATE) + 1, conv, NULL, 0, XTYP_EXECUTE, TIMEOUT_ASYNC, NULL);
+		LPSTR cmdline = GetCommandLine();
+		char* activate = (char*) malloc(strlen(DDE_EXECUTE_ACTIVATE) + strlen(cmdline) + 2);
+		strcpy(activate, DDE_EXECUTE_ACTIVATE);
+		strcat(activate, " ");
+		strcat(activate, cmdline);
+		HDDEDATA result = DdeClientTransaction((LPBYTE)activate, strlen(activate) + 1, conv, NULL, 0, XTYP_EXECUTE, TIMEOUT_ASYNC, NULL);
 		if (result == 0) {
 			Log::Error("Failed to send DDE single instance notification");
 			return false;
@@ -187,9 +196,9 @@ void DDE::Execute(LPSTR lpExecuteStr)
 		if (g_class != NULL) {
 			Log::Info("DDE Execute: %s", lpExecuteStr);
 
-			if (strcmp(lpExecuteStr, DDE_EXECUTE_ACTIVATE) == 0) {
+			if (memcmp(lpExecuteStr, DDE_EXECUTE_ACTIVATE, 8) == 0) {
 				if (g_activateMethodID != NULL) {
-					env->CallStaticVoidMethod(g_class, g_activateMethodID);
+					env->CallStaticVoidMethod(g_class, g_activateMethodID, &lpExecuteStr[8]);
 				} else {
 					Log::Error("Ignoring DDE single instance activate message");
 				}
@@ -298,7 +307,7 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 		return false;
 	}
 
-	g_activateMethodID = env->GetStaticMethodID(g_class, "activate", "()V");
+	g_activateMethodID = env->GetStaticMethodID(g_class, "activate", "(Ljava/lang/String;)V");
 	if(env->ExceptionCheck()) {
 		env->ExceptionClear();
 	}
