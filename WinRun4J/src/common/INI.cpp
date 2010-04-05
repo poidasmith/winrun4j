@@ -12,6 +12,10 @@
 #include "Log.h"
 #include "../java/JNI.h"
 
+#define ALLOW_INI_OVERRIDE ":ini.override"
+#define INI_FILE_LOCATION ":ini.file.location"
+#define INI_REGISTRY_LOCATION ":ini.registry.location"
+
 static dictionary* g_ini = NULL;
 
 void INI::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index)
@@ -70,11 +74,12 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 	if(ini && iniparser_getboolean(ini, ALLOW_INI_OVERRIDE, 1)) {
 		dictionary* ini2 = iniparser_load(inifile);
 		if(ini2) {
-			for(int i = 0; i < ini2->size; i++) {
+			for(int i = 0; i < ini2->n; i++) {
 				char* key = ini2->key[i];
 				char* value = ini2->val[i];
 				iniparser_setstr(ini, key, value);
 			}		
+			iniparser_freedict(ini2);
 		}
 	} else {
 		ini = iniparser_load(inifile);
@@ -86,6 +91,26 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 
 	// Expand environment variables
 	ExpandVariables(ini);
+
+	// Now check if we have an external file to load
+	char* iniFileLocation = iniparser_getstr(ini, INI_FILE_LOCATION);
+	if(iniFileLocation) {
+		Log::Info("Loading INI keys from file location: %s", iniFileLocation);
+		dictionary* ini3 = iniparser_load(iniFileLocation);
+		if(ini3) {
+			for(int i = 0; i < ini3->n; i++) {
+				char* key = ini3->key[i];
+				char* value = ini3->val[i];
+				iniparser_setstr(ini, key, value);
+			}		
+			iniparser_freedict(ini3);
+		} else {
+			Log::Warning("Could not load INI keys from file: %s", iniFileLocation);
+		}
+	}
+
+	// Attempt to parse registry location to include keys if present
+	ParseRegistryKeys(ini);
 
 	iniparser_setstr(ini, MODULE_INI, inifile);
 
@@ -114,6 +139,51 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 
 	return ini;
 }
+
+void INI::ParseRegistryKeys(dictionary* ini)
+{
+	// Now check if we have a registry location to load from
+	char* iniRegistryLocation = iniparser_getstr(ini, INI_REGISTRY_LOCATION);
+	if(!iniRegistryLocation) {
+		return;
+	}
+
+	Log::Info("Loading INI keys from registry: %s", iniRegistryLocation);
+
+	// find root key
+	int len = strlen(iniRegistryLocation);
+	int slash = 0;
+	while(slash < len && iniRegistryLocation[slash] != '\\')
+		slash++;
+
+	if(slash == len) {
+		Log::Warning("Unable to parse registry location (%s) - keys not included", iniRegistryLocation);
+		return;
+	}
+
+	HKEY hKey = 0;
+	char* rootKey = strdup(iniRegistryLocation);
+	rootKey[slash] = 0;
+	if(strcmp(rootKey, "HKEY_LOCAL_MACHINE") == 0) {
+		hKey = HKEY_LOCAL_MACHINE;
+	} else if(strcmp(rootKey, "HKEY_CURRENT_USER") == 0) {
+		hKey = HKEY_CURRENT_USER;
+	} else if(strcmp(rootKey, "HKEY_CLASSES_ROOT") == 0) {
+		hKey = HKEY_CLASSES_ROOT;
+	} else {
+		Log::Warning("Unrecognized root key: %s", rootKey);
+		return;
+	}
+
+	HKEY subKey;
+	if(RegOpenKeyEx(hKey, &iniRegistryLocation[slash+1], 0, KEY_READ, &subKey) != ERROR_SUCCESS) {
+		Log::Warning("Unable to open registry location (%s)", iniRegistryLocation);
+		return;
+	}
+
+
+}
+
 
 void INI::ExpandVariables(dictionary* ini)
 {

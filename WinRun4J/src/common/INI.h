@@ -16,11 +16,10 @@
 #include <jni.h>
 
 // Internal keys
-#define MODULE_NAME "WinRun4J:ModuleName"
-#define MODULE_INI "WinRun4J:ModuleIni"
-#define MODULE_BASE "WinRun4J:ModuleBaseName"
-#define MODULE_DIR "WinRun4J:ModuleDir"
-#define INI_DIR "WinRun4J:IniDir"
+#define MODULE_NAME "winrun4j:module.name"
+#define MODULE_INI "winrun4j:module.ini"
+#define MODULE_DIR "rinrun4j:module.dir"
+#define INI_DIR "winrun4J:ini.dir"
 
 // Ini keys
 #define WORKING_DIR ":working.directory"
@@ -31,7 +30,6 @@
 #define PROG_ARG ":arg"
 #define MAIN_CLASS ":main.class"
 #define SERVICE_CLASS ":service.class"
-#define ALLOW_INI_OVERRIDE ":ini.override"
 
 class INI
 {
@@ -44,6 +42,7 @@ private:
 	static bool StrTrimInChars(LPSTR trimChars, char c);
 	static void StrTrim(LPSTR str, LPSTR trimChars);
 	static void ExpandVariables(dictionary* ini);
+	static void ParseRegistryKeys(dictionary* ini);
 };
 
 #endif // INI_H

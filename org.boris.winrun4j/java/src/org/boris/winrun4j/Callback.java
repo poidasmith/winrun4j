@@ -24,7 +24,7 @@ public abstract class Callback
         if (is64)
             build64();
         else
-            build();
+            build32();
     }
 
     protected abstract long callback(long stack);
@@ -42,7 +42,7 @@ public abstract class Callback
         }
     }
 
-    private void build() {
+    private void build32() {
         thisRef = Native.newGlobalRef(this);
         callbackPtr = Native.malloc(27);
         ByteBuffer bb = NativeHelper.getBuffer(callbackPtr, 27);
