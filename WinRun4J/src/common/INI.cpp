@@ -171,9 +171,11 @@ void INI::ParseRegistryKeys(dictionary* ini)
 	} else if(strcmp(rootKey, "HKEY_CLASSES_ROOT") == 0) {
 		hKey = HKEY_CLASSES_ROOT;
 	} else {
-		Log::Warning("Unrecognized root key: %s", rootKey);
+		Log::Warning("Unrecognized registry root key: %s", rootKey);
+		free(rootKey);
 		return;
 	}
+	free(rootKey);
 
 	HKEY subKey;
 	if(RegOpenKeyEx(hKey, &iniRegistryLocation[slash+1], 0, KEY_READ, &subKey) != ERROR_SUCCESS) {
@@ -181,7 +183,27 @@ void INI::ParseRegistryKeys(dictionary* ini)
 		return;
 	}
 
-
+	DWORD index = 0;
+	char name[MAX_PATH + 2];
+	char data[4096];
+	DWORD type;
+	DWORD nameLen = MAX_PATH;
+	DWORD dataLen = 4096;
+	name[0] = ':';
+	while(RegEnumValue(subKey, index, &name[1], &nameLen, NULL, &type, (LPBYTE) data, &dataLen) == ERROR_SUCCESS) {
+		bool hasNamespace = StrContains(&name[1], ':');
+		char* key = hasNamespace ? &name[1] : name;
+		if(type == REG_DWORD) {
+			DWORD val = *((LPDWORD)data);
+			sprintf(data, "%d", val);
+			iniparser_setstr(ini, key, data);
+		} else if(type == REG_SZ && dataLen > 1) {
+			iniparser_setstr(ini, key, data);
+		}
+		nameLen = MAX_PATH;
+		dataLen = 4096;
+		index++;
+	}
 }
 
 

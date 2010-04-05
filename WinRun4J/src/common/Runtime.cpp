@@ -54,11 +54,11 @@ extern size_t _cdecl FindNextArg(LPSTR lpCmdLine, size_t start, size_t len)
 	return start == len ? start : start + 1;
 }
 
-extern bool _cdecl StrTrimInChars(LPSTR trimChars, char c)
+extern bool _cdecl StrContains(LPSTR str, char c)
 {
-	unsigned int len = strlen(trimChars);
+	unsigned int len = strlen(str);
 	for(unsigned int i = 0; i < len; i++) {
-		if(c == trimChars[i]) {
+		if(c == str[i]) {
 			return true;
 		}
 	}
@@ -71,14 +71,14 @@ extern void _cdecl StrTrim(LPSTR str, LPSTR trimChars)
 	unsigned int end = strlen(str) - 1;
 	for(unsigned int i = 0; i < end; i++) {
 		char c = str[i];
-		if(!StrTrimInChars(trimChars, c)) {
+		if(!StrContains(trimChars, c)) {
 			start = i;
 			break;
 		}
 	}
 	for(int i = end; i >= 0; i--) {
 		char c = str[i];
-		if(!StrTrimInChars(trimChars, c)) {
+		if(!StrContains(trimChars, c)) {
 			end = i;
 			break;
 		}
