@@ -20,10 +20,10 @@ public class INI
     // Known INI keys
     public static final String MAIN_CLASS = ":main.class";
     public static final String SERVICE_CLASS = ":service.class";
-    public static final String MODULE_NAME = "winrun4j:modulename";
-    public static final String MODULE_INI = "winrun4j:moduleini";
-    public static final String MODULE_DIR = "winrun4j:moduledir";
-    public static final String INI_DIR = "winrun4j:inidir";
+    public static final String MODULE_NAME = "winrun4j:module.name";
+    public static final String MODULE_INI = "winrun4j:module.ini";
+    public static final String MODULE_DIR = "winrun4j:module.dir";
+    public static final String INI_DIR = "winrun4j:ini.dir";
     public static final String WORKING_DIR = ":working.directory";
     public static final String SINGLE_INSTANCE = ":single.instance";
     public static final String DDE_ENABLED = ":dde.enabled";
