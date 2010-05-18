@@ -233,6 +233,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\xll\SheetGenerator.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\xll\Timeout.cpp"
 				>
 			</File>
@@ -280,6 +284,10 @@
 			</File>
 			<File
 				RelativePath="..\src\common\Runtime.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xll\SheetGenerator.h"
 				>
 			</File>
 			<File
