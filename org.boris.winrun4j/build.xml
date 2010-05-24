@@ -22,7 +22,7 @@
 		<copy todir="${deploy.dir}" file="${src.dir}/epl-v10.html"/>
 		<mkdir dir="${deploy.dir}/src"/>
 		<mkdir dir="build"/>
-		<javac source="1.4" debug="off" srcdir="java/src" destdir="build"/>
+		<javac source="1.4" srcdir="java/src" destdir="build"/>
 		<jar destfile="${deploy.dir}/bin/WinRun4J.jar">
 			<fileset dir="build">
 				<include name="**/*.class"/>
@@ -38,7 +38,7 @@
 		</jar>
 		<delete dir="build"/>
 		<mkdir dir="build"/>
-		<javac source="1.4" debug="off" srcdir="../org.boris.winrun4j.test/java/src" destdir="build">
+		<javac source="1.4" srcdir="../org.boris.winrun4j.test/java/src" destdir="build">
 			<classpath>
 				<pathelement location="bin"/>
 			</classpath>
@@ -64,7 +64,7 @@
 			</fileset>
 		</jar>
 		<mkdir dir="build"/>
-		<javac source="1.4" debug="off" srcdir="../org.boris.winrun4j.eclipsedde/java/src" destdir="build">
+		<javac source="1.4" srcdir="../org.boris.winrun4j.eclipsedde/java/src" destdir="build">
 			<classpath path="../org.eclipse.equinox.launcher/bin"/>
 		</javac>
 		<jar destfile="${deploy.dir}/bin/EclipseDDE.jar">
