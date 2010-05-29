@@ -531,7 +531,7 @@ public class RegistryKey
     public static String[] getMultiString(long parent, String name) {
         byte[] b = getBinary(parent, name);
         if (b != null) {
-            return NativeHelper.getMultiString(ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN));
+            return NativeHelper.getMultiString(ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN), true);
         }
         return null;
     }

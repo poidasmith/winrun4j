@@ -278,11 +278,11 @@ public class NativeHelper
         getBuffer(ptr, 4).putInt(value);
     }
 
-    public static String[] getMultiString(ByteBuffer bb) {
+    public static String[] getMultiString(ByteBuffer bb, boolean wideChar) {
         ArrayList strs = new ArrayList();
         StringBuffer sb = new StringBuffer();
         while (true) {
-            char c = (char) bb.get();
+            char c = wideChar ? bb.getChar() : (char) bb.get();
             if (c == 0) {
                 if (sb.length() == 0) {
                     break;
