@@ -1,7 +1,12 @@
-package org.boris.winrun4j;
+package org.boris.winrun4j.impl;
 
 import java.util.Properties;
 
+import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.INI;
+import org.boris.winrun4j.Log;
+import org.boris.winrun4j.Native;
+import org.boris.winrun4j.NativeHelper;
 import org.boris.winrun4j.winapi.DDEML;
 import org.boris.winrun4j.winapi.Kernel32;
 import org.boris.winrun4j.winapi.PSAPI;

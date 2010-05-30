@@ -7,8 +7,10 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.impl;
 
+import org.boris.winrun4j.Log;
+import org.boris.winrun4j.Native;
 import org.boris.winrun4j.winapi.ResourceEntry;
 import org.boris.winrun4j.winapi.Resources;
 

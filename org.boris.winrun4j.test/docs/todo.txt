@@ -38,6 +38,13 @@ AssemblyInstructions
 
 
 
+Function calling
+
+x86-32
+
+- 
+
+
 
 
 Binding
@@ -54,4 +61,8 @@ public class BindingTest
     @Native(library="shell32")
     public static native String GetUserName();
 }
+
+
+
+
 

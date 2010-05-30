@@ -7,13 +7,9 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.test;
+package org.boris.winrun4j.test.framework;
 
-import org.boris.winrun4j.impl.SingleInstance;
-
-public class SingleInstanceTest
+public class LauncherGenerator
 {
-    public static void main(String[] args) throws Exception {
-        SingleInstance.notify("WinRun4J", "system");
-    }
+
 }

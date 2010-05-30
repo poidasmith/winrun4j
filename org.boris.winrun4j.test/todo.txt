@@ -1,0 +1,31 @@
+
+Testing WinRun4J for Release
+============================
+
+Registry:
+- registry key access (create keys, set values, enumerated keys/values, delete keys/values)
+- check writing registry keys when user does not have permissions
+- setting permissions on registry keys
+
+File Associations:
+- file association (check creation via launcher compared to java api version)
+
+
+Services:
+- check registration via launcher
+- compare registration with java api
+- check un-registering a service via launcher (and confirm via java api)
+- register a service,
+
+Setting memory sizes:
+- Check that max memory works
+- Check that preferred size works (ie. set preferred to be very large)
+
+Classpath:
+- We can use System.getProperty("java.classpath") to assert the expansion of classpath works as expected 
+
+Single Instance:
+
+
+DDE
+-  

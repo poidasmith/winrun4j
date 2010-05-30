@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-import org.boris.winrun4j.NativeDdeServer;
+import org.boris.winrun4j.impl.NativeDdeServer;
 
 public class NativeDdeServerTest
 {

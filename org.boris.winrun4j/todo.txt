@@ -11,6 +11,15 @@ Release Notes for WinRun4J 0.4.0
 - Added file system monitor (to detect file changes in a directory)
 - Added binary resource API (load/extract resources from an EXE/DLL)
 
+Fixes
+=====
+
+- max memory on 64 bit vm - not limited by 32 bit address space
+- check icon setting on 64bit vm
+- expose environment variable setting API
+
+
+
 	
 improvements:
 - ideally we want to share the runtime library with the jvm to avoid loading
@@ -20,9 +29,6 @@ improvements:
 - should fallback to setDlldirectory method on jvm loading if we cannot find the
   correct runtime library - this should future proof us
  
-	
-	
-	
 	
 - Native class: release basic api plus current integration (API should be ok)
 - Once we have callbacks in place, then we can integrate service and dde, registry and

@@ -146,7 +146,13 @@ public class RegistryKey
      */
     public String[] getSubKeyNames() {
         long h = openKeyHandle(handle, path, true);
-        String[] res = getSubKeyNames(h);
+        QUERY_INFO info = Registry.queryInfoKey(h);
+        if (info == null)
+            return null;
+        String[] res = new String[info.subKeyCount];
+        for (int i = 0; i < res.length; i++) {
+            res[i] = Registry.enumKeyEx(h, i);
+        }
         closeKeyHandle(h);
         return res;
     }
@@ -268,11 +274,11 @@ public class RegistryKey
      * 
      * @param name.
      * 
-     * @return long.
+     * @return int.
      */
-    public long getDoubleWord(String name) {
+    public int getDoubleWord(String name) {
         long h = openKeyHandle(handle, path, true);
-        long res = getDoubleWord(h, name);
+        int res = getDoubleWord(h, name);
         closeKeyHandle(h);
         return res;
     }
@@ -335,14 +341,14 @@ public class RegistryKey
      * @param name.
      * @param value.
      */
-    public void setDoubleWord(String name, long value) {
+    public void setDoubleWord(String name, int value) {
         long h = openKeyHandle(handle, path, false);
         setDoubleWord(h, name, value);
         closeKeyHandle(h);
     }
 
     /**
-     * Sets the value.
+     * Sets a multi-string value.
      * 
      * @param name.
      * @param value.
@@ -358,57 +364,19 @@ public class RegistryKey
      */
     public void deleteValue(String name) {
         long h = openKeyHandle(handle, path, false);
-        deleteValue(h, name);
+        Registry.deleteKey(h, name);
         closeKeyHandle(h);
     }
 
-    /**
-     * Create a key handle.
-     * 
-     * @param rootKey
-     * @param keyPath.
-     * 
-     * @return long.
-     */
-    public static long openKeyHandle(long rootKey, String keyPath, boolean readOnly) {
+    private long openKeyHandle(long rootKey, String keyPath, boolean readOnly) {
         return Registry.openKeyEx(rootKey, keyPath, 0, readOnly ? 0x20019 : 0xF003F);
     }
 
-    /**
-     * Close a key.
-     * 
-     * @param handle.
-     */
-    public static void closeKeyHandle(long handle) {
+    private void closeKeyHandle(long handle) {
         Registry.closeKey(handle);
     }
 
-    /**
-     * Get the sub key names.
-     * 
-     * @param handle.
-     * 
-     * @return long[].
-     */
-    public static String[] getSubKeyNames(long handle) {
-        QUERY_INFO info = Registry.queryInfoKey(handle);
-        if (info == null)
-            return null;
-        String[] res = new String[info.subKeyCount];
-        for (int i = 0; i < res.length; i++) {
-            res[i] = Registry.enumKeyEx(handle, i);
-        }
-        return res;
-    }
-
-    /**
-     * Gets the values.
-     * 
-     * @param handle.
-     * 
-     * @return String[].
-     */
-    public static String[] getValueNames(long handle) {
+    private static String[] getValueNames(long handle) {
         QUERY_INFO info = Registry.queryInfoKey(handle);
         if (info == null)
             return null;
@@ -419,84 +387,31 @@ public class RegistryKey
         return res;
     }
 
-    /**
-     * Creates a sub key.
-     * 
-     * @param handle.
-     * @param key.
-     */
-    public static long createSubKey(long handle, String key) {
+    private static long createSubKey(long handle, String key) {
         return Registry.createKey(handle, key);
     }
 
-    /**
-     * Deletes the sub key.
-     * 
-     * @param handle.
-     */
-    public static void deleteSubKey(long handle, String key) {
+    private static void deleteSubKey(long handle, String key) {
         Registry.deleteKey(handle, key);
     }
 
-    /**
-     * Gets the name.
-     * 
-     * @param parent.
-     * @param name.
-     * 
-     * @return long.
-     */
-    public static long getType(long parent, String name) {
+    private static long getType(long parent, String name) {
         return Registry.queryValueType(parent, name);
     }
 
-    /**
-     * Delets the key.
-     * 
-     * @param parent.
-     * @param name.
-     */
-    public static void deleteValue(long parent, String name) {
-        Registry.deleteKey(parent, name);
-    }
-
-    /**
-     * Gets the value.
-     * 
-     * @param parent.
-     * @param name.
-     * 
-     * @return String.
-     */
-    public static String getString(long parent, String name) {
+    private static String getString(long parent, String name) {
         byte[] b = Registry.queryValueEx(parent, name);
         if (b == null) {
             return null;
         }
-        return new String(b);
+        return NativeHelper.getString(b, true);
     }
 
-    /**
-     * Gets the value.
-     * 
-     * @param parent.
-     * @param name.
-     * 
-     * @return byte[].
-     */
-    public static byte[] getBinary(long parent, String name) {
+    private static byte[] getBinary(long parent, String name) {
         return Registry.queryValueEx(parent, name);
     }
 
-    /**
-     * Gets the value.
-     * 
-     * @param parent.
-     * @param name.
-     * 
-     * @return long.
-     */
-    public static long getDoubleWord(long parent, String name) {
+    private static int getDoubleWord(long parent, String name) {
         byte[] b = getBinary(parent, name);
         if (b != null && b.length == 4) {
             return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
@@ -504,15 +419,7 @@ public class RegistryKey
         return 0;
     }
 
-    /**
-     * Gets the value.
-     * 
-     * @param parent.
-     * @param name.
-     * 
-     * @return String.
-     */
-    public static String getExpandedString(long parent, String name) {
+    private static String getExpandedString(long parent, String name) {
         byte[] b = Registry.queryValueEx(parent, name);
         if (b == null) {
             return null;
@@ -520,15 +427,7 @@ public class RegistryKey
         return new String(b);
     }
 
-    /**
-     * Gets the value.
-     * 
-     * @param parent.
-     * @param name.
-     * 
-     * @return String[].
-     */
-    public static String[] getMultiString(long parent, String name) {
+    private static String[] getMultiString(long parent, String name) {
         byte[] b = getBinary(parent, name);
         if (b != null) {
             return NativeHelper.getMultiString(ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN), true);
@@ -536,51 +435,23 @@ public class RegistryKey
         return null;
     }
 
-    /**
-     * Sets the value.
-     * 
-     * @param parent.
-     * @param name.
-     * @param value.
-     */
-    public static void setString(long parent, String name, String value) {
+    private static void setString(long parent, String name, String value) {
         byte[] b = NativeHelper.toBytes(value, true);
         Registry.setValueEx(parent, name, Registry.REG_SZ, b, 0, b.length);
     }
 
-    /**
-     * Sets the value.
-     * 
-     * @param parent.
-     * @param name.
-     * @param value.
-     */
-    public static void setBinary(long parent, String name, byte[] value) {
+    private static void setBinary(long parent, String name, byte[] value) {
         Registry.setValueEx(parent, name, 3, value, 0, value.length);
     }
 
-    /**
-     * Sets the value.
-     * 
-     * @param parent.
-     * @param name.
-     * @param value.
-     */
-    public static void setDoubleWord(long parent, String name, long dword) {
+    private static void setDoubleWord(long parent, String name, int dword) {
         byte[] b = new byte[4];
         ByteBuffer bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN);
-        bb.putInt((int) dword);
+        bb.putInt(dword);
         Registry.setValueEx(parent, name, Registry.REG_DWORD, b, 0, b.length);
     }
 
-    /**
-     * Sets the value.
-     * 
-     * @param parent.
-     * @param name.
-     * @param value.
-     */
-    public static void setMultiString(long parent, String name, String[] value) {
+    private static void setMultiString(long parent, String name, String[] value) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             for (int i = 0; i < value.length; i++) {

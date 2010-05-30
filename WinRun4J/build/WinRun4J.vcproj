@@ -702,6 +702,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\launcher\DDE.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\common\Dictionary.cpp"
 				>
 			</File>
@@ -723,6 +727,14 @@
 			</File>
 			<File
 				RelativePath="..\src\common\Runtime.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\launcher\Service.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\launcher\Shell.cpp"
 				>
 			</File>
 			<File
@@ -752,6 +764,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\launcher\DDE.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\common\Dictionary.h"
 				>
 			</File>
@@ -777,6 +793,14 @@
 			</File>
 			<File
 				RelativePath="..\src\common\Runtime.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\launcher\Service.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\launcher\Shell.h"
 				>
 			</File>
 			<File

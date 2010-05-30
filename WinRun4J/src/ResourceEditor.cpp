@@ -142,8 +142,8 @@ int ExecuteResourceScript(LPSTR exeFile, LPSTR iniFile, bool clear)
 		}
 	}
 
-	// Check for version information (we require version.FileVersion)
-	char* fileVer = iniparser_getstr(ini, ":version.FileVersion");
+	// Check for version information (we require version.fileversion)
+	char* fileVer = iniparser_getstr(ini, ":version.fileversion");
 	if(fileVer) {
 	}
 
@@ -163,65 +163,66 @@ int main(int argc, char* argv[])
 	//  - add checks on icon import to ensure a valid icon
 
 	bool ok = true;
+	char* option = strlwc(option);
 	
-	if(strcmp(argv[1], "/I") == 0) {
+	if(strcmp(option, "/i") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR iconFile = argv[3];
 		ok = Resource::SetIcon(exeFile, iconFile);
-	} else if(strcmp(argv[1], "/A") == 0) {
+	} else if(strcmp(option, "/a") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR iconFile = argv[3];
 		ok = Resource::AddIcon(exeFile, iconFile);
-	} else if(strcmp(argv[1], "/N") == 0) {
+	} else if(strcmp(option, "/n") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR iniFile = argv[3];
 		ok = Resource::SetINI(exeFile, iniFile);
-	} else if(strcmp(argv[1], "/J") == 0) {
+	} else if(strcmp(option, "/j") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR jarFile = argv[3];
 		ok = Resource::AddJar(exeFile, jarFile);
-	} else if(strcmp(argv[1], "/H") == 0) {
+	} else if(strcmp(option, "/h") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR htmlFile = argv[3];
 		ok = Resource::AddHTML(exeFile, htmlFile);
-	} else if(strcmp(argv[1], "/S") == 0) {
+	} else if(strcmp(option, "/s") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR splashFile = argv[3];
 		ok = Resource::SetSplash(exeFile, splashFile);
-	} else if(strcmp(argv[1], "/M") == 0) {
+	} else if(strcmp(option, "/m") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR manifestFile = argv[3];
 		ok = Resource::SetManifest(exeFile, manifestFile);
-	} else if(strcmp(argv[1], "/R") == 0) {
+	} else if(strcmp(option, "/r") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR iniFile = argv[3];
 		return ExecuteResourceScript(exeFile, iniFile, false);
-	} else if(strcmp(argv[1], "/W") == 0) {
+	} else if(strcmp(option, "/w") == 0) {
 		if(argc != 4) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		LPSTR iniFile = argv[3];
 		return ExecuteResourceScript(exeFile, iniFile, true);
-	} else if(strcmp(argv[1], "/C") == 0) {
+	} else if(strcmp(option, "/c") == 0) {
 		if(argc != 3) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		ok = Resource::ClearResources(exeFile);
-	} else if(strcmp(argv[1], "/L") == 0) {
+	} else if(strcmp(option, "/l") == 0) {
 		if(argc != 3) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		ok = Resource::ListResources(exeFile);
-	} else if(strcmp(argv[1], "/P") == 0) {
+	} else if(strcmp(option, "/p") == 0) {
 		if(argc != 3) return PrintUsage();
 		LPSTR exeFile = argv[2];
 		ok = Resource::ListINI(exeFile);
-	} else if(strcmp(argv[1], "/D") == 0) {
+	} else if(strcmp(option, "/d") == 0) {
 		return PrintScriptHelp();
 	} else {
 		return PrintUsage();

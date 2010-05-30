@@ -479,14 +479,11 @@ void iniparser_unset(dictionary * ini, char * entry)
     dictionary_unset(ini, strlwc(entry));
 }
 
-void parse_line(char * lin, dictionary * d)
+void parse_line(char * sec, char * lin, dictionary * d)
 {
-    char        sec[ASCIILINESZ+1];
     char        key[ASCIILINESZ+1];
     char        val[ASCIILINESZ+1];
     char    *   wher ;
-
-    sec[0]=0;
 
     wher = strskp(lin); /* Skip leading spaces */
     if (*wher==';' || *wher=='#' || *wher==0)
@@ -517,10 +514,12 @@ void parse_line(char * lin, dictionary * d)
 dictionary * iniparser_load(char * ininame, bool isbuffer)
 {
     dictionary  *   d ;
+    char        sec[ASCIILINESZ+1];
     char        lin[ASCIILINESZ+1];
     FILE    *   ini ;
     int         lineno ;
 	memset(lin, 0, ASCIILINESZ);
+	memset(sec, 0, ASCIILINESZ);
 
     if (!isbuffer && (ini=fopen(ininame, "r"))==NULL) {
         return NULL ;
@@ -538,12 +537,12 @@ dictionary * iniparser_load(char * ininame, bool isbuffer)
 	int pos = 0;
 	while ((isbuffer ? sgets(ininame, &pos, lin, ASCIILINESZ) : fgets(lin, ASCIILINESZ, ini)) != NULL) {
 		lineno++;
-		parse_line(lin, d);
+		parse_line(sec, lin, d);
 		memset(lin, 0, ASCIILINESZ);
     }
 
 	if(strlen(lin) != 0)
-		parse_line(lin, d);
+		parse_line(sec, lin, d);
     
 	if(!isbuffer) fclose(ini);
 

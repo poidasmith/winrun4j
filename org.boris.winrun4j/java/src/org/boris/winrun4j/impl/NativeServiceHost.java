@@ -7,12 +7,19 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j;
+package org.boris.winrun4j.impl;
 
 import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.INI;
+import org.boris.winrun4j.Log;
+import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.RegistryKey;
+import org.boris.winrun4j.Service;
+import org.boris.winrun4j.ServiceException;
 import org.boris.winrun4j.winapi.Console;
 import org.boris.winrun4j.winapi.Kernel32;
 import org.boris.winrun4j.winapi.Services;

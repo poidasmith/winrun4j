@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class NativeHelper
 {
-    public static final boolean IS_64 = Native.is64();
+    public static final boolean IS_64 = call(Native.getProcAddress(0, "Native_Is64"), null, 0, 0) != 0;
 
     public static long call(long proc) {
         return call(proc, (NativeStack) null);

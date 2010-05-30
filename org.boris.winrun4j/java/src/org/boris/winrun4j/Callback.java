@@ -15,7 +15,7 @@ public abstract class Callback
 {
     private static long methodId = Native.getMethodId(Callback.class, "callback", "(J)J", false);
     private static long nativeCallback = Native.getProcAddress(0, "Native_Callback");
-    private static final boolean is64 = Native.is64();
+    private static final boolean is64 = NativeHelper.IS_64;
 
     private long thisRef;
     private long callbackPtr;
