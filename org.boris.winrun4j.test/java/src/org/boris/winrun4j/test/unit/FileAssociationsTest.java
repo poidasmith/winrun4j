@@ -7,9 +7,13 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.test.framework;
+package org.boris.winrun4j.test.unit;
 
-public class LauncherGenerator
+import junit.framework.TestCase;
+
+public class FileAssociationsTest extends TestCase
 {
+    public void testBasic() throws Exception {
 
+    }
 }

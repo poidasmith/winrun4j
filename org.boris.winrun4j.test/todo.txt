@@ -25,6 +25,10 @@ Classpath:
 - We can use System.getProperty("java.classpath") to assert the expansion of classpath works as expected 
 
 Single Instance:
+- Test process version (class will wait forever). launch multiple and check that only first one remains.
+- Test window version 
+	- open window and wait forever
+	- don't show a window
 
 
 DDE

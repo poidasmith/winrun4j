@@ -38,9 +38,13 @@ public class JUnitLauncher
         Class cl = Class.forName(className);
         Method[] ms = cl.getMethods();
         for (Method m : ms) {
-            Test t = m.getAnnotation(Test.class);
-            if (t != null) {
+            if (m.getName().startsWith("test")) {
                 test(cl, m);
+            } else {
+                Test t = m.getAnnotation(Test.class);
+                if (t != null) {
+                    test(cl, m);
+                }
             }
         }
     }
