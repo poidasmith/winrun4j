@@ -9,11 +9,23 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
+import java.io.File;
+
 import junit.framework.TestCase;
+
+import org.boris.winrun4j.test.framework.Launcher;
+import org.boris.winrun4j.winapi.DDEML;
 
 public class FileAssociationsTest extends TestCase
 {
     public void testBasic() throws Exception {
-
+        Launcher l = new Launcher()
+                .main(FileAssociationsTest.class)
+                .classpath(new File("."))
+                .arg("-test")
+                .arg("-hello")
+                .dde(true, DDEML.class)
+                .fileAss(".java", "Java File", "A java file");
+        System.out.println(l.toString());
     }
 }

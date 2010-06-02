@@ -23,7 +23,7 @@ public class Log
      * @param msg.
      */
     public static void info(String msg) {
-        LogIt(0, "[info]", msg);
+        LogIt(Level.INFO.level, "[info]", msg);
     }
 
     /**
@@ -32,7 +32,7 @@ public class Log
      * @param msg.
      */
     public static void warning(String msg) {
-        LogIt(1, "[warn]", msg);
+        LogIt(Level.WARN.level, "[warn]", msg);
     }
 
     /**
@@ -41,7 +41,7 @@ public class Log
      * @param msg.
      */
     public static void error(String msg) {
-        LogIt(2, " [err]", msg);
+        LogIt(Level.ERROR.level, " [err]", msg);
     }
 
     /**
@@ -65,5 +65,29 @@ public class Log
         long msgPtr = NativeHelper.toNativeString(msg, false);
         NativeHelper.call(0, "Log_LogIt", level, markerPtr, msgPtr);
         NativeHelper.free(markerPtr, msgPtr);
+    }
+
+    public static class Level
+    {
+        public static final Level INFO = new Level(0, "info");
+        public static final Level WARN = new Level(1, "warning");
+        public static final Level ERROR = new Level(2, "error");
+        public static final Level NONE = new Level(3, "none");
+
+        private int level;
+        private String text;
+
+        private Level(int level, String text) {
+            this.level = level;
+            this.text = text;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public String getText() {
+            return text;
+        }
     }
 }

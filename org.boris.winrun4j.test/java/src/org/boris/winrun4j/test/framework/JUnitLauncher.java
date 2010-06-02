@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import org.boris.commons.io.IO;
 import org.junit.Test;
@@ -33,11 +34,13 @@ public class JUnitLauncher
     }
 
     public static void test(String className) throws Throwable {
-        // TestCaseClassLoader loader = new TestCaseClassLoader();
-        // Class cl = loader.loadClass(className);
         Class cl = Class.forName(className);
         Method[] ms = cl.getMethods();
         for (Method m : ms) {
+            if (Modifier.isStatic(m.getModifiers()))
+                continue;
+            if (!Modifier.isPublic(m.getModifiers()))
+                continue;
             if (m.getName().startsWith("test")) {
                 test(cl, m);
             } else {

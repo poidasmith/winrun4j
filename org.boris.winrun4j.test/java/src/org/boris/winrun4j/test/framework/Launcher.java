@@ -10,12 +10,14 @@
 package org.boris.winrun4j.test.framework;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
+
+import org.boris.winrun4j.Log;
 
 public class Launcher
 {
-    private Map<String, Map<String, String>> bundle = new TreeMap();
+    private Map<String, Map<String, String>> bundle = new LinkedHashMap();
     private int classpathIndex;
     private int vmargIndex;
     private int argIndex;
@@ -63,14 +65,58 @@ public class Launcher
         return this;
     }
 
+    public Launcher vmVersion(String min, String max, String exact) {
+        set(null, "vm.version.min", min);
+        set(null, "vm.version.max", max);
+        set(null, "vm.version", exact);
+        return this;
+    }
+
+    public Launcher vmLocation(File location) {
+        return vmLocation(location.getAbsolutePath());
+    }
+
+    public Launcher vmLocation(String location) {
+        set(null, "vm.location", location);
+        return this;
+    }
+
+    public Launcher log(String file, Log.Level level, boolean overwrite, boolean andConsole) {
+        set(null, "log", file);
+        set(null, "log.level", level.getText());
+        set(null, "log.overwrite", Boolean.toString(overwrite));
+        set(null, "log.file.and.console", Boolean.toString(andConsole));
+        return this;
+    }
+
+    public Launcher logRoll(double rollSize, String prefix, String suffix) {
+        set(null, "log.roll.size", Double.toString(rollSize));
+        set(null, "log.roll.prefix", prefix);
+        set(null, "log.roll.suffix", suffix);
+        return this;
+    }
+
+    public Launcher splash(String image, boolean autohide) {
+        set(null, "splash.image", image);
+        set(null, "splash.autohide", autohide);
+        return this;
+    }
+
     public Launcher dde(boolean enabled, Class clazz) {
         set(null, "dde.enabled", enabled);
         set(null, "dde.class", clazz.getName());
         return this;
     }
 
+    public Launcher ddeServer(String server, String topic, String windowClass) {
+        set(null, "dde.server.name", server);
+        set(null, "dde.topic", topic);
+        set(null, "dde.window.class", windowClass);
+        return this;
+    }
+
     public Launcher fileAss(String ext, String name, String desc) {
-        int index = fileAssIndex++;
+        int index = ++fileAssIndex;
         set("FileAssociations", "file." + index + ".extension", ext);
         set("FileAssociations", "file." + index + ".name", name);
         set("FileAssociations", "file." + index + ".description", desc);
@@ -78,9 +124,11 @@ public class Launcher
     }
 
     private void set(String section, String name, Object value) {
+        if (value == null)
+            return;
         Map<String, String> p = bundle.get(section);
         if (p == null)
-            bundle.put(section, p = new TreeMap());
+            bundle.put(section, p = new LinkedHashMap());
         p.put(name, String.valueOf(value));
     }
 
