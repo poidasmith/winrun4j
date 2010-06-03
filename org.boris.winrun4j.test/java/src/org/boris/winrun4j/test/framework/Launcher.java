@@ -10,21 +10,39 @@
 package org.boris.winrun4j.test.framework;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.boris.commons.io.IO;
+import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.Log;
 
 public class Launcher
 {
+    public static final File LAUNCHER = new File(
+            "F:\\eclipse\\workspace\\WinRun4J\\build\\WinRun4J-Debug\\WinRun4J.exe");
+
     private Map<String, Map<String, String>> bundle = new LinkedHashMap();
     private int classpathIndex;
     private int vmargIndex;
     private int argIndex;
     private int fileAssIndex;
 
-    public Process launch() throws Exception {
-        return null;
+    public ProcessResult launch(String... args) throws Exception {
+        File launcher = File.createTempFile("winrun4j.launcher.", ".exe");
+        launcher.deleteOnExit();
+        IO.copy(LAUNCHER, launcher);
+        File ini = new File(launcher.getParent(), IO.getNameSansExtension(launcher) + ".ini");
+        ini.deleteOnExit();
+        IO.copy(new StringReader(toString()), new FileWriter(ini), true);
+        String[] cmd = new String[args == null ? 1 : args.length + 1];
+        cmd[0] = launcher.getAbsolutePath();
+        if (args != null) {
+            System.arraycopy(args, 0, cmd, 1, args.length);
+        }
+        return new ProcessResult(Runtime.getRuntime().exec(cmd));
     }
 
     public Launcher main(Class clazz) {

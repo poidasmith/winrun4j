@@ -13,6 +13,7 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
+import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.test.framework.Launcher;
 import org.boris.winrun4j.winapi.DDEML;
 
@@ -25,7 +26,12 @@ public class FileAssociationsTest extends TestCase
                 .arg("-test")
                 .arg("-hello")
                 .dde(true, DDEML.class)
-                .fileAss(".java", "Java File", "A java file");
-        System.out.println(l.toString());
+                .fileAss(".fte", "File Association Test", "Testing file assocations")
+                .fileAss(".ft2", "File Association Test 2", "Testing file assocations");
+        ProcessResult pr = l.launch("--WinRun4J:RegisterFileAssociations");
+        pr.waitFor();
+        String result = pr.toString();
+        assertTrue(result.contains("[info] Registering .fte"));
+        assertTrue(result.contains("[info] Registering .ft2"));
     }
 }
