@@ -247,6 +247,8 @@ public class NativeHelper
     }
 
     public static String getString(byte[] buffer, boolean wideChar) {
+        if (buffer == null)
+            return null;
         return getString(ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN), wideChar);
     }
 

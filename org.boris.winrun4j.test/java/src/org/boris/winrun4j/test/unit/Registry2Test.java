@@ -32,7 +32,7 @@ public class Registry2Test extends TestCase
         // Doubles
         int ivalue = new Random().nextInt();
         key.setDoubleWord("testone", ivalue);
-        assertEquals(ivalue, key.getDoubleWord("testone"));
+        assertEquals(ivalue, key.getDoubleWord("testone", -1));
 
         // Strings
         String ts = "This is a test of some type of string we wish to send";
@@ -53,6 +53,9 @@ public class Registry2Test extends TestCase
         // Expand string
         String es1 = "OK, %TEMP%";
         String expected = "OK, " + Environment.getEnvironmentVariable("TEMP");
+        key.setExpandedString("es1", es1);
+        String exp1 = key.getString("es1");
+        assertEquals(expected, exp1);
 
         // Clean up
         software.deleteSubKey(keyName);

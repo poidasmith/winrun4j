@@ -46,8 +46,8 @@ public class RegistryKey
     }
 
     // Value type constants
-    public static final int TYPE_NONE = 0x00000001;
-    public static final int TYPE_SZ = 0x00000002;
+    public static final int TYPE_NONE = 1;
+    public static final int TYPE_SZ = 2;
     public static final int TYPE_EXPAND_SZ = 5;
     public static final int TYPE_BINARY = 1;
     public static final int TYPE_DWORD = 2;
@@ -118,7 +118,7 @@ public class RegistryKey
         if (isRoot)
             return true;
         long h = openKeyHandle(handle, path, true);
-        closeKeyHandle(h);
+        Registry.closeKey(h);
         return h != 0;
     }
 
@@ -133,7 +133,7 @@ public class RegistryKey
         for (int i = 0; i < path.length; i++) {
             long nh = openKeyHandle(h, path[i], readOnly);
             if (h != handle)
-                closeKeyHandle(h);
+                Registry.closeKey(h);
             h = nh;
         }
         return h;
@@ -153,7 +153,7 @@ public class RegistryKey
         for (int i = 0; i < res.length; i++) {
             res[i] = Registry.enumKeyEx(h, i);
         }
-        closeKeyHandle(h);
+        Registry.closeKey(h);
         return res;
     }
 
@@ -177,10 +177,10 @@ public class RegistryKey
     public RegistryKey createSubKey(String name) {
         long h = openKeyHandle(handle, path, false);
         if (h != 0) {
-            long n = createSubKey(h, name);
-            closeKeyHandle(h);
+            long n = Registry.createKey(h, name);
+            Registry.closeKey(h);
             if (n != 0) {
-                closeKeyHandle(n);
+                Registry.closeKey(n);
                 return new RegistryKey(this, name);
             }
         }
@@ -195,8 +195,14 @@ public class RegistryKey
      */
     public String[] getValueNames() {
         long h = openKeyHandle(handle, path, true);
-        String[] res = getValueNames(h);
-        closeKeyHandle(h);
+        QUERY_INFO info = Registry.queryInfoKey(handle);
+        if (info == null)
+            return null;
+        String[] res = new String[info.valueCount];
+        for (int i = 0; i < res.length; i++) {
+            res[i] = Registry.enumValue(handle, i);
+        }
+        Registry.closeKey(h);
         return res;
     }
 
@@ -224,8 +230,8 @@ public class RegistryKey
     public void deleteSubKey(String subKey) {
         if (!isRoot) {
             long h = openKeyHandle(handle, path, false);
-            deleteSubKey(h, subKey);
-            closeKeyHandle(h);
+            Registry.deleteKey(h, subKey);
+            Registry.closeKey(h);
         }
     }
 
@@ -238,8 +244,8 @@ public class RegistryKey
      */
     public long getType(String name) {
         long h = openKeyHandle(handle, path, true);
-        long res = getType(h, name);
-        closeKeyHandle(h);
+        long res = Registry.queryValueType(h, name);
+        Registry.closeKey(h);
         return res;
     }
 
@@ -250,8 +256,9 @@ public class RegistryKey
      */
     public String getString(String name) {
         long h = openKeyHandle(handle, path, true);
-        String res = getString(h, name);
-        closeKeyHandle(h);
+        byte[] b = Registry.queryValueEx(h, name);
+        String res = NativeHelper.getString(b, true);
+        Registry.closeKey(h);
         return res;
     }
 
@@ -264,8 +271,8 @@ public class RegistryKey
      */
     public byte[] getBinary(String name) {
         long h = openKeyHandle(handle, path, true);
-        byte[] res = getBinary(h, name);
-        closeKeyHandle(h);
+        byte[] res = Registry.queryValueEx(h, name);
+        Registry.closeKey(h);
         return res;
     }
 
@@ -276,24 +283,14 @@ public class RegistryKey
      * 
      * @return int.
      */
-    public int getDoubleWord(String name) {
+    public int getDoubleWord(String name, int defaultValue) {
         long h = openKeyHandle(handle, path, true);
-        int res = getDoubleWord(h, name);
-        closeKeyHandle(h);
-        return res;
-    }
-
-    /**
-     * Gets a value.
-     * 
-     * @param name.
-     * 
-     * @return String.
-     */
-    public String getExpandedString(String name) {
-        long h = openKeyHandle(handle, path, true);
-        String res = getExpandedString(h, name);
-        closeKeyHandle(h);
+        byte[] b = Registry.queryValueEx(h, name);
+        int res = defaultValue;
+        if (b != null && b.length == 4) {
+            res = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        }
+        Registry.closeKey(h);
         return res;
     }
 
@@ -306,8 +303,11 @@ public class RegistryKey
      */
     public String[] getMultiString(String name) {
         long h = openKeyHandle(handle, path, true);
-        String[] res = getMultiString(h, name);
-        closeKeyHandle(h);
+        byte[] b = Registry.queryValueEx(h, name);
+        String[] res = null;
+        if (b != null)
+            res = NativeHelper.getMultiString(ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN), true);
+        Registry.closeKey(h);
         return res;
     }
 
@@ -319,8 +319,22 @@ public class RegistryKey
      */
     public void setString(String name, String value) {
         long h = openKeyHandle(handle, path, false);
-        setString(h, name, value);
-        closeKeyHandle(h);
+        byte[] b = NativeHelper.toBytes(value, true);
+        Registry.setValueEx(h, name, Registry.REG_SZ, b, 0, b.length);
+        Registry.closeKey(h);
+    }
+
+    /**
+     * Sets a value.
+     * 
+     * @param name.
+     * @param value.
+     */
+    public void setExpandedString(String name, String value) {
+        long h = openKeyHandle(handle, path, false);
+        byte[] b = NativeHelper.toBytes(value, true);
+        Registry.setValueEx(h, name, Registry.REG_EXPAND_SZ, b, 0, b.length);
+        Registry.closeKey(h);
     }
 
     /**
@@ -331,8 +345,8 @@ public class RegistryKey
      */
     public void setBinary(String name, byte[] value) {
         long h = openKeyHandle(handle, path, false);
-        setBinary(h, name, value);
-        closeKeyHandle(h);
+        Registry.setValueEx(h, name, 3, value, 0, value.length);
+        Registry.closeKey(h);
     }
 
     /**
@@ -343,8 +357,11 @@ public class RegistryKey
      */
     public void setDoubleWord(String name, int value) {
         long h = openKeyHandle(handle, path, false);
-        setDoubleWord(h, name, value);
-        closeKeyHandle(h);
+        byte[] b = new byte[4];
+        ByteBuffer bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN);
+        bb.putInt(value);
+        Registry.setValueEx(h, name, Registry.REG_DWORD, b, 0, b.length);
+        Registry.closeKey(h);
     }
 
     /**
@@ -355,8 +372,19 @@ public class RegistryKey
      */
     public void setMultiString(String name, String[] value) {
         long h = openKeyHandle(handle, path, false);
-        setMultiString(h, name, value);
-        closeKeyHandle(h);
+        byte[] b = null;
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            for (int i = 0; i < value.length; i++) {
+                bos.write(NativeHelper.toBytes(value[i], true));
+            }
+            bos.write(new byte[] { 0, 0 });
+            b = bos.toByteArray();
+        } catch (IOException e) {
+            // Should not happen as it is a byte array
+        }
+        Registry.setValueEx(h, name, Registry.REG_MULTI_SZ, b, 0, b.length);
+        Registry.closeKey(h);
     }
 
     /**
@@ -365,102 +393,13 @@ public class RegistryKey
     public void deleteValue(String name) {
         long h = openKeyHandle(handle, path, false);
         Registry.deleteKey(h, name);
-        closeKeyHandle(h);
+        Registry.closeKey(h);
     }
 
+    /**
+     * Open a registry key in read or write mode.
+     */
     private long openKeyHandle(long rootKey, String keyPath, boolean readOnly) {
         return Registry.openKeyEx(rootKey, keyPath, 0, readOnly ? 0x20019 : 0xF003F);
-    }
-
-    private void closeKeyHandle(long handle) {
-        Registry.closeKey(handle);
-    }
-
-    private static String[] getValueNames(long handle) {
-        QUERY_INFO info = Registry.queryInfoKey(handle);
-        if (info == null)
-            return null;
-        String[] res = new String[info.valueCount];
-        for (int i = 0; i < res.length; i++) {
-            res[i] = Registry.enumValue(handle, i);
-        }
-        return res;
-    }
-
-    private static long createSubKey(long handle, String key) {
-        return Registry.createKey(handle, key);
-    }
-
-    private static void deleteSubKey(long handle, String key) {
-        Registry.deleteKey(handle, key);
-    }
-
-    private static long getType(long parent, String name) {
-        return Registry.queryValueType(parent, name);
-    }
-
-    private static String getString(long parent, String name) {
-        byte[] b = Registry.queryValueEx(parent, name);
-        if (b == null) {
-            return null;
-        }
-        return NativeHelper.getString(b, true);
-    }
-
-    private static byte[] getBinary(long parent, String name) {
-        return Registry.queryValueEx(parent, name);
-    }
-
-    private static int getDoubleWord(long parent, String name) {
-        byte[] b = getBinary(parent, name);
-        if (b != null && b.length == 4) {
-            return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        }
-        return 0;
-    }
-
-    private static String getExpandedString(long parent, String name) {
-        byte[] b = Registry.queryValueEx(parent, name);
-        if (b == null) {
-            return null;
-        }
-        return new String(b);
-    }
-
-    private static String[] getMultiString(long parent, String name) {
-        byte[] b = getBinary(parent, name);
-        if (b != null) {
-            return NativeHelper.getMultiString(ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN), true);
-        }
-        return null;
-    }
-
-    private static void setString(long parent, String name, String value) {
-        byte[] b = NativeHelper.toBytes(value, true);
-        Registry.setValueEx(parent, name, Registry.REG_SZ, b, 0, b.length);
-    }
-
-    private static void setBinary(long parent, String name, byte[] value) {
-        Registry.setValueEx(parent, name, 3, value, 0, value.length);
-    }
-
-    private static void setDoubleWord(long parent, String name, int dword) {
-        byte[] b = new byte[4];
-        ByteBuffer bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN);
-        bb.putInt(dword);
-        Registry.setValueEx(parent, name, Registry.REG_DWORD, b, 0, b.length);
-    }
-
-    private static void setMultiString(long parent, String name, String[] value) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            for (int i = 0; i < value.length; i++) {
-                bos.write(NativeHelper.toBytes(value[i], true));
-            }
-            bos.write(new byte[] { 0, 0 });
-            byte[] b = bos.toByteArray();
-            Registry.setValueEx(parent, name, Registry.REG_MULTI_SZ, b, 0, b.length);
-        } catch (IOException e) {
-        }
     }
 }
