@@ -29,6 +29,7 @@ public class Launcher
     private int vmargIndex;
     private int argIndex;
     private int fileAssIndex;
+    private int serviceDepIndex;
 
     public ProcessResult launch(String... args) throws Exception {
         File launcher = File.createTempFile("winrun4j.launcher.", ".exe");
@@ -146,6 +147,29 @@ public class Launcher
         return this;
     }
 
+    public Launcher service(Class clazz, String name, String description) {
+        return service(clazz, clazz.getSimpleName(), name, description);
+    }
+
+    public Launcher service(Class clazz, String id, String name, String description) {
+        set(null, "service.class", clazz.getName());
+        set(null, "service.id", id);
+        set(null, "service.name", name);
+        set(null, "service.description", description);
+        return this;
+    }
+
+    public Launcher startup(String mode) {
+        set(null, "service.startup", mode);
+        return this;
+    }
+
+    public Launcher depends(String otherService) {
+        int index = ++serviceDepIndex;
+        set(null, "service.dependency." + index, otherService);
+        return this;
+    }
+
     private void set(String section, String name, Object value) {
         if (value == null)
             return;
@@ -185,6 +209,7 @@ public class Launcher
 
     public Launcher testcp() {
         return classpath("F:\\eclipse\\workspace\\org.boris.winrun4j.test\\bin").
+                classpath("F:\\eclipse\\workspace\\org.boris.commons\\bin").
                 classpath("F:\\eclipse\\workspace\\org.boris.winrun4j\\bin").
                 classpath("F:\\eclipse\\platform3.5\\plugins\\org.junit*\\*.jar");
     }
