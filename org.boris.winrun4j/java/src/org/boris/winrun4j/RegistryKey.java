@@ -256,7 +256,20 @@ public class RegistryKey
      */
     public String getString(String name) {
         long h = openKeyHandle(handle, path, true);
-        byte[] b = Registry.queryValueEx(h, name);
+        byte[] b = Registry.queryValueEx(h, name, TYPE_SZ);
+        String res = NativeHelper.getString(b, true);
+        Registry.closeKey(h);
+        return res;
+    }
+
+    /**
+     * Gets an exanded string.
+     * 
+     * @param name.
+     */
+    public String getExpandedString(String name) {
+        long h = openKeyHandle(handle, path, true);
+        byte[] b = Registry.queryValueEx(h, name, TYPE_EXPAND_SZ);
         String res = NativeHelper.getString(b, true);
         Registry.closeKey(h);
         return res;
@@ -271,7 +284,7 @@ public class RegistryKey
      */
     public byte[] getBinary(String name) {
         long h = openKeyHandle(handle, path, true);
-        byte[] res = Registry.queryValueEx(h, name);
+        byte[] res = Registry.queryValueEx(h, name, TYPE_BINARY);
         Registry.closeKey(h);
         return res;
     }
@@ -285,7 +298,7 @@ public class RegistryKey
      */
     public int getDoubleWord(String name, int defaultValue) {
         long h = openKeyHandle(handle, path, true);
-        byte[] b = Registry.queryValueEx(h, name);
+        byte[] b = Registry.queryValueEx(h, name, TYPE_DWORD_LITTLE_ENDIAN);
         int res = defaultValue;
         if (b != null && b.length == 4) {
             res = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
@@ -303,7 +316,7 @@ public class RegistryKey
      */
     public String[] getMultiString(String name) {
         long h = openKeyHandle(handle, path, true);
-        byte[] b = Registry.queryValueEx(h, name);
+        byte[] b = Registry.queryValueEx(h, name, TYPE_MULTI_SZ);
         String[] res = null;
         if (b != null)
             res = NativeHelper.getMultiString(ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN), true);

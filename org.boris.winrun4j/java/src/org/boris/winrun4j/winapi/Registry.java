@@ -105,12 +105,15 @@ public class Registry
         return val;
     }
 
-    public static byte[] queryValueEx(long hKey, String valueName) {
+    public static byte[] queryValueEx(long hKey, String valueName, int valueType) {
         long lpValueName = NativeHelper.toNativeString(valueName, true);
         long lpcbData = Native.malloc(4);
-        long res = NativeHelper.call(library, "RegQueryValueExW", hKey, lpValueName, 0, 0, 0, lpcbData);
+        long lpType = Native.malloc(4);
+        NativeHelper.setInt(lpType, valueType);
+        long res = NativeHelper.call(library, "RegQueryValueExW", hKey, lpValueName, 0, lpType, 0, lpcbData);
         byte[] b = null;
         if (res == 0) {
+            NativeHelper.setInt(lpType, valueType);
             long lpData = Native.malloc(NativeHelper.getInt(lpcbData));
             res = NativeHelper.call(library, "RegQueryValueExW", hKey, lpValueName, 0, 0, lpData, lpcbData);
             if (res == 0) {
@@ -120,7 +123,7 @@ public class Registry
             }
             NativeHelper.free(lpData);
         }
-        NativeHelper.free(lpValueName, lpcbData);
+        NativeHelper.free(lpValueName, lpcbData, lpType);
         return b;
     }
 
