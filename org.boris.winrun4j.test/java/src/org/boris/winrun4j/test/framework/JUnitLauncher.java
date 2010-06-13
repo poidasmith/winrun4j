@@ -58,7 +58,7 @@ public class JUnitLauncher
         try {
             m.invoke(o);
         } catch (InvocationTargetException e) {
-            throw e.getTargetException();
+            e.getTargetException().printStackTrace();
         }
     }
 }

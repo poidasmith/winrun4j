@@ -99,6 +99,11 @@ public class Launcher
         return this;
     }
 
+    public Launcher log(Log.Level level) {
+        set(null, "log.level", level.getText());
+        return this;
+    }
+
     public Launcher log(String file, Log.Level level, boolean overwrite, boolean andConsole) {
         set(null, "log", file);
         set(null, "log.level", level.getText());
@@ -176,5 +181,11 @@ public class Launcher
         }
 
         sb.append("\n");
+    }
+
+    public Launcher testcp() {
+        return classpath("F:\\eclipse\\workspace\\org.boris.winrun4j.test\\bin").
+                classpath("F:\\eclipse\\workspace\\org.boris.winrun4j\\bin").
+                classpath("F:\\eclipse\\platform3.5\\plugins\\org.junit*\\*.jar");
     }
 }

@@ -51,11 +51,11 @@ public class Registry2Test extends TestCase
         TestHelper.assertArrayEquals(b1, key.getBinary("bin1"));
 
         // Expand string
-        String es1 = "OK, %TEMP%";
-        String expected = "OK, " + Environment.getEnvironmentVariable("TEMP");
+        String es1 = "OK, %PATH%";
+        String expected = "OK, " + Environment.getEnvironmentVariable("PATH");
         key.setExpandedString("es1", es1);
-        String exp1 = key.getString("es1");
-        assertEquals(expected, exp1);
+        String expRes1 = key.getExpandedString("es1");
+        assertEquals(expected, expRes1);
 
         // Clean up
         software.deleteSubKey(keyName);
