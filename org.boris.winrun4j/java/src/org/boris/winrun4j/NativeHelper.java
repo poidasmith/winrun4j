@@ -16,6 +16,10 @@ import java.util.ArrayList;
 public class NativeHelper
 {
     public static final boolean IS_64 = Native.call(Native.getProcAddress(0, "Native_Is64"), null, 0, 0) != 0;
+    public static final int PTR_SIZE = IS_64 ? 8 : 4;
+    public static final int HANDLE_SIZE = 4;
+    public static final int INT_SIZE = 4;
+    public static final int DWORD_SIZE = 4;
 
     public static long call(long proc) {
         return call(proc, (NativeStack) null);
@@ -150,6 +154,14 @@ public class NativeHelper
 
     public static void free(long ptr1, long ptr2, long ptr3, long ptr4) {
         free(new long[] { ptr1, ptr2, ptr3, ptr4 });
+    }
+
+    public static void free(long ptr1, long ptr2, long ptr3, long ptr4, long ptr5) {
+        free(new long[] { ptr1, ptr2, ptr3, ptr4, ptr5 });
+    }
+
+    public static void free(long ptr1, long ptr2, long ptr3, long ptr4, long ptr5, long ptr6) {
+        free(new long[] { ptr1, ptr2, ptr3, ptr4, ptr5, ptr6 });
     }
 
     public static void free(long[] ptrs) {

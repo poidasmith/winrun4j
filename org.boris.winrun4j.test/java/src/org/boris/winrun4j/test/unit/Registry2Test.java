@@ -9,16 +9,18 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
-import java.util.Random;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
+import java.util.Random;
 
 import org.boris.winrun4j.RegistryKey;
 import org.boris.winrun4j.test.framework.TestHelper;
 import org.boris.winrun4j.winapi.Environment;
 import org.junit.Test;
 
-public class Registry2Test extends TestCase
+public class Registry2Test
 {
     @Test
     public void test1() throws Exception {

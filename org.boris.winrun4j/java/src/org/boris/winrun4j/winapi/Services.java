@@ -101,6 +101,15 @@ public class Services
     public static final int SERVICE_CONTROL_POWEREVENT = 0x0000000D;
     public static final int SERVICE_CONTROL_SESSIONCHANGE = 0x0000000E;
 
+    // Enum service type
+    public static final int SERVICE_TYPE_DRIVER = 0x0000000B;
+    public static final int SERVICE_TYPE_WIN32 = 0x00000030;
+
+    // Enum service state
+    public static final int SERVICE_STATE_ACTIVE = 0x00000001;
+    public static final int SERVICE_STATE_INACTIVE = 0x00000002;
+    public static final int SERVICE_STATE_ALL = 0x00000003;
+
     private static final long library = Advapi32.library;
 
     public static boolean changeServiceConfig(long service, int serviceType, int startType, int errorControl,
@@ -124,9 +133,9 @@ public class Services
 
     public static SERVICE_STATUS controlService(long service, int control) {
         long ptr = Native.malloc(28);
-        boolean res = NativeHelper.call(service, control, ptr) != 0;
+        long res = NativeHelper.call(library, "ControlService", service, control, ptr);
         SERVICE_STATUS status = null;
-        if (res) {
+        if (res != 0) {
             status = new SERVICE_STATUS();
             ByteBuffer bb = NativeHelper.getBuffer(ptr, 28);
             status.serviceType = bb.getInt();
@@ -185,27 +194,6 @@ public class Services
         return deps;
     }
 
-    public static ENUM_SERVICE_STATUS[] enumServiceStatus(long scManager, int serviceType, int serviceState) {
-        long ptrBytesNeeded = Native.malloc(4);
-        long ptrNumServices = Native.malloc(4);
-        long ptr = Native.malloc(1024);
-        boolean res = NativeHelper.call(library, "EnumServicesStatusW", scManager, serviceType, serviceState, ptr,
-                1024, ptrBytesNeeded, ptrNumServices, 0) == 0;
-        int size = NativeHelper.getInt(ptrBytesNeeded);
-        ENUM_SERVICE_STATUS[] stats = null;
-        if (res && size > 0) {
-            ptr = Native.malloc(size);
-            res = NativeHelper.call(library, "EnumServicesStatusW", scManager, serviceType, serviceState, ptr, size,
-                    ptrBytesNeeded, ptrNumServices, 0) == 0;
-            if (res) {
-                int numServices = NativeHelper.getInt(ptrNumServices);
-                stats = decodeEnum(ptr, size, numServices);
-            }
-        }
-        NativeHelper.free(ptrBytesNeeded, ptrNumServices, ptr);
-        return stats;
-    }
-
     public static ENUM_SERVICE_STATUS_PROCESS[] enumServiceStatusEx(long scManager, int serviceType, int serviceState,
             String groupName) {
         long ptrBytesNeeded = Native.malloc(4);
@@ -227,6 +215,19 @@ public class Services
         }
         NativeHelper.free(ptrBytesNeeded, ptrNumServices, ptr);
         return stats;
+    }
+
+    public static ENUM_SERVICE_STATUS_PROCESS getServiceStatus(long scManager, String serviceName) {
+        ENUM_SERVICE_STATUS_PROCESS[] procs = enumServiceStatusEx(scManager, SERVICE_TYPE_DRIVER | SERVICE_TYPE_WIN32,
+                SERVICE_STATE_ALL, null);
+        if (procs != null) {
+            for (int i = 0; i < procs.length; i++) {
+                if (procs[i].serviceName.equals(serviceName))
+                    return procs[i];
+            }
+        }
+
+        return null;
     }
 
     public static String getServiceDisplayName(long scManager, String serviceName) {
@@ -309,6 +310,14 @@ public class Services
         boolean res = NativeHelper.call(library, "SetServiceStatus", handle, ptr) != 0;
         Native.free(ptr);
         return res;
+    }
+
+    public static boolean startService(long service, String[] args) {
+        int numServiceArgs = args == null ? 0 : args.length;
+        long lpServiceArgVectors = NativeHelper.toMultiString(args, true);
+        boolean result = NativeHelper.call(library, "StartServiceW", service, numServiceArgs, lpServiceArgVectors) != 0;
+        NativeHelper.free(lpServiceArgVectors);
+        return result;
     }
 
     public static boolean startServiceCtrlDispatcher(SERVICE_TABLE_ENTRY[] serviceStartTable) {

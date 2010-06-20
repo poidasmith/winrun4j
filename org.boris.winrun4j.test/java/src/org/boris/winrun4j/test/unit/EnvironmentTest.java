@@ -9,9 +9,9 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
-import java.io.StringReader;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.TestCase;
+import java.io.StringReader;
 
 import org.boris.commons.io.IO;
 import org.boris.commons.io.ProcessResult;
@@ -21,7 +21,7 @@ import org.boris.winrun4j.winapi.Environment;
 import org.boris.winrun4j.winapi.Environment.OSVERSIONINFOEX;
 import org.junit.Test;
 
-public class EnvironmentTest extends TestCase
+public class EnvironmentTest
 {
     @Test
     public void testVars() throws Exception {

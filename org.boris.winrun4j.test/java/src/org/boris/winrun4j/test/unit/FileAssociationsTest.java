@@ -9,15 +9,15 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
-import java.io.File;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
+import java.io.File;
 
 import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.test.framework.Launcher;
 import org.boris.winrun4j.winapi.DDEML;
 
-public class FileAssociationsTest extends TestCase
+public class FileAssociationsTest
 {
     public void testBasic() throws Exception {
         Launcher l = new Launcher()

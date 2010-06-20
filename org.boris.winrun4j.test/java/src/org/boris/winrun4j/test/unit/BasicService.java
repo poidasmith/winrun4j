@@ -13,6 +13,8 @@ import org.boris.commons.lang.Threads;
 import org.boris.winrun4j.AbstractService;
 import org.boris.winrun4j.ServiceException;
 import org.boris.winrun4j.test.framework.Launcher;
+import org.boris.winrun4j.winapi.Kernel32;
+import org.boris.winrun4j.winapi.Services;
 
 public class BasicService extends AbstractService
 {
@@ -21,6 +23,12 @@ public class BasicService extends AbstractService
             Threads.sleepQuietly(10);
         }
         return 0;
+    }
+
+    public int serviceRequest(int control) throws ServiceException {
+        if (Services.SERVICE_CONTROL_SHUTDOWN == control)
+            Kernel32.debugBreak();
+        return super.serviceRequest(control);
     }
 
     public static Launcher launcher() {
