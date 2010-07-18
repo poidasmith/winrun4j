@@ -17,6 +17,7 @@
 
 namespace 
 {
+	dictionary* g_ini = 0;
 	char* g_serviceId = 0;
 	int g_controlsAccepted = 0;
 	int g_returnCode = 0;
@@ -103,6 +104,8 @@ void WINAPI ServiceStart(DWORD argc, LPTSTR *argv)
 
 int Service::Initialise(dictionary* ini)
 {
+	g_ini = ini;
+
 	g_serviceId = iniparser_getstr(ini, SERVICE_ID);
 	if(g_serviceId == NULL) {
 		Log::Error("Service ID not specified");
@@ -263,6 +266,8 @@ int Service::Register(dictionary* ini)
 	for(int i = 0; i < depCount; i++) {
 		depListSize += strlen(dependencies[i]) + 1;
 	}
+	depListSize++;
+
 	if(depListSize > 0) {
 		depList = (TCHAR*) malloc(depListSize);
 		if(depList == 0) {
@@ -270,11 +275,14 @@ int Service::Register(dictionary* ini)
 			return 1;
 		}
 
-		int depPointer = (int) depList;
+		TCHAR* depPointer = depList;
 		for(int i = 0; i < depCount; i++) {
-			strcpy((TCHAR*) depPointer, dependencies[i]);
+			strcpy(depPointer, dependencies[i]);
 			depPointer += strlen(dependencies[i]) + 1;
 		}
+
+		// Add extra NULL at the end of the list
+		depPointer[0] = 0;
 	}
 
 	char* loadOrderGroup = iniparser_getstr(ini, SERVICE_LOAD_ORDER_GROUP);
@@ -356,7 +364,7 @@ int Service::Control(DWORD opCode)
 
 DWORD ServiceMainThread(LPVOID lpParam)
 {
-	JNIEnv* env = VM::GetJNIEnv();
+	JNIEnv* env = VM::GetJNIEnv(false);
 
 	// Now signal launcher thread
 	SetEvent(g_event);
@@ -374,13 +382,28 @@ int Service::Main(DWORD argc, LPSTR* argv)
 {
 	JNIEnv* env = VM::GetJNIEnv();
 
+	// Grab any config args
+	TCHAR *progargs[MAX_PATH];
+	int progargsCount = 0;
+	INI::GetNumberedKeysFromIni(g_ini, PROG_ARG, progargs, progargsCount);
+
 	// Create the run args
 	jclass stringClass = env->FindClass("java/lang/String");
-	jobjectArray args = env->NewObjectArray(argc - 1, stringClass, NULL);
-	for(UINT i = 0; i < argc - 1; i++) {
-		env->SetObjectArrayElement(args, i, env->NewStringUTF(argv[i+1]));
+	jobjectArray args = env->NewObjectArray(argc + progargsCount - 1, stringClass, NULL);
+
+	// Add the config args
+	for(UINT i = 0; i < progargsCount; i++) {
+		env->SetObjectArrayElement(args, i, env->NewStringUTF(progargs[i]));
 	}
-	env->NewGlobalRef(args);
+
+	// Add in the passed in args from service control manager 
+	//  (skip the first arg as its the name of the service)
+	for(UINT i = 0; i < argc - 1; i++) {
+		env->SetObjectArrayElement(args, progargsCount+i, env->NewStringUTF(argv[i+1]));
+	}
+
+	// Create a global ref so its not lost as we pass it across threads
+	args = (jobjectArray) env->NewGlobalRef(args);
 
 	// Create the event
 	g_event = CreateEvent(0, TRUE, FALSE, 0);
@@ -391,6 +414,9 @@ int Service::Main(DWORD argc, LPSTR* argv)
 
 	// Need to wait for service thread to attach
 	WaitForSingleObject(g_event, INFINITE);
+
+	// Destroy the global ref
+	env->DeleteGlobalRef(args);
 
 	// Detach this thread so it doesn't block
 	VM::DetachCurrentThread();

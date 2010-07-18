@@ -340,7 +340,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	return result;
 }
 
-// Checks if the command is built in - strips off whitespace and quotes at the start.
+// Checks if the command is built in (ie. starts with --WinRun4J)
 bool IsBuiltInCommand(LPSTR lpCmdLine)
 {
 	if(lpCmdLine == NULL)

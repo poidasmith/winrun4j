@@ -23,10 +23,13 @@
 // VM Version keys
 #define MAX_VER
 
-static HINSTANCE g_hInstance = 0;
-static HMODULE g_jniLibrary = 0;
-static JavaVM *jvm = 0;
-static JNIEnv *env = 0;
+namespace 
+{
+	HINSTANCE g_hInstance = 0;
+	HMODULE g_jniLibrary = 0;
+	JavaVM *jvm = 0;
+	JNIEnv *env = 0;
+};
 
 typedef jint (JNICALL *JNI_createJavaVM)(JavaVM **pvm, JNIEnv **env, void *args);
 

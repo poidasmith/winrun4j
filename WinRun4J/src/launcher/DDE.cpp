@@ -252,9 +252,9 @@ void DDE::Ready() {
 	g_buffer = NULL;
 }
 
-void JNICALL DDE::ReadyJ(JNIEnv* env, jobject self)
+extern "C" __declspec(dllexport) void DDE_Ready() 
 {
-	DDE:Ready();
+	DDE::Ready();
 }
 
 void DDE::RegisterWindow(HINSTANCE hInstance)
@@ -310,19 +310,6 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 	g_activateMethodID = env->GetStaticMethodID(g_class, "activate", "(Ljava/lang/String;)V");
 	if(env->ExceptionCheck()) {
 		env->ExceptionClear();
-	}
-
-	// Setup native method for dde callback
-	JNINativeMethod nm[1];
-	nm[0].name = "ready";
-	nm[0].signature = "()V";
-	nm[0].fnPtr = (void*) DDE::ReadyJ;
-
-	env->RegisterNatives(g_class, nm, 1);
-
-	if(env->ExceptionCheck()) {
-		env->ExceptionClear();
-		Log::Warning("DDE.ready native method not found; not registering");
 	}
 
 	return true;

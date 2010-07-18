@@ -48,8 +48,6 @@ private:
 	static void EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, void (*CallbackFunc)(DDEInfo&));
 	static void RegisterFileAssociation(DDEInfo&);
 	static void UnregisterFileAssociation(DDEInfo&);
-
-	static void JNICALL ReadyJ(JNIEnv* env, jobject self);
 };
 
 #endif // DDE_H
