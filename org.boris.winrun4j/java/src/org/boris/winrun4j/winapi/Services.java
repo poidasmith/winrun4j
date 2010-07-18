@@ -217,6 +217,11 @@ public class Services
         return stats;
     }
 
+    public static ENUM_SERVICE_STATUS_PROCESS queryServiceStatus(long service) {
+        // TODO
+        return null;
+    }
+
     public static ENUM_SERVICE_STATUS_PROCESS getServiceStatus(long scManager, String serviceName) {
         ENUM_SERVICE_STATUS_PROCESS[] procs = enumServiceStatusEx(scManager, SERVICE_TYPE_DRIVER | SERVICE_TYPE_WIN32,
                 SERVICE_STATE_ALL, null);
@@ -314,8 +319,24 @@ public class Services
 
     public static boolean startService(long service, String[] args) {
         int numServiceArgs = args == null ? 0 : args.length;
-        long lpServiceArgVectors = NativeHelper.toMultiString(args, true);
+        long lpServiceArgVectors = 0;
+        if (numServiceArgs > 0) {
+            int size = numServiceArgs * NativeHelper.PTR_SIZE;
+            lpServiceArgVectors = Native.malloc(size);
+            ByteBuffer bb = NativeHelper.getBuffer(lpServiceArgVectors, size);
+            for (int i = 0; i < numServiceArgs; i++) {
+                long ptr = NativeHelper.toNativeString(args[i], true);
+                bb.putInt((int) ptr);
+            }
+        }
+        NativeHelper.toMultiString(args, true);
         boolean result = NativeHelper.call(library, "StartServiceW", service, numServiceArgs, lpServiceArgVectors) != 0;
+        if (lpServiceArgVectors != 0) {
+            ByteBuffer bb = NativeHelper.getBuffer(lpServiceArgVectors, numServiceArgs * NativeHelper.PTR_SIZE);
+            for (int i = 0; i < numServiceArgs; i++) {
+                NativeHelper.free(bb.getInt());
+            }
+        }
         NativeHelper.free(lpServiceArgVectors);
         return result;
     }

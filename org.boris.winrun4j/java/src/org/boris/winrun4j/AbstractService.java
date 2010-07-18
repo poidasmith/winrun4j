@@ -19,6 +19,8 @@ public abstract class AbstractService implements Service
         case SERVICE_CONTROL_SHUTDOWN:
             shutdown = true;
             break;
+        default:
+            break;
         }
         return 0;
     }

@@ -17,8 +17,8 @@ public class ServicesTest
 {
     public static void main(String[] args) throws Exception {
         testEnumEx();
-        testEnumDeps();
-        testGetName();
+        // testEnumDeps();
+        // testGetName();
     }
 
     public static void testEnumEx() {

@@ -170,6 +170,14 @@ public class Launcher
         return this;
     }
 
+    public Launcher debug(int port, boolean server, boolean suspend) {
+        vmarg("-Xdebug");
+        vmarg("-Xnoagent");
+        vmarg("-Xrunjdwp:transport=dt_socket,address=" + port + ",server=" + (server ? "y" : "n") + ",suspend="
+                + (suspend ? "y" : "n"));
+        return this;
+    }
+
     private void set(String section, String name, Object value) {
         if (value == null)
             return;
@@ -194,17 +202,17 @@ public class Launcher
         if (sectionName != null) {
             sb.append("[");
             sb.append(sectionName);
-            sb.append("]\n");
+            sb.append("]\r\n");
         }
 
         for (String key : section.keySet()) {
             sb.append(key);
             sb.append("=");
             sb.append(section.get(key));
-            sb.append("\n");
+            sb.append("\r\n");
         }
 
-        sb.append("\n");
+        sb.append("\r\n");
     }
 
     public Launcher testcp() {
