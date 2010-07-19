@@ -37,6 +37,7 @@ public class ServicesTest
         // Register service
         ProcessResult res = l.launch("--WinRun4J:RegisterService");
         res.waitFor();
+        assertEquals(0, res.exitValue());
         assertTrue(res.getStdOut().indexOf("[info] Registering Service...") != -1);
 
         // Check that the registry keys are setup correctly
@@ -52,6 +53,7 @@ public class ServicesTest
 
         // Unregister service and check that the registry keys have gone
         res = l.launch("--WinRun4J:UnregisterService").waitFor();
+        assertEquals(0, res.exitValue());
         assertTrue(res.getStdOut().indexOf("[info] Unregistering Service...") != -1);
         Thread.sleep(100); // race condition on registry clear out
         assertFalse(rk.exists());
@@ -73,6 +75,7 @@ public class ServicesTest
 
         // Register service
         ProcessResult res = l.launch("--WinRun4J:RegisterService").waitFor();
+        assertEquals(0, res.exitValue());
         assertTrue(res.getStdOut().indexOf("[info] Registering Service...") != -1);
 
         // Open handle to service control manager
@@ -116,6 +119,7 @@ public class ServicesTest
 
         // Unregister service
         res = l.launch("--WinRun4J:UnregisterService").waitFor();
+        assertEquals(0, res.exitValue());
         assertTrue(res.getStdOut().indexOf("[info] Unregistering Service...") != -1);
     }
 
