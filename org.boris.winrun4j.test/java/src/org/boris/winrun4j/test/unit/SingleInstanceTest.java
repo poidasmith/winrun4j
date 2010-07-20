@@ -13,6 +13,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.boris.commons.io.ProcessResult;
+import org.boris.commons.lang.Threads;
 import org.boris.winrun4j.test.framework.Launcher;
 import org.junit.Test;
 
@@ -22,6 +23,7 @@ public class SingleInstanceTest
     public void testProcess() throws Exception {
         Launcher l = create().create();
         ProcessResult res = l.launch("process");
+        Threads.sleepQuietly(10);
         ProcessResult res2 = l.launch("process").waitFor();
         assertTrue(res2.getStdStr().contains("Single Instance Shutdown"));
         assertFalse(res2.isActive());
