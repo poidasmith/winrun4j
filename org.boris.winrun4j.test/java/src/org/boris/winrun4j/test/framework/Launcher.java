@@ -11,6 +11,7 @@ package org.boris.winrun4j.test.framework;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,13 +32,22 @@ public class Launcher
     private int fileAssIndex;
     private int serviceDepIndex;
 
-    public ProcessResult launch(String... args) throws Exception {
-        File launcher = File.createTempFile("winrun4j.launcher.", ".exe");
+    private File launcher;
+    private File ini;
+
+    public Launcher create() throws IOException {
+        launcher = File.createTempFile("winrun4j.launcher.", ".exe");
         launcher.deleteOnExit();
         IO.copy(LAUNCHER, launcher);
-        File ini = new File(launcher.getParent(), IO.getNameSansExtension(launcher) + ".ini");
+        ini = new File(launcher.getParent(), IO.getNameSansExtension(launcher) + ".ini");
         ini.deleteOnExit();
         IO.copy(new StringReader(toString()), new FileWriter(ini), true);
+        return this;
+    }
+
+    public ProcessResult launch(String... args) throws Exception {
+        if (launcher == null)
+            create();
         String[] cmd = new String[args == null ? 1 : args.length + 1];
         cmd[0] = launcher.getAbsolutePath();
         if (args != null) {
@@ -128,7 +138,8 @@ public class Launcher
 
     public Launcher dde(boolean enabled, Class clazz) {
         set(null, "dde.enabled", enabled);
-        set(null, "dde.class", clazz.getName());
+        if (clazz != null)
+            set(null, "dde.class", clazz.getName());
         return this;
     }
 
@@ -220,5 +231,10 @@ public class Launcher
                 classpath("F:\\eclipse\\workspace\\org.boris.commons\\bin").
                 classpath("F:\\eclipse\\workspace\\org.boris.winrun4j\\bin").
                 classpath("F:\\eclipse\\platform3.5\\plugins\\org.junit*\\*.jar");
+    }
+
+    public Launcher singleInstance(String si) {
+        set(null, "single.instance", si);
+        return this;
     }
 }
