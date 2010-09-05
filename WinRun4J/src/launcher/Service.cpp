@@ -371,6 +371,8 @@ DWORD ServiceMainThread(LPVOID lpParam)
 
 	g_returnCode = env->CallIntMethod(g_serviceInstance, g_mainMethod, (jobjectArray) lpParam);
 
+	// When the service main completes we assume the service wants to stop
+	// so wait for the VM is tidy up (all non-daemon threads complete etc..)
 	VM::CleanupVM();
 	g_serviceStatus.dwCurrentState = SERVICE_STOPPED;
 	SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus);
@@ -408,9 +410,12 @@ int Service::Main(DWORD argc, LPSTR* argv)
 	// Create the event
 	g_event = CreateEvent(0, TRUE, FALSE, 0);
 
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ServiceMainThread, (LPDWORD) args, 0, 0);
+	// Set to running before creating thread to avoid race conditions
 	g_serviceStatus.dwCurrentState = SERVICE_RUNNING;
 	SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus);
+
+	// This is the main thread for the java service
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ServiceMainThread, (LPDWORD) args, 0, 0);
 
 	// Need to wait for service thread to attach
 	WaitForSingleObject(g_event, INFINITE);
