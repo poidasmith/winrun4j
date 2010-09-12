@@ -17,24 +17,24 @@
 
 // Internal keys
 #define MODULE_NAME "winrun4j:module.name"
-#define MODULE_INI "winrun4j:module.ini"
-#define MODULE_DIR "rinrun4j:module.dir"
-#define INI_DIR "winrun4J:ini.dir"
+#define MODULE_INI  "winrun4j:module.ini"
+#define MODULE_DIR  "winrun4j:module.dir"
+#define INI_DIR     "winrun4J:ini.dir"
 
 // Ini keys
-#define WORKING_DIR ":working.directory"
-#define LOG_FILE ":log"
-#define LOG_LEVEL ":log.level"
-#define CLASS_PATH ":classpath"
-#define VM_ARG ":vmarg"
-#define PROG_ARG ":arg"
-#define MAIN_CLASS ":main.class"
+#define WORKING_DIR   ":working.directory"
+#define LOG_FILE      ":log"
+#define LOG_LEVEL     ":log.level"
+#define CLASS_PATH    ":classpath"
+#define VM_ARG        ":vmarg"
+#define PROG_ARG      ":arg"
+#define MAIN_CLASS    ":main.class"
 #define SERVICE_CLASS ":service.class"
 
 class INI
 {
 public:
-	static void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index);
+	static void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, UINT& index);
 	static dictionary* LoadIniFile(HINSTANCE hInstance);
 	static dictionary* LoadIniFile(HINSTANCE hInstance, LPSTR inifile);
 

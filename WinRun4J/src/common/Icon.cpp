@@ -21,11 +21,11 @@
 // WinRun4J.Random.exe --WinRun4J:SetIcon SetIcon WinRun4J.exe
 // WinRun4J.exe --seticon Delete WinRun4J.Random.exe 
 
-#define SET_ICON_CMD "--WinRun4J:SetIcon SetIcon"
-#define SET_ICON_DELETE_EXE_CMD "--WinRun4J:SetIcon Delete"
-#define ADD_ICON_CMD "--WinRun4J:AddIcon AddIcon"
-#define ADD_ICON_DELETE_EXE_CMD "--WinRun4J:AddIcon Delete"
-#define REMOVE_ICON_CMD "--WinRun4J:RemoveIcon RemoveIcon"
+#define SET_ICON_CMD               "--WinRun4J:SetIcon SetIcon"
+#define SET_ICON_DELETE_EXE_CMD    "--WinRun4J:SetIcon Delete"
+#define ADD_ICON_CMD               "--WinRun4J:AddIcon AddIcon"
+#define ADD_ICON_DELETE_EXE_CMD    "--WinRun4J:AddIcon Delete"
+#define REMOVE_ICON_CMD            "--WinRun4J:RemoveIcon RemoveIcon"
 #define REMOVE_ICON_DELETE_EXE_CMD "--WinRun4J:RemoveIcon Delete"
 
 

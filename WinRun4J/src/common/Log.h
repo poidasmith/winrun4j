@@ -14,6 +14,8 @@
 #include "Runtime.h"
 #include "INI.h"
 
+#define MAX_LOG_LENGTH 4096
+
 enum LoggingLevel { info = 0, warning = 1, error = 2, none = 3 };
 
 struct Log {

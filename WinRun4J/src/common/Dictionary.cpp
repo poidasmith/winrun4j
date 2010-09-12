@@ -26,8 +26,6 @@ static void * mem_double(void * ptr, int size)
     return newptr ;
 }
 
-
-
 unsigned dictionary_hash(char * key)
 {
 	int			len ;
@@ -46,7 +44,6 @@ unsigned dictionary_hash(char * key)
 	return hash ;
 }
 
-
 dictionary * dictionary_new(int size)
 {
 	dictionary	*	d ;
@@ -61,8 +58,6 @@ dictionary * dictionary_new(int size)
 	d->hash = (unsigned int *)calloc(size, sizeof(unsigned));
 	return d ;
 }
-
-
 
 void dictionary_del(dictionary * d)
 {
@@ -81,7 +76,6 @@ void dictionary_del(dictionary * d)
 	free(d);
 	return ;
 }
-
 
 char * dictionary_get(dictionary * d, char * key, char * def)
 {
@@ -114,7 +108,6 @@ char dictionary_getchar(dictionary * d, char * key, char def)
 	}
 }
 
-
 int dictionary_getint(dictionary * d, char * key, int def)
 {
 	char * v ;
@@ -136,7 +129,6 @@ double dictionary_getdouble(dictionary * d, char * key, double def)
 		return atof(v);
 	}
 }
-
 
 void dictionary_set(dictionary * d, char * key, char * val)
 {
@@ -258,9 +250,6 @@ void dictionary_dump(dictionary * d, FILE * out)
 	return ;
 }
 
-
-
-
 /*
 Taken from http://ndevilla.free.fr/iniparser/
 
@@ -272,7 +261,6 @@ iniparser is distributed under an MIT license.
 
 #define ASCIILINESZ         1024
 #define INI_INVALID_KEY     ((char*)-1)
-
 
 /* Private: add an entry to the dictionary */
 static void iniparser_add_entry(
@@ -295,7 +283,6 @@ static void iniparser_add_entry(
     return ;
 }
 
-
 int iniparser_getnsec(dictionary * d)
 {
     int i ;
@@ -312,7 +299,6 @@ int iniparser_getnsec(dictionary * d)
     }
     return nsec ;
 }
-
 
 char * iniparser_getsecname(dictionary * d, int n)
 {
@@ -352,7 +338,6 @@ void iniparser_dump(dictionary * d, FILE * f)
     }
     return ;
 }
-
 
 void iniparser_dump_ini(dictionary * d, FILE * f)
 {
@@ -394,13 +379,10 @@ void iniparser_dump_ini(dictionary * d, FILE * f)
     return ;
 }
 
-
-
 char * iniparser_getstr(dictionary * d, const char * key)
 {
     return iniparser_getstring(d, key, NULL);
 }
-
 
 char * iniparser_getstring(dictionary * d, const char * key, char * def)
 {
@@ -415,7 +397,6 @@ char * iniparser_getstring(dictionary * d, const char * key, char * def)
     free(lc_key);
     return sval ;
 }
-
 
 int iniparser_getint(dictionary * d, const char * key, int notfound)
 {
@@ -435,7 +416,6 @@ double iniparser_getdouble(dictionary * d, char * key, double notfound)
     return atof(str);
 }
 
-
 int iniparser_getboolean(dictionary * d, const char * key, int notfound)
 {
     char    *   c ;
@@ -453,11 +433,7 @@ int iniparser_getboolean(dictionary * d, const char * key, int notfound)
     return ret;
 }
 
-
-int iniparser_find_entry(
-    dictionary  *   ini,
-    char        *   entry
-)
+int iniparser_find_entry(dictionary * ini, char * entry)
 {
     int found=0 ;
     if (iniparser_getstring(ini, entry, INI_INVALID_KEY)!=INI_INVALID_KEY) {
@@ -465,8 +441,6 @@ int iniparser_find_entry(
     }
     return found ;
 }
-
-
 
 int iniparser_setstr(dictionary * ini, char * entry, char * val)
 {
@@ -554,10 +528,7 @@ void iniparser_freedict(dictionary * d)
     dictionary_del(d);
 }
 
-
 #define ASCIILINESZ	1024
-
-
 
 char * strlwc(const char * s)
 {
@@ -575,8 +546,6 @@ char * strlwc(const char * s)
     return l ;
 }
 
-
-
 char * strupc(char * s)
 {
     static char l[ASCIILINESZ+1];
@@ -593,8 +562,6 @@ char * strupc(char * s)
     return l ;
 }
 
-
-
 char * strskp(char * s)
 {
     char * skip = s;
@@ -602,8 +569,6 @@ char * strskp(char * s)
     while (isspace((int)*skip) && *skip) skip++;
     return skip ;
 } 
-
-
 
 char * strcrop(char * s)
 {
@@ -622,8 +587,6 @@ char * strcrop(char * s)
 	*last = (char)0;
     return l ;
 }
-
-
 
 char * strstrip(char * s)
 {

@@ -257,7 +257,7 @@ int Service::Register(dictionary* ini)
 
 	// Check for dependencies
 	TCHAR* dependencies[MAX_PATH];
-	int depCount = 0;
+	UINT depCount = 0;
 	INI::GetNumberedKeysFromIni(ini, SERVICE_DEPENDENCY, dependencies, depCount);
 	
 	// Make dependency list
@@ -386,7 +386,7 @@ int Service::Main(DWORD argc, LPSTR* argv)
 
 	// Grab any config args
 	TCHAR *progargs[MAX_PATH];
-	int progargsCount = 0;
+	UINT progargsCount = 0;
 	INI::GetNumberedKeysFromIni(g_ini, PROG_ARG, progargs, progargsCount);
 
 	// Create the run args

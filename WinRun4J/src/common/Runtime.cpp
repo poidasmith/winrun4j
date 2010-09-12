@@ -92,7 +92,7 @@ extern void _cdecl StrTrim(LPSTR str, LPSTR trimChars)
 	}
 }
 
-extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, int& count, bool includeFirst)
+extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, bool includeFirst)
 {
 	// Bug fix here provided by Frederic.Canut@kxen.com 
 	if(lpCmdLine == NULL || *lpCmdLine == 0) return;

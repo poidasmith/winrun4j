@@ -281,15 +281,15 @@ void JNI::LoadEmbeddedClassloader(JNIEnv* env)
 	loader = env->NewGlobalRef(loader);
 
 	// Load class from static memory
+	/*
 	jclass bb = env->DefineClass("org/boris/winrun4j/classloader/ByteBufferInputStream", loader, (const jbyte*) g_byteBufferISCode, sizeof(g_byteBufferISCode));
 	jclass cl = env->DefineClass("org/boris/winrun4j/classloader/EmbeddedClassLoader", loader, (const jbyte*) g_classLoaderCode, sizeof(g_classLoaderCode));
+	*/
 
-	/*
 	jclass bb = DefineClass(env, "F:/eclipse/workspace/org.boris.winrun4j.classloader/bin/org/boris/winrun4j/classloader/ByteBufferInputStream.class",
 		"org/boris/winrun4j/classloader/ByteBufferInputStream", loader);
 	jclass cl = DefineClass(env, "F:/eclipse/workspace/org.boris.winrun4j.classloader/bin/org/boris/winrun4j/classloader/EmbeddedClassLoader.class",
 		"org/boris/winrun4j/classloader/EmbeddedClassLoader", loader);
-	*/
 
 	if(!cl) {
 		PrintStackTrace(env);

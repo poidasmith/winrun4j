@@ -18,7 +18,7 @@
 #define CLASS_PATH_ARG "-Djava.class.path="
 
 struct Classpath {
-	static void BuildClassPath(dictionary *ini, TCHAR** args, int& count);
+	static void BuildClassPath(dictionary *ini, TCHAR** args, UINT& count);
 };
 
 #endif // CLASSPATH_H

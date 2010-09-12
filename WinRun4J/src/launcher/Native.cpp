@@ -12,6 +12,7 @@
 #include "../common/Log.h"
 #include "../java/JNI.h"
 #include "../java/VM.h"
+#include "../libffi/ffi.h"
 
 bool Native::RegisterNatives(JNIEnv *env)
 {
@@ -60,6 +61,31 @@ bool Native::RegisterNatives(JNIEnv *env)
 	nm[10].fnPtr = (void*) GetMethodID;
 
 	env->RegisterNatives(clazz, nm, 11);
+
+	if(env->ExceptionCheck()) {
+		JNI::PrintStackTrace(env);
+		return false;
+	}
+
+	// TEMP FFI class
+	Log::Info("Registering natives for FFI class");
+
+	jclass clazz2 = JNI::FindClass(env, "org/boris/winrun4j/FFI");
+	if(clazz2 == NULL) {
+		JNI::ClearException(env);
+		Log::Warning("Could not find FFI class");
+		return false;
+	}
+	
+	JNINativeMethod nm2[2];
+	nm2[0].name = "prepare";
+	nm2[0].signature = "(JIIJJ)I";
+	nm2[0].fnPtr = (void*) FFIPrepare;
+	nm2[1].name = "call";
+	nm2[1].signature = "(JJJJ)V";
+	nm2[1].fnPtr = (void*) FFICall;
+
+	env->RegisterNatives(clazz2, nm2, 2);
 
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);
@@ -264,6 +290,16 @@ jlong Native::GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name,
 	env->ReleaseStringUTFChars(name, ns);
 	env->ReleaseStringUTFChars(sig, ss);
 	return res;
+}
+
+jint Native::FFIPrepare(JNIEnv* env, jobject self, jlong cif, jint abi, jint nargs, jlong rtype, jlong atypes)
+{
+	return ffi_prep_cif((ffi_cif *) cif, (ffi_abi) abi, nargs, (ffi_type *) rtype, (ffi_type **) atypes);
+}
+
+void Native::FFICall(JNIEnv* env, jobject self, jlong cif, jlong fn, jlong rvalue, jlong avalue)
+{
+	ffi_call((ffi_cif *) cif, (void (__cdecl *)(void)) fn, (void *) rvalue, (void **) avalue);
 }
 
 extern "C" __declspec(dllexport) int __cdecl Native_Is64()

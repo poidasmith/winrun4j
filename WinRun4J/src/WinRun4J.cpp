@@ -17,19 +17,19 @@
 #include "launcher/Native.h"
 #include "common/Registry.h"
 
-#define PROCESS_PRIORITY ":process.priority"
-#define ERROR_MESSAGES_JAVA_NOT_FOUND "ErrorMessages:java.not.found"
-#define ERROR_MESSAGES_JAVA_START_FAILED "ErrorMessages:java.failed"
+#define PROCESS_PRIORITY                 ":process.priority"
+#define ERROR_MESSAGES_JAVA_NOT_FOUND    "errormessages:java.not.found"
+#define ERROR_MESSAGES_JAVA_START_FAILED "errormessages:java.failed"
 
 using namespace std;
 
 namespace 
 {
 	TCHAR *vmargs[MAX_PATH];
-	int vmargsCount = 0;
+	UINT vmargsCount = 0;
 	bool progargsParsed = false;
 	TCHAR *progargs[MAX_PATH];
-	int progargsCount = 0;
+	UINT progargsCount = 0;
 	bool workingDirectorySet = false;
 }
 

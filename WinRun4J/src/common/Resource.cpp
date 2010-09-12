@@ -117,7 +117,6 @@ bool Resource::SetManifest(LPSTR exeFile, LPSTR manifestFile)
 	return SetFile(exeFile, manifestFile, RT_MANIFEST, MAKEINTRESOURCE(1), 0, false);
 }
 
-
 // Prints the contents of the  INI  file
 bool Resource::ListINI(LPSTR exeFile)
 {
@@ -144,7 +143,6 @@ bool Resource::ListINI(LPSTR exeFile)
 	FreeLibrary(hm);
 	return true;
 }
-
 
 // Add JAR file
 bool Resource::AddJar(LPSTR exeFile, LPSTR jarFile)

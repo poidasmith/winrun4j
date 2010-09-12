@@ -12,15 +12,15 @@
 #include "Log.h"
 #include "../java/JNI.h"
 
-#define ALLOW_INI_OVERRIDE ":ini.override"
-#define INI_FILE_LOCATION ":ini.file.location"
+#define ALLOW_INI_OVERRIDE    ":ini.override"
+#define INI_FILE_LOCATION     ":ini.file.location"
 #define INI_REGISTRY_LOCATION ":ini.registry.location"
 
 static dictionary* g_ini = NULL;
 
-void INI::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, int& index)
+void INI::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, UINT& index)
 {
-	int i = 0;
+	UINT i = 0;
 	TCHAR entryName[MAX_PATH];
 	while(true) {
 		sprintf(entryName, "%s.%d", keyName, i+1);

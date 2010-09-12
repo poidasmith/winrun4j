@@ -95,7 +95,7 @@ void ExpandClassPathEntry(char* arg, char** result, int* current, int max)
 }
 
 // Build up the classpath entry from the ini file list
-void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, int& count)
+void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, UINT& count)
 {
 	// It assumed that the classpath entries are relative to the module directory so we temporarily set
 	// the current directory (unless a working directory has been set)
@@ -138,10 +138,12 @@ void Classpath::BuildClassPath(dictionary* ini, TCHAR** args, int& count)
 
 	TCHAR *built = strdup(classpath == NULL ? "" : classpath);
 
-	// Add classpath
-	TCHAR argl[MAX_PATH];
-	StrTruncate(argl, built, MAX_PATH);
+	// Produce truncated classpath for logging purposes
+	TCHAR argl[MAX_LOG_LENGTH - 100];
+	StrTruncate(argl, built, MAX_LOG_LENGTH - 100);
 	Log::Info("Generated Classpath: %s", argl);
+
+	// Generate and add classpath arg
 	TCHAR* cpArg = (TCHAR *) malloc(sizeof(TCHAR)*(strlen(built) + 1) + sizeof(TCHAR)*(strlen(CLASS_PATH_ARG) + 1));
 	lstrcpy(cpArg, CLASS_PATH_ARG);
 	lstrcat(cpArg, built);

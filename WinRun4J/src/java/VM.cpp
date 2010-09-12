@@ -13,12 +13,12 @@
 #include "../common/INI.h"
 
 // VM Registry keys
-#define JRE_REG_PATH TEXT("Software\\JavaSoft\\Java Runtime Environment")
-#define JRE_REG_PATH_WOW6432 TEXT("Software\\Wow6432Node\\JavaSoft\\Java Runtime Environment")
-#define IBM_JRE_REG_PATH TEXT("Software\\IBM\\Java2 Runtime Environment")
+#define JRE_REG_PATH             TEXT("Software\\JavaSoft\\Java Runtime Environment")
+#define JRE_REG_PATH_WOW6432     TEXT("Software\\Wow6432Node\\JavaSoft\\Java Runtime Environment")
+#define IBM_JRE_REG_PATH         TEXT("Software\\IBM\\Java2 Runtime Environment")
 #define IBM_JRE_REG_PATH_WOW6432 TEXT("Software\\Wow6432Node\\IBM\\Java2 Runtime Environment")
-#define JRE_VERSION_KEY TEXT("CurrentVersion")
-#define JRE_LIB_KEY TEXT("RuntimeLib")
+#define JRE_VERSION_KEY          TEXT("CurrentVersion")
+#define JRE_LIB_KEY              TEXT("RuntimeLib")
 
 // VM Version keys
 #define MAX_VER
@@ -264,7 +264,7 @@ void Version::Parse(LPSTR version)
 	Parsed = true;
 }
 
-void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, int& count)
+void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, UINT& count)
 {
 	// Extract memory size
 	MEMORYSTATUS ms;

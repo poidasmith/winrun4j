@@ -30,6 +30,8 @@ private:
 	static jlong NewGlobalRef(JNIEnv* env, jobject self, jobject obj);
 	static void DeleteGlobalRef(JNIEnv* env, jobject self, jlong handle);
 	static jlong GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name, jstring sig, jboolean isStatic);
+	static jint FFIPrepare(JNIEnv* env, jobject self, jlong cif, jint abi, jint nargs, jlong rtype, jlong atypes);
+	static void FFICall(JNIEnv* env, jobject self, jlong cif, jlong fn, jlong rvalue, jlong avalue);
 };
 
 #endif // EVENTLOG_H
