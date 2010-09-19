@@ -59,6 +59,9 @@ public class EnvironmentTester implements Runnable
 
         System.out.println(System.getProperty("user.dir"));
 
+        System.out.println("System info");
+        Reflection.println(Kernel32.getSystemInfo());
+
         Runtime.getRuntime().addShutdownHook(new Thread(new EnvironmentTester()));
     }
 
