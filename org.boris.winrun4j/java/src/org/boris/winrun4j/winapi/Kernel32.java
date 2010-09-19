@@ -98,6 +98,15 @@ public class Kernel32
         return NativeHelper.call(library, "WaitForSingleObjectEx", hHandle, dwMilliseconds, bAlertable ? 1 : 0);
     }
 
+    public static SYSTEM_INFO getSystemInfo() {
+        long ptr = Native.malloc(SYSTEM_INFO.SIZE);
+        NativeHelper.call(library, "GetSystemInfo", ptr);
+        SYSTEM_INFO si = new SYSTEM_INFO();
+        decode(ptr, si);
+        NativeHelper.free(ptr);
+        return si;
+    }
+
     public static void decode(long ptr, PROCESSENTRY32 pe) {
         ByteBuffer bb = NativeHelper.getBuffer(ptr, PROCESSENTRY32.SIZE);
         pe.dwSize = bb.getInt();
@@ -116,6 +125,19 @@ public class Kernel32
         pe.szExeFile = NativeHelper.getString(bb, true);
     }
 
+    public static void decode(long ptr, SYSTEM_INFO si) {
+        ByteBuffer bb = NativeHelper.getBuffer(ptr, SYSTEM_INFO.SIZE);
+        si.dwOemId = bb.getInt();
+        si.dwPageSize = bb.getInt();
+        si.lpMinimumApplicationAddress = is64 ? bb.getLong() : bb.getInt();
+        si.lpMaximumApplicationAddress = is64 ? bb.getLong() : bb.getInt();
+        si.dwActiveProcessorMask = is64 ? bb.getLong() : bb.getInt();
+        si.dwNumberOfProcessor = bb.getInt();
+        si.dwProcessorType = bb.getInt();
+        si.wProcessorLevel = bb.getShort();
+        si.wProcessorRevision = bb.getShort();
+    }
+
     public static class PROCESSENTRY32
     {
         public static final int SIZE = is64 ? 568 : 556;
@@ -129,5 +151,22 @@ public class Kernel32
         public int pcPriClassBase;
         public int dwFlags;
         public String szExeFile;
+    }
+
+    public static class SYSTEM_INFO
+    {
+        public static final int SIZE = is64 ? 48 : 36;
+        public int dwOemId;
+        public int wProcessorAchitecture;
+        public int wReserved;
+        public int dwPageSize;
+        public long lpMinimumApplicationAddress;
+        public long lpMaximumApplicationAddress;
+        public long dwActiveProcessorMask;
+        public int dwNumberOfProcessor;
+        public int dwProcessorType;
+        public int dwAllocationGranularity;
+        public int wProcessorLevel;
+        public int wProcessorRevision;
     }
 }
