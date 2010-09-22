@@ -302,6 +302,19 @@ void Native::FFICall(JNIEnv* env, jobject self, jlong cif, jlong fn, jlong rvalu
 	ffi_call((ffi_cif *) cif, (void (__cdecl *)(void)) fn, (void *) rvalue, (void **) avalue);
 }
 
+
+
+int Native::FFIPrepareClosure(JNIEnv* env, jobject self, jlong closure, jlong cif, jlong objectId, jlong methodId)
+{
+		
+	ffi_prep_closure_loc (ffi_closure* closure,
+                      ffi_cif* cif,
+                      void (*fun)(ffi_cif*,void*,void**,void*),
+                      void *user_data,
+                      void *codeloc)
+}
+
+
 extern "C" __declspec(dllexport) int __cdecl Native_Is64()
 {
 #ifdef X64

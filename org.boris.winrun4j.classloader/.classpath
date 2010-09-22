@@ -3,5 +3,6 @@
 	<classpathentry kind="src" path="java/src"/>
 	<classpathentry kind="src" path="java/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.winrun4j"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

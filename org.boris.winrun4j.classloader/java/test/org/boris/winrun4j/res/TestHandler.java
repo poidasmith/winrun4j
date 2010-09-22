@@ -10,11 +10,11 @@ public class TestHandler
         InputStream is = new URL("res:///WinRun4J.jar").openStream();
         System.out.println();
     }
-    
+
     public static void registerHandler() {
         // Now register resource URL stream handler
         String urlHandlers = System.getProperty("java.protocol.handler.pkgs");
-        if(urlHandlers == null) {
+        if (urlHandlers == null) {
             urlHandlers = "org.boris.winrun4j";
         } else {
             urlHandlers += ";org.boris.winrun4j";

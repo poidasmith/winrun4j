@@ -20,6 +20,12 @@ public class FFI
 
     public static native void call(long cif, long fn, long rvalue, long avalue);
 
+    public static native long closureAlloc(long pCode);
+
+    public static native int prepareClosure(long closure, long cif, long fun, long userData, long codeloc);
+
+    public static native void closureFree(long ptr);
+
     public static long call(long lib, String function, long[] args) {
         long proc = Native.getProcAddress(lib, function);
         if (proc == 0)
