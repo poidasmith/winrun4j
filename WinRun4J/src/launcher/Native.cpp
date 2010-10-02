@@ -77,15 +77,21 @@ bool Native::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 	
-	JNINativeMethod nm2[2];
+	JNINativeMethod nm2[4];
 	nm2[0].name = "prepare";
 	nm2[0].signature = "(JIIJJ)I";
 	nm2[0].fnPtr = (void*) FFIPrepare;
 	nm2[1].name = "call";
 	nm2[1].signature = "(JJJJ)V";
 	nm2[1].fnPtr = (void*) FFICall;
+	nm2[2].name = "prepareClosure";
+	nm2[2].signature = "(JJJ)J";
+	nm2[2].fnPtr = (void*) FFIPrepareClosure;
+	nm2[3].name = "freeClosure";
+	nm2[3].signature = "(J)V";
+	nm2[3].fnPtr = (void*) FFIFreeClosure;
 
-	env->RegisterNatives(clazz2, nm2, 2);
+	env->RegisterNatives(clazz2, nm2, 4);
 
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);
@@ -302,18 +308,38 @@ void Native::FFICall(JNIEnv* env, jobject self, jlong cif, jlong fn, jlong rvalu
 	ffi_call((ffi_cif *) cif, (void (__cdecl *)(void)) fn, (void *) rvalue, (void **) avalue);
 }
 
+typedef struct {
+	ffi_closure* closure;
+	void* codeloc;
+	jobject objectId;
+	jmethodID methodId;
+} FFI_CLOSURE_DATA;
 
-
-int Native::FFIPrepareClosure(JNIEnv* env, jobject self, jlong closure, jlong cif, jlong objectId, jlong methodId)
+void Closure(ffi_cif* cif, void *resp, void **arg_area, void* user_data)
 {
-		
-	ffi_prep_closure_loc (ffi_closure* closure,
-                      ffi_cif* cif,
-                      void (*fun)(ffi_cif*,void*,void**,void*),
-                      void *user_data,
-                      void *codeloc)
+	FFI_CLOSURE_DATA* fd = (FFI_CLOSURE_DATA*) user_data;
+	JNIEnv* env = VM::GetJNIEnv(true);
+	env->CallVoidMethod(fd->objectId, fd->methodId, (jlong) resp, (jlong) arg_area);
 }
 
+jlong Native::FFIPrepareClosure(JNIEnv* env, jobject self, jlong cif, jlong objectId, jlong methodId)
+{
+	FFI_CLOSURE_DATA* fd = (FFI_CLOSURE_DATA*) malloc(sizeof(FFI_CLOSURE_DATA));
+	fd->closure = (ffi_closure*) ffi_closure_alloc(sizeof(ffi_closure), &(fd->codeloc));
+	ffi_prep_closure_loc (fd->closure,
+                      (ffi_cif*) cif,
+                      Closure,
+                      (void*) fd,
+                      fd->codeloc);
+	return (jlong) fd;
+}
+
+void Native::FFIFreeClosure(JNIEnv* env, jobject self, jlong closure)
+{
+	FFI_CLOSURE_DATA* fd = (FFI_CLOSURE_DATA*) closure;
+	ffi_closure_free(fd->closure);
+	free(fd);
+}
 
 extern "C" __declspec(dllexport) int __cdecl Native_Is64()
 {

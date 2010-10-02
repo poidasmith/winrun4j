@@ -534,9 +534,7 @@ segment_holding_code (mstate m, char* addr)
 void *
 ffi_closure_alloc (size_t size, void **code)
 {
-	void * ptr = VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-	*code = ptr;
-	return ptr;
+	return *code = VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
 	/*
   void *ptr;

@@ -32,6 +32,8 @@ private:
 	static jlong GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name, jstring sig, jboolean isStatic);
 	static jint FFIPrepare(JNIEnv* env, jobject self, jlong cif, jint abi, jint nargs, jlong rtype, jlong atypes);
 	static void FFICall(JNIEnv* env, jobject self, jlong cif, jlong fn, jlong rvalue, jlong avalue);
+	static jlong FFIPrepareClosure(JNIEnv* env, jobject self, jlong cif, jlong objectId, jlong methodId);
+	static void FFIFreeClosure(JNIEnv* env, jobject self, jlong closure);
 };
 
 #endif // EVENTLOG_H
