@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="src" path="java/src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.winrun4j"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.commons"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="src" path="java/src"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.commons"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.winrun4j"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
