@@ -326,6 +326,8 @@ jlong Native::FFIPrepareClosure(JNIEnv* env, jobject self, jlong cif, jlong obje
 {
 	FFI_CLOSURE_DATA* fd = (FFI_CLOSURE_DATA*) malloc(sizeof(FFI_CLOSURE_DATA));
 	fd->closure = (ffi_closure*) ffi_closure_alloc(sizeof(ffi_closure), &(fd->codeloc));
+	fd->objectId = (jobject) objectId;
+	fd->methodId = (jmethodID) methodId;
 	ffi_prep_closure_loc (fd->closure,
                       (ffi_cif*) cif,
                       Closure,

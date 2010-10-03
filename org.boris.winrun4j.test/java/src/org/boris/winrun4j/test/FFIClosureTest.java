@@ -20,10 +20,12 @@ public class FFIClosureTest
 {
     public static void main(String[] args) throws Exception {
         CIF cif = CIF.prepare(FFI.ABI_STDCALL, 1);
+        // Kernel32.debugBreak();
         FFIClosureTest test = new FFIClosureTest();
         long objectId = Native.newGlobalRef(test);
         long methodId = Native.getMethodId(FFIClosureTest.class, "callback", "(JJ)V", false);
-        long callback = FFI.prepareClosure(cif.get(), objectId, methodId);
+        long handle = FFI.prepareClosure(cif.get(), objectId, methodId);
+        long callback = NativeHelper.getInt(handle);
         Console.allocConsole();
         Console.setConsoleTitle("Testing Console");
         NativeHelper.call(Kernel32.library, "SetConsoleCtrlHandler", callback, 1);

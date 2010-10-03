@@ -535,6 +535,7 @@ void *
 ffi_closure_alloc (size_t size, void **code)
 {
 	return *code = VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	//return *code = malloc(size);
 
 	/*
   void *ptr;
@@ -571,6 +572,7 @@ ffi_closure_free (void *ptr)
 #endif
 
   ::VirtualFree(ptr, 0, MEM_RELEASE);
+  //free(ptr);
 }
 
 
