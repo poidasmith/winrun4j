@@ -17,6 +17,7 @@
 #include "launcher/Native.h"
 #include "common/Registry.h"
 
+#define CONSOLE_TITLE                    ":console.title"
 #define PROCESS_PRIORITY                 ":process.priority"
 #define ERROR_MESSAGES_JAVA_NOT_FOUND    "errormessages:java.not.found"
 #define ERROR_MESSAGES_JAVA_START_FAILED "errormessages:java.failed"
@@ -311,6 +312,13 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 
 	// Startup DDE if requested
 	bool ddeInit = DDE::Initialize(hInstance, env, ini);
+
+	// Set console title if required (and console mode)
+#ifdef CONSOLE 
+	char* title = iniparser_getstr(ini, CONSOLE_TITLE); 
+	if(title)
+		SetConsoleTitle(title); 
+#endif 
 
 	// Run the main class (or service class)
 	char* serviceCls = iniparser_getstr(ini, SERVICE_CLASS);
