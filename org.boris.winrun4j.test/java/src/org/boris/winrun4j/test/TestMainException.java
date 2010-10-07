@@ -1,4 +1,4 @@
-package org.boris.winrun4j;
+package org.boris.winrun4j.test;
 
 /*******************************************************************************
  * This program and the accompanying materials are made available under the

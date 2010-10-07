@@ -25,7 +25,7 @@ bool Native::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 	
-	JNINativeMethod nm[11];
+	JNINativeMethod nm[10];
 	nm[0].name = "loadLibrary";
 	nm[0].signature = "(Ljava/lang/String;)J";
 	nm[0].fnPtr = (void*) LoadLibrary;
@@ -44,23 +44,20 @@ bool Native::RegisterNatives(JNIEnv *env)
 	nm[5].name = "fromPointer";
 	nm[5].signature = "(JJ)Ljava/nio/ByteBuffer;";
 	nm[5].fnPtr = (void*) FromPointer;
-	nm[6].name = "call";
-	nm[6].signature = "(J[JII)J";
-	nm[6].fnPtr = (void*) Call;
-	nm[7].name = "bind";
-	nm[7].signature = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;J)Z";
-	nm[7].fnPtr = (void*) Bind;
-	nm[8].name = "newGlobalRef";
-	nm[8].signature = "(Ljava/lang/Object;)J";
-	nm[8].fnPtr = (void*) NewGlobalRef;
-	nm[9].name = "deleteGlobalRef";
-	nm[9].signature = "(J)V";
-	nm[9].fnPtr = (void*) DeleteGlobalRef;
-	nm[10].name = "getMethodId";
-	nm[10].signature = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;Z)J";
-	nm[10].fnPtr = (void*) GetMethodID;
+	nm[6].name = "bind";
+	nm[6].signature = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;J)Z";
+	nm[6].fnPtr = (void*) Bind;
+	nm[7].name = "newGlobalRef";
+	nm[7].signature = "(Ljava/lang/Object;)J";
+	nm[7].fnPtr = (void*) NewGlobalRef;
+	nm[8].name = "deleteGlobalRef";
+	nm[8].signature = "(J)V";
+	nm[8].fnPtr = (void*) DeleteGlobalRef;
+	nm[9].name = "getMethodId";
+	nm[9].signature = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;Z)J";
+	nm[9].fnPtr = (void*) GetMethodID;
 
-	env->RegisterNatives(clazz, nm, 11);
+	env->RegisterNatives(clazz, nm, 10);
 
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);

@@ -9,7 +9,14 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
-public interface Closure
-{
-    public void invoke(long resp, long args);
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.RUNTIME)
+public @interface DllImport {
+    String value() default "";
+
+    String function() default "";
+
+    boolean wideChar() default true;
 }

@@ -520,7 +520,7 @@ ffi_prep_incoming_args_SYSV(char *stack, void **rvalue, void **avalue,
    *(unsigned char *)  &__tramp[5] = 0xe8; \
    *(unsigned int*)  &__tramp[6] = __dis; /* call __fun  */ \
    *(unsigned char *)  &__tramp[10] = 0xc2; \
-   *(unsigned short*)  &__tramp[11] = __size; /* ret __size  */ \
+   *(unsigned short*)  &__tramp[11] = 0; /* ret __size  */ \
  }
 
 /* the cif must already be prep'ed */

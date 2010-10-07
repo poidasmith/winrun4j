@@ -16,8 +16,7 @@ import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.boris.winrun4j.winapi.Registry;
-import org.boris.winrun4j.winapi.Registry.QUERY_INFO;
+import org.boris.winrun4j.Registry.QUERY_INFO;
 
 /**
  * A class that wraps a registry key.

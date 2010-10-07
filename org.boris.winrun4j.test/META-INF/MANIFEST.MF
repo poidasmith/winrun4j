@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Test
 Bundle-SymbolicName: org.boris.winrun4j.test
 Bundle-Version: 1.0.0
-Export-Package: org.boris.winrun4j.test
+Export-Package: org.boris.winrun4j.test,
+ org.boris.winrun4j.winapi
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.junit4,
  org.boris.commons;bundle-version="0.0.1"

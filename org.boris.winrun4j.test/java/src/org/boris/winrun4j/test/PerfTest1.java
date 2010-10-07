@@ -42,7 +42,8 @@ public class PerfTest1
     }
 
     private static long getTickCountFaster() {
-        return Native.call(procGetTickCount, null, 0, 0);
+        // return NativeHelper.call(procGetTickCount, null, 0, 0);
+        return 0;
     }
 
     private static long getTickCountSlow() {

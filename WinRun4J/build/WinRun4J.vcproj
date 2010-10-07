@@ -844,23 +844,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\libffi\debug.c"
-				>
-			</File>
-			<File
 				RelativePath="..\src\libffi\ffi.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\libffi\java_raw_api.c"
-				>
-			</File>
-			<File
 				RelativePath="..\src\libffi\prep_cif.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\libffi\raw_api.c"
 				>
 			</File>
 			<File
@@ -893,7 +881,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="$(InputDir)\asm.bat $(InputDir) $(InputName) &quot;$(OutDir)&quot;"
+						CommandLine="$(InputDir)\asm.bat $(InputDir) $(InputName) &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 						Outputs="$(OutDir)\$(InputName).obj"
 					/>
 				</FileConfiguration>

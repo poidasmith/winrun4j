@@ -7,12 +7,10 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.winapi;
+package org.boris.winrun4j;
 
 import java.nio.ByteBuffer;
 
-import org.boris.winrun4j.Native;
-import org.boris.winrun4j.NativeHelper;
 
 public class Registry
 {

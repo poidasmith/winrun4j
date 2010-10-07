@@ -47,11 +47,6 @@ public class Native
     public static native ByteBuffer fromPointer(long ptr, long size);
 
     /**
-     * Call a native function.
-     */
-    public static native long call(long ptr, long[] stack, int stackSize, int mode);
-
-    /**
      * Binds a function pointer to a native method.
      */
     public static native boolean bind(Class clazz, String fn, String sig, long ptr);

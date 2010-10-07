@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class NativeHelper
 {
-    public static final boolean IS_64 = Native.call(Native.getProcAddress(0, "Native_Is64"), null, 0, 0) != 0;
+    public static final boolean IS_64 = false; // TODO
     public static final int PTR_SIZE = IS_64 ? 8 : 4;
     public static final int HANDLE_SIZE = 4;
     public static final int INT_SIZE = 4;
@@ -113,8 +113,7 @@ public class NativeHelper
 
     public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6,
             long arg7, long arg8, long arg9, long arg10) {
-        return call(library, fn, new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9,
-                arg10 });
+        return call(library, fn, new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10 });
     }
 
     public static long call(long library, String fn, long[] args) {
@@ -127,17 +126,6 @@ public class NativeHelper
 
     public static long call(long proc, long[] args) {
         return FFI.call(proc, args);
-        // return call_dep(proc, new NativeStack(args));
-    }
-
-    public static long call_dep(long proc, NativeStack stack) {
-        if (proc == 0)
-            throw new NullPointerException("Invalid procedure address");
-        long[] s = null;
-        if (stack != null)
-            s = stack.toArray();
-        int len = s != null ? s.length : 0;
-        return Native.call(proc, s, len, 0);
     }
 
     public static void free(long ptr) {

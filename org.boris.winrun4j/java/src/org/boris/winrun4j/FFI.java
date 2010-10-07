@@ -72,6 +72,11 @@ public class FFI
         return result;
     }
 
+    public interface Closure
+    {
+        public void invoke(long resp, long args);
+    }
+
     public static class CIF
     {
         private long cif;

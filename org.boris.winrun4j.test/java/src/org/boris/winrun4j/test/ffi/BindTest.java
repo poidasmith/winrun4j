@@ -9,6 +9,9 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.ffi;
 
+import org.boris.winrun4j.DllImport;
+import org.boris.winrun4j.NativeBinder;
+
 public class BindTest
 {
     public static void main(String[] args) throws Exception {
@@ -17,7 +20,7 @@ public class BindTest
     }
 
     @DllImport("kernel32.dll")
-    public static native long GetCurrentProcessId();
+    public static native int GetCurrentProcessId();
 
     // public static native int GetEnvironmentVariable(String lpName,
     // StringBuilder lpBuffer, int nSize);
