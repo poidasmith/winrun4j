@@ -11,13 +11,12 @@ package org.boris.winrun4j.winapi;
 
 import java.nio.ByteBuffer;
 
-import org.boris.winrun4j.Delegate;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 
 public class Services
 {
-    private static final boolean is64 = NativeHelper.IS_64;
+    private static final boolean is64 = Native.IS_64;
 
     // Service Type
     public static final int SERVICE_FILE_SYSTEM_DRIVER = 0x2;

@@ -15,8 +15,8 @@ import java.io.StringReader;
 
 import org.boris.commons.io.IO;
 import org.boris.commons.io.ProcessResult;
-import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Log;
+import org.boris.winrun4j.test.framework.TestHelper;
 import org.boris.winrun4j.winapi.Environment;
 import org.boris.winrun4j.winapi.Environment.OSVERSIONINFOEX;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class EnvironmentTest
 
     @Test
     public void testCommandLine() throws Exception {
-        ProcessResult pr = new Launcher().testcp().main(getClass()).log(Log.Level.WARN).
+        ProcessResult pr = TestHelper.launcher().main(getClass()).log(Log.Level.WARN).
                 launch("-test ok now this is great", "ok", "great");
         pr.waitFor();
         String[] lines = IO.readLines(new StringReader(pr.getStdOut()));

@@ -15,12 +15,12 @@ import java.io.File;
 
 import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.Launcher;
-import org.boris.winrun4j.winapi.DDEML;
+import org.boris.winrun4j.test.framework.TestHelper;
 
 public class FileAssociationsTest
 {
     public void testBasic() throws Exception {
-        Launcher l = new Launcher()
+        Launcher l = TestHelper.launcher()
                 .main(FileAssociationsTest.class)
                 .classpath(new File("."))
                 .arg("-test")

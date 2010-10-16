@@ -12,16 +12,19 @@ package org.boris.winrun4j.test.unit;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+
 import org.boris.commons.io.ProcessResult;
 import org.boris.commons.lang.Threads;
 import org.boris.winrun4j.Launcher;
+import org.boris.winrun4j.test.framework.TestHelper;
 import org.junit.Test;
 
 public class SingleInstanceTest
 {
     @Test
     public void testProcess() throws Exception {
-        Launcher l = create().create();
+        Launcher l = create();
         ProcessResult res = l.launch("process");
         Threads.sleepQuietly(10);
         ProcessResult res2 = l.launch("process").waitFor();
@@ -31,10 +34,9 @@ public class SingleInstanceTest
         res2.destroy();
     }
 
-    private static Launcher create() {
-        Launcher l = new Launcher();
+    private static Launcher create() throws IOException {
+        Launcher l = TestHelper.launcher();
         l.main(SingleInstanceRunner.class);
-        l.testcp();
         l.singleInstance("process");
         l.dde(true, null);
         return l;

@@ -45,6 +45,11 @@ public class PInvoke
         boolean wideChar() default true;
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface MarshalAs {
+        int sizeConst() default 0;
+    }
+
     public static class IntPtr
     {
         public int value;
@@ -67,14 +72,11 @@ public class PInvoke
         }
     }
 
-    public static class Callback
+    public interface Callback
     {
-        public static Callback fromDelegate(Object obj) {
-            return fromDelegate(obj, null);
-        }
+    }
 
-        public static Callback fromDelegate(Object obj, String method) {
-            return null;
-        }
+    public interface Struct
+    {
     }
 }

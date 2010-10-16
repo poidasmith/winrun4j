@@ -9,26 +9,23 @@
  *******************************************************************************/
 package org.boris.winrun4j.winapi;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import org.boris.winrun4j.Delegate;
 import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.PInvoke.Callback;
+import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.Struct;
 
 public class Resources
 {
-    public static int enumResourceTypes(long handle, Delegate callback) {
-        return (int) NativeHelper.call(Kernel32.library, "EnumResourceTypesW", handle, callback.getPointer(), 0);
-    }
+    @DllImport
+    public static native int EnumResourceTypes(long handle, ResourceTypesCallback callback);
 
-    public static int enumResourceNames(long handle, long type, Delegate callback) {
-        return (int) NativeHelper.call(Kernel32.library, "EnumResourceNamesW", handle, type, callback.getPointer(), 0);
-    }
+    @DllImport
+    public static native int EnumResourceNames(long handle, long type, ResourceNamesCallback callback);
 
-    public static int enumResourceLanguages(long handle, long type, long name, Delegate callback) {
-        return (int) NativeHelper.call(Kernel32.library, "EnumResourceLanguagesW", handle, type, name, callback
-                .getPointer(), 0);
-    }
+    @DllImport
+    public static native int EnumResourceLanguages(long handle, long type, long name, ResourceLanguagesCallback callback);
 
     public static long findResource(long hModule, long name, long type) {
         return NativeHelper.call(Kernel32.library, "FindResource", hModule, name, type);
@@ -40,28 +37,25 @@ public class Resources
 
     public static ResourceEntry[] findResources(long hModule) {
         final ArrayList res = new ArrayList();
-        final Delegate langs = new ResourceLanguagesCallback() {
-            protected int languagesCallback(long hModule, long pType, long pName, int wLanguage, long lpParam) {
+        final ResourceLanguagesCallback langs = new ResourceLanguagesCallback() {
+            public int languagesCallback(long hModule, long pType, long pName, int wLanguage, long lpParam) {
                 ResourceEntry e = new ResourceEntry(ResourceId.fromPointer(pType, true), ResourceId.fromPointer(pName,
                         true), wLanguage);
                 res.add(e);
                 return 1;
             }
         };
-        final Delegate names = new ResourceNamesCallback() {
-            protected int namesCallback(long hModule, long pType, long pName, long lpParam) {
-                return enumResourceLanguages(hModule, pType, pName, langs);
+        final ResourceNamesCallback names = new ResourceNamesCallback() {
+            public int namesCallback(long hModule, long pType, long pName, long lpParam) {
+                return EnumResourceLanguages(hModule, pType, pName, langs);
             }
         };
-        final Delegate types = new ResourceTypesCallback() {
-            protected int typesCallback(long hModule, long pType, long lpParam) {
-                return enumResourceNames(hModule, pType, names);
+        final ResourceTypesCallback types = new ResourceTypesCallback() {
+            public int typesCallback(long hModule, long pType, long lpParam) {
+                return EnumResourceNames(hModule, pType, names);
             }
         };
-        enumResourceTypes(hModule, types);
-        types.dispose();
-        names.dispose();
-        langs.dispose();
+        EnumResourceTypes(hModule, types);
         return (ResourceEntry[]) res.toArray(new ResourceEntry[res.size()]);
     }
 
@@ -122,37 +116,22 @@ public class Resources
         return NativeHelper.call(Kernel32.library, "SizeOfResource", hModule, hResInfo);
     }
 
-    public static abstract class ResourceTypesCallback extends Delegate
+    public interface ResourceTypesCallback extends Callback
     {
-        protected final long callback(long stack) {
-            ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
-            return typesCallback(bb.getInt(), bb.getInt(), bb.getInt());
-        }
-
-        protected abstract int typesCallback(long hModule, long pType, long lpParam);
+        int typesCallback(long hModule, long pType, long lpParam);
     }
 
-    public static abstract class ResourceNamesCallback extends Delegate
+    public interface ResourceNamesCallback extends Callback
     {
-        protected final long callback(long stack) {
-            ByteBuffer bb = NativeHelper.getBuffer(stack, 16);
-            return namesCallback(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt());
-        }
-
-        protected abstract int namesCallback(long hModule, long pType, long pName, long lpParam);
+        int namesCallback(long hModule, long pType, long pName, long lpParam);
     }
 
-    public static abstract class ResourceLanguagesCallback extends Delegate
+    public interface ResourceLanguagesCallback extends Callback
     {
-        protected final long callback(long stack) {
-            ByteBuffer bb = NativeHelper.getBuffer(stack, 20);
-            return languagesCallback(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt());
-        }
-
-        protected abstract int languagesCallback(long hModule, long pType, long pName, int wLanguage, long lpParam);
+        int languagesCallback(long hModule, long pType, long pName, int wLanguage, long lpParam);
     }
 
-    public static class ICONENTRY
+    public static class ICONENTRY implements Struct
     {
         public int width;
         public int height;
@@ -164,14 +143,14 @@ public class Resources
         public int imageOffset;
     }
 
-    public static class ICONHEADER
+    public static class ICONHEADER implements Struct
     {
         public int reserved;
         public int type;
         public ICONENTRY[] entries;
     }
 
-    public static class ICONIMAGE
+    public static class ICONIMAGE implements Struct
     {
         public BITMAPINFOHEADER header;
         public RGBQUAD colors;
@@ -179,7 +158,7 @@ public class Resources
         public int[] ands;
     }
 
-    public static class BITMAPINFOHEADER
+    public static class BITMAPINFOHEADER implements Struct
     {
         public int biSize;
         public int biWidth;
@@ -194,7 +173,7 @@ public class Resources
         public int biClrImportant;
     }
 
-    public static class RGBQUAD
+    public static class RGBQUAD implements Struct
     {
         public int rgbBlue;
         public int rgbGreen;
@@ -202,7 +181,7 @@ public class Resources
         public int rgbReserved;
     }
 
-    public static class GRPICONENTRY
+    public static class GRPICONENTRY implements Struct
     {
         public int width;
         public int height;
@@ -216,7 +195,7 @@ public class Resources
         public int id;
     }
 
-    public static class GRPICONHEADER
+    public static class GRPICONHEADER implements Struct
     {
         public int reserved;
         public int type;

@@ -16,9 +16,6 @@ import java.util.ArrayList;
 public class NativeHelper
 {
     public static final int PTR_SIZE = Native.IS_64 ? 8 : 4;
-    public static final int HANDLE_SIZE = 4;
-    public static final int INT_SIZE = 4;
-    public static final int DWORD_SIZE = 4;
 
     public static long call(long library, String fn, long... args) {
         return call(Native.getProcAddress(library, fn), args);

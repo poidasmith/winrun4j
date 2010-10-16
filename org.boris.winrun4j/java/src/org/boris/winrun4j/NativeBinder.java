@@ -16,11 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.boris.winrun4j.FFI.CIF;
+import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.IntPtr;
+import org.boris.winrun4j.PInvoke.Struct;
 import org.boris.winrun4j.PInvoke.UIntPtr;
 
-public class NativeBinder implements FFI.Closure
+public class NativeBinder
 {
     private static Map<Method, NativeBinder> methods = new HashMap();
 
@@ -189,6 +191,8 @@ public class NativeBinder implements FFI.Closure
     private static final int ARG_UINT_PTR = 4;
     private static final int ARG_INT_PTR = 5;
     private static final int ARG_STRING = 6;
+    private static final int ARG_CALLBACK = 7;
+    private static final int ARG_STRUCT_PTR = 8;
 
     private static int getArgType(Class clazz) {
         if (int.class.equals(clazz)) {
@@ -203,8 +207,13 @@ public class NativeBinder implements FFI.Closure
             return ARG_STRING_BUILDER;
         } else if (String.class.equals(clazz)) {
             return ARG_STRING;
+        } else if (Struct.class.isAssignableFrom(clazz)) {
+            return ARG_STRUCT_PTR;
+        } else if (Callback.class.isAssignableFrom(clazz)) {
+            return ARG_CALLBACK;
+        } else {
+            throw new RuntimeException("Unrecognized native argument type: " + clazz);
         }
-        return 0;
     }
 
     public void invoke(long resp, long args) {

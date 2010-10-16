@@ -21,9 +21,6 @@ import org.boris.commons.io.ProcessResult;
 
 public class Launcher
 {
-    public static final File LAUNCHER = new File(
-            "F:\\eclipse\\workspace\\WinRun4J\\build\\WinRun4J-Debug\\WinRun4J.exe");
-
     private Map<String, Map<String, String>> bundle = new LinkedHashMap();
     private int classpathIndex;
     private int vmargIndex;
@@ -34,10 +31,10 @@ public class Launcher
     private File launcher;
     private File ini;
 
-    public Launcher create() throws IOException {
+    public Launcher create(File launcherFile) throws IOException {
         launcher = File.createTempFile("winrun4j.launcher.", ".exe");
         launcher.deleteOnExit();
-        IO.copy(LAUNCHER, launcher);
+        IO.copy(launcherFile, launcher);
         ini = new File(launcher.getParent(), IO.getNameSansExtension(launcher) + ".ini");
         ini.deleteOnExit();
         IO.copy(new StringReader(toString()), new FileWriter(ini), true);
@@ -45,8 +42,9 @@ public class Launcher
     }
 
     public ProcessResult launch(String... args) throws Exception {
-        if (launcher == null)
-            create();
+        if (launcher == null) {
+            throw new NullPointerException("Launcher not created");
+        }
         String[] cmd = new String[args == null ? 1 : args.length + 1];
         cmd[0] = launcher.getAbsolutePath();
         if (args != null) {
@@ -223,13 +221,6 @@ public class Launcher
         }
 
         sb.append("\r\n");
-    }
-
-    public Launcher testcp() {
-        return classpath("F:\\eclipse\\workspace\\org.boris.winrun4j.test\\bin").
-                classpath("F:\\eclipse\\workspace\\org.boris.commons\\bin").
-                classpath("F:\\eclipse\\workspace\\org.boris.winrun4j\\bin").
-                classpath("F:\\eclipse\\platform3.5\\plugins\\org.junit*\\*.jar");
     }
 
     public Launcher singleInstance(String si) {

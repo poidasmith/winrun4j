@@ -21,7 +21,7 @@ import org.boris.winrun4j.PInvoke.DllImport;
 public class DDE
 {
     static {
-        NativeBinder.bind(DDE.class);
+        PInvoke.bind(DDE.class);
     }
 
     private static Set fileAssociationListeners = new LinkedHashSet();

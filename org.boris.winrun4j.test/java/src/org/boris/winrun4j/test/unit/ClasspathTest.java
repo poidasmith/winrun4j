@@ -11,13 +11,14 @@ package org.boris.winrun4j.test.unit;
 
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Log;
+import org.boris.winrun4j.test.framework.TestHelper;
 import org.junit.Test;
 
 public class ClasspathTest
 {
     @Test
     public void testLongClassPath() throws Exception {
-        Launcher l = new Launcher().testcp();
+        Launcher l = TestHelper.launcher();
         l.main(ClasspathTest.class);
         l.classpath("F:/downloads/*.jar");
         l.log(Log.Level.INFO);

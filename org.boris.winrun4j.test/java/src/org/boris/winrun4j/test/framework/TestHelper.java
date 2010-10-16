@@ -9,13 +9,20 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.framework;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Random;
 
 import junit.framework.TestCase;
 
+import org.boris.winrun4j.Launcher;
+
 public class TestHelper
 {
+    public static final File LAUNCHER = new File(
+            "F:\\eclipse\\workspace\\WinRun4J\\build\\WinRun4J-Debug\\WinRun4J.exe");
+
     public static byte[] createRandomByteArray() {
         Random r = new Random();
         byte[] b = new byte[r.nextInt(50) + 1];
@@ -33,4 +40,16 @@ public class TestHelper
             TestCase.assertEquals("Element " + i + " not equal", Array.get(arr1, i), Array.get(arr2, i));
     }
 
+    public static Launcher testcp(Launcher l) {
+        return l.classpath("F:\\eclipse\\workspace\\org.boris.winrun4j.test\\bin").
+                classpath("F:\\eclipse\\workspace\\org.boris.commons\\bin").
+                classpath("F:\\eclipse\\workspace\\org.boris.winrun4j\\bin").
+                classpath("F:\\eclipse\\platform3.5\\plugins\\org.junit*\\*.jar");
+    }
+
+    public static Launcher launcher() throws IOException {
+        Launcher l = new Launcher().create(LAUNCHER);
+        testcp(l);
+        return l;
+    }
 }

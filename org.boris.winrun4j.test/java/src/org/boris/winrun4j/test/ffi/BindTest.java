@@ -10,7 +10,7 @@
 package org.boris.winrun4j.test.ffi;
 
 import org.boris.winrun4j.PInvoke;
-import org.boris.winrun4j.PInvoke.Delegate;
+import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.IntPtr;
 import org.boris.winrun4j.PInvoke.UIntPtr;
@@ -43,9 +43,8 @@ public class BindTest
         System.out.println(len.value);
     }
 
-    public interface WindowEnumProc
+    public interface WindowEnumProc extends Callback
     {
-        @Delegate
         boolean callback(IntPtr hWnd, IntPtr lParam);
     }
 
@@ -60,6 +59,9 @@ public class BindTest
 
     @DllImport("user32.dll")
     public static native boolean EnumWindows(WindowEnumProc enumFunc, IntPtr lParam);
+
+    @DllImport("user32.dll")
+    public static native int GetWindowText(long hWnd, StringBuilder lpString, int nMaxCount);
 
     @DllImport("kernel32.dll")
     public static native int GetEnvironmentVariable(String lpName, StringBuilder lpBuffer, UIntPtr nSize);

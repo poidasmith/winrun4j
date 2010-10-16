@@ -12,6 +12,7 @@ package org.boris.winrun4j;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.IntPtr;
 import org.boris.winrun4j.PInvoke.Out;
+import org.boris.winrun4j.PInvoke.Struct;
 import org.boris.winrun4j.PInvoke.UIntPtr;
 
 public class Registry
@@ -85,7 +86,7 @@ public class Registry
     @DllImport(entryPoint = "RegSetValueEx")
     public static native long setValueEx(long hKey, String valueName, int type, byte[] data, int offset, int len);
 
-    public static class QUERY_INFO
+    public static class QUERY_INFO implements Struct
     {
         public String keyClass;
         public int subKeyCount;
@@ -96,7 +97,7 @@ public class Registry
         public FILETIME fileTime;
     }
 
-    public static class FILETIME
+    public static class FILETIME implements Struct
     {
         public int dwLowDateTime;
         public int dwHighDateTime;
