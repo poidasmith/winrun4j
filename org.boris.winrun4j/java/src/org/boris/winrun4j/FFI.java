@@ -13,8 +13,11 @@ import java.nio.ByteBuffer;
 
 public class FFI
 {
+    private static final boolean is64 = Native.IS_64;
+
     public static final int ABI_SYSV = 1;
     public static final int ABI_STDCALL = 2;
+    public static final int ABI_WIN64 = 1;
 
     public static final int FFI_TYPE_VOID = 0;
     public static final int FFI_TYPE_INT = 1;
@@ -48,20 +51,25 @@ public class FFI
     }
 
     public static long call(long proc, long[] args) {
-        CIF cif = CIF.prepare(ABI_STDCALL, args.length);
+        CIF cif = CIF.prepare(is64 ? ABI_WIN64 : ABI_STDCALL, args.length);
         long rvalue = Native.malloc(8);
         NativeHelper.zeroMemory(NativeHelper.getBuffer(rvalue, 8));
         long avalue = 0;
         long pvalue = 0;
         if (args.length > 0) {
-            int size = args.length * 4;
+            int size = args.length * NativeHelper.PTR_SIZE;
             avalue = Native.malloc(size);
             pvalue = Native.malloc(size);
             ByteBuffer vb = NativeHelper.getBuffer(avalue, size);
             ByteBuffer pb = NativeHelper.getBuffer(pvalue, size);
             for (int i = 0; i < args.length; i++) {
-                vb.putInt((int) args[i]);
-                pb.putInt((int) (avalue + (i * 4)));
+                if (is64) {
+                    vb.putLong(args[i]);
+                    pb.putLong(avalue + (i * NativeHelper.PTR_SIZE));
+                } else {
+                    vb.putInt((int) args[i]);
+                    pb.putInt((int) (avalue + (i * NativeHelper.PTR_SIZE)));
+                }
             }
         }
         call(cif.get(), proc, rvalue, pvalue);
@@ -90,8 +98,8 @@ public class FFI
             CIF c = new CIF();
             int sizeOfCif = 30;
             c.cif = Native.malloc(sizeOfCif);
-            c.ffi_type_ptr = makeType(FFI_TYPE_POINTER, 4);
-            int argSize = (argc + 1) * 4;
+            c.ffi_type_ptr = makeType(FFI_TYPE_POINTER, NativeHelper.PTR_SIZE);
+            int argSize = (argc + 1) * NativeHelper.PTR_SIZE;
             c.atypes = Native.malloc(argSize);
             ByteBuffer ab = NativeHelper.getBuffer(c.atypes, argSize);
             for (int i = 0; i < argc; i++) {

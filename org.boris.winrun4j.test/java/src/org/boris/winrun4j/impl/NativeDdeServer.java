@@ -13,16 +13,15 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Properties;
 
-import org.boris.winrun4j.Callback;
 import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
-import org.boris.winrun4j.winapi.DDEML;
+import org.boris.winrun4j.PInvoke.Callback;
+import org.boris.winrun4j.PInvoke.Delegate;
 import org.boris.winrun4j.winapi.Gdi32;
 import org.boris.winrun4j.winapi.Kernel32;
 import org.boris.winrun4j.winapi.User32;
-import org.boris.winrun4j.winapi.DDEML.DdeCallback;
 import org.boris.winrun4j.winapi.User32.WNDCLASSEX;
 import org.boris.winrun4j.winapi.User32.WindowProc;
 import org.boris.winrun4j.winapi.User32.WindowProcCallback;
@@ -120,7 +119,7 @@ public class NativeDdeServer extends DdeCallback implements Runnable, WindowProc
         return true;
     }
 
-    private void registerWindow(long hInstance, Callback mainWndProc) {
+    private void registerWindow(long hInstance, Delegate mainWndProc) {
         WNDCLASSEX wcx = new WNDCLASSEX();
         wcx.style = User32.CS_BYTEALIGNCLIENT | User32.CS_BYTEALIGNWINDOW;
         wcx.lpfnWndProc = mainWndProc;

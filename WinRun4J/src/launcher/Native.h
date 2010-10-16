@@ -25,11 +25,12 @@ private:
 	static jlong Malloc(JNIEnv* env, jobject self, jint size);
 	static void Free(JNIEnv* env, jobject self, jlong handle);
 	static jobject FromPointer(JNIEnv* env, jobject self, jlong hanedle, jlong size);
-	static jlong Call(JNIEnv* env, jobject self, jlong handle, jlongArray stack, jint size, jint mode);
 	static jboolean Bind(JNIEnv* env, jobject self, jclass clazz, jstring fn, jstring sig, jlong ptr);
 	static jlong NewGlobalRef(JNIEnv* env, jobject self, jobject obj);
 	static void DeleteGlobalRef(JNIEnv* env, jobject self, jlong handle);
 	static jlong GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name, jstring sig, jboolean isStatic);
+	static jlong GetObjectID(JNIEnv* env, jobject self, jobject obj);
+	static jobject GetObject(JNIEnv* env, jobject self, jlong obj);
 	static jint FFIPrepare(JNIEnv* env, jobject self, jlong cif, jint abi, jint nargs, jlong rtype, jlong atypes);
 	static void FFICall(JNIEnv* env, jobject self, jlong cif, jlong fn, jlong rvalue, jlong avalue);
 	static jlong FFIPrepareClosure(JNIEnv* env, jobject self, jlong cif, jlong objectId, jlong methodId);

@@ -12,11 +12,17 @@ package org.boris.winrun4j;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.boris.winrun4j.PInvoke.DllImport;
+
 /**
  * Log to the launcher log.
  */
 public class Log
 {
+    static {
+        NativeBinder.bind(Log.class);
+    }
+
     /**
      * Info log.
      * 
@@ -54,18 +60,8 @@ public class Log
         error(sw.toString());
     }
 
-    /**
-     * Internal log.
-     * 
-     * @param level.
-     * @param msg.
-     */
-    private static void LogIt(int level, String marker, String msg) {
-        long markerPtr = NativeHelper.toNativeString(marker, false);
-        long msgPtr = NativeHelper.toNativeString(msg, false);
-        NativeHelper.call(0, "Log_LogIt", level, markerPtr, msgPtr);
-        NativeHelper.free(markerPtr, msgPtr);
-    }
+    @DllImport(entryPoint = "Log_LogIt", internal = true)
+    private static native void LogIt(int level, String marker, String msg);
 
     public static class Level
     {

@@ -12,11 +12,17 @@ package org.boris.winrun4j;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import org.boris.winrun4j.PInvoke.DllImport;
+
 /**
  * Provides access to the INI file used to startup the app.
  */
 public class INI
 {
+    static {
+        PInvoke.bind(INI.class);
+    }
+
     // Known INI keys
     public static final String MAIN_CLASS = ":main.class";
     public static final String SERVICE_CLASS = ":service.class";
@@ -47,13 +53,8 @@ public class INI
      * 
      * @return String.
      */
-    public static String getProperty(String key) {
-        long ptr = NativeHelper.toNativeString(key, false);
-        long res = NativeHelper.call(0, "INI_GetProperty", ptr);
-        String s = NativeHelper.getString(res, 260, false);
-        NativeHelper.free(ptr);
-        return s;
-    }
+    @DllImport(entryPoint = "INI_GetProperty", internal = true)
+    public static native String getProperty(String key);
 
     /**
      * Gets the keys from the INI file.

@@ -62,7 +62,7 @@ void WinRun4J::SetProcessPriority(dictionary* ini)
 	if(!priority) 
 		return;
 
-	DWORD p = -1;
+	int p = -1;
 	if(strcmp("idle", priority) == 0) {
 		p = IDLE_PRIORITY_CLASS;
 	} else if(strcmp("below_normal", priority) == 0) {
@@ -182,7 +182,7 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	if(vmargsCount > 0)
 		Log::Info("VM Args:");
 	TCHAR argl[MAX_PATH];
-	for(int i = 0; i < vmargsCount; i++) {
+	for(UINT i = 0; i < vmargsCount; i++) {
 		StrTruncate(argl, vmargs[i], MAX_PATH);
 		Log::Info("vmarg.%d=%s", i, argl);
 	}
@@ -197,7 +197,7 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 	// Log the commandline args
 	if(progargsCount > 0)
 		Log::Info("Program Args");
-	for(int i = 0; i < progargsCount; i++) {
+	for(UINT i = 0; i < progargsCount; i++) {
 		StrTruncate(argl, progargs[i], MAX_PATH);
 		Log::Info("arg.%d=%s", i, argl);
 	}
@@ -244,12 +244,12 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 void WinRun4J::FreeArgs()
 {
 	// Free vm args
-	for(int i = 0; i < vmargsCount; i++) {
+	for(UINT i = 0; i < vmargsCount; i++) {
 		free(vmargs[i]);
 	}
 
 	// Free program args
-	for(int i = 0; i < progargsCount; i++) {
+	for(UINT i = 0; i < progargsCount; i++) {
 		free(progargs[i]);
 	}
 }
@@ -274,7 +274,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, LPSTR lpCmdLine)
 	progargsParsed = true;
 	if(progargsCount > 0) {
 		free(progargs[0]);
-		for(int i = 1; i < progargsCount; i++) {
+		for(UINT i = 1; i < progargsCount; i++) {
 			progargs[i-1] = progargs[i];
 		}
 		progargsCount--;
@@ -374,7 +374,7 @@ int main(int argc, char* argv[])
 	HINSTANCE hInstance = (HINSTANCE) GetModuleHandle(NULL);
 	LPSTR lpCmdLine = StripArg0(GetCommandLine());
 #else
-int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
+int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nCmdShow*/) 
 {
 	lpCmdLine = StripArg0(GetCommandLine());
 #endif

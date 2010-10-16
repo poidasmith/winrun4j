@@ -11,9 +11,10 @@ package org.boris.winrun4j.winapi;
 
 import java.nio.ByteBuffer;
 
-import org.boris.winrun4j.Callback;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.PInvoke.Callback;
+import org.boris.winrun4j.PInvoke.Delegate;
 
 public class Console
 {
@@ -41,7 +42,7 @@ public class Console
         return NativeHelper.call(library, "GetStdHandle", nStdHandle);
     }
 
-    public static boolean setConsoleCtrlHandler(Callback callback, boolean add) {
+    public static boolean setConsoleCtrlHandler(Delegate callback, boolean add) {
         long handler = callback == null ? 0 : callback.getPointer();
         return NativeHelper.call(library, "SetConsoleCtrlHandler", handler, add ? 1 : 0) != 0;
     }
@@ -92,10 +93,7 @@ public class Console
 
     public static abstract class HandlerRoutine extends Callback
     {
-        protected long callback(long stack) {
-            return handlerRoutine(NativeHelper.getInt(stack)) ? 1 : 0;
-        }
-
+        @Delegate
         public abstract boolean handlerRoutine(int dwCtrlType);
     }
 

@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.Delegate;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
@@ -45,7 +45,7 @@ public class WindowTest implements WindowProc
                 0, 0, 0);
     }
 
-    private static void registerWindow(Callback callback) {
+    private static void registerWindow(Delegate callback) {
         WNDCLASSEX wcx = new WNDCLASSEX();
         wcx.style = User32.CS_BYTEALIGNCLIENT | User32.CS_BYTEALIGNWINDOW;
         wcx.lpfnWndProc = callback;

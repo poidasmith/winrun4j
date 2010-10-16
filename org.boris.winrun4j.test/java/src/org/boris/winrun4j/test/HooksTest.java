@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.Delegate;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.winapi.Hooks;
 import org.boris.winrun4j.winapi.Kernel32;
@@ -28,7 +28,7 @@ public class HooksTest
                 return 0;
             }
         });
-        Callback cb = new Callback() {
+        Delegate cb = new Delegate() {
             protected long callback(long stack) {
                 System.out.println(stack);
                 return 0;

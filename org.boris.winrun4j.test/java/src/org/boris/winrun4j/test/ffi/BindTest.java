@@ -9,19 +9,58 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.ffi;
 
-import org.boris.winrun4j.DllImport;
-import org.boris.winrun4j.NativeBinder;
+import org.boris.winrun4j.PInvoke;
+import org.boris.winrun4j.PInvoke.Delegate;
+import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.IntPtr;
+import org.boris.winrun4j.PInvoke.UIntPtr;
 
 public class BindTest
 {
-    public static void main(String[] args) throws Exception {
-        NativeBinder.bind(BindTest.class);
-        System.out.println(GetCurrentProcessId());
+    static {
+        PInvoke.bind(BindTest.class);
     }
+
+    public static void main(String[] args) throws Exception {
+        // System.out.println(GetCurrentProcessId());
+
+        StringBuilder userName = new StringBuilder();
+        // Kernel32.debugBreak();
+        UIntPtr len = new UIntPtr(100);
+        // Test1(344551122, sb, len);
+        for (int i = 0; i < 100; i++) {
+            len.value = 100;
+            System.out.println(GetUserName(userName, len));
+            System.out.println(userName);
+            System.out.println(len.value);
+            System.out.println(GetCurrentProcessId());
+        }
+
+        StringBuilder var = new StringBuilder();
+        len.value = 100;
+        System.out.println(GetEnvironmentVariable("TEMP", var, len));
+        System.out.println(var);
+        System.out.println(len.value);
+    }
+
+    public interface WindowEnumProc
+    {
+        @Delegate
+        boolean callback(IntPtr hWnd, IntPtr lParam);
+    }
+
+    @DllImport(lib = "kernel32.dll", entryPoint = "GetCurrentProcessId")
+    public static native int Test1(int i, StringBuilder sb, UIntPtr p2);
 
     @DllImport("kernel32.dll")
     public static native int GetCurrentProcessId();
 
-    // public static native int GetEnvironmentVariable(String lpName,
-    // StringBuilder lpBuffer, int nSize);
+    @DllImport(lib = "advapi32.dll", setLastError = true)
+    public static native boolean GetUserName(StringBuilder sb, UIntPtr length);
+
+    @DllImport("user32.dll")
+    public static native boolean EnumWindows(WindowEnumProc enumFunc, IntPtr lParam);
+
+    @DllImport("kernel32.dll")
+    public static native int GetEnvironmentVariable(String lpName, StringBuilder lpBuffer, UIntPtr nSize);
 }

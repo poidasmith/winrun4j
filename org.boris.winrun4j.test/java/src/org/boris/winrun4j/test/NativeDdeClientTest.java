@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
-import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.Delegate;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.NativeHelper;
 import org.boris.winrun4j.winapi.DDEML;
@@ -17,7 +17,7 @@ import org.boris.winrun4j.winapi.DDEML;
 public class NativeDdeClientTest extends DDEML.DdeCallback
 {
     public static void main(String[] args) throws Exception {
-        Callback cb = new NativeDdeClientTest();
+        Delegate cb = new NativeDdeClientTest();
         long pid = DDEML.initialize(cb, 0);
         if (pid == 0) {
             Log.error("Could not initialize DDE");

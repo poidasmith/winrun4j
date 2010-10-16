@@ -12,7 +12,7 @@ package org.boris.winrun4j.winapi;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.Delegate;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 
@@ -125,7 +125,7 @@ public class FileManagement
     }
 
     public static boolean readDirectoryChanges(long hDirectory, long lpBuffer, int dwBufferLength, boolean bWatchTree,
-            int dwNotifyFilter, long lpOverlapped, Callback completionRoutine) {
+            int dwNotifyFilter, long lpOverlapped, Delegate completionRoutine) {
         return NativeHelper.call(Kernel32.library, "ReadDirectoryChangesW", hDirectory, lpBuffer, dwBufferLength,
                 bWatchTree ? 1 : 0, dwNotifyFilter, 0, lpOverlapped, completionRoutine.getPointer()) != 0;
     }
@@ -180,7 +180,7 @@ public class FileManagement
         return (FILE_NOTIFY_INFORMATION[]) results.toArray(new FILE_NOTIFY_INFORMATION[results.size()]);
     }
 
-    public static abstract class FileNotifyInformationCallback extends Callback
+    public static abstract class FileNotifyInformationCallback extends Delegate
     {
         protected final int callback(int stack) {
             ByteBuffer bb = NativeHelper.getBuffer(stack, 12);

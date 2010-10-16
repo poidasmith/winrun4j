@@ -15,145 +15,20 @@ import java.util.ArrayList;
 
 public class NativeHelper
 {
-    public static final boolean IS_64 = false; // TODO
-    public static final int PTR_SIZE = IS_64 ? 8 : 4;
+    public static final int PTR_SIZE = Native.IS_64 ? 8 : 4;
     public static final int HANDLE_SIZE = 4;
     public static final int INT_SIZE = 4;
     public static final int DWORD_SIZE = 4;
 
-    public static long call(long proc) {
-        return call(proc, new long[0]);
-    }
-
-    public static long call(long proc, long arg1) {
-        return call(proc, (new long[] { arg1 }));
-    }
-
-    public static long call(long proc, long arg1, long arg2) {
-        return call(proc, new long[] { arg1, arg2 });
-    }
-
-    public static long call(long proc, long arg1, long arg2, long arg3) {
-        return call(proc, new long[] { arg1, arg2, arg3 });
-    }
-
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4) {
-        return call(proc, new long[] { arg1, arg2, arg3, arg4 });
-    }
-
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5) {
-        return call(proc, new long[] { arg1, arg2, arg3, arg4, arg5 });
-    }
-
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6) {
-        return call(proc, new long[] { arg1, arg2, arg3, arg4, arg5, arg6 });
-    }
-
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7) {
-        return call(proc, new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 });
-    }
-
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
-            long arg8) {
-        return call(proc, new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 });
-    }
-
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
-            long arg8, long arg9) {
-        return call(proc, new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 });
-    }
-
-    public static long call(long proc, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6, long arg7,
-            long arg8, long arg9, long arg10) {
-        return call(proc, new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10 });
-    }
-
-    public static long call(long library, String fn) {
-        return call(library, fn, new long[0]);
-    }
-
-    public static long call(long library, String fn, long arg1) {
-        return call(library, fn, new long[] { arg1 });
-    }
-
-    public static long call(long library, String fn, long arg1, long arg2) {
-        return call(library, fn, new long[] { arg1, arg2 });
-    }
-
-    public static long call(long library, String fn, long arg1, long arg2, long arg3) {
-        return call(library, fn, new long[] { arg1, arg2, arg3 });
-    }
-
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4) {
-        return call(library, fn, new long[] { arg1, arg2, arg3, arg4 });
-    }
-
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5) {
-        return call(library, fn, new long[] { arg1, arg2, arg3, arg4, arg5 });
-    }
-
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6) {
-        return call(library, fn, new long[] { arg1, arg2, arg3, arg4, arg5, arg6 });
-    }
-
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6,
-            long arg7) {
-        return call(library, fn, new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 });
-    }
-
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6,
-            long arg7, long arg8) {
-        return call(library, fn, new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 });
-    }
-
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6,
-            long arg7, long arg8, long arg9) {
-        return call(library, fn, new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 });
-    }
-
-    public static long call(long library, String fn, long arg1, long arg2, long arg3, long arg4, long arg5, long arg6,
-            long arg7, long arg8, long arg9, long arg10) {
-        return call(library, fn, new long[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10 });
-    }
-
-    public static long call(long library, String fn, long[] args) {
+    public static long call(long library, String fn, long... args) {
         return call(Native.getProcAddress(library, fn), args);
     }
 
-    // public static long call(long library, String fn, NativeStack stack) {
-    // return call(Native.getProcAddress(library, fn), stack);
-    // }
-
-    public static long call(long proc, long[] args) {
+    public static long call(long proc, long... args) {
         return FFI.call(proc, args);
     }
 
-    public static void free(long ptr) {
-        if (ptr != 0)
-            Native.free(ptr);
-    }
-
-    public static void free(long ptr1, long ptr2) {
-        free(new long[] { ptr1, ptr2 });
-    }
-
-    public static void free(long ptr1, long ptr2, long ptr3) {
-        free(new long[] { ptr1, ptr2, ptr3 });
-    }
-
-    public static void free(long ptr1, long ptr2, long ptr3, long ptr4) {
-        free(new long[] { ptr1, ptr2, ptr3, ptr4 });
-    }
-
-    public static void free(long ptr1, long ptr2, long ptr3, long ptr4, long ptr5) {
-        free(new long[] { ptr1, ptr2, ptr3, ptr4, ptr5 });
-    }
-
-    public static void free(long ptr1, long ptr2, long ptr3, long ptr4, long ptr5, long ptr6) {
-        free(new long[] { ptr1, ptr2, ptr3, ptr4, ptr5, ptr6 });
-    }
-
-    public static void free(long[] ptrs) {
+    public static void free(long... ptrs) {
         for (int i = 0; i < ptrs.length; i++) {
             Native.free(ptrs[i]);
         }
@@ -165,6 +40,11 @@ public class NativeHelper
 
     public static int getInt(long ptr) {
         return Native.fromPointer(ptr, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+    }
+
+    public static long getPointer(long ptr) {
+        ByteBuffer bb = Native.fromPointer(ptr, PTR_SIZE).order(ByteOrder.LITTLE_ENDIAN);
+        return Native.IS_64 ? bb.getLong() : bb.getInt();
     }
 
     public static String getString(ByteBuffer bb, boolean wideChar) {

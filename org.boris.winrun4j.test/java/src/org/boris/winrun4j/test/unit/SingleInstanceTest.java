@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.boris.commons.io.ProcessResult;
 import org.boris.commons.lang.Threads;
-import org.boris.winrun4j.test.framework.Launcher;
+import org.boris.winrun4j.Launcher;
 import org.junit.Test;
 
 public class SingleInstanceTest

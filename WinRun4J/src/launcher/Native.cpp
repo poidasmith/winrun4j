@@ -25,7 +25,7 @@ bool Native::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 	
-	JNINativeMethod nm[10];
+	JNINativeMethod nm[12];
 	nm[0].name = "loadLibrary";
 	nm[0].signature = "(Ljava/lang/String;)J";
 	nm[0].fnPtr = (void*) LoadLibrary;
@@ -56,8 +56,14 @@ bool Native::RegisterNatives(JNIEnv *env)
 	nm[9].name = "getMethodId";
 	nm[9].signature = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;Z)J";
 	nm[9].fnPtr = (void*) GetMethodID;
+	nm[10].name = "getObjectId";
+	nm[10].signature = "(Ljava/lang/Object;)J";
+	nm[10].fnPtr = (void*) GetObjectID;
+	nm[11].name = "getObject";
+	nm[11].signature = "(J)Ljava/lang/Object;";
+	nm[11].fnPtr = (void*) GetObject;
 
-	env->RegisterNatives(clazz, nm, 10);
+	env->RegisterNatives(clazz, nm, 12);
 
 	if(env->ExceptionCheck()) {
 		JNI::PrintStackTrace(env);
@@ -98,7 +104,7 @@ bool Native::RegisterNatives(JNIEnv *env)
 	return true;
 }
 
-jlong Native::LoadLibrary(JNIEnv* env, jobject self, jstring filename)
+jlong Native::LoadLibrary(JNIEnv* env, jobject /*self*/, jstring filename)
 {
 	if(!filename)
 		return 0;
@@ -109,12 +115,12 @@ jlong Native::LoadLibrary(JNIEnv* env, jobject self, jstring filename)
 	return res;
 }
 
-void Native::FreeLibrary(JNIEnv* env, jobject self, jlong handle)
+void Native::FreeLibrary(JNIEnv* /*env*/, jobject /*self*/, jlong handle)
 {
 	::FreeLibrary((HMODULE) handle);
 }
 
-jlong Native::GetProcAddress(JNIEnv* env, jobject self, jlong handle, jstring name)
+jlong Native::GetProcAddress(JNIEnv* env, jobject /*self*/, jlong handle, jstring name)
 {
 	if(!name)
 		return 0;
@@ -125,128 +131,24 @@ jlong Native::GetProcAddress(JNIEnv* env, jobject self, jlong handle, jstring na
 	return res;
 }
 
-jlong Native::Malloc(JNIEnv* env, jobject self, jint size)
+jlong Native::Malloc(JNIEnv* /*env*/, jobject /*self*/, jint size)
 {
-	return (jlong) ::malloc(size);
+	void* ptr = malloc(size);
+	memset(ptr, 0, size);
+	return (jlong) ptr;
 }
 
-void Native::Free(JNIEnv* env, jobject self, jlong handle)
+void Native::Free(JNIEnv* /*env*/, jobject /*self*/, jlong handle)
 {
 	::free((void*) handle);
 }
 
-jobject Native::FromPointer(JNIEnv* env, jobject self, jlong handle, jlong size)
+jobject Native::FromPointer(JNIEnv* env, jobject /*self*/, jlong handle, jlong size)
 {
 	return env->NewDirectByteBuffer((void*) handle, size);
 }
 
-#ifndef X64
-jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jlongArray stack, jint size, jint mode)
-{
-	jboolean iscopy;
-	jlong* p = !stack ? (jlong*) 0 : (jlong*)env->GetPrimitiveArrayCritical(stack, &iscopy);
-	if(!p && size > 0)
-		return 0;
-	for(int i = 0; i < size; i++) {
-		int v = *p;
-		__asm {
-			push v
-		}
-		p++;
-	}
-	int r;
-	FARPROC fp = (FARPROC) handle;
-	__asm {
-		call fp
-		mov dword ptr[r], eax
-	}
-	env->ReleasePrimitiveArrayCritical(stack, p, 0);
-	return (jlong) r;
-}
-#else
-
-typedef jlong (__fastcall *FP)(...);
-
-jlong Native::Call(JNIEnv* env, jobject self, jlong handle, jlongArray stack, jint size, jint mode)
-{
-	jboolean iscopy;
-	jlong* p = !stack ? (jlong*) 0 : (jlong*) env->GetPrimitiveArrayCritical(stack, &iscopy);
-	if(!p && size > 0)
-		return 0;
-	FP fp = (FP) handle;
-	jlong r = 0;
-	switch(size)
-	{
-	case 0:
-		r = fp();
-		break;
-	case 1:
-		r = fp(p[0]);
-		break;
-	case 2:
-		r = fp(p[1], p[0]);
-		break;
-	case 3:
-		r = fp(p[2], p[1], p[0]);
-		break;
-	case 4:
-		r = fp(p[3], p[2], p[1], p[0]);
-		break;
-	case 5:
-		r = fp(p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 6:
-		r = fp(p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 7:
-		r = fp(p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 8:
-		r = fp(p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 9:
-		r = fp(p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 10:
-		r = fp(p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 11:
-		r = fp(p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 12:
-		r = fp(p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 13:
-		r = fp(p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 14:
-		r = fp(p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 15:
-		r = fp(p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 16:
-		r = fp(p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 17:
-		r = fp(p[16], p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 18:
-		r = fp(p[17], p[16], p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 19:
-		r = fp(p[18], p[17], p[16], p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	case 20:
-		r = fp(p[19], p[18], p[17], p[16], p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8], p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-		break;
-	}
-	if(stack) env->ReleasePrimitiveArrayCritical(stack, p, 0);
-	return (jlong) r;
-}
-#endif
-
-jboolean Native::Bind(JNIEnv* env, jobject self, jclass clazz, jstring fn, jstring sig, jlong ptr)
+jboolean Native::Bind(JNIEnv* env, jobject /*self*/, jclass clazz, jstring fn, jstring sig, jlong ptr)
 {
 	if(!clazz || !fn || !sig || !ptr)
 		return false;
@@ -274,52 +176,66 @@ jboolean Native::Bind(JNIEnv* env, jobject self, jclass clazz, jstring fn, jstri
 	return true;
 }
 
-jlong Native::NewGlobalRef(JNIEnv* env, jobject self, jobject obj)
+jlong Native::NewGlobalRef(JNIEnv* env, jobject /*self*/, jobject obj)
 {
 	return (jlong) env->NewGlobalRef(obj);
 }
 
-void Native::DeleteGlobalRef(JNIEnv* env, jobject self, jlong handle)
+void Native::DeleteGlobalRef(JNIEnv* env, jobject /*self*/, jlong handle)
 {
 	env->DeleteGlobalRef((jobject) handle);
 }
 
-jlong Native::GetMethodID(JNIEnv* env, jobject self, jclass clazz, jstring name, jstring sig, jboolean isStatic)
+jlong Native::GetMethodID(JNIEnv* env, jobject /*self*/, jclass clazz, jstring name, jstring sig, jboolean isStatic)
 {
 	const char* ns = env->GetStringUTFChars(name, 0);
 	const char* ss = env->GetStringUTFChars(sig, 0);
-	jlong res = isStatic ? (jlong) env->GetStaticMethodID(clazz, ns, ss) : 
-		(jlong) env->GetMethodID(clazz, ns, ss);
+	jmethodID res = isStatic ? env->GetStaticMethodID(clazz, ns, ss) : 
+		env->GetMethodID(clazz, ns, ss);
 	env->ReleaseStringUTFChars(name, ns);
 	env->ReleaseStringUTFChars(sig, ss);
-	return res;
+	return (jlong) res;
 }
 
-jint Native::FFIPrepare(JNIEnv* env, jobject self, jlong cif, jint abi, jint nargs, jlong rtype, jlong atypes)
+jlong Native::GetObjectID(JNIEnv* /*env*/, jobject /*self*/, jobject obj)
+{
+	return (jlong) obj;
+}
+
+jobject Native::GetObject(JNIEnv* /*env*/, jobject /*self*/, jlong obj)
+{
+	return (jobject) obj;
+}
+
+jint Native::FFIPrepare(JNIEnv* /*env*/, jobject /*self*/, jlong cif, jint abi, jint nargs, jlong rtype, jlong atypes)
 {
 	return ffi_prep_cif((ffi_cif *) cif, (ffi_abi) abi, nargs, (ffi_type *) rtype, (ffi_type **) atypes);
 }
 
-void Native::FFICall(JNIEnv* env, jobject self, jlong cif, jlong fn, jlong rvalue, jlong avalue)
+void Native::FFICall(JNIEnv* /*env*/, jobject /*self*/, jlong cif, jlong fn, jlong rvalue, jlong avalue)
 {
 	ffi_call((ffi_cif *) cif, (void (__cdecl *)(void)) fn, (void *) rvalue, (void **) avalue);
 }
 
 typedef struct {
-	ffi_closure* closure;
 	void* codeloc;
+	ffi_closure* closure;
 	jobject objectId;
 	jmethodID methodId;
 } FFI_CLOSURE_DATA;
 
-void Closure(ffi_cif* cif, void *resp, void **arg_area, void* user_data)
+void Closure(ffi_cif* /*cif*/, void *resp, void **arg_area, void* user_data)
 {
-	FFI_CLOSURE_DATA* fd = (FFI_CLOSURE_DATA*) user_data;
 	JNIEnv* env = VM::GetJNIEnv(true);
+	if(env->ExceptionCheck()) {
+		env->ExceptionDescribe();
+		env->ExceptionClear();
+	}
+	FFI_CLOSURE_DATA* fd = (FFI_CLOSURE_DATA*) user_data;
 	env->CallVoidMethod(fd->objectId, fd->methodId, (jlong) resp, (jlong) arg_area);
 }
 
-jlong Native::FFIPrepareClosure(JNIEnv* env, jobject self, jlong cif, jlong objectId, jlong methodId)
+jlong Native::FFIPrepareClosure(JNIEnv* /*env*/, jobject /*self*/, jlong cif, jlong objectId, jlong methodId)
 {
 	FFI_CLOSURE_DATA* fd = (FFI_CLOSURE_DATA*) malloc(sizeof(FFI_CLOSURE_DATA));
 	fd->closure = (ffi_closure*) ffi_closure_alloc(sizeof(ffi_closure), &(fd->codeloc));
@@ -333,25 +249,11 @@ jlong Native::FFIPrepareClosure(JNIEnv* env, jobject self, jlong cif, jlong obje
 	return (jlong) fd;
 }
 
-void Native::FFIFreeClosure(JNIEnv* env, jobject self, jlong closure)
+void Native::FFIFreeClosure(JNIEnv* /*env*/, jobject /*self*/, jlong closure)
 {
 	FFI_CLOSURE_DATA* fd = (FFI_CLOSURE_DATA*) closure;
 	ffi_closure_free(fd->closure);
 	free(fd);
 }
 
-extern "C" __declspec(dllexport) int __cdecl Native_Is64()
-{
-#ifdef X64
-	return 1;
-#else
-	return 0;
-#endif
-}
-
-extern "C" __declspec(dllexport) jlong __cdecl Native_Callback(jobject obj, jmethodID mid, jlong stack)
-{
-	JNIEnv* env = VM::GetJNIEnv(true);
-	return env->CallLongMethod(obj, mid, stack+8);
-}
 

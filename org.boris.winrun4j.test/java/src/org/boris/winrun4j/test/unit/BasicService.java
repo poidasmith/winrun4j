@@ -15,8 +15,8 @@ import java.io.PrintStream;
 
 import org.boris.commons.lang.Threads;
 import org.boris.winrun4j.AbstractService;
+import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.ServiceException;
-import org.boris.winrun4j.test.framework.Launcher;
 
 public class BasicService extends AbstractService
 {

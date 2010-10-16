@@ -9,8 +9,8 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
+import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Log;
-import org.boris.winrun4j.test.framework.Launcher;
 import org.junit.Test;
 
 public class ClasspathTest

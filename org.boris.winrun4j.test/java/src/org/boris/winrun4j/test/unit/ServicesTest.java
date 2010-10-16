@@ -19,8 +19,8 @@ import java.io.FileReader;
 
 import org.boris.commons.io.ProcessResult;
 import org.boris.commons.lang.Threads;
+import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.RegistryKey;
-import org.boris.winrun4j.test.framework.Launcher;
 import org.boris.winrun4j.winapi.Services;
 import org.boris.winrun4j.winapi.Services.ENUM_SERVICE_STATUS_PROCESS;
 import org.junit.Test;

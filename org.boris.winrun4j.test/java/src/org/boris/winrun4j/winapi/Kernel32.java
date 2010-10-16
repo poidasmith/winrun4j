@@ -17,7 +17,7 @@ import org.boris.winrun4j.NativeHelper;
 public class Kernel32
 {
     public static final long library = Native.loadLibrary("kernel32");
-    private static final boolean is64 = NativeHelper.IS_64;
+    private static final boolean is64 = Native.IS_64;
 
     public static final int DONT_RESOLVE_DLL_REFERENCES = 0x00000001;
     public static final int LOAD_LIBRARY_AS_DATAFILE = 0x00000002;

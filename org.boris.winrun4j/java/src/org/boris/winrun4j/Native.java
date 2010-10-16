@@ -14,8 +14,18 @@ import java.nio.ByteBuffer;
 /**
  * General JNI utilities for windows. Use at own risk.
  */
+/**
+ * @author Poida
+ *
+ */
+/**
+ * @author Poida
+ * 
+ */
 public class Native
 {
+    public static final boolean IS_64 = "amd64".equals(System.getProperty("os.arch"));
+
     /**
      * Load a native library (eg. "kernel32")
      */
@@ -60,6 +70,16 @@ public class Native
      * Deletes a global reference to an object.
      */
     public static native void deleteGlobalRef(long handle);
+
+    /**
+     * Returns the object id.
+     */
+    public static native long getObjectId(Object o);
+
+    /**
+     * Returns the object.
+     */
+    public static native Object getObject(long handle);
 
     /**
      * Gets a method id.

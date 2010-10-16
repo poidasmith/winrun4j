@@ -11,9 +11,9 @@ package org.boris.winrun4j.winapi;
 
 import java.nio.ByteBuffer;
 
-import org.boris.winrun4j.Callback;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.PInvoke.Callback;
 
 public class User32
 {

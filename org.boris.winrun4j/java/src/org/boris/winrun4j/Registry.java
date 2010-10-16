@@ -9,12 +9,16 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
-import java.nio.ByteBuffer;
-
+import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.IntPtr;
+import org.boris.winrun4j.PInvoke.Out;
+import org.boris.winrun4j.PInvoke.UIntPtr;
 
 public class Registry
 {
-    private static final long library = Native.loadLibrary("advapi32");
+    static {
+        PInvoke.bind(Registry.class, "advapi32.dll");
+    }
 
     // Value Types
     public static final int REG_NONE = 0;
@@ -32,153 +36,54 @@ public class Registry
     public static final int REG_QWORD = 11;
     public static final int REG_QWORD_LITTLE_ENDIAN = 11;
 
-    public static long closeKey(long key) {
-        return NativeHelper.call(library, "RegCloseKey", key);
-    }
+    @DllImport(entryPoint = "RegCloseKey")
+    public static native int closeKey(UIntPtr hKey);
 
-    public static long connectRegistry(String machineName, long key) {
-        long ptr = Native.malloc(4);
-        long str = NativeHelper.toNativeString(machineName, true);
-        NativeHelper.call(library, "RegConnectRegistry", str, key, ptr);
-        long h = NativeHelper.getInt(ptr);
-        NativeHelper.free(ptr, str);
-        return h;
-    }
+    @DllImport(entryPoint = "RegCreateKeyW")
+    public static native int createKey(int hKey, String lpSubKey, @Out UIntPtr phkResult);
 
-    public static long createKey(long key, String subKey) {
-        long ptr = Native.malloc(4);
-        long str = NativeHelper.toNativeString(subKey, true);
-        NativeHelper.call(library, "RegCreateKeyW", key, str, ptr);
-        long h = NativeHelper.getInt(ptr);
-        NativeHelper.free(ptr, str);
-        return h;
-    }
+    @DllImport(entryPoint = "RegDeleteKeyW")
+    public static native long deleteKey(long hKey, String subKey);
 
-    public static long deleteKey(long hKey, String subKey) {
-        long lpSubKey = NativeHelper.toNativeString(subKey, true);
-        long res = NativeHelper.call(library, "RegDeleteKeyW", hKey, lpSubKey);
-        NativeHelper.free(lpSubKey);
-        return res;
-    }
+    @DllImport(entryPoint = "RegDeleteValueW")
+    public static native long deleteValue(long hKey, String valueName);
 
-    public static long deleteValue(long hKey, String valueName) {
-        long lpValueName = NativeHelper.toNativeString(valueName, true);
-        long res = NativeHelper.call(library, "RegDeleteValueW", hKey, lpValueName);
-        NativeHelper.free(lpValueName);
-        return res;
-    }
+    @DllImport(entryPoint = "RegOpenKeyExW")
+    public static native int openKeyEx(long hKey, String subKey, int options, long samDesired);
 
-    public static long openKeyEx(long hKey, String subKey, int options, long samDesired) {
-        long phKey = Native.malloc(4);
-        long lpSubKey = NativeHelper.toNativeString(subKey, true);
-        long res = NativeHelper.call(library, "RegOpenKeyExW", hKey, lpSubKey, options, samDesired, phKey);
-        long key = res == 0 ? NativeHelper.getInt(phKey) : 0;
-        NativeHelper.free(phKey, lpSubKey);
-        return key;
-    }
+    @DllImport(entryPoint = "RegEnumKeyExW")
+    public static native int enumKeyEx(
+            UIntPtr hkey,
+            int index,
+            StringBuilder lpName,
+            UIntPtr lpcbName,
+            UIntPtr reserved,
+            UIntPtr lpClass,
+            UIntPtr lpcbClass,
+            UIntPtr lpftLastWriteTime);
 
-    public static String enumKeyEx(long hKey, int index) {
-        long lpName = Native.malloc(520);
-        long lpcName = Native.malloc(4);
-        NativeHelper.setInt(lpcName, 520);
-        long res = NativeHelper.call(library, "RegEnumKeyExW", hKey, index, lpName, lpcName, 0, 0, 0, 0);
-        String key = null;
-        if (res == 0) {
-            key = NativeHelper.getString(lpName, 520, true);
-        }
-        NativeHelper.free(lpName, lpcName);
-        return key;
-    }
+    @DllImport(entryPoint = "RegEnumValue")
+    public static native int enumValue(
+            IntPtr hKey,
+            int index,
+            StringBuilder lpValueName,
+            UIntPtr lpcValueName,
+            IntPtr lpReserved,
+            IntPtr lpType,
+            IntPtr lpData,
+            IntPtr lpcbData);
 
-    public static String enumValue(long hKey, int index) {
-        long lpValueName = Native.malloc(520);
-        long lpcchValueName = Native.malloc(4);
-        NativeHelper.setInt(lpcchValueName, 520);
-        long res = NativeHelper.call(library, "RegEnumValueW", hKey, index, lpValueName, lpcchValueName, 0, 0, 0, 0);
-        String val = null;
-        if (res == 0) {
-            val = NativeHelper.getString(lpValueName, 520, true);
-        }
-        NativeHelper.free(lpValueName, lpcchValueName);
-        return val;
-    }
+    @DllImport(entryPoint = "RegQueryValueEx")
+    public static native int queryValueEx(long hKey, String valueName, int valueType);
 
-    public static byte[] queryValueEx(long hKey, String valueName, int valueType) {
-        long lpValueName = NativeHelper.toNativeString(valueName, true);
-        long lpcbData = Native.malloc(4);
-        long lpType = Native.malloc(4);
-        NativeHelper.setInt(lpType, valueType);
-        long res = NativeHelper.call(library, "RegQueryValueExW", hKey, lpValueName, 0, lpType, 0, lpcbData);
-        byte[] b = null;
-        if (res == 0) {
-            NativeHelper.setInt(lpType, valueType);
-            long lpData = Native.malloc(NativeHelper.getInt(lpcbData));
-            res = NativeHelper.call(library, "RegQueryValueExW", hKey, lpValueName, 0, 0, lpData, lpcbData);
-            if (res == 0) {
-                b = new byte[NativeHelper.getInt(lpcbData)];
-                ByteBuffer bb = NativeHelper.getBuffer(lpData, b.length);
-                bb.get(b);
-            }
-            NativeHelper.free(lpData);
-        }
-        NativeHelper.free(lpValueName, lpcbData, lpType);
-        return b;
-    }
+    @DllImport(entryPoint = "RegQueryValueEx")
+    public static native long queryValueType(long hKey, String valueName);
 
-    public static long queryValueType(long hKey, String valueName) {
-        long lpValueName = NativeHelper.toNativeString(valueName, true);
-        long lpType = Native.malloc(4);
-        long res = NativeHelper.call(library, "RegQueryValueExW", hKey, lpValueName, 0, lpType, 0, 0);
-        long type = 0;
-        if (res == 0) {
-            type = NativeHelper.getInt(lpType);
-        }
-        NativeHelper.free(lpValueName, lpType);
-        return type;
-    }
+    @DllImport(entryPoint = "RegQueryInfoKey")
+    public static native int queryInfoKey(long handle, QUERY_INFO info);
 
-    public static long setValueEx(long hKey, String valueName, int type, byte[] data, int offset, int len) {
-        long lpValueName = NativeHelper.toNativeString(valueName, true);
-        long lpData = NativeHelper.toNative(data, offset, len);
-        long res = NativeHelper.call(library, "RegSetValueExW", hKey, lpValueName, 0, type, lpData, len);
-        NativeHelper.free(lpValueName, lpData);
-        return res;
-    }
-
-    public static QUERY_INFO queryInfoKey(long hKey) {
-        long lpClass = Native.malloc(520);
-        long lpcClass = Native.malloc(4);
-        NativeHelper.setInt(lpcClass, 520);
-        long lpcSubKeys = Native.malloc(4);
-        long lpcMaxSubKeyLen = Native.malloc(4);
-        long lpcMaxClassLen = Native.malloc(4);
-        long lpcValues = Native.malloc(4);
-        long lpcMaxValueNameLen = Native.malloc(4);
-        long lpcMaxValueLen = Native.malloc(4);
-        long lpftLastWriteTime = Native.malloc(8);
-
-        long res = NativeHelper.call(library, "RegQueryInfoKeyW", new long[] { hKey, lpClass, lpcClass, 0, lpcSubKeys,
-                lpcMaxSubKeyLen, lpcMaxClassLen, lpcValues, lpcMaxValueNameLen, lpcMaxValueLen, 0, lpftLastWriteTime });
-
-        QUERY_INFO info = null;
-        if (res == 0) {
-            info = new QUERY_INFO();
-            info.keyClass = NativeHelper.getString(lpClass, 512, true);
-            info.subKeyCount = NativeHelper.getInt(lpcSubKeys);
-            info.maxSubKeyLen = NativeHelper.getInt(lpcMaxSubKeyLen);
-            info.valueCount = NativeHelper.getInt(lpcValues);
-            info.maxValueNameLen = NativeHelper.getInt(lpcMaxValueNameLen);
-            info.maxValueLen = NativeHelper.getInt(lpcMaxValueLen);
-            info.fileTime = new FILETIME();
-            info.fileTime.dwLowDateTime = NativeHelper.getInt(lpftLastWriteTime);
-            info.fileTime.dwHighDateTime = NativeHelper.getInt(lpftLastWriteTime + 4);
-        }
-
-        NativeHelper.free(new long[] { lpClass, lpcClass, lpcSubKeys, lpcMaxSubKeyLen, lpcMaxClassLen, lpcValues,
-                lpcMaxValueNameLen, lpcMaxValueLen, lpftLastWriteTime });
-
-        return info;
-    }
+    @DllImport(entryPoint = "RegSetValueEx")
+    public static native long setValueEx(long hKey, String valueName, int type, byte[] data, int offset, int len);
 
     public static class QUERY_INFO
     {

@@ -2,7 +2,7 @@ package org.boris.winrun4j.impl;
 
 import java.util.Properties;
 
-import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.Delegate;
 import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.Native;
@@ -21,7 +21,7 @@ public class SingleInstance extends DDEML.DdeCallback
         if (singleInstance == null)
             return false;
 
-        Callback enumWindowsProc = new Callback() {
+        Delegate enumWindowsProc = new Delegate() {
             protected long callback(long stack) {
                 return enumWindowsProc(NativeHelper.getInt(stack), NativeHelper.getInt(stack + 4));
             }
@@ -62,7 +62,7 @@ public class SingleInstance extends DDEML.DdeCallback
     }
 
     public static boolean notify(String appName, String topic) {
-        Callback cb = new SingleInstance();
+        Delegate cb = new SingleInstance();
         long pidInst = DDEML.initialize(cb, 0);
         if (pidInst == 0) {
             Log.warning("DDE failed to initialize");

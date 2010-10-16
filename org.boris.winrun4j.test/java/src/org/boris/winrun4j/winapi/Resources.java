@@ -12,20 +12,20 @@ package org.boris.winrun4j.winapi;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.Delegate;
 import org.boris.winrun4j.NativeHelper;
 
 public class Resources
 {
-    public static int enumResourceTypes(long handle, Callback callback) {
+    public static int enumResourceTypes(long handle, Delegate callback) {
         return (int) NativeHelper.call(Kernel32.library, "EnumResourceTypesW", handle, callback.getPointer(), 0);
     }
 
-    public static int enumResourceNames(long handle, long type, Callback callback) {
+    public static int enumResourceNames(long handle, long type, Delegate callback) {
         return (int) NativeHelper.call(Kernel32.library, "EnumResourceNamesW", handle, type, callback.getPointer(), 0);
     }
 
-    public static int enumResourceLanguages(long handle, long type, long name, Callback callback) {
+    public static int enumResourceLanguages(long handle, long type, long name, Delegate callback) {
         return (int) NativeHelper.call(Kernel32.library, "EnumResourceLanguagesW", handle, type, name, callback
                 .getPointer(), 0);
     }
@@ -40,7 +40,7 @@ public class Resources
 
     public static ResourceEntry[] findResources(long hModule) {
         final ArrayList res = new ArrayList();
-        final Callback langs = new ResourceLanguagesCallback() {
+        final Delegate langs = new ResourceLanguagesCallback() {
             protected int languagesCallback(long hModule, long pType, long pName, int wLanguage, long lpParam) {
                 ResourceEntry e = new ResourceEntry(ResourceId.fromPointer(pType, true), ResourceId.fromPointer(pName,
                         true), wLanguage);
@@ -48,12 +48,12 @@ public class Resources
                 return 1;
             }
         };
-        final Callback names = new ResourceNamesCallback() {
+        final Delegate names = new ResourceNamesCallback() {
             protected int namesCallback(long hModule, long pType, long pName, long lpParam) {
                 return enumResourceLanguages(hModule, pType, pName, langs);
             }
         };
-        final Callback types = new ResourceTypesCallback() {
+        final Delegate types = new ResourceTypesCallback() {
             protected int typesCallback(long hModule, long pType, long lpParam) {
                 return enumResourceNames(hModule, pType, names);
             }
@@ -122,7 +122,7 @@ public class Resources
         return NativeHelper.call(Kernel32.library, "SizeOfResource", hModule, hResInfo);
     }
 
-    public static abstract class ResourceTypesCallback extends Callback
+    public static abstract class ResourceTypesCallback extends Delegate
     {
         protected final long callback(long stack) {
             ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
@@ -132,7 +132,7 @@ public class Resources
         protected abstract int typesCallback(long hModule, long pType, long lpParam);
     }
 
-    public static abstract class ResourceNamesCallback extends Callback
+    public static abstract class ResourceNamesCallback extends Delegate
     {
         protected final long callback(long stack) {
             ByteBuffer bb = NativeHelper.getBuffer(stack, 16);
@@ -142,7 +142,7 @@ public class Resources
         protected abstract int namesCallback(long hModule, long pType, long pName, long lpParam);
     }
 
-    public static abstract class ResourceLanguagesCallback extends Callback
+    public static abstract class ResourceLanguagesCallback extends Delegate
     {
         protected final long callback(long stack) {
             ByteBuffer bb = NativeHelper.getBuffer(stack, 20);

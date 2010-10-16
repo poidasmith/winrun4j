@@ -7,7 +7,7 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.test.framework;
+package org.boris.winrun4j;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -18,7 +18,6 @@ import java.util.Map;
 
 import org.boris.commons.io.IO;
 import org.boris.commons.io.ProcessResult;
-import org.boris.winrun4j.Log;
 
 public class Launcher
 {

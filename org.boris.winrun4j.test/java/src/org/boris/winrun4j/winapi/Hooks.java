@@ -12,7 +12,7 @@ package org.boris.winrun4j.winapi;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.boris.winrun4j.Callback;
+import org.boris.winrun4j.Delegate;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 import org.boris.winrun4j.winapi.User32.MSG;
@@ -81,7 +81,7 @@ public class Hooks
         return NativeHelper.call(procCallNextHookEx, hook, code, wParam, lParam);
     }
 
-    public static long setWindowsHookEx(int idHook, Callback lpfn, long hMod, long threadId) {
+    public static long setWindowsHookEx(int idHook, Delegate lpfn, long hMod, long threadId) {
         return NativeHelper.call(procSetWindowsHookEx, idHook, lpfn.getPointer(), hMod, threadId);
     }
 
@@ -89,7 +89,7 @@ public class Hooks
         return NativeHelper.call(procUnhookWindowsHookEx, hook) != 0;
     }
 
-    public static class MouseProcCallback extends Callback
+    public static class MouseProcCallback extends Delegate
     {
         private MouseProc proc;
 

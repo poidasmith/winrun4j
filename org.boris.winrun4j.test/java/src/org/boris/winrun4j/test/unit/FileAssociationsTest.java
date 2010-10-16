@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 
 import org.boris.commons.io.ProcessResult;
-import org.boris.winrun4j.test.framework.Launcher;
+import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.winapi.DDEML;
 
 public class FileAssociationsTest
