@@ -38,10 +38,10 @@ public class Registry
     public static final int REG_QWORD_LITTLE_ENDIAN = 11;
 
     @DllImport(entryPoint = "RegCloseKey")
-    public static native int closeKey(UIntPtr hKey);
+    public static native int closeKey(long hKey);
 
     @DllImport(entryPoint = "RegCreateKeyW")
-    public static native int createKey(int hKey, String lpSubKey, @Out UIntPtr phkResult);
+    public static native int createKey(long hKey, String lpSubKey, @Out UIntPtr phkResult);
 
     @DllImport(entryPoint = "RegDeleteKeyW")
     public static native long deleteKey(long hKey, String subKey);
@@ -54,24 +54,24 @@ public class Registry
 
     @DllImport(entryPoint = "RegEnumKeyExW")
     public static native int enumKeyEx(
-            UIntPtr hkey,
+            long hkey,
             int index,
             StringBuilder lpName,
             UIntPtr lpcbName,
-            UIntPtr reserved,
-            UIntPtr lpClass,
-            UIntPtr lpcbClass,
-            UIntPtr lpftLastWriteTime);
+            long reserved,
+            long lpClass,
+            long lpcbClass,
+            FILETIME lpftLastWriteTime);
 
     @DllImport(entryPoint = "RegEnumValue")
     public static native int enumValue(
-            IntPtr hKey,
+            long hKey,
             int index,
             StringBuilder lpValueName,
             UIntPtr lpcValueName,
-            IntPtr lpReserved,
-            IntPtr lpType,
-            IntPtr lpData,
+            long lpReserved,
+            UIntPtr lpType,
+            byte[] lpData,
             IntPtr lpcbData);
 
     @DllImport(entryPoint = "RegQueryValueEx")
@@ -81,21 +81,22 @@ public class Registry
     public static native long queryValueType(long hKey, String valueName);
 
     @DllImport(entryPoint = "RegQueryInfoKey")
-    public static native int queryInfoKey(long handle, QUERY_INFO info);
+    public static native int queryInfoKey(
+            long hKey,
+            StringBuilder lpClass,
+            UIntPtr lpcClass,
+            long lpReserved,
+            UIntPtr lpcSubKeys,
+            UIntPtr lpcMaxSubKeyLen,
+            UIntPtr lpcMaxClassLen,
+            UIntPtr lpcValues,
+            UIntPtr lpcMaxValueNameLen,
+            UIntPtr lpcMaxValueLen,
+            UIntPtr lpcbSecurityDescriptor,
+            FILETIME lpftLastWriteTime);
 
     @DllImport(entryPoint = "RegSetValueEx")
     public static native long setValueEx(long hKey, String valueName, int type, byte[] data, int offset, int len);
-
-    public static class QUERY_INFO implements Struct
-    {
-        public String keyClass;
-        public int subKeyCount;
-        public int maxSubKeyLen;
-        public int valueCount;
-        public int maxValueNameLen;
-        public int maxValueLen;
-        public FILETIME fileTime;
-    }
 
     public static class FILETIME implements Struct
     {

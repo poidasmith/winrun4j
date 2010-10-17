@@ -14,12 +14,12 @@ import org.boris.winrun4j.winapi.Console;
 public class ConsoleTest
 {
     public static void main(String[] args) throws Exception {
-        Console.allocConsole();
-        Console.setConsoleTitle("Testing Console");
-        Console.setConsoleCtrlHandler(new Console.HandlerRoutine() {
+        Console.AllocConsole();
+        Console.SetConsoleTitle("Testing Console");
+        Console.SetConsoleCtrlHandler(new Console.HandlerRoutine() {
             public boolean handlerRoutine(int dwCtrlType) {
                 System.out.println(dwCtrlType);
-                Console.writeConsole(0, Integer.toHexString(dwCtrlType));
+                Console.WriteConsole(0, Integer.toHexString(dwCtrlType));
                 return true;
             }
         }, true);

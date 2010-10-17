@@ -35,6 +35,7 @@ public class NativeBinder
 
     // The function sigature details
     private int[] argTypes;
+    private Class[] params;
     private int returnType;
     private boolean wideChar;
 
@@ -100,7 +101,7 @@ public class NativeBinder
             return;
 
         NativeBinder nb = new NativeBinder();
-        Class[] params = m.getParameterTypes();
+        Class[] params = nb.params = m.getParameterTypes();
         Class returnType = m.getReturnType();
         nb.function = fun;
 
@@ -248,7 +249,7 @@ public class NativeBinder
                     case ARG_INT_PTR:
                         if (inv != 0) {
                             jargs[i] = Native.getObject(inv);
-                            int value = ((IntPtr) jargs[i]).value;
+                            int value = (int) ((IntPtr) jargs[i]).value;
                             argValue = Native.malloc(4);
                             NativeHelper.setInt(argValue, value);
 
@@ -273,6 +274,15 @@ public class NativeBinder
                             argValue = NativeHelper.toNativeString(jargs[i], wideChar);
                         }
                         break;
+                    case ARG_CALLBACK:
+                        if (inv != 0) {
+                            Object o = Native.getObject(inv);
+                            Closure c = Closure.build(params[i], o, wideChar);
+                            if (c == null)
+                                throw new RuntimeException("Could not create callback for parameter " + (i + 1));
+                            argValue = c.getPointer();
+                            jargs[i] = c;
+                        }
                     }
                     vb.putInt((int) argValue);
                     pb.putInt((int) pointer);
@@ -323,6 +333,9 @@ public class NativeBinder
                     break;
                 case ARG_STRING_BUILDER:
                     break;
+                case ARG_CALLBACK:
+                    if (jargs[i] != null)
+                        ((Closure) jargs[i]).destroy();
                 }
 
                 prevPointer = argValue;

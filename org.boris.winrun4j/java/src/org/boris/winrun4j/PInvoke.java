@@ -11,6 +11,8 @@ package org.boris.winrun4j;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class PInvoke
 {
@@ -23,7 +25,22 @@ public class PInvoke
     }
 
     public static int sizeOf(Class struct) {
-        return 0;
+        if (struct == null)
+            return 0;
+        if (!Struct.class.isAssignableFrom(struct))
+            return 0;
+        int size = 0;
+        Field[] fields = struct.getFields();
+        for (int i = 0; i < fields.length; i++) {
+            Field f = fields[i];
+            if (!Modifier.isStatic(f.getModifiers()) && Modifier.isPublic(f.getModifiers())) {
+                switch (NativeBinder.getArgType(f.getDeclaringClass())) {
+                case NativeBinder.ARG_BOOL:
+                    break;
+                }
+            }
+        }
+        return size;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -54,12 +71,12 @@ public class PInvoke
 
     public static class IntPtr
     {
-        public int value;
+        public long value;
 
         public IntPtr() {
         }
 
-        public IntPtr(int value) {
+        public IntPtr(long value) {
             this.value = value;
         }
     }
@@ -69,7 +86,7 @@ public class PInvoke
         public UIntPtr() {
         }
 
-        public UIntPtr(int value) {
+        public UIntPtr(long value) {
             this.value = value;
         }
     }

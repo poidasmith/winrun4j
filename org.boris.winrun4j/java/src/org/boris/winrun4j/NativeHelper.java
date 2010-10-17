@@ -158,6 +158,14 @@ public class NativeHelper
         getBuffer(ptr, 4).putInt(value);
     }
 
+    public static void setPointer(long ptr, long value) {
+        if (Native.IS_64) {
+            getBuffer(ptr, 8).putLong(value);
+        } else {
+            getBuffer(ptr, 4).putInt((int) value);
+        }
+    }
+
     public static String[] getMultiString(ByteBuffer bb, boolean wideChar) {
         ArrayList strs = new ArrayList();
         StringBuffer sb = new StringBuffer();

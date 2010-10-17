@@ -16,6 +16,7 @@ import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.boris.winrun4j.PInvoke.UIntPtr;
 import org.boris.winrun4j.Registry.QUERY_INFO;
 
 /**
@@ -145,15 +146,23 @@ public class RegistryKey
      */
     public String[] getSubKeyNames() {
         long h = openKeyHandle(handle, path, true);
-        QUERY_INFO info = Registry.queryInfoKey(h);
-        if (info == null)
+        UIntPtr subKeyCount = new UIntPtr();
+        UIntPtr maxKeyLen = new UIntPtr();
+        int res = Registry.queryInfoKey(h, null, null, 0, subKeyCount, maxKeyLen, null, null, null, null, null, null);
+        if (res != 0)
             return null;
-        String[] res = new String[info.subKeyCount];
-        for (int i = 0; i < res.length; i++) {
-            res[i] = Registry.enumKeyEx(h, i);
+        String[] keys = new String[subKeyCount.value];
+        for (int i = 0; i < keys.length; i++) {
+            StringBuilder name = new StringBuilder();
+            UIntPtr cbName = new UIntPtr(maxKeyLen.value);
+            res = Registry.enumKeyEx(h, i, name, cbName, 0, 0, 0, null);
+            if (res != 0)
+                continue;
+            keys[i] = name.toString();
         }
+
         Registry.closeKey(h);
-        return res;
+        return keys;
     }
 
     /**

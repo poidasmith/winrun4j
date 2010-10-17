@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.ffi;
 
-import org.boris.winrun4j.Closure;
 import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.DllImport;
@@ -23,11 +22,13 @@ public class BindTest
     }
 
     public static void main(String[] args) throws Exception {
-        Closure c = Closure.build(WindowEnumProc.class, new WindowEnumProc() {
-            public boolean windowEnum(IntPtr hWnd, IntPtr lParam) {
-                return false;
+        EnumWindows(new WindowEnumProc() {
+            public boolean windowEnum(long hWnd, IntPtr lParam) {
+                System.out.println(hWnd);
+                System.out.println(lParam);
+                return true;
             }
-        });
+        }, null);
     }
 
     public static void main2(String[] args) throws Exception {
@@ -54,7 +55,7 @@ public class BindTest
 
     public interface WindowEnumProc extends Callback
     {
-        boolean windowEnum(IntPtr hWnd, IntPtr lParam);
+        boolean windowEnum(long hWnd, IntPtr lParam);
     }
 
     @DllImport(lib = "kernel32.dll", entryPoint = "GetCurrentProcessId")
@@ -68,6 +69,10 @@ public class BindTest
 
     @DllImport("user32.dll")
     public static native boolean EnumWindows(WindowEnumProc enumFunc, IntPtr lParam);
+
+    // @DllImport(lib = "user32.dll", entryPoint = "EnumWindows")
+    // public static native boolean EnumWindows2(WindowEnumProc enumFunc, Struct
+    // userData);
 
     @DllImport("user32.dll")
     public static native int GetWindowText(long hWnd, StringBuilder lpString, int nMaxCount);
