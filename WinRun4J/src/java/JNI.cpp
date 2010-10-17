@@ -73,7 +73,7 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 	jclass mainClass = FindClass(env, mainClassStr);
 
 	if(mainClass == NULL) {
-		Log::Error("Could not find main class");
+		Log::Error("Could not find or initialize main class");
 		return false;
 	}
 	
