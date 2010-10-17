@@ -9,16 +9,17 @@
  *******************************************************************************/
 package org.boris.winrun4j.winapi;
 
-import java.nio.ByteBuffer;
-
-import org.boris.winrun4j.Native;
-import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.Closure;
+import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.PInvoke.Callback;
+import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.Struct;
 
 public class User32
 {
-    public static final long library = Native.loadLibrary("user32");
-    private static final boolean is64 = NativeHelper.IS_64;
+    static {
+        PInvoke.bind(User32.class, "user32.dll");
+    }
 
     public static final int CS_VREDRAW = 0x0001;
     public static final int CS_HREDRAW = 0x0002;
@@ -48,197 +49,63 @@ public class User32
     public static final int SW_FORCEMINIMIZE = 11;
     public static final int SW_MAX = 11;
 
-    public static long createWindowEx(int dwExStyle, String className, String windowName, int dwStyle, int x, int y,
-            int width, int height, long parent, long menu, long hInstance, long lParam) {
-        long lpClassName = NativeHelper.toNativeString(className, true);
-        long lpWindowName = NativeHelper.toNativeString(windowName, true);
-        long res = NativeHelper.call(library, "CreateWindowExW", new long[] { dwExStyle, lpClassName, lpWindowName,
-                dwStyle, x, y, width, height, parent, menu, hInstance, lParam });
-        NativeHelper.free(lpClassName, lpWindowName);
-        return res;
-    }
+    @DllImport
+    public static native long CreateWindowEx(int dwExStyle, String className, String windowName, int dwStyle, int x,
+            int y,
+            int width, int height, long parent, long menu, long hInstance, long lParam);
 
-    public static void destroyWindow(long hWnd) {
-        NativeHelper.call(library, "DestroyWindow", hWnd);
-    }
+    @DllImport
+    public static native void DestroyWindow(long hWnd);
 
-    public static long loadCursor(long hInstance, long lpCursorName) {
-        return NativeHelper.call(library, "LoadCursorW", hInstance, lpCursorName);
-    }
+    @DllImport
+    public static native long LoadCursor(long hInstance, long lpCursorName);
 
-    public static void setForegroundWindow(long hwnd) {
-        NativeHelper.call(library, "SetForegroundWindow", hwnd);
-    }
+    @DllImport
+    public static native void SetForegroundWindow(long hwnd);
 
-    public static boolean showWindow(long hWnd, int nCmdShow) {
-        return NativeHelper.call(library, "ShowWindow", hWnd, nCmdShow) != 0;
-    }
+    @DllImport
+    public static native boolean ShowWindow(long hWnd, int nCmdShow);
 
-    public static boolean updateWindow(long hWnd) {
-        return NativeHelper.call(library, "UpdateWindow", hWnd) != 0;
-    }
+    @DllImport
+    public static native boolean UpdateWindow(long hWnd);
 
-    public static int getWindowThreadProcessId(long hwnd) {
-        long ptr = Native.malloc(4);
-        NativeHelper.call(library, "GetWindowThreadProcessId", hwnd, ptr);
-        int res = NativeHelper.getInt(ptr);
-        Native.free(ptr);
-        return res;
-    }
+    @DllImport
+    public static native long GetWindowThreadProcessId(long hwnd);
 
-    public static boolean enumWindows(Callback proc, int lParam) {
-        return NativeHelper.call(library, "EnumWindows", proc.getPointer(), lParam) != 0;
-    }
+    @DllImport
+    public static native boolean EnumWindows(Closure proc, int lParam);
 
-    public static WINDOWINFO getWindowInfo(long hwnd) {
-        long ptr = Native.malloc(WINDOWINFO.SIZE);
-        NativeHelper.setInt(ptr, WINDOWINFO.SIZE);
-        boolean res = NativeHelper.call(library, "GetWindowInfo", hwnd, ptr) != 0;
-        WINDOWINFO wi = null;
-        if (res) {
-            wi = new WINDOWINFO();
-            decode(ptr, wi);
-        }
-        Native.free(ptr);
-        return wi;
-    }
+    @DllImport
+    public static native int getWindowInfo(long hwnd, WINDOWINFO info);
 
-    public static int defWindowProc(long hWnd, int uMsg, long wParam, long lParam) {
-        return (int) NativeHelper.call(library, "DefWindowProcW", hWnd, uMsg, wParam, lParam);
-    }
+    @DllImport
+    public static native int DefWindowProc(long hWnd, int uMsg, long wParam, long lParam);
 
-    public interface WindowProc
+    public interface WindowProc extends Callback
     {
         public int windowProc(long hWnd, int uMsg, long wParam, long lParam);
     }
 
-    public static class WindowProcCallback extends Callback
-    {
-        private WindowProc callback;
+    @DllImport
+    public static native boolean GetMessage(MSG m, long hWnd, int wMsgFilterMin, int wMsgFilterMax);
 
-        public WindowProcCallback(WindowProc callback) {
-            this.callback = callback;
-        }
+    @DllImport
+    public static native boolean TranslateMessage(MSG m);
 
-        protected long callback(long stack) {
-            ByteBuffer bb = NativeHelper.getBuffer(stack, 16);
-            return callback.windowProc(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt());
-        }
-    }
+    @DllImport
+    public static native boolean DispatchMessage(MSG m);
 
-    public static MSG getMessage(long hWnd, int wMsgFilterMin, int wMsgFilterMax) {
-        long ptr = Native.malloc(28);
-        long res = NativeHelper.call(library, "GetMessage", ptr, hWnd, wMsgFilterMin, wMsgFilterMax);
-        MSG m = null;
-        if (res != 0) {
-            m = new MSG();
-            decode(ptr, m);
-        }
-        NativeHelper.free(ptr);
-        return m;
-    }
+    @DllImport
+    public static native boolean registerClassEx(WNDCLASSEX wcx);
 
-    private static long pGetMessage = Native.getProcAddress(library, "GetMessageW");
-    private static long pTranslateMessage = Native.getProcAddress(library, "TranslateMessage");
-    private static long pDispatchMessage = Native.getProcAddress(library, "DispatchMessageW");
-
-    public static boolean getMessage(long pMsg, long hWnd, int wMsgFilterMin, int wMsgFilterMax) {
-        return NativeHelper.call(pGetMessage, pMsg, hWnd, wMsgFilterMin, wMsgFilterMax) != 0;
-    }
-
-    public static boolean translateMessage(MSG m) {
-        long ptr = Native.malloc(28);
-        encode(ptr, m);
-        boolean res = NativeHelper.call(pTranslateMessage, ptr) != 0;
-        decode(ptr, m);
-        NativeHelper.free(ptr);
-        return res;
-    }
-
-    public static boolean translateMessage(long pMsg) {
-        return NativeHelper.call(pTranslateMessage, pMsg) != 0;
-    }
-
-    public static boolean dispatchMessage(MSG m) {
-        long ptr = Native.malloc(28);
-        encode(ptr, m);
-        boolean res = NativeHelper.call(pDispatchMessage, ptr) != 0;
-        decode(ptr, m);
-        NativeHelper.free(ptr);
-        return res;
-    }
-
-    public static boolean dispatchMessage(long pMsg) {
-        return NativeHelper.call(pDispatchMessage, pMsg) != 0;
-    }
-
-    public static boolean registerClassEx(WNDCLASSEX wcx) {
-        long ptr = Native.malloc(WNDCLASSEX.SIZE);
-        long lpMenuName = NativeHelper.toNativeString(wcx.menuName, true);
-        long lpClassName = NativeHelper.toNativeString(wcx.className, true);
-        ByteBuffer bb = NativeHelper.getBuffer(ptr, WNDCLASSEX.SIZE);
-        bb.putInt(wcx.cbSize);
-        bb.putInt(wcx.style);
-        if (is64)
-            bb.putLong(wcx.lpfnWndProc.getPointer());
-        else
-            bb.putInt((int) wcx.lpfnWndProc.getPointer());
-        bb.putInt(wcx.cbClsExtra);
-        bb.putInt(wcx.cbWndExtra);
-        if (is64) {
-            bb.putLong(wcx.hInstance);
-            bb.putLong(wcx.hIcon);
-            bb.putLong(wcx.hCursor);
-            bb.putLong(wcx.hbrBackground);
-            bb.putLong(lpMenuName);
-            bb.putLong(lpClassName);
-            bb.putLong(wcx.hIconSm);
-        } else {
-            bb.putInt((int) wcx.hInstance);
-            bb.putInt((int) wcx.hIcon);
-            bb.putInt((int) wcx.hCursor);
-            bb.putInt((int) wcx.hbrBackground);
-            bb.putInt((int) lpMenuName);
-            bb.putInt((int) lpClassName);
-            bb.putInt((int) wcx.hIconSm);
-        }
-        boolean res = NativeHelper.call(library, "RegisterClassExW", ptr) != 0;
-        NativeHelper.free(ptr, lpMenuName, lpClassName);
-        return res;
-    }
-
-    public static void decode(long ptr, MSG m) {
-        ByteBuffer bb = NativeHelper.getBuffer(ptr, 28);
-        m.hWnd = bb.getInt();
-        m.message = bb.getInt();
-        m.wParam = bb.getInt();
-        m.lParam = bb.getInt();
-        m.time = bb.getInt();
-        m.pt = new POINT();
-        m.pt.x = bb.getInt();
-        m.pt.y = bb.getInt();
-    }
-
-    public static void encode(long ptr, MSG m) {
-        ByteBuffer bb = NativeHelper.getBuffer(ptr, 28);
-        bb.putInt((int) m.hWnd);
-        bb.putInt(m.message);
-        bb.putInt((int) m.wParam);
-        bb.putInt((int) m.lParam);
-        bb.putInt(m.time);
-        bb.putInt(m.pt.x);
-        bb.putInt(m.pt.y);
-    }
-
-    public static class POINT
+    public static class POINT implements Struct
     {
         public int x;
         public int y;
     }
 
-    public static class MSG
+    public static class MSG implements Struct
     {
-        public static final int SIZE = is64 ? 48 : 28;
         long hWnd;
         int message;
         long wParam;
@@ -247,12 +114,10 @@ public class User32
         POINT pt;
     }
 
-    public static class WNDCLASSEX
+    public static class WNDCLASSEX implements Struct
     {
-        public static final int SIZE = is64 ? 80 : 48;
-        public int cbSize = SIZE;
         public int style;
-        public Callback lpfnWndProc;
+        public Closure lpfnWndProc;
         public int cbClsExtra;
         public int cbWndExtra;
         public long hInstance;
@@ -264,40 +129,16 @@ public class User32
         public long hIconSm;
     }
 
-    public static void decode(long ptr, WINDOWINFO wi) {
-        ByteBuffer bb = NativeHelper.getBuffer(ptr, WINDOWINFO.SIZE);
-        wi.cbSize = bb.getInt();
-        wi.rcWindow = new RECT();
-        wi.rcWindow.left = bb.getInt();
-        wi.rcWindow.top = bb.getInt();
-        wi.rcWindow.right = bb.getInt();
-        wi.rcWindow.bottom = bb.getInt();
-        wi.rcClient = new RECT();
-        wi.rcClient.left = bb.getInt();
-        wi.rcClient.top = bb.getInt();
-        wi.rcClient.right = bb.getInt();
-        wi.rcClient.bottom = bb.getInt();
-        wi.dwStyle = bb.getInt();
-        wi.dwExStyle = bb.getInt();
-        wi.dwWindowStatus = bb.getInt();
-        wi.cxWindowBorders = bb.getInt();
-        wi.cyWindowBorders = bb.getInt();
-        wi.intWindowType = bb.getShort();
-        wi.wCreatorVersion = bb.getShort();
-    }
-
-    public static class RECT
+    public static class RECT implements Struct
     {
-        public static final int SIZE = 16;
         public int left;
         public int top;
         public int right;
         public int bottom;
     }
 
-    public static class WINDOWINFO
+    public static class WINDOWINFO implements Struct
     {
-        public static final int SIZE = 60;
         public int cbSize;
         public RECT rcWindow;
         public RECT rcClient;

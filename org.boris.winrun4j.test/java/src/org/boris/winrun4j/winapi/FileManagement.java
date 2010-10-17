@@ -12,12 +12,15 @@ package org.boris.winrun4j.winapi;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import org.boris.winrun4j.Delegate;
+import org.boris.winrun4j.Closure;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.PInvoke.Callback;
 
 public class FileManagement
 {
+    private static final long library = Native.loadLibrary("kernel32.dll");
+
     public static final int MOVEFILE_REPLACE_EXISTING = 0x00000001;
     public static final int MOVEFILE_COPY_ALLOWED = 0x00000002;
     public static final int MOVEFILE_DELAY_UNTIL_REBOOT = 0x00000004;
@@ -43,7 +46,7 @@ public class FileManagement
     public static long createFile(String fileName, int dwDesiredAccess, int dwShareMode, long lpSecurityAttributes,
             int dwCreationDisposition, int dwFlagsAndAttributes, long hTemplateFile) {
         long lpFileName = NativeHelper.toNativeString(fileName, true);
-        long handle = NativeHelper.call(Kernel32.library, "CreateFileW", lpFileName, dwDesiredAccess, dwShareMode,
+        long handle = NativeHelper.call(library, "CreateFileW", lpFileName, dwDesiredAccess, dwShareMode,
                 lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         NativeHelper.free(lpFileName);
         return handle;
@@ -54,14 +57,14 @@ public class FileManagement
             throw new NullPointerException();
         long e = NativeHelper.toNativeString(existingName, true);
         long n = NativeHelper.toNativeString(newName, true);
-        boolean res = NativeHelper.call(Kernel32.library, "MoveFileExW", e, n, flags) == 1;
+        boolean res = NativeHelper.call(library, "MoveFileExW", e, n, flags) == 1;
         NativeHelper.free(e, n);
         return res;
     }
 
     public static String getCurrentDirectory() {
         long lpBuffer = Native.malloc(Shell32.MAX_PATHW);
-        int count = (int) NativeHelper.call(Kernel32.library, "GetCurrentDirectoryW", Shell32.MAX_PATHW, lpBuffer);
+        int count = (int) NativeHelper.call(library, "GetCurrentDirectoryW", Shell32.MAX_PATHW, lpBuffer);
         String res = null;
         if (count > 0)
             res = NativeHelper.getString(lpBuffer, Shell32.MAX_PATHW, true);
@@ -71,10 +74,10 @@ public class FileManagement
 
     public static long getFileSize(long hFile) {
         long lpFileSizeHigh = Native.malloc(4);
-        long size = NativeHelper.call(Kernel32.library, "GetFileSize", hFile, lpFileSizeHigh);
+        long size = NativeHelper.call(library, "GetFileSize", hFile, lpFileSizeHigh);
         int fileSizeHigh = NativeHelper.getInt(lpFileSizeHigh);
         NativeHelper.free(lpFileSizeHigh);
-        if (size == 0xffffffff && Kernel32.getLastError() != 0)
+        if (size == 0xffffffff && Kernel32.GetLastError() != 0)
             return -1;
         return ((long) fileSizeHigh) << 32 | size;
     }
@@ -84,7 +87,7 @@ public class FileManagement
             return 0;
         long lpFileName = NativeHelper.toNativeString(fileName, true);
         long lpFindFileData = Native.malloc(WIN32_FIND_DATA.SIZE);
-        long handle = NativeHelper.call(Kernel32.library, "FindFirstFileW", lpFileName, lpFindFileData);
+        long handle = NativeHelper.call(library, "FindFirstFileW", lpFileName, lpFindFileData);
         if (handle != 0) {
             decode(lpFindFileData, findFileData);
         }
@@ -96,23 +99,23 @@ public class FileManagement
         if (pathName == null)
             return 0;
         long lpPathName = NativeHelper.toNativeString(pathName, true);
-        long handle = NativeHelper.call(Kernel32.library, "FindFirstChangeNotificationW", lpPathName, bWatchSubtree ? 1
+        long handle = NativeHelper.call(library, "FindFirstChangeNotificationW", lpPathName, bWatchSubtree ? 1
                 : 0, dwNotifyFilter);
         NativeHelper.free(lpPathName);
         return handle;
     }
 
     public static boolean findNextChangeNotification(long hChangeHandle) {
-        return NativeHelper.call(Kernel32.library, "FindNextChangeNotification", hChangeHandle) != 0;
+        return NativeHelper.call(library, "FindNextChangeNotification", hChangeHandle) != 0;
     }
 
     public static boolean findCloseChangeNotification(long hChangeHandle) {
-        return NativeHelper.call(Kernel32.library, "FindCloseChangeNotification", hChangeHandle) != 0;
+        return NativeHelper.call(library, "FindCloseChangeNotification", hChangeHandle) != 0;
     }
 
     public static boolean findNextFile(long handle, WIN32_FIND_DATA findFileData) {
         long lpFindFileData = Native.malloc(WIN32_FIND_DATA.SIZE);
-        boolean res = NativeHelper.call(Kernel32.library, "FindNextFileW", handle, lpFindFileData) != 0;
+        boolean res = NativeHelper.call(library, "FindNextFileW", handle, lpFindFileData) != 0;
         if (res) {
             decode(lpFindFileData, findFileData);
         }
@@ -121,18 +124,18 @@ public class FileManagement
     }
 
     public static boolean findClose(long handle) {
-        return NativeHelper.call(Kernel32.library, "FindClose", handle) != 0;
+        return NativeHelper.call(library, "FindClose", handle) != 0;
     }
 
     public static boolean readDirectoryChanges(long hDirectory, long lpBuffer, int dwBufferLength, boolean bWatchTree,
-            int dwNotifyFilter, long lpOverlapped, Delegate completionRoutine) {
-        return NativeHelper.call(Kernel32.library, "ReadDirectoryChangesW", hDirectory, lpBuffer, dwBufferLength,
+            int dwNotifyFilter, long lpOverlapped, Closure completionRoutine) {
+        return NativeHelper.call(library, "ReadDirectoryChangesW", hDirectory, lpBuffer, dwBufferLength,
                 bWatchTree ? 1 : 0, dwNotifyFilter, 0, lpOverlapped, completionRoutine.getPointer()) != 0;
     }
 
     public static boolean setCurrentDirectory(String pathName) {
         long lpPathName = NativeHelper.toNativeString(pathName, true);
-        boolean res = NativeHelper.call(Kernel32.library, "SetCurrentDirectoryW", lpPathName) != 0;
+        boolean res = NativeHelper.call(library, "SetCurrentDirectoryW", lpPathName) != 0;
         NativeHelper.free(lpPathName);
         return res;
     }
@@ -180,7 +183,7 @@ public class FileManagement
         return (FILE_NOTIFY_INFORMATION[]) results.toArray(new FILE_NOTIFY_INFORMATION[results.size()]);
     }
 
-    public static abstract class FileNotifyInformationCallback extends Delegate
+    public static abstract class FileNotifyInformationCallback implements Callback
     {
         protected final int callback(int stack) {
             ByteBuffer bb = NativeHelper.getBuffer(stack, 12);

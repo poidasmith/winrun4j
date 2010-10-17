@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.ffi;
 
+import org.boris.winrun4j.Closure;
 import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.DllImport;
@@ -22,6 +23,14 @@ public class BindTest
     }
 
     public static void main(String[] args) throws Exception {
+        Closure c = Closure.build(WindowEnumProc.class, new WindowEnumProc() {
+            public boolean windowEnum(IntPtr hWnd, IntPtr lParam) {
+                return false;
+            }
+        });
+    }
+
+    public static void main2(String[] args) throws Exception {
         // System.out.println(GetCurrentProcessId());
 
         StringBuilder userName = new StringBuilder();
@@ -45,7 +54,7 @@ public class BindTest
 
     public interface WindowEnumProc extends Callback
     {
-        boolean callback(IntPtr hWnd, IntPtr lParam);
+        boolean windowEnum(IntPtr hWnd, IntPtr lParam);
     }
 
     @DllImport(lib = "kernel32.dll", entryPoint = "GetCurrentProcessId")

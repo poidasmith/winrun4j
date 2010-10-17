@@ -11,13 +11,17 @@ package org.boris.winrun4j.winapi;
 
 import java.util.ArrayList;
 
-import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.Struct;
 
 public class Resources
 {
+    static {
+        PInvoke.bind(Resources.class, "kernel32.dll");
+    }
+
     @DllImport
     public static native int EnumResourceTypes(long handle, ResourceTypesCallback callback);
 
@@ -27,13 +31,11 @@ public class Resources
     @DllImport
     public static native int EnumResourceLanguages(long handle, long type, long name, ResourceLanguagesCallback callback);
 
-    public static long findResource(long hModule, long name, long type) {
-        return NativeHelper.call(Kernel32.library, "FindResource", hModule, name, type);
-    }
+    @DllImport
+    public static native long FindResource(long hModule, long name, long type);
 
-    public static long findResourceEx(long hModule, long name, long type, int lang) {
-        return NativeHelper.call(Kernel32.library, "FindResourceEx", hModule, name, type, lang);
-    }
+    @DllImport
+    public static native long FindResourceEx(long hModule, long name, long type, int lang);
 
     public static ResourceEntry[] findResources(long hModule) {
         final ArrayList res = new ArrayList();
@@ -59,62 +61,32 @@ public class Resources
         return (ResourceEntry[]) res.toArray(new ResourceEntry[res.size()]);
     }
 
-    public static long loadResource(long hModule, long hResInfo) {
-        return NativeHelper.call(Kernel32.library, "LoadResource", hModule, hResInfo);
-    }
+    @DllImport
+    public static native long LoadResource(long hModule, long hResInfo);
 
-    public static long lockResource(long hResData) {
-        return NativeHelper.call(Kernel32.library, "LockResource", hResData);
-    }
+    @DllImport
+    public static native long LockResource(long hResData);
 
-    public static long beginUpdateResource(String filename, boolean bDeleteExistingResources) {
-        long lpFilename = NativeHelper.toNativeString(filename, true);
-        long res = NativeHelper.call(Kernel32.library, "BeginUpdateResourceW", lpFilename, bDeleteExistingResources ? 1
-                : 0);
-        NativeHelper.free(lpFilename);
-        return res;
-    }
+    @DllImport
+    public static native long BeginUpdateResource(String filename, boolean bDeleteExistingResources);
 
-    public static boolean updateResource(long hUpdate, long lpType, long lpName, int wLanguage, byte[] data) {
-        long lpData = NativeHelper.toNative(data, 0, data.length);
-        boolean res = updateResource(hUpdate, lpType, lpName, wLanguage, lpData, data.length);
-        NativeHelper.free(lpData);
-        return res;
-    }
+    @DllImport
+    public static native boolean UpdateResource(long hUpdate, String lpType, String lpName, short wLanguage,
+            byte[] data, int cbData);
 
-    public static boolean updateResource(long hUpdate, long lpType, long lpName, int wLanguage, long lpData, int cbData) {
-        return NativeHelper.call(Kernel32.library, "UpdateResourceW", hUpdate, lpType, lpName, wLanguage, lpData,
-                cbData) != 0;
-    }
+    @DllImport
+    public static native boolean UpdateResource(long hUpdate, String lpType, short lpName, short wLanguage,
+            byte[] lpData,
+            int cbData);
 
-    public static boolean updateResource(long hUpdate, ResourceEntry entry, byte[] data) {
-        long lpData = NativeHelper.toNative(data, 0, data.length);
-        boolean res = updateResource(hUpdate, entry, lpData, data.length);
-        NativeHelper.free(lpData);
-        return res;
-    }
+    @DllImport
+    public static native boolean updateResource(long hUpdate, ResourceEntry entry, byte[] data, int cbData);
 
-    public static boolean updateResource(long hUpdate, ResourceEntry entry, long lpData, int cbData) {
-        if (entry == null || !entry.isValid())
-            return false;
-        long lpType = entry.type.toNative();
-        long lpName = entry.name.toNative();
-        boolean res = NativeHelper.call(Kernel32.library, "UpdateResourceW", hUpdate, lpType, lpName, entry.language,
-                lpData, cbData) != 0;
-        if (!entry.type.isIntResource())
-            NativeHelper.free(lpType);
-        if (!entry.name.isIntResource())
-            NativeHelper.free(lpName);
-        return res;
-    }
+    @DllImport
+    public static native boolean EndUpdateResource(long hUpdate, boolean fDiscard);
 
-    public static boolean endUpdateResource(long hUpdate, boolean fDiscard) {
-        return NativeHelper.call(Kernel32.library, "EndUpdateResourceW", hUpdate, fDiscard ? 1 : 0) != 0;
-    }
-
-    public static long sizeOfResource(long hModule, long hResInfo) {
-        return NativeHelper.call(Kernel32.library, "SizeOfResource", hModule, hResInfo);
-    }
+    @DllImport
+    public static native long SizeOfResource(long hModule, long hResInfo);
 
     public interface ResourceTypesCallback extends Callback
     {

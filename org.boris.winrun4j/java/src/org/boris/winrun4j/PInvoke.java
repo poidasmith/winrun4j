@@ -22,6 +22,10 @@ public class PInvoke
         NativeBinder.bind(clazz, library);
     }
 
+    public static int sizeOf(Class struct) {
+        return 0;
+    }
+
     @Retention(RetentionPolicy.RUNTIME)
     public @interface DllImport {
         String value() default "";
@@ -41,9 +45,7 @@ public class PInvoke
     public @interface Out {}
 
     @Retention(RetentionPolicy.RUNTIME)
-    public @interface Delegate {
-        boolean wideChar() default true;
-    }
+    public @interface Delegate {}
 
     @Retention(RetentionPolicy.RUNTIME)
     public @interface MarshalAs {

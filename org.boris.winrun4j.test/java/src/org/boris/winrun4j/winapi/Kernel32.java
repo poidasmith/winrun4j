@@ -9,138 +9,81 @@
  *******************************************************************************/
 package org.boris.winrun4j.winapi;
 
-import java.nio.ByteBuffer;
-
-import org.boris.winrun4j.Native;
-import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.PInvoke;
+import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.MarshalAs;
+import org.boris.winrun4j.PInvoke.Struct;
 
 public class Kernel32
 {
-    public static final long library = Native.loadLibrary("kernel32");
-    private static final boolean is64 = Native.IS_64;
+    static {
+        PInvoke.bind(Kernel32.class, "kernel32.dll");
+    }
 
     public static final int DONT_RESOLVE_DLL_REFERENCES = 0x00000001;
     public static final int LOAD_LIBRARY_AS_DATAFILE = 0x00000002;
     public static final int LOAD_WITH_ALTERED_SEARCH_PATH = 0x00000008;
     public static final int LOAD_IGNORE_CODE_AUTHZ_LEVEL = 0x00000010;
 
-    public static void debugBreak() {
-        NativeHelper.call(library, "DebugBreak");
-    }
+    @DllImport
+    public static native void DebugBreak();
 
-    public static long loadLibraryEx(String filename, int dwFlags) {
-        long lpFilename = NativeHelper.toNativeString(filename, true);
-        long handle = NativeHelper.call(library, "LoadLibraryExW", lpFilename, 0, dwFlags);
-        NativeHelper.free(lpFilename);
-        return handle;
-    }
+    @DllImport
+    public static native long LoadLibraryEx(String lpFilename, long hFile, int dwFlags);
 
-    public static void setPriorityClass(long hProcess, int dwPriorityClass) {
-        NativeHelper.call(library, "SetPriorityClass", hProcess, dwPriorityClass);
-    }
+    @DllImport
+    public static native void SetPriorityClass(long hProcess, int dwPriorityClass);
 
-    public static long getCurrentProcessId() {
-        return NativeHelper.call(library, "GetCurrentProcessId");
-    }
+    @DllImport
+    public static native long GetCurrentProcessId();
 
-    public static long getCurrentThreadId() {
-        return NativeHelper.call(library, "GetCurrentThreadId");
-    }
+    @DllImport
+    public static native long GetCurrentThreadId();
 
-    public static long getModuleHandle(String moduleName) {
-        long lpModuleName = NativeHelper.toNativeString(moduleName, true);
-        long res = NativeHelper.call(library, "GetModuleHandleW", lpModuleName);
-        NativeHelper.free(lpModuleName);
-        return res;
-    }
+    @DllImport
+    public static native long GetModuleHandle(String moduleName);
 
-    public static long getLastError() {
-        return NativeHelper.call(library, "GetLastError");
-    }
+    @DllImport
+    public static native long GetLastError();
 
-    public static long getTickCount() {
-        return NativeHelper.call(library, "GetTickCount");
-    }
+    @DllImport
+    public static native long GetTickCount();
 
-    public static String getModuleFilename(long hModule) {
-        long ptr = Native.malloc(Shell32.MAX_PATHW);
-        NativeHelper.call(Kernel32.library, "GetModuleFileNameW", hModule, ptr, Shell32.MAX_PATHW);
-        String res = NativeHelper.getString(ptr, Shell32.MAX_PATHW, true);
-        Native.free(ptr);
-        return res;
-    }
+    @DllImport
+    public static native long GetModuleFilename(long hModule, StringBuilder lpFilename, int nSize);
 
-    public static void closeHandle(long handle) {
-        NativeHelper.call(Kernel32.library, "CloseHandle", handle);
-    }
+    @DllImport
+    public static native void CloseHandle(long handle);
 
-    public static long createToolhelp32Snapshot(int dwFlags, long th32ProcessID) {
-        return NativeHelper.call(Kernel32.library, "CreateToolhelp32Snapshot", dwFlags, th32ProcessID);
-    }
+    @DllImport
+    public static native long CreateToolhelp32Snapshot(int dwFlags, long th32ProcessID);
 
-    public static boolean process32First(long hSnapshot, long lppe) {
-        return NativeHelper.call(Kernel32.library, "Process32FirstW", hSnapshot, lppe) != 0;
-    }
+    @DllImport
+    public static native boolean Process32First(long hSnapshot, PROCESSENTRY32 lppe);
 
-    public static boolean process32Next(long hSnapshot, long lppe) {
-        return NativeHelper.call(Kernel32.library, "Process32NextW", hSnapshot, lppe) != 0;
-    }
+    @DllImport
+    public static native boolean Process32Next(long hSnapshot, PROCESSENTRY32 lppe);
 
-    public static long openProcess(int dwDesiredAccess, boolean bInheritHandle, long dwProcessId) {
-        return NativeHelper.call(Kernel32.library, "OpenProcess", dwDesiredAccess, bInheritHandle ? 1 : 0, dwProcessId);
-    }
+    @DllImport
+    public static native long OpenProcess(int dwDesiredAccess, boolean bInheritHandle, long dwProcessId);
 
-    public static long waitForSingleObject(long handle, int milliseconds) {
-        return NativeHelper.call(library, "WaitForSingleObject", handle, milliseconds);
-    }
+    @DllImport
+    public static native long WaitForSingleObject(long handle, int milliseconds);
 
-    public static long waitForSingleObjectEx(long hHandle, int dwMilliseconds, boolean bAlertable) {
-        return NativeHelper.call(library, "WaitForSingleObjectEx", hHandle, dwMilliseconds, bAlertable ? 1 : 0);
-    }
+    @DllImport
+    public static native long WaitForSingleObjectEx(long hHandle, int dwMilliseconds, boolean bAlertable);
 
-    public static SYSTEM_INFO getSystemInfo() {
-        long ptr = Native.malloc(SYSTEM_INFO.SIZE);
-        NativeHelper.call(library, "GetSystemInfo", ptr);
-        SYSTEM_INFO si = new SYSTEM_INFO();
-        decode(ptr, si);
-        NativeHelper.free(ptr);
-        return si;
-    }
+    @DllImport
+    public static native void GetSystemInfo(SYSTEM_INFO si);
 
-    public static void decode(long ptr, PROCESSENTRY32 pe) {
-        ByteBuffer bb = NativeHelper.getBuffer(ptr, PROCESSENTRY32.SIZE);
-        pe.dwSize = bb.getInt();
-        pe.cntUsage = bb.getInt();
-        pe.th32ProcessID = bb.getInt();
-        if (is64)
-            bb.getInt(); // alignment
-        pe.th32DefaultHeapID = bb.getInt();
-        pe.th32ModuleID = bb.getInt();
-        pe.cntThreads = bb.getInt();
-        pe.th32ParentProcessID = bb.getInt();
-        pe.pcPriClassBase = bb.getInt();
-        pe.dwFlags = bb.getInt();
-        if (is64)
-            bb.getInt();
-        pe.szExeFile = NativeHelper.getString(bb, true);
-    }
-
-    public static void decode(long ptr, SYSTEM_INFO si) {
-        ByteBuffer bb = NativeHelper.getBuffer(ptr, SYSTEM_INFO.SIZE);
-        si.dwOemId = bb.getInt();
-        si.dwPageSize = bb.getInt();
-        si.lpMinimumApplicationAddress = is64 ? bb.getLong() : bb.getInt();
-        si.lpMaximumApplicationAddress = is64 ? bb.getLong() : bb.getInt();
-        si.dwActiveProcessorMask = is64 ? bb.getLong() : bb.getInt();
-        si.dwNumberOfProcessor = bb.getInt();
-        si.dwProcessorType = bb.getInt();
-        si.wProcessorLevel = bb.getShort();
-        si.wProcessorRevision = bb.getShort();
-    }
-
-    public static class PROCESSENTRY32
+    public static class PROCESSENTRY32 implements Struct
     {
-        public static final int SIZE = is64 ? 568 : 556;
+        private static int sizeOf = PInvoke.sizeOf(PROCESSENTRY32.class);
+
+        public PROCESSENTRY32() {
+            dwSize = sizeOf;
+        }
+
         public int dwSize;
         public int cntUsage;
         public int th32ProcessID;
@@ -150,12 +93,12 @@ public class Kernel32
         public int th32ParentProcessID;
         public int pcPriClassBase;
         public int dwFlags;
+        @MarshalAs(sizeConst = 128)
         public String szExeFile;
     }
 
-    public static class SYSTEM_INFO
+    public static class SYSTEM_INFO implements Struct
     {
-        public static final int SIZE = is64 ? 48 : 36;
         public int dwOemId;
         public int wProcessorAchitecture;
         public int wReserved;

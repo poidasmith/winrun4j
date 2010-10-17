@@ -185,20 +185,23 @@ public class NativeBinder
         }
     }
 
-    private static final int ARG_INT = 1;
-    private static final int ARG_BOOL = 2;
-    private static final int ARG_STRING_BUILDER = 3;
-    private static final int ARG_UINT_PTR = 4;
-    private static final int ARG_INT_PTR = 5;
-    private static final int ARG_STRING = 6;
-    private static final int ARG_CALLBACK = 7;
-    private static final int ARG_STRUCT_PTR = 8;
+    static final int ARG_INT = 1;
+    static final int ARG_BOOL = 2;
+    static final int ARG_STRING_BUILDER = 3;
+    static final int ARG_UINT_PTR = 4;
+    static final int ARG_INT_PTR = 5;
+    static final int ARG_STRING = 6;
+    static final int ARG_CALLBACK = 7;
+    static final int ARG_STRUCT_PTR = 8;
+    static final int ARG_LONG = 9;
 
-    private static int getArgType(Class clazz) {
+    static int getArgType(Class clazz) {
         if (int.class.equals(clazz)) {
             return ARG_INT;
         } else if (boolean.class.equals(clazz)) {
             return ARG_BOOL;
+        } else if (long.class.equals(clazz)) {
+            return ARG_LONG;
         } else if (IntPtr.class.equals(clazz)) {
             return ARG_INT_PTR;
         } else if (UIntPtr.class.equals(clazz)) {
@@ -352,6 +355,11 @@ public class NativeBinder
         if (avalue != 0) {
             Native.free(avalue);
             avalue = 0;
+        }
+
+        if (objectId != 0) {
+            Native.deleteGlobalRef(objectId);
+            objectId = 0;
         }
     }
 }

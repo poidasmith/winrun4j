@@ -11,7 +11,7 @@ import org.boris.winrun4j.NativeHelper;
 
 public class Environment
 {
-    private static final long library = Kernel32.library;
+    private static final long library = Native.loadLibrary("kernel32.dll");
 
     public static String expandEnvironmentString(String var) {
         if (var == null)

@@ -11,28 +11,22 @@ package org.boris.winrun4j.winapi;
 
 import java.util.ArrayList;
 
-import org.boris.winrun4j.Native;
-import org.boris.winrun4j.NativeHelper;
 import org.boris.winrun4j.winapi.Kernel32.PROCESSENTRY32;
 
 public class ToolHelper
 {
     public static PROCESSENTRY32[] createProcessSnaphost() {
-        long handle = Kernel32.createToolhelp32Snapshot(2, 0);
-        long lppe = Native.malloc(Kernel32.PROCESSENTRY32.SIZE);
-        NativeHelper.setInt(lppe, Kernel32.PROCESSENTRY32.SIZE);
+        long handle = Kernel32.CreateToolhelp32Snapshot(2, 0);
         ArrayList pes = new ArrayList();
         PROCESSENTRY32 pe = new PROCESSENTRY32();
-        if (Kernel32.process32First(handle, lppe)) {
-            Kernel32.decode(lppe, pe);
+        if (Kernel32.Process32First(handle, pe)) {
             pes.add(pe);
-            while (Kernel32.process32Next(handle, lppe)) {
-                pe = new PROCESSENTRY32();
-                Kernel32.decode(lppe, pe);
-                pes.add(pe);
+            PROCESSENTRY32 pen = new PROCESSENTRY32();
+            while (Kernel32.Process32Next(handle, pen)) {
+                pes.add(pen);
+                pen = new PROCESSENTRY32();
             }
         }
-        NativeHelper.free(lppe);
         if (pes.size() == 0)
             return null;
 

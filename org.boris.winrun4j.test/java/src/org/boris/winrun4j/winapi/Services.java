@@ -11,6 +11,7 @@ package org.boris.winrun4j.winapi;
 
 import java.nio.ByteBuffer;
 
+import org.boris.winrun4j.Closure;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 
@@ -292,7 +293,7 @@ public class Services
         return res;
     }
 
-    public static long registerServiceCtrlHandler(String serviceName, Delegate callback) {
+    public static long registerServiceCtrlHandler(String serviceName, Closure callback) {
         long lpServiceName = NativeHelper.toNativeString(serviceName, true);
         long res = NativeHelper.call(library, "RegisterServiceCtrlHandlerW", lpServiceName, callback.getPointer());
         NativeHelper.free(lpServiceName);
@@ -391,7 +392,7 @@ public class Services
     public static class SERVICE_NOTIFY
     {
         public int version = 2;
-        public Delegate notifyCallback;
+        public Closure notifyCallback;
         public long context;
         public int notificationStatus;
         public SERVICE_STATUS_PROCESS serviceStatus;
@@ -401,7 +402,7 @@ public class Services
     public static class SERVICE_TABLE_ENTRY
     {
         public String serviceName;
-        public Delegate serviceProc;
+        public Closure serviceProc;
     }
 
     public static class SC_ACTION

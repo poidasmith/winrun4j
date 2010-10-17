@@ -10,9 +10,9 @@
 package org.boris.winrun4j.test;
 
 import org.boris.winrun4j.FFI;
+import org.boris.winrun4j.FFI.CIF;
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
-import org.boris.winrun4j.FFI.CIF;
 import org.boris.winrun4j.winapi.Console;
 import org.boris.winrun4j.winapi.Kernel32;
 import org.boris.winrun4j.winapi.User32;
@@ -21,14 +21,14 @@ public class FFIClosureTest
 {
     public static void main2(String[] args) throws Exception {
         CIF cif = CIF.prepare(FFI.ABI_STDCALL, 1);
-        Kernel32.debugBreak();
+        Kernel32.DebugBreak();
         FFIClosureTest test = new FFIClosureTest();
         long objectId = Native.newGlobalRef(test);
         long methodId = Native.getMethodId(FFIClosureTest.class, "callback", "(JJ)V", false);
         long handle = FFI.prepareClosure(cif.get(), objectId, methodId);
         long callback = NativeHelper.getInt(handle);
-        Console.allocConsole();
-        Console.setConsoleTitle("Testing Console");
+        Console.AllocConsole();
+        Console.SetConsoleTitle("Testing Console");
         NativeHelper.call(Kernel32.library, "SetConsoleCtrlHandler", callback, 1);
         Thread.sleep(500000);
     }
