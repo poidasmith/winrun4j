@@ -95,8 +95,51 @@ public class Registry
             UIntPtr lpcbSecurityDescriptor,
             FILETIME lpftLastWriteTime);
 
+    public static QUERY_INFO queryInfoKey(long hKey) {
+        StringBuilder lpClass = new StringBuilder();
+        UIntPtr lpcClass = new UIntPtr(255);
+        UIntPtr lpcSubKeys = new UIntPtr();
+        UIntPtr lpcMaxSubKeyLen = new UIntPtr();
+        UIntPtr lpcMaxClassLen = new UIntPtr();
+        UIntPtr lpcValues = new UIntPtr();
+        UIntPtr lpcMaxValueNameLen = new UIntPtr();
+        UIntPtr lpcMaxValueLen = new UIntPtr();
+        UIntPtr lpcbSecurityDescriptor = new UIntPtr();
+        FILETIME lastWriteTime = null; // TODO
+        int res = queryInfoKey(hKey, lpClass, lpcClass, 0, lpcSubKeys,
+                lpcMaxSubKeyLen,
+                lpcMaxClassLen, lpcValues, lpcMaxValueNameLen,
+                lpcMaxValueLen, lpcbSecurityDescriptor, lastWriteTime);
+        if (res != 0)
+            return null;
+        QUERY_INFO info = new QUERY_INFO();
+        info.keyClass = lpClass.toString();
+        info.subKeyCount = lpcSubKeys.intValue();
+        info.maxSubkeyLen = lpcMaxSubKeyLen.intValue();
+        info.maxClassLen = lpcMaxClassLen.intValue();
+        info.valueCount = lpcValues.intValue();
+        info.maxValueNameLen = lpcMaxValueNameLen.intValue();
+        info.maxValueLen = lpcMaxValueLen.intValue();
+        info.cbSecurityDescriptor = lpcbSecurityDescriptor.intValue();
+        info.lastWriteTime = lastWriteTime;
+        return info;
+    }
+
     @DllImport(entryPoint = "RegSetValueEx")
     public static native long setValueEx(long hKey, String valueName, int type, byte[] data, int offset, int len);
+
+    public static class QUERY_INFO
+    {
+        public String keyClass;
+        public int subKeyCount;
+        public int maxSubkeyLen;
+        public int maxClassLen;
+        public int valueCount;
+        public int maxValueNameLen;
+        public int maxValueLen;
+        public int cbSecurityDescriptor;
+        public FILETIME lastWriteTime;
+    }
 
     public static class FILETIME implements Struct
     {

@@ -146,16 +146,14 @@ public class RegistryKey
      */
     public String[] getSubKeyNames() {
         long h = openKeyHandle(handle, path, true);
-        UIntPtr subKeyCount = new UIntPtr();
-        UIntPtr maxKeyLen = new UIntPtr();
-        int res = Registry.queryInfoKey(h, null, null, 0, subKeyCount, maxKeyLen, null, null, null, null, null, null);
-        if (res != 0)
+        QUERY_INFO qi = Registry.queryInfoKey(h);
+        if (qi == null)
             return null;
-        String[] keys = new String[subKeyCount.value];
+        String[] keys = new String[qi.subKeyCount];
         for (int i = 0; i < keys.length; i++) {
             StringBuilder name = new StringBuilder();
-            UIntPtr cbName = new UIntPtr(maxKeyLen.value);
-            res = Registry.enumKeyEx(h, i, name, cbName, 0, 0, 0, null);
+            UIntPtr cbName = new UIntPtr(qi.maxSubkeyLen);
+            int res = Registry.enumKeyEx(h, i, name, cbName, 0, 0, 0, null);
             if (res != 0)
                 continue;
             keys[i] = name.toString();
@@ -185,10 +183,13 @@ public class RegistryKey
     public RegistryKey createSubKey(String name) {
         long h = openKeyHandle(handle, path, false);
         if (h != 0) {
-            long n = Registry.createKey(h, name);
+            UIntPtr phkResult = new UIntPtr();
+            int res = Registry.createKey(h, name, phkResult);
             Registry.closeKey(h);
-            if (n != 0) {
-                Registry.closeKey(n);
+            if (res != 0)
+                return null;
+            if (phkResult.value != 0) {
+                Registry.closeKey(phkResult.value);
                 return new RegistryKey(this, name);
             }
         }

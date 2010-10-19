@@ -2,12 +2,13 @@ package org.boris.winrun4j.winapi;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Properties;
 
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.MarshalAs;
 
 public class Environment
 {
@@ -112,46 +113,22 @@ public class Environment
         return (File[]) drives.toArray(new File[drives.size()]);
     }
 
-    public static OSVERSIONINFOEX getVersionEx() {
-        long pOs = Native.malloc(156);
-        ByteBuffer b = Native.fromPointer(pOs, 156).order(ByteOrder.LITTLE_ENDIAN);
-        NativeHelper.zeroMemory(b);
-        b.rewind();
-        b.putInt(156); // set dwOSVersionInfoSize;
-        long res = NativeHelper.call(library, "GetVersionExA", pOs);
-        if (res == 0) {
-            Native.free(pOs);
-            return null;
-        }
-
-        OSVERSIONINFOEX info = new OSVERSIONINFOEX();
-        info.majorVersion = b.getInt();
-        info.minorVersion = b.getInt();
-        info.buildNumber = b.getInt();
-        info.platformId = b.getInt();
-        byte[] vs = new byte[128];
-        b.get(vs);
-        info.csdVersion = NativeHelper.getString(vs, false);
-        info.servicePackMajor = b.getShort();
-        info.servicePackMinor = b.getShort();
-        info.suiteMask = b.getShort();
-        info.productType = b.get();
-        info.reserved = b.get();
-        Native.free(pOs);
-        return info;
-    }
+    @DllImport("kernel32.dll")
+    public static native boolean GetVersionEx(OSVERSIONINFOEX version);
 
     public static class OSVERSIONINFOEX
     {
-        public int buildNumber;
-        public String csdVersion;
-        public int majorVersion;
-        public int minorVersion;
-        public int platformId;
-        public int productType;
-        public int reserved;
-        public int servicePackMajor;
-        public int servicePackMinor;
-        public int suiteMask;
+        public int dwOSVersionInfoSize;
+        public int dwMajorVersion;
+        public int dwMinorVersion;
+        public int dwBuildNumber;
+        public int dwPlatformId;
+        @MarshalAs(sizeConst = 128)
+        public String szCSDVersion;
+        public short wServicePackMajor;
+        public short wServicePackMinor;
+        public short wSuiteMask;
+        public byte wProductType;
+        public byte wReserved;
     }
 }

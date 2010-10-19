@@ -27,7 +27,8 @@ public class NativeHelper
 
     public static void free(long... ptrs) {
         for (int i = 0; i < ptrs.length; i++) {
-            Native.free(ptrs[i]);
+            if (ptrs[i] != 0)
+                Native.free(ptrs[i]);
         }
     }
 

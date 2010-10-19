@@ -100,8 +100,9 @@ public class Kernel32
     public static class SYSTEM_INFO implements Struct
     {
         public int dwOemId;
-        public int wProcessorAchitecture;
-        public int wReserved;
+        // TODO: union
+        // public int wProcessorAchitecture;
+        // public int wReserved;
         public int dwPageSize;
         public long lpMinimumApplicationAddress;
         public long lpMaximumApplicationAddress;
@@ -109,7 +110,7 @@ public class Kernel32
         public int dwNumberOfProcessor;
         public int dwProcessorType;
         public int dwAllocationGranularity;
-        public int wProcessorLevel;
-        public int wProcessorRevision;
+        public short wProcessorLevel;
+        public short wProcessorRevision;
     }
 }

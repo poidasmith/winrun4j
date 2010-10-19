@@ -19,12 +19,12 @@ import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
 import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.Delegate;
+import org.boris.winrun4j.winapi.DDEML;
 import org.boris.winrun4j.winapi.Gdi32;
 import org.boris.winrun4j.winapi.Kernel32;
 import org.boris.winrun4j.winapi.User32;
 import org.boris.winrun4j.winapi.User32.WNDCLASSEX;
 import org.boris.winrun4j.winapi.User32.WindowProc;
-import org.boris.winrun4j.winapi.User32.WindowProcCallback;
 
 public class NativeDdeServer extends DdeCallback implements Runnable, WindowProc
 {
@@ -100,7 +100,7 @@ public class NativeDdeServer extends DdeCallback implements Runnable, WindowProc
 
     public int windowProc(long hWnd, int uMsg, long wParam, long lParam) {
         System.out.println(hWnd + " " + uMsg + " " + wParam + " " + lParam);
-        return User32.defWindowProc(hWnd, uMsg, wParam, lParam);
+        return User32.DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
 
     private boolean registerDde() {

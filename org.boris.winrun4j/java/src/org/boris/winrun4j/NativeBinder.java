@@ -14,17 +14,21 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.boris.winrun4j.FFI.CIF;
+import org.boris.winrun4j.PInvoke.ByteArrayBuilder;
 import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.IntPtr;
+import org.boris.winrun4j.PInvoke.NativeStruct;
 import org.boris.winrun4j.PInvoke.Struct;
 import org.boris.winrun4j.PInvoke.UIntPtr;
 
 public class NativeBinder
 {
     private static Map<Method, NativeBinder> methods = new HashMap();
+    private static Map<Class, NativeStruct> structs = new ConcurrentHashMap();
 
     private static boolean is64 = Native.IS_64;
     private static long invokeId = Native.getMethodId(NativeBinder.class, "invoke", "(JJ)V", false);
@@ -195,14 +199,24 @@ public class NativeBinder
     static final int ARG_CALLBACK = 7;
     static final int ARG_STRUCT_PTR = 8;
     static final int ARG_LONG = 9;
+    static final int ARG_BYTE_ARRAY_BUILDER = 10;
+    static final int ARG_SHORT = 11;
+    static final int ARG_VOID = 12;
+    static final int ARG_BYTE = 13;
 
     static int getArgType(Class clazz) {
         if (int.class.equals(clazz)) {
             return ARG_INT;
         } else if (boolean.class.equals(clazz)) {
             return ARG_BOOL;
+        } else if (byte.class.equals(clazz)) {
+            return ARG_BYTE;
+        } else if (short.class.equals(clazz)) {
+            return ARG_SHORT;
         } else if (long.class.equals(clazz)) {
             return ARG_LONG;
+        } else if (void.class.equals(clazz)) {
+            return ARG_VOID;
         } else if (IntPtr.class.equals(clazz)) {
             return ARG_INT_PTR;
         } else if (UIntPtr.class.equals(clazz)) {
@@ -215,17 +229,19 @@ public class NativeBinder
             return ARG_STRUCT_PTR;
         } else if (Callback.class.isAssignableFrom(clazz)) {
             return ARG_CALLBACK;
+        } else if (ByteArrayBuilder.class.isAssignableFrom(clazz)) {
+            return ARG_BYTE_ARRAY_BUILDER;
         } else {
             throw new RuntimeException("Unrecognized native argument type: " + clazz);
         }
     }
 
-    public void invoke(long resp, long args) {
+    public void invoke(long resp, long args) throws Exception {
         // The args are coming from the java native method, need to convert
         // into native args
         Object[] jargs = new Object[argSize];
 
-        if (argSize > 0) {
+        if (argTypes.length > 0) {
             long offset = 2 * NativeHelper.PTR_SIZE; // skip env,self
             ByteBuffer ib = NativeHelper.getBuffer(args + offset, argSize);
             ByteBuffer pb = NativeHelper.getBuffer(pvalue, argSize);
@@ -241,6 +257,8 @@ public class NativeBinder
                     vb.putLong(argValue);
                 } else {
                     switch (argTypes[i]) {
+                    case ARG_BOOL:
+                    case ARG_SHORT:
                     case ARG_INT:
                         argValue = inv;
                         jargs[i] = new Integer((int) inv);
@@ -254,16 +272,23 @@ public class NativeBinder
                             NativeHelper.setInt(argValue, value);
 
                             // Need to check if previous arg is string builder
-                            if (i > 0 && value > 0 && argTypes[i - 1] == ARG_STRING_BUILDER) {
-                                int ssize = value;
-                                if (wideChar)
-                                    ssize *= 2;
-                                long sptr = Native.malloc(ssize);
-                                NativeHelper.setInt(avalue + (i - 1) * NativeHelper.PTR_SIZE, (int) sptr);
+                            if (i > 0 && value > 0) {
+                                long sptr = 0;
+                                if (argTypes[i - 1] == ARG_STRING_BUILDER) {
+                                    int ssize = value;
+                                    if (wideChar)
+                                        ssize *= 2;
+                                    sptr = Native.malloc(ssize);
+                                } else if (argTypes[i - 1] == ARG_BYTE_ARRAY_BUILDER) {
+                                    sptr = Native.malloc(value);
+                                }
+                                if (sptr != 0)
+                                    NativeHelper.setInt(avalue + (i - 1) * NativeHelper.PTR_SIZE, (int) sptr);
                             }
                         }
                         break;
                     case ARG_STRING_BUILDER:
+                    case ARG_BYTE_ARRAY_BUILDER:
                         if (inv != 0) {
                             jargs[i] = Native.getObject(inv);
                         }
@@ -283,6 +308,17 @@ public class NativeBinder
                             argValue = c.getPointer();
                             jargs[i] = c;
                         }
+                        break;
+                    case ARG_STRUCT_PTR:
+                        if (inv != 0) {
+                            Object o = Native.getObject(inv);
+                            NativeStruct ns = structs.get(params[i]);
+                            if (ns == null) {
+                                structs.put(params[i], ns = NativeStruct.fromClass(params[i]));
+                            }
+                            argValue = ns.toNative(o);
+                            jargs[i] = o;
+                        }
                     }
                     vb.putInt((int) argValue);
                     pb.putInt((int) pointer);
@@ -292,11 +328,11 @@ public class NativeBinder
             }
         }
 
-        // Call the native function
+        // Call the native function - TODO: handle all return types
         FFI.call(functionCif.get(), function, resp, pvalue);
 
         // Convert any out params and free up memory
-        if (argSize > 0) {
+        if (argTypes.length > 0) {
             ByteBuffer vb = NativeHelper.getBuffer(avalue, argSize);
             long prevPointer = 0;
 
@@ -306,6 +342,7 @@ public class NativeBinder
                 switch (argTypes[i]) {
                 case ARG_INT:
                 case ARG_BOOL:
+                case ARG_SHORT:
                     break;
                 case ARG_STRING:
                     NativeHelper.free(argValue);
@@ -316,16 +353,26 @@ public class NativeBinder
                         int value = NativeHelper.getInt(argValue);
                         ((IntPtr) jargs[i]).value = value;
 
-                        if (i > 0 && argTypes[i - 1] == ARG_STRING_BUILDER) {
-                            if (value > 0) {
-                                int ssize = value;
-                                if (wideChar)
-                                    ssize *= 2;
-                                String s = NativeHelper.getString(prevPointer, ssize, wideChar);
-                                ((StringBuilder) jargs[i - 1]).setLength(0);
-                                ((StringBuilder) jargs[i - 1]).append(s);
+                        if (i > 0) {
+                            if (argTypes[i - 1] == ARG_STRING_BUILDER) {
+                                if (value > 0 && jargs[i - 1] != null) {
+                                    int ssize = value;
+                                    if (wideChar)
+                                        ssize *= 2;
+                                    String s = NativeHelper.getString(prevPointer, ssize, wideChar);
+                                    ((StringBuilder) jargs[i - 1]).setLength(0);
+                                    ((StringBuilder) jargs[i - 1]).append(s);
+                                }
+                                NativeHelper.free(prevPointer);
+                            } else if (argTypes[i - 1] == ARG_BYTE_ARRAY_BUILDER) {
+                                if (value > 0 && jargs[i - 1] != null) {
+                                    ByteBuffer bb = NativeHelper.getBuffer(prevPointer, value);
+                                    byte[] buffer = new byte[value];
+                                    bb.get(buffer);
+                                    ((ByteArrayBuilder) jargs[i - 1]).set(buffer);
+                                }
+                                NativeHelper.free(prevPointer);
                             }
-                            NativeHelper.free(prevPointer);
                         }
 
                         NativeHelper.free(argValue);
@@ -336,6 +383,14 @@ public class NativeBinder
                 case ARG_CALLBACK:
                     if (jargs[i] != null)
                         ((Closure) jargs[i]).destroy();
+                    break;
+                case ARG_STRUCT_PTR:
+                    if (jargs[i] != null) {
+                        NativeStruct ns = structs.get(params[i]);
+                        ns.fromNative(argValue, jargs[i]);
+                    }
+                    NativeHelper.free(argValue);
+                    break;
                 }
 
                 prevPointer = argValue;

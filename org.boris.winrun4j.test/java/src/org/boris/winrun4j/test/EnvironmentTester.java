@@ -13,9 +13,10 @@ import java.io.File;
 
 import org.boris.winrun4j.winapi.Environment;
 import org.boris.winrun4j.winapi.Kernel32;
+import org.boris.winrun4j.winapi.Kernel32.SYSTEM_INFO;
 import org.boris.winrun4j.winapi.Shell32;
 
-public class EnvironmentTester implements Runnable
+public class EnvironmentTester
 {
     public static void main(String[] args) throws Exception {
         System.out.println("Logical Drives");
@@ -53,19 +54,15 @@ public class EnvironmentTester implements Runnable
 
         System.out.println("Tick Count");
         for (int i = 0; i < 10; i++)
-            System.out.println(Kernel32.getTickCount());
+            System.out.println(Kernel32.GetTickCount());
 
-        System.out.printf("Current Process Id: %d\n", Kernel32.getCurrentProcessId());
+        System.out.printf("Current Process Id: %d\n", Kernel32.GetCurrentProcessId());
 
         System.out.println(System.getProperty("user.dir"));
 
         System.out.println("System info");
-        Reflection.println(Kernel32.getSystemInfo());
-
-        Runtime.getRuntime().addShutdownHook(new Thread(new EnvironmentTester()));
-    }
-
-    public void run() {
-        System.out.println("Shutting down...");
+        SYSTEM_INFO si = new SYSTEM_INFO();
+        Kernel32.GetSystemInfo(si);
+        Reflection.println(si);
     }
 }
