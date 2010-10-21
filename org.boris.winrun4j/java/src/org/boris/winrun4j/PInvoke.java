@@ -31,8 +31,8 @@ public class PInvoke
         NativeBinder.bind(clazz, library);
     }
 
-    public static int sizeOf(Class struct) {
-        NativeStruct ns = NativeStruct.fromClass(struct);
+    public static int sizeOf(Class struct, boolean wideChar) {
+        NativeStruct ns = NativeStruct.fromClass(struct, wideChar);
         return ns == null ? 0 : ns.sizeOf();
     }
 
@@ -115,17 +115,23 @@ public class PInvoke
 
     public static class NativeStruct
     {
+        private boolean wideChar;
         private Field[] fields;
         private int[] fieldTypes;
+        private int[] fieldSizes;
         private Map<Field, NativeStruct> childStructs = new HashMap();
         private int size;
 
-        public static NativeStruct fromClass(Class struct) {
+        public NativeStruct(boolean wideChar) {
+            this.wideChar = wideChar;
+        }
+
+        public static NativeStruct fromClass(Class struct, boolean wideChar) {
             if (struct == null)
                 return null;
             if (!Struct.class.isAssignableFrom(struct))
                 return null;
-            NativeStruct ns = new NativeStruct();
+            NativeStruct ns = new NativeStruct(wideChar);
             ns.parse(struct);
             return ns;
         }
@@ -134,6 +140,7 @@ public class PInvoke
             Field[] fields = struct.getFields();
             List<Field> fieldList = new ArrayList();
             List<Integer> fieldTypes = new ArrayList();
+            List<Integer> fieldSizes = new ArrayList();
             int size = 0;
             for (int i = 0; i < fields.length; i++) {
                 Field f = fields[i];
@@ -143,15 +150,20 @@ public class PInvoke
                     fieldList.add(f);
                     fieldTypes.add(ft);
                     if (ft == NativeBinder.ARG_STRUCT_PTR)
-                        childStructs.put(f, fromClass(f.getType()));
-                    size += sizeOf(ft, f);
+                        childStructs.put(f, fromClass(f.getType(), wideChar));
+                    int sz = sizeOf(ft, f);
+                    fieldSizes.add(sz);
+                    size += sz;
                 }
             }
 
             this.fields = fieldList.toArray(new Field[0]);
             this.fieldTypes = new int[fields.length];
-            for (int i = 0; i < this.fieldTypes.length; i++)
+            this.fieldSizes = new int[fields.length];
+            for (int i = 0; i < this.fields.length; i++) {
                 this.fieldTypes[i] = fieldTypes.get(i);
+                this.fieldSizes[i] = fieldSizes.get(i);
+            }
             this.size = size;
         }
 
@@ -179,7 +191,9 @@ public class PInvoke
                 if (ma == null) {
                     throw new RuntimeException("Invalid struct definition at: " + field.getName());
                 }
-                size += ma.sizeConst(); // FIXME: widechar
+                size += ma.sizeConst();
+                if (wideChar)
+                    size <<= 1;
                 break;
             case NativeBinder.ARG_STRING_BUILDER:
                 throw new RuntimeException("StringBuilder not supported in structs - " + field.getName());
@@ -201,12 +215,13 @@ public class PInvoke
             long ptr = Native.malloc(size);
             ByteBuffer bb = NativeHelper.getBuffer(ptr, size);
             for (int i = 0; i < fieldTypes.length; i++) {
-                toNative(obj, fieldTypes[i], fields[i], bb);
+                toNative(obj, fieldTypes[i], fieldSizes[i], fields[i], bb);
             }
             return ptr;
         }
 
-        private void toNative(Object obj, int fieldType, Field field, ByteBuffer bb) throws IllegalArgumentException,
+        private void toNative(Object obj, int fieldType, int fieldSize, Field field, ByteBuffer bb)
+                throws IllegalArgumentException,
                 IllegalAccessException {
             switch (fieldType) {
             case NativeBinder.ARG_BOOL:
@@ -230,7 +245,29 @@ public class PInvoke
                     bb.putInt((int) l);
                 break;
             case NativeBinder.ARG_STRING:
-
+                String s = (String) field.get(obj);
+                int bytesWritten = 0;
+                if (s != null) {
+                    if (wideChar) {
+                        char[] c = s.toCharArray();
+                        for (int i = 0; i < c.length; i++) {
+                            if (bytesWritten >= fieldSize)
+                                break;
+                            bb.putChar(c[i]);
+                            bytesWritten += 2;
+                        }
+                    } else {
+                        byte[] bs = s.getBytes();
+                        for (int i = 0; i < bs.length; i++) {
+                            if (bytesWritten >= fieldSize)
+                                break;
+                            bb.put(bs[i]);
+                            bytesWritten++;
+                        }
+                    }
+                }
+                for (int i = bytesWritten; i < fieldSize; i++)
+                    bb.put((byte) 0);
             }
         }
 
@@ -241,11 +278,12 @@ public class PInvoke
 
         private void fromNative(ByteBuffer bb, Object obj) throws IllegalArgumentException, IllegalAccessException {
             for (int i = 0; i < fieldTypes.length; i++) {
-                fromNative(bb, fieldTypes[i], fields[i], obj);
+                fromNative(bb, fieldTypes[i], fieldSizes[i], fields[i], obj);
             }
         }
 
-        private void fromNative(ByteBuffer bb, int fieldType, Field field, Object obj) throws IllegalArgumentException,
+        private void fromNative(ByteBuffer bb, int fieldType, int fieldSize, Field field, Object obj)
+                throws IllegalArgumentException,
                 IllegalAccessException {
             switch (fieldType) {
             case NativeBinder.ARG_BOOL:
@@ -262,6 +300,11 @@ public class PInvoke
                 break;
             case NativeBinder.ARG_SHORT:
                 field.set(obj, bb.getShort());
+                break;
+            case NativeBinder.ARG_STRING:
+                byte[] b = new byte[fieldSize];
+                bb.get(b);
+                field.set(obj, NativeHelper.getString(b, wideChar));
                 break;
             }
         }

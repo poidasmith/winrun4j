@@ -7,11 +7,17 @@ import java.util.Properties;
 
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.MarshalAs;
+import org.boris.winrun4j.PInvoke.Struct;
 
 public class Environment
 {
+    static {
+        PInvoke.bind(Environment.class, "kernel32.dll");
+    }
+
     private static final long library = Native.loadLibrary("kernel32.dll");
 
     public static String expandEnvironmentString(String var) {
@@ -116,19 +122,19 @@ public class Environment
     @DllImport("kernel32.dll")
     public static native boolean GetVersionEx(OSVERSIONINFOEX version);
 
-    public static class OSVERSIONINFOEX
+    public static class OSVERSIONINFOEX implements Struct
     {
-        public int dwOSVersionInfoSize;
-        public int dwMajorVersion;
-        public int dwMinorVersion;
-        public int dwBuildNumber;
-        public int dwPlatformId;
+        public int sizeOf;
+        public int majorVersion;
+        public int minorVersion;
+        public int buildNumber;
+        public int platformId;
         @MarshalAs(sizeConst = 128)
-        public String szCSDVersion;
-        public short wServicePackMajor;
-        public short wServicePackMinor;
-        public short wSuiteMask;
-        public byte wProductType;
-        public byte wReserved;
+        public String csdVersion;
+        public short servicePackMajor;
+        public short servicePackMinor;
+        public short suiteMask;
+        public byte productType;
+        public byte reserved;
     }
 }

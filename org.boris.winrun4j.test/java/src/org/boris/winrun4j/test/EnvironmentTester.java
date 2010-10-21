@@ -11,7 +11,9 @@ package org.boris.winrun4j.test;
 
 import java.io.File;
 
+import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.winapi.Environment;
+import org.boris.winrun4j.winapi.Environment.OSVERSIONINFOEX;
 import org.boris.winrun4j.winapi.Kernel32;
 import org.boris.winrun4j.winapi.Kernel32.SYSTEM_INFO;
 import org.boris.winrun4j.winapi.Shell32;
@@ -49,7 +51,11 @@ public class EnvironmentTester
         System.out.println();
 
         System.out.println("Version Info");
-        System.out.println(Reflection.toString(Environment.getVersionEx()));
+        OSVERSIONINFOEX version = new OSVERSIONINFOEX();
+        version.sizeOf = PInvoke.sizeOf(OSVERSIONINFOEX.class, true);
+        if (Environment.GetVersionEx(version)) {
+            System.out.println(Reflection.toString(version));
+        }
         System.out.println();
 
         System.out.println("Tick Count");

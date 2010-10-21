@@ -28,7 +28,8 @@ import org.boris.winrun4j.PInvoke.UIntPtr;
 public class NativeBinder
 {
     private static Map<Method, NativeBinder> methods = new HashMap();
-    private static Map<Class, NativeStruct> structs = new ConcurrentHashMap();
+    private static Map<Class, NativeStruct> ansiStructs = new ConcurrentHashMap();
+    private static Map<Class, NativeStruct> wideStructs = new ConcurrentHashMap();
 
     private static boolean is64 = Native.IS_64;
     private static long invokeId = Native.getMethodId(NativeBinder.class, "invoke", "(JJ)V", false);
@@ -312,9 +313,17 @@ public class NativeBinder
                     case ARG_STRUCT_PTR:
                         if (inv != 0) {
                             Object o = Native.getObject(inv);
-                            NativeStruct ns = structs.get(params[i]);
+                            NativeStruct ns = null;
+                            if (wideChar)
+                                ns = wideStructs.get(params[i]);
+                            else
+                                ns = ansiStructs.get(params[i]);
                             if (ns == null) {
-                                structs.put(params[i], ns = NativeStruct.fromClass(params[i]));
+                                ns = NativeStruct.fromClass(params[i], wideChar);
+                                if (wideChar)
+                                    wideStructs.put(params[i], ns);
+                                else
+                                    ansiStructs.put(params[i], ns);
                             }
                             argValue = ns.toNative(o);
                             jargs[i] = o;
@@ -386,7 +395,11 @@ public class NativeBinder
                     break;
                 case ARG_STRUCT_PTR:
                     if (jargs[i] != null) {
-                        NativeStruct ns = structs.get(params[i]);
+                        NativeStruct ns = null;
+                        if (wideChar)
+                            ns = wideStructs.get(params[i]);
+                        else
+                            ns = ansiStructs.get(params[i]);
                         ns.fromNative(argValue, jargs[i]);
                     }
                     NativeHelper.free(argValue);

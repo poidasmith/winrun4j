@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
+import org.boris.winrun4j.PInvoke.ByteArrayBuilder;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.IntPtr;
 import org.boris.winrun4j.PInvoke.Out;
@@ -74,11 +75,30 @@ public class Registry
             byte[] lpData,
             IntPtr lpcbData);
 
-    @DllImport(entryPoint = "RegQueryValueEx")
-    public static native int queryValueEx(long hKey, String valueName, int valueType);
+    public static byte[] queryValueEx(long hKey, String valueName, int maxLen) {
+        ByteArrayBuilder bb = new ByteArrayBuilder();
+        UIntPtr len = new UIntPtr(maxLen);
+        int res = Registry.queryValueEx(hKey, valueName, 0, null, bb, len);
+        if (res == 0)
+            bb.toArray();
+        return null;
+    }
 
     @DllImport(entryPoint = "RegQueryValueEx")
-    public static native long queryValueType(long hKey, String valueName);
+    public static native int queryValueEx(long hKey,
+            String valueName,
+            long reserved,
+            UIntPtr lpType,
+            ByteArrayBuilder lpData,
+            UIntPtr lpcbData);
+
+    @DllImport(entryPoint = "RegQueryValueEx")
+    public static native int queryValueEx(long hKey,
+            String valueName,
+            long reserved,
+            UIntPtr lpType,
+            StringBuilder lpString,
+            UIntPtr lpcbData);
 
     @DllImport(entryPoint = "RegQueryInfoKey")
     public static native int queryInfoKey(
