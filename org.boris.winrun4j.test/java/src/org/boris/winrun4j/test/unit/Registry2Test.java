@@ -17,7 +17,6 @@ import java.util.Random;
 
 import org.boris.winrun4j.RegistryKey;
 import org.boris.winrun4j.test.framework.TestHelper;
-import org.boris.winrun4j.winapi.Environment;
 import org.junit.Test;
 
 public class Registry2Test
@@ -51,13 +50,6 @@ public class Registry2Test
         byte[] b1 = TestHelper.createRandomByteArray();
         key.setBinary("bin1", b1);
         TestHelper.assertArrayEquals(b1, key.getBinary("bin1"));
-
-        // Expand string
-        String es1 = "OK, %PATH%";
-        String expected = "OK, " + Environment.getEnvironmentVariable("PATH");
-        key.setExpandedString("es1", es1);
-        String expRes1 = key.getExpandedString("es1");
-        assertEquals(expected, expRes1);
 
         // Clean up
         software.deleteSubKey(keyName);

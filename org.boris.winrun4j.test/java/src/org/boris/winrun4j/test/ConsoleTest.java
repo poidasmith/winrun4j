@@ -9,20 +9,25 @@
  *******************************************************************************/
 package org.boris.winrun4j.test;
 
+import org.boris.winrun4j.Closure;
 import org.boris.winrun4j.winapi.Console;
+import org.boris.winrun4j.winapi.Console.HandlerRoutine;
 
 public class ConsoleTest
 {
     public static void main(String[] args) throws Exception {
         Console.AllocConsole();
         Console.SetConsoleTitle("Testing Console");
-        Console.SetConsoleCtrlHandler(new Console.HandlerRoutine() {
+        HandlerRoutine hr = new Console.HandlerRoutine() {
             public boolean handlerRoutine(int dwCtrlType) {
-                System.out.println(dwCtrlType);
+                System.out.println("tester: " + dwCtrlType);
                 Console.WriteConsole(0, Integer.toHexString(dwCtrlType));
                 return true;
             }
-        }, true);
+        };
+        Closure c = Closure.build(HandlerRoutine.class, hr, false);
+        Console.SetConsoleCtrlHandler(c.getPointer(), false);
         Thread.sleep(500000);
+        c.destroy();
     }
 }

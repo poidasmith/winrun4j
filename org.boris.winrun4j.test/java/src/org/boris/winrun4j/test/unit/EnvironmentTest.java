@@ -44,7 +44,8 @@ public class EnvironmentTest
 
     @Test
     public void testOsVersion() throws Exception {
-        OSVERSIONINFOEX version = Environment.getVersionEx();
+        OSVERSIONINFOEX version = new OSVERSIONINFOEX();
+        Environment.GetVersionEx(version);
         assertEquals(version.csdVersion, "Service Pack 3");
         assertEquals(version.buildNumber, 2600);
         assertEquals(version.majorVersion, 5);

@@ -204,6 +204,7 @@ public class NativeBinder
     static final int ARG_SHORT = 11;
     static final int ARG_VOID = 12;
     static final int ARG_BYTE = 13;
+    static final int ARG_RAW_CLOSURE = 14;
 
     static int getArgType(Class clazz) {
         if (int.class.equals(clazz)) {

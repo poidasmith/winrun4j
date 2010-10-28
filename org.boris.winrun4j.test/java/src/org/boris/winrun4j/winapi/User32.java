@@ -10,6 +10,7 @@
 package org.boris.winrun4j.winapi;
 
 import org.boris.winrun4j.Closure;
+import org.boris.winrun4j.Native;
 import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.DllImport;
@@ -17,6 +18,8 @@ import org.boris.winrun4j.PInvoke.Struct;
 
 public class User32
 {
+    public static final long library = Native.loadLibrary("user32.dll");
+
     static {
         PInvoke.bind(User32.class, "user32.dll");
     }
@@ -72,8 +75,13 @@ public class User32
     @DllImport
     public static native long GetWindowThreadProcessId(long hwnd);
 
+    public interface EnumWindowsProc extends Callback
+    {
+        public boolean enumWindows(long hwnd, Struct lParam);
+    }
+
     @DllImport
-    public static native boolean EnumWindows(Closure proc, int lParam);
+    public static native boolean EnumWindows(EnumWindowsProc proc, int lParam);
 
     @DllImport
     public static native int getWindowInfo(long hwnd, WINDOWINFO info);
@@ -96,7 +104,7 @@ public class User32
     public static native boolean DispatchMessage(MSG m);
 
     @DllImport
-    public static native boolean registerClassEx(WNDCLASSEX wcx);
+    public static native boolean RegisterClassEx(WNDCLASSEX wcx);
 
     public static class POINT implements Struct
     {

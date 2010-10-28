@@ -20,6 +20,8 @@ import org.boris.winrun4j.PInvoke.UIntPtr;
 
 public class DDEML
 {
+    public static final long library = User32.library;
+
     static {
         PInvoke.bind(DDEML.class, "user32.dll");
     }

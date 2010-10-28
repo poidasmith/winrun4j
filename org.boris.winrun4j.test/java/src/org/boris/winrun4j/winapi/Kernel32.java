@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.winapi;
 
+import org.boris.winrun4j.Native;
 import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.MarshalAs;
@@ -16,6 +17,8 @@ import org.boris.winrun4j.PInvoke.Struct;
 
 public class Kernel32
 {
+    public static final long library = Native.loadLibrary("kernel32.dll");
+
     static {
         PInvoke.bind(Kernel32.class, "kernel32.dll");
     }
@@ -78,7 +81,7 @@ public class Kernel32
 
     public static class PROCESSENTRY32 implements Struct
     {
-        private static int sizeOf = PInvoke.sizeOf(PROCESSENTRY32.class);
+        private static int sizeOf = PInvoke.sizeOf(PROCESSENTRY32.class, true);
 
         public PROCESSENTRY32() {
             dwSize = sizeOf;

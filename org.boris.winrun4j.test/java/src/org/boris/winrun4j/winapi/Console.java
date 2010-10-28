@@ -10,6 +10,7 @@
 package org.boris.winrun4j.winapi;
 
 import org.boris.winrun4j.PInvoke;
+import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.Struct;
 import org.boris.winrun4j.PInvoke.UIntPtr;
@@ -35,13 +36,13 @@ public class Console
     @DllImport
     public static native long GetStdHandle(int nStdHandle);
 
-    public interface HandlerRoutine
+    public interface HandlerRoutine extends Callback
     {
-        boolean callback(int dwCtrlType);
+        boolean handlerRoutine(int dwCtrlType);
     }
 
     @DllImport
-    public static native boolean SetConsoleCtrlHandler(HandlerRoutine handler, boolean add);
+    public static native boolean SetConsoleCtrlHandler(long handler, boolean add);
 
     @DllImport
     public static native boolean SetConsoleWindowInfo(long hConsoleOutput, boolean bAbsolute, SMALL_RECT rect);
@@ -57,6 +58,10 @@ public class Console
 
     @DllImport
     public static native boolean SetStdHandle(long nStdHandle, long hHandle);
+
+    public static int WriteConsole(long hConsoleOutput, String buffer) {
+        return WriteConsole(hConsoleOutput, buffer, buffer == null ? 0 : buffer.length(), null, null);
+    }
 
     @DllImport
     public static native int WriteConsole(long hConsoleOutput, String buffer, int nNumberOfCharsToWrite,
