@@ -21,6 +21,7 @@ import org.boris.winrun4j.PInvoke.ByteArrayBuilder;
 import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.IntPtr;
+import org.boris.winrun4j.PInvoke.MarshalAs;
 import org.boris.winrun4j.PInvoke.NativeStruct;
 import org.boris.winrun4j.PInvoke.Struct;
 import org.boris.winrun4j.PInvoke.UIntPtr;
@@ -42,6 +43,7 @@ public class NativeBinder
     private int[] argTypes;
     private Class[] params;
     private int returnType;
+    private int returnSize;
     private boolean wideChar;
 
     // Used to contain the args passed to the native function
@@ -117,9 +119,16 @@ public class NativeBinder
         // Determine the argument types - for quicker conversion
         nb.argTypes = new int[params.length];
         for (int i = 0; i < params.length; i++) {
-            nb.argTypes[i] = getArgType(params[i]);
+            nb.argTypes[i] = getArgType(params[i], m.getName());
         }
-        nb.returnType = getArgType(returnType);
+        nb.returnType = getArgType(returnType, m.getName());
+        if (nb.returnType == ARG_STRING) {
+            MarshalAs ma = m.getAnnotation(MarshalAs.class);
+            if (ma == null) {
+                throw new RuntimeException("Return type of string must have MarshalAs size: " + m.getName());
+            }
+            nb.returnSize = ma.sizeConst();
+        }
         nb.wideChar = di.wideChar();
 
         // Space for the args array used to call the native function
@@ -205,8 +214,10 @@ public class NativeBinder
     static final int ARG_VOID = 12;
     static final int ARG_BYTE = 13;
     static final int ARG_RAW_CLOSURE = 14;
+    static final int ARG_STRING_PTR = 15; // only used in structs
+    static final int ARG_BYTE_ARRAY = 16;
 
-    static int getArgType(Class clazz) {
+    static int getArgType(Class clazz, String source) {
         if (int.class.equals(clazz)) {
             return ARG_INT;
         } else if (boolean.class.equals(clazz)) {
@@ -231,10 +242,14 @@ public class NativeBinder
             return ARG_STRUCT_PTR;
         } else if (Callback.class.isAssignableFrom(clazz)) {
             return ARG_CALLBACK;
+        } else if (Closure.class.isAssignableFrom(clazz)) {
+            return ARG_RAW_CLOSURE;
         } else if (ByteArrayBuilder.class.isAssignableFrom(clazz)) {
             return ARG_BYTE_ARRAY_BUILDER;
+        } else if (byte[].class.isAssignableFrom(clazz)) {
+            return ARG_BYTE_ARRAY;
         } else {
-            throw new RuntimeException("Unrecognized native argument type: " + clazz);
+            throw new RuntimeException("Unrecognized native argument type: " + clazz + " from " + source);
         }
     }
 
@@ -311,6 +326,12 @@ public class NativeBinder
                             jargs[i] = c;
                         }
                         break;
+                    case ARG_RAW_CLOSURE:
+                        if (inv != 0) {
+                            jargs[i] = Native.getObject(inv);
+                            argValue = ((Closure) jargs[i]).getPointer();
+                        }
+                        break;
                     case ARG_STRUCT_PTR:
                         if (inv != 0) {
                             Object o = Native.getObject(inv);
@@ -329,6 +350,13 @@ public class NativeBinder
                             argValue = ns.toNative(o);
                             jargs[i] = o;
                         }
+                        break;
+                    case ARG_BYTE_ARRAY:
+                        if (inv != 0) {
+                            byte[] b = (byte[]) Native.getObject(inv);
+                            jargs[i] = b;
+                            argValue = NativeHelper.toNative(b, 0, b.length);
+                        }
                     }
                     vb.putInt((int) argValue);
                     pb.putInt((int) pointer);
@@ -340,6 +368,15 @@ public class NativeBinder
 
         // Call the native function - TODO: handle all return types
         FFI.call(functionCif.get(), function, resp, pvalue);
+
+        if (resp != 0 && returnType == ARG_STRING) {
+            long ptr = NativeHelper.getPointer(resp);
+            if (ptr != 0) {
+                String s = NativeHelper.getString(ptr, returnSize, wideChar);
+                long sptr = Native.getObjectId(s);
+                NativeHelper.setPointer(resp, sptr);
+            }
+        }
 
         // Convert any out params and free up memory
         if (argTypes.length > 0) {
@@ -393,6 +430,13 @@ public class NativeBinder
                 case ARG_CALLBACK:
                     if (jargs[i] != null)
                         ((Closure) jargs[i]).destroy();
+                    break;
+                case ARG_BYTE_ARRAY:
+                    if (jargs[i] != null) {
+                        NativeHelper.free(argValue);
+                    }
+                    break;
+                case ARG_RAW_CLOSURE:
                     break;
                 case ARG_STRUCT_PTR:
                     if (jargs[i] != null) {

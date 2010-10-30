@@ -71,9 +71,9 @@ public class Closure
         Class returnType = m.getReturnType();
         c.argTypes = new int[params.length];
         for (int i = 0; i < params.length; i++) {
-            c.argTypes[i] = NativeBinder.getArgType(params[i]);
+            c.argTypes[i] = NativeBinder.getArgType(params[i], m.getName());
         }
-        c.returnType = NativeBinder.getArgType(returnType);
+        c.returnType = NativeBinder.getArgType(returnType, m.getName());
 
         // Create callback pointer and connect to our invoke method
         c.cif = CIF.prepare(FFI.ABI_STDCALL, params.length);

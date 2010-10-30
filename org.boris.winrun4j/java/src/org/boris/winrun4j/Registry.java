@@ -72,7 +72,7 @@ public class Registry
             UIntPtr lpcValueName,
             long lpReserved,
             UIntPtr lpType,
-            byte[] lpData,
+            ByteArrayBuilder lpData,
             IntPtr lpcbData);
 
     public static byte[] queryValueEx(long hKey, String valueName, int maxLen) {

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.MarshalAs;
 
 /**
  * Provides access to the INI file used to startup the app.
@@ -54,6 +55,7 @@ public class INI
      * @return String.
      */
     @DllImport(entryPoint = "INI_GetProperty", internal = true)
+    @MarshalAs(sizeConst = 4096)
     public static native String getProperty(String key);
 
     /**

@@ -60,6 +60,8 @@ public class PInvoke
     @Retention(RetentionPolicy.RUNTIME)
     public @interface MarshalAs {
         int sizeConst() default 0;
+
+        boolean isPointer() default false;
     }
 
     public static class IntPtr
@@ -130,7 +132,7 @@ public class PInvoke
             if (struct == null)
                 return null;
             if (!Struct.class.isAssignableFrom(struct))
-                return null;
+                throw new RuntimeException("Invalid class used as struct: " + struct.getSimpleName());
             NativeStruct ns = new NativeStruct(wideChar);
             ns.parse(struct);
             return ns;
@@ -146,7 +148,13 @@ public class PInvoke
                 Field f = fields[i];
                 if (!Modifier.isStatic(f.getModifiers()) &&
                         Modifier.isPublic(f.getModifiers())) {
-                    int ft = NativeBinder.getArgType(f.getType());
+                    int ft = NativeBinder.getArgType(f.getType(), struct.getSimpleName());
+                    if (ft == NativeBinder.ARG_STRING) {
+                        MarshalAs ma = f.getAnnotation(MarshalAs.class);
+                        if (ma == null) {
+                            ft = NativeBinder.ARG_STRING_PTR;
+                        }
+                    }
                     fieldList.add(f);
                     fieldTypes.add(ft);
                     if (ft == NativeBinder.ARG_STRUCT_PTR)
@@ -184,16 +192,19 @@ public class PInvoke
             case NativeBinder.ARG_INT_PTR:
             case NativeBinder.ARG_LONG:
             case NativeBinder.ARG_UINT_PTR:
+            case NativeBinder.ARG_RAW_CLOSURE:
+            case NativeBinder.ARG_STRING_PTR:
                 size += nativeSize;
                 break;
             case NativeBinder.ARG_STRING:
                 MarshalAs ma = field.getAnnotation(MarshalAs.class);
                 if (ma == null) {
-                    throw new RuntimeException("Invalid struct definition at: " + field.getName());
+                    throw new RuntimeException("Invalid string arg type: " + field.getName());
+                } else {
+                    size += ma.sizeConst();
+                    if (wideChar)
+                        size <<= 1;
                 }
-                size += ma.sizeConst();
-                if (wideChar)
-                    size <<= 1;
                 break;
             case NativeBinder.ARG_STRING_BUILDER:
                 throw new RuntimeException("StringBuilder not supported in structs - " + field.getName());
@@ -237,12 +248,19 @@ public class PInvoke
             case NativeBinder.ARG_SHORT:
                 bb.putShort(field.getShort(obj));
                 break;
+            case NativeBinder.ARG_RAW_CLOSURE:
+                Closure cl = (Closure) field.get(obj);
+                if (is64)
+                    bb.putLong(cl.getPointer());
+                else
+                    bb.putInt((int) (cl.getPointer() & 0xffffff));
+                break;
             case NativeBinder.ARG_LONG:
                 long l = field.getLong(obj);
                 if (is64)
                     bb.putLong(l);
                 else
-                    bb.putInt((int) l);
+                    bb.putInt((int) (l & 0xffffff));
                 break;
             case NativeBinder.ARG_STRING:
                 String s = (String) field.get(obj);
