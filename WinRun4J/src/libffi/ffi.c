@@ -247,7 +247,7 @@ ffi_status ffi_prep_cif_machdep(ffi_cif *cif)
 }
 
 #ifdef X86_WIN64
-extern int
+extern "C" int
 ffi_call_win64(void (*)(char *, extended_cif *), extended_cif *,
                unsigned, unsigned, unsigned *, void (*fn)(void));
 #elif defined(X86_WIN32)
@@ -311,7 +311,7 @@ void ffi_call(ffi_cif *cif, void (*fn)(void), void *rvalue, void **avalue)
             }
         }
         ffi_call_win64(ffi_prep_args, &ecif, cif->bytes,
-                       cif->flags, ecif.rvalue, fn);
+                       cif->flags, (unsigned int *) ecif.rvalue, fn);
       }
       break;
 #elif defined(X86_WIN32)
@@ -352,6 +352,8 @@ void FFI_HIDDEN ffi_closure_STDCALL (ffi_closure *)
 #endif
 #ifdef X86_WIN64
 void FFI_HIDDEN ffi_closure_win64 (ffi_closure *);
+void * FFI_HIDDEN
+ffi_closure_win64_inner (ffi_closure *closure, void *args);
 #endif
 }
 
@@ -374,7 +376,7 @@ ffi_closure_win64_inner (ffi_closure *closure, void *args) {
    * a structure, it will change RESP to point to the
    * structure return address.  */
 
-  ffi_prep_incoming_args_SYSV(args, &resp, arg_area, cif);
+  ffi_prep_incoming_args_SYSV((char *) args, &resp, arg_area, cif);
   
   (closure->fun) (cif, resp, arg_area, closure->user_data);
 

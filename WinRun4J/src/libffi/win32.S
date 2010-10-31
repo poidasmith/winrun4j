@@ -28,7 +28,7 @@
    DEALINGS IN THE SOFTWARE.
    -----------------------------------------------------------------------
    */
- 
+
 #define LIBFFI_ASM
 #include <fficonfig.h>
 #include <ffi.h>
@@ -1083,4 +1083,3 @@ _ffi_closure_STDCALL:
 .LEFDE5:
 
 #endif /* !_MSC_VER */
-

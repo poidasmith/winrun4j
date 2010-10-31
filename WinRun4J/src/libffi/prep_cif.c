@@ -99,7 +99,6 @@ ffi_status ffi_prep_cif(ffi_cif *cif, ffi_abi abi, unsigned int nargs,
   cif->arg_types = atypes;
   cif->nargs = nargs;
   cif->rtype = rtype;
-
   cif->flags = 0;
 
   /* Initialize the return type if necessary */

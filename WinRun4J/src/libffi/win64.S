@@ -1,3 +1,4 @@
+
 #define LIBFFI_ASM
 #include <fficonfig.h>
 #include <ffi.h>
@@ -17,7 +18,7 @@
  */
 
 #ifdef _MSC_VER
-PUBLIC	ffi_call_win64
+//PUBLIC	ffi_call_win64
 
 EXTRN	__chkstk:NEAR
 EXTRN	ffi_closure_win64_inner:NEAR
@@ -457,4 +458,3 @@ Lch_done:
 	retq
 .ffi_call_win64_end:
 #endif /* !_MSC_VER */
-
