@@ -83,35 +83,63 @@ public class FFI
     public static class CIF
     {
         private long cif;
-        private long ffi_type_ptr;
+        private long[] ffi_types;
+        private long return_type;
         private long atypes;
 
         private CIF() {
         }
 
         public static CIF prepare(int abi, int argc) {
+            int[] types = new int[argc];
+            for (int i = 0; i < argc; i++)
+                types[i] = FFI_TYPE_POINTER;
+            return prepare(abi, types);
+        }
+
+        public static CIF prepare(int abi, int[] types) {
             CIF c = new CIF();
             int sizeOfCif = 30;
             c.cif = Native.malloc(sizeOfCif);
-            c.ffi_type_ptr = makeType(FFI_TYPE_POINTER, NativeHelper.PTR_SIZE);
-            int argSize = (argc + 1) * NativeHelper.PTR_SIZE;
+            c.ffi_types = new long[types.length];
+            for (int i = 0; i < types.length; i++)
+                c.ffi_types[i] = makeType(types[i]);
+            c.return_type = makeType(FFI_TYPE_POINTER);
+            int argSize = (types.length + 1) * NativeHelper.PTR_SIZE;
             c.atypes = Native.malloc(argSize);
             ByteBuffer ab = NativeHelper.getBuffer(c.atypes, argSize);
-            for (int i = 0; i < argc; i++) {
-                ab.putInt((int) c.ffi_type_ptr);
+            for (int i = 0; i < types.length; i++) {
+                if (is64)
+                    ab.putLong(c.ffi_types[i]);
+                else
+                    ab.putInt((int) c.ffi_types[i]);
             }
-            ab.putInt(0);
-            int res = FFI.prepare(c.cif, abi, argc, c.ffi_type_ptr, c.atypes);
+            if (is64)
+                ab.putLong(0);
+            else
+                ab.putInt(0);
+            int res = FFI.prepare(c.cif, abi, types.length, c.return_type, c.atypes);
             if (res != 0) {
-                NativeHelper.free(c.cif, c.ffi_type_ptr, c.atypes);
+                NativeHelper.free(c.cif, c.return_type, c.atypes);
+                NativeHelper.free(c.ffi_types);
                 throw new RuntimeException("Invalid FFI types for function");
             }
 
             return c;
         }
 
-        private static long makeType(int type, int size) {
-            long ffi_type = Native.malloc(12);
+        private static long makeType(int type) {
+            long ffi_type = Native.malloc(16);
+            int size = 0;
+            switch (type) {
+            case FFI_TYPE_POINTER:
+                size = NativeHelper.PTR_SIZE;
+                break;
+            case FFI_TYPE_DOUBLE:
+            case FFI_TYPE_SINT64:
+                size = 8;
+                break;
+            }
             ByteBuffer bb = NativeHelper.getBuffer(ffi_type, 12);
             bb.putInt(size);
             bb.putShort((short) size);
@@ -122,8 +150,9 @@ public class FFI
 
         public void destroy() {
             if (cif != 0) {
-                NativeHelper.free(cif, ffi_type_ptr, atypes);
-                cif = ffi_type_ptr = atypes = 0;
+                NativeHelper.free(cif, return_type, atypes);
+                NativeHelper.free(ffi_types);
+                cif = return_type = atypes = 0;
             }
         }
 

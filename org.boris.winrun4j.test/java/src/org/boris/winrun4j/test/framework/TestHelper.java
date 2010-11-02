@@ -48,9 +48,8 @@ public class TestHelper
     }
 
     public static Launcher launcher() throws IOException {
-        Launcher l = new Launcher();
+        Launcher l = new Launcher(LAUNCHER);
         testcp(l);
-        l.create(LAUNCHER);
         return l;
     }
 }

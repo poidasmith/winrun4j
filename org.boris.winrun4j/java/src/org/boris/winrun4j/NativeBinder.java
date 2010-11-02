@@ -62,7 +62,7 @@ public class NativeBinder
     }
 
     public static void bind(Class clazz, String library) {
-        Method[] cms = clazz.getMethods();
+        Method[] cms = clazz.getDeclaredMethods();
         for (Method m : cms) {
             int mod = m.getModifiers();
             if (!Modifier.isStatic(mod))
@@ -113,7 +113,15 @@ public class NativeBinder
         nb.function = fun;
 
         // The closure CIF has two extra params for standard JNI env/self args
-        nb.callbackCif = CIF.prepare(FFI.ABI_STDCALL, params.length + 2);
+        int[] types = new int[params.length + 2];
+        types[0] = types[1] = FFI.FFI_TYPE_POINTER;
+        for (int i = 0; i < params.length; i++) {
+            int t = FFI.FFI_TYPE_POINTER;
+            if (long.class.equals(params[i]))
+                t = FFI.FFI_TYPE_SINT64;
+            types[i + 2] = t;
+        }
+        nb.callbackCif = CIF.prepare(FFI.ABI_STDCALL, types);
         nb.functionCif = CIF.prepare(FFI.ABI_STDCALL, params.length);
 
         // Determine the argument types - for quicker conversion
@@ -358,8 +366,8 @@ public class NativeBinder
                             argValue = NativeHelper.toNative(b, 0, b.length);
                         }
                     }
-                    vb.putInt((int) argValue);
-                    pb.putInt((int) pointer);
+                    vb.putInt((int) (argValue & 0xffffffff));
+                    pb.putInt((int) (pointer & 0xffffffff));
                 }
 
                 System.out.println(jargs[i]);

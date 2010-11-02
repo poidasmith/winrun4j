@@ -21,7 +21,7 @@ public class ClasspathTest
         Launcher l = TestHelper.launcher();
         l.main(ClasspathTest.class);
         l.classpath("F:/downloads/*.jar");
-        l.log(Log.Level.INFO);
+        l.log(Log.Level.WARN);
         String res = l.launch().waitFor().getStdOut();
         System.out.println(res);
     }

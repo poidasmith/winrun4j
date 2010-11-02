@@ -10,12 +10,14 @@
 package org.boris.winrun4j.test.unit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 
 import org.boris.commons.io.IO;
 import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.Log;
+import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.test.framework.TestHelper;
 import org.boris.winrun4j.winapi.Environment;
 import org.boris.winrun4j.winapi.Environment.OSVERSIONINFOEX;
@@ -45,7 +47,9 @@ public class EnvironmentTest
     @Test
     public void testOsVersion() throws Exception {
         OSVERSIONINFOEX version = new OSVERSIONINFOEX();
-        Environment.GetVersionEx(version);
+        version.sizeOf = PInvoke.sizeOf(OSVERSIONINFOEX.class, true);
+        boolean res = Environment.GetVersionEx(version);
+        assertTrue(res);
         assertEquals(version.csdVersion, "Service Pack 3");
         assertEquals(version.buildNumber, 2600);
         assertEquals(version.majorVersion, 5);

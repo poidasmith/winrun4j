@@ -28,10 +28,17 @@ public class Launcher
     private int fileAssIndex;
     private int serviceDepIndex;
 
+    // The reference launcher to use
+    private File launcherFile;
+
     private File launcher;
     private File ini;
 
-    public Launcher create(File launcherFile) throws IOException {
+    public Launcher(File launcherFile) {
+        this.launcherFile = launcherFile;
+    }
+
+    public Launcher create() throws IOException {
         launcher = File.createTempFile("winrun4j.launcher.", ".exe");
         launcher.deleteOnExit();
         IO.copy(launcherFile, launcher);
@@ -43,7 +50,7 @@ public class Launcher
 
     public ProcessResult launch(String... args) throws Exception {
         if (launcher == null) {
-            throw new NullPointerException("Launcher not created");
+            create();
         }
         String[] cmd = new String[args == null ? 1 : args.length + 1];
         cmd[0] = launcher.getAbsolutePath();
