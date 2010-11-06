@@ -76,7 +76,7 @@ public class Closure
         c.returnType = NativeBinder.getArgType(returnType, m.getName());
 
         // Create callback pointer and connect to our invoke method
-        c.cif = CIF.prepare(FFI.ABI_STDCALL, params.length);
+        c.cif = CIF.prepare(is64 ? FFI.ABI_WIN64 : FFI.ABI_STDCALL, params.length);
         c.objectId = Native.newGlobalRef(c);
         c.methodId = invokeId;
         c.handle = FFI.prepareClosure(c.cif.get(), c.objectId, c.methodId);
