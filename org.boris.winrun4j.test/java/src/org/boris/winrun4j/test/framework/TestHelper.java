@@ -17,11 +17,15 @@ import java.util.Random;
 import junit.framework.TestCase;
 
 import org.boris.winrun4j.Launcher;
+import org.boris.winrun4j.Native;
 
 public class TestHelper
 {
-    public static final File LAUNCHER = new File(
-            "F:\\eclipse\\workspace\\WinRun4J\\build\\WinRun4J-Debug\\WinRun4J.exe");
+    public static final File BASE_PATH = new File("..").getAbsoluteFile();
+
+    public static final File LAUNCHER = Native.IS_64 ? new File(BASE_PATH,
+            "WinRun4J\\build\\WinRun4J-Debug-x64\\WinRun4J.exe") : new File(BASE_PATH,
+            "WinRun4J\\build\\WinRun4J-Debug\\WinRun4J.exe");
 
     public static byte[] createRandomByteArray() {
         Random r = new Random();
@@ -41,10 +45,9 @@ public class TestHelper
     }
 
     public static Launcher testcp(Launcher l) {
-        return l.classpath("F:\\eclipse\\workspace\\org.boris.winrun4j.test\\bin").
-                classpath("F:\\eclipse\\workspace\\org.boris.commons\\bin").
-                classpath("F:\\eclipse\\workspace\\org.boris.winrun4j\\bin").
-                classpath("F:\\eclipse\\platform3.5\\plugins\\org.junit*\\*.jar");
+        return l.classpath(BASE_PATH + "\\org.boris.winrun4j.test\\bin").classpath(
+                BASE_PATH + "\\org.boris.commons\\bin").classpath(BASE_PATH + "\\org.boris.winrun4j\\bin").classpath(
+                BASE_PATH + "\\..\\platform3.5\\plugins\\org.junit*\\*.jar");
     }
 
     public static Launcher launcher() throws IOException {

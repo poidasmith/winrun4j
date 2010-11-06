@@ -370,8 +370,6 @@ public class NativeBinder
                     vb.putInt((int) (argValue & 0xffffffff));
                     pb.putInt((int) (pointer & 0xffffffff));
                 }
-
-                System.out.println(jargs[i]);
             }
         }
 

@@ -77,6 +77,9 @@ public class Kernel32
     public static native long WaitForSingleObjectEx(long hHandle, int dwMilliseconds, boolean bAlertable);
 
     @DllImport
+    public static native boolean SetCurrentDirectory(String lpPathName);
+
+    @DllImport
     public static native void GetSystemInfo(SYSTEM_INFO si);
 
     public static class PROCESSENTRY32 implements Struct
