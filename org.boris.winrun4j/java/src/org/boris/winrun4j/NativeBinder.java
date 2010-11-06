@@ -105,6 +105,7 @@ public class NativeBinder
             fun = Native.getProcAddress(lp, fn);
         }
         if (fun == 0)
+            // TODO: might want to throw here
             return;
 
         NativeBinder nb = new NativeBinder();
