@@ -60,7 +60,7 @@ public class Log
         error(sw.toString());
     }
 
-    @DllImport(entryPoint = "Log_LogIt", internal = true)
+    @DllImport(entryPoint = "Log_LogIt", internal = true, wideChar = false)
     private static native void LogIt(int level, String marker, String msg);
 
     public static class Level
