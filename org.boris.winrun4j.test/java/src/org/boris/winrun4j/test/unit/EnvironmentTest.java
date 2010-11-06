@@ -27,15 +27,13 @@ public class EnvironmentTest
 {
     @Test
     public void testVars() throws Exception {
-        assertEquals(
-                Environment.expandEnvironmentString("%TEMP%"),
-                Environment.getEnvironmentVariable("TEMP"));
+        assertEquals(Environment.expandEnvironmentString("%TEMP%"), Environment.getEnvironmentVariable("TEMP"));
     }
 
     @Test
     public void testCommandLine() throws Exception {
-        ProcessResult pr = TestHelper.launcher().main(getClass()).log(Log.Level.WARN).
-                launch("-test ok now this is great", "ok", "great");
+        ProcessResult pr = TestHelper.launcher().main(getClass()).log(Log.Level.WARN).launch(
+                "-test ok now this is great", "ok", "great");
         pr.waitFor();
         String[] lines = IO.readLines(new StringReader(pr.getStdOut()));
         assertEquals(lines.length, 4);
@@ -50,8 +48,9 @@ public class EnvironmentTest
         version.sizeOf = PInvoke.sizeOf(OSVERSIONINFOEX.class, true);
         boolean res = Environment.GetVersionEx(version);
         assertTrue(res);
-        assertEquals(version.csdVersion, "Service Pack 3");
-        assertEquals(version.buildNumber, 2600);
+        assertTrue(version.csdVersion != null);
+        assertTrue(version.csdVersion.startsWith("Service Pack"));
+        assertTrue(version.buildNumber != 0);
         assertEquals(version.majorVersion, 5);
         assertEquals(version.minorVersion, 1);
         assertEquals(version.reserved, 0);

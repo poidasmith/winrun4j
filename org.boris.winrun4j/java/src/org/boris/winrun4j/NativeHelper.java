@@ -47,7 +47,7 @@ public class NativeHelper
 
     public static String getString(ByteBuffer bb, boolean wideChar) {
         StringBuffer sb = new StringBuffer();
-        while (true) {
+        while (bb.hasRemaining()) {
             char c = wideChar ? bb.getChar() : (char) bb.get();
             if (c == 0)
                 break;
@@ -170,7 +170,7 @@ public class NativeHelper
     public static String[] getMultiString(ByteBuffer bb, boolean wideChar) {
         ArrayList strs = new ArrayList();
         StringBuffer sb = new StringBuffer();
-        while (true) {
+        while (bb.hasRemaining()) {
             char c = wideChar ? bb.getChar() : (char) bb.get();
             if (c == 0) {
                 if (sb.length() == 0) {

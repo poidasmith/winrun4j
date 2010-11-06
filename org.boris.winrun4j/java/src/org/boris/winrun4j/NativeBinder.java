@@ -405,13 +405,13 @@ public class NativeBinder
                 case ARG_UINT_PTR:
                 case ARG_INT_PTR:
                     if (argValue != 0) {
-                        int value = NativeHelper.getInt(argValue);
+                        long value = NativeHelper.getPointer(argValue);
                         ((IntPtr) jargs[i]).value = value;
 
                         if (i > 0) {
                             if (argTypes[i - 1] == ARG_STRING_BUILDER) {
                                 if (value > 0 && jargs[i - 1] != null) {
-                                    int ssize = value;
+                                    int ssize = (int) value;
                                     if (wideChar)
                                         ssize *= 2;
                                     String s = NativeHelper.getString(prevPointer, ssize, wideChar);
@@ -421,8 +421,8 @@ public class NativeBinder
                                 NativeHelper.free(prevPointer);
                             } else if (argTypes[i - 1] == ARG_BYTE_ARRAY_BUILDER) {
                                 if (value > 0 && jargs[i - 1] != null) {
-                                    ByteBuffer bb = NativeHelper.getBuffer(prevPointer, value);
-                                    byte[] buffer = new byte[value];
+                                    ByteBuffer bb = NativeHelper.getBuffer(prevPointer, (int) value);
+                                    byte[] buffer = new byte[(int) value];
                                     bb.get(buffer);
                                     ((ByteArrayBuilder) jargs[i - 1]).set(buffer);
                                 }
