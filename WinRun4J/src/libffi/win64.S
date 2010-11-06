@@ -18,7 +18,7 @@
  */
 
 #ifdef _MSC_VER
-//PUBLIC	ffi_call_win64
+PUBLIC	ffi_call_win64
 
 EXTRN	__chkstk:NEAR
 EXTRN	ffi_closure_win64_inner:NEAR

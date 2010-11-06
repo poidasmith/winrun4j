@@ -121,8 +121,8 @@ public class NativeBinder
                 t = FFI.FFI_TYPE_SINT64;
             types[i + 2] = t;
         }
-        nb.callbackCif = CIF.prepare(FFI.ABI_STDCALL, types);
-        nb.functionCif = CIF.prepare(FFI.ABI_STDCALL, params.length);
+        nb.callbackCif = CIF.prepare(is64 ? FFI.ABI_WIN64 : FFI.ABI_STDCALL, types);
+        nb.functionCif = CIF.prepare(is64 ? FFI.ABI_WIN64 : FFI.ABI_STDCALL, params.length);
 
         // Determine the argument types - for quicker conversion
         nb.argTypes = new int[params.length];
@@ -277,95 +277,96 @@ public class NativeBinder
                 long inp = is64 ? ib.getLong() : ib.getInt();
                 long inv = inp == 0 ? 0 : NativeHelper.getPointer(inp);
 
-                if (is64) {
-                    // TODO
-                    vb.putLong(argValue);
-                } else {
-                    switch (argTypes[i]) {
-                    case ARG_BOOL:
-                    case ARG_SHORT:
-                    case ARG_INT:
-                        argValue = inv;
-                        jargs[i] = new Integer((int) inv);
-                        break;
-                    case ARG_UINT_PTR:
-                    case ARG_INT_PTR:
-                        if (inv != 0) {
-                            jargs[i] = Native.getObject(inv);
-                            int value = (int) ((IntPtr) jargs[i]).value;
-                            argValue = Native.malloc(4);
-                            NativeHelper.setInt(argValue, value);
+                switch (argTypes[i]) {
+                case ARG_BOOL:
+                case ARG_SHORT:
+                case ARG_INT:
+                    argValue = inv;
+                    jargs[i] = new Integer((int) inv);
+                    break;
+                case ARG_UINT_PTR:
+                case ARG_INT_PTR:
+                    if (inv != 0) {
+                        jargs[i] = Native.getObject(inv);
+                        int value = (int) ((IntPtr) jargs[i]).value;
+                        argValue = Native.malloc(4);
+                        NativeHelper.setInt(argValue, value);
 
-                            // Need to check if previous arg is string builder
-                            if (i > 0 && value > 0) {
-                                long sptr = 0;
-                                if (argTypes[i - 1] == ARG_STRING_BUILDER) {
-                                    int ssize = value;
-                                    if (wideChar)
-                                        ssize *= 2;
-                                    sptr = Native.malloc(ssize);
-                                } else if (argTypes[i - 1] == ARG_BYTE_ARRAY_BUILDER) {
-                                    sptr = Native.malloc(value);
-                                }
-                                if (sptr != 0)
-                                    NativeHelper.setInt(avalue + (i - 1) * NativeHelper.PTR_SIZE, (int) sptr);
-                            }
-                        }
-                        break;
-                    case ARG_STRING_BUILDER:
-                    case ARG_BYTE_ARRAY_BUILDER:
-                        if (inv != 0) {
-                            jargs[i] = Native.getObject(inv);
-                        }
-                        break;
-                    case ARG_STRING:
-                        if (inv != 0) {
-                            jargs[i] = Native.getObject(inv);
-                            argValue = NativeHelper.toNativeString(jargs[i], wideChar);
-                        }
-                        break;
-                    case ARG_CALLBACK:
-                        if (inv != 0) {
-                            Object o = Native.getObject(inv);
-                            Closure c = Closure.build(params[i], o, wideChar);
-                            if (c == null)
-                                throw new RuntimeException("Could not create callback for parameter " + (i + 1));
-                            argValue = c.getPointer();
-                            jargs[i] = c;
-                        }
-                        break;
-                    case ARG_RAW_CLOSURE:
-                        if (inv != 0) {
-                            jargs[i] = Native.getObject(inv);
-                            argValue = ((Closure) jargs[i]).getPointer();
-                        }
-                        break;
-                    case ARG_STRUCT_PTR:
-                        if (inv != 0) {
-                            Object o = Native.getObject(inv);
-                            NativeStruct ns = null;
-                            if (wideChar)
-                                ns = wideStructs.get(params[i]);
-                            else
-                                ns = ansiStructs.get(params[i]);
-                            if (ns == null) {
-                                ns = NativeStruct.fromClass(params[i], wideChar);
+                        // Need to check if previous arg is string builder
+                        if (i > 0 && value > 0) {
+                            long sptr = 0;
+                            if (argTypes[i - 1] == ARG_STRING_BUILDER) {
+                                int ssize = value;
                                 if (wideChar)
-                                    wideStructs.put(params[i], ns);
-                                else
-                                    ansiStructs.put(params[i], ns);
+                                    ssize *= 2;
+                                sptr = Native.malloc(ssize);
+                            } else if (argTypes[i - 1] == ARG_BYTE_ARRAY_BUILDER) {
+                                sptr = Native.malloc(value);
                             }
-                            argValue = ns.toNative(o);
-                            jargs[i] = o;
-                        }
-                        break;
-                    case ARG_BYTE_ARRAY:
-                        if (inv != 0) {
-                            byte[] b = (byte[]) Native.getObject(inv);
-                            jargs[i] = b;
-                            argValue = NativeHelper.toNative(b, 0, b.length);
+                            if (sptr != 0)
+                                NativeHelper.setInt(avalue + (i - 1) * NativeHelper.PTR_SIZE, (int) sptr);
                         }
                     }
+                    break;
+                case ARG_STRING_BUILDER:
+                case ARG_BYTE_ARRAY_BUILDER:
+                    if (inv != 0) {
+                        jargs[i] = Native.getObject(inv);
+                    }
+                    break;
+                case ARG_STRING:
+                    if (inv != 0) {
+                        jargs[i] = Native.getObject(inv);
+                        argValue = NativeHelper.toNativeString(jargs[i], wideChar);
+                    }
+                    break;
+                case ARG_CALLBACK:
+                    if (inv != 0) {
+                        Object o = Native.getObject(inv);
+                        Closure c = Closure.build(params[i], o, wideChar);
+                        if (c == null)
+                            throw new RuntimeException("Could not create callback for parameter " + (i + 1));
+                        argValue = c.getPointer();
+                        jargs[i] = c;
+                    }
+                    break;
+                case ARG_RAW_CLOSURE:
+                    if (inv != 0) {
+                        jargs[i] = Native.getObject(inv);
+                        argValue = ((Closure) jargs[i]).getPointer();
+                    }
+                    break;
+                case ARG_STRUCT_PTR:
+                    if (inv != 0) {
+                        Object o = Native.getObject(inv);
+                        NativeStruct ns = null;
+                        if (wideChar)
+                            ns = wideStructs.get(params[i]);
+                        else
+                            ns = ansiStructs.get(params[i]);
+                        if (ns == null) {
+                            ns = NativeStruct.fromClass(params[i], wideChar);
+                            if (wideChar)
+                                wideStructs.put(params[i], ns);
+                            else
+                                ansiStructs.put(params[i], ns);
+                        }
+                        argValue = ns.toNative(o);
+                        jargs[i] = o;
+                    }
+                    break;
+                case ARG_BYTE_ARRAY:
+                    if (inv != 0) {
+                        byte[] b = (byte[]) Native.getObject(inv);
+                        jargs[i] = b;
+                        argValue = NativeHelper.toNative(b, 0, b.length);
+                    }
+                }
+
+                if (is64) {
+                    vb.putLong(argValue);
+                    pb.putLong(pointer);
+                } else {
                     vb.putInt((int) (argValue & 0xffffffff));
                     pb.putInt((int) (pointer & 0xffffffff));
                 }
