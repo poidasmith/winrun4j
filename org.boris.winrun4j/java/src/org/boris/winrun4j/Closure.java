@@ -26,6 +26,7 @@ public class Closure
     private boolean wideChar;
 
     // The parameter information
+    private Class[] params;
     private int[] argTypes;
     private int returnType;
     private CIF cif;
@@ -67,16 +68,17 @@ public class Closure
         c.wideChar = wideChar;
 
         // Determine argument types
-        Class[] params = m.getParameterTypes();
+        c.params = m.getParameterTypes();
         Class returnType = m.getReturnType();
-        c.argTypes = new int[params.length];
-        for (int i = 0; i < params.length; i++) {
-            c.argTypes[i] = NativeBinder.getArgType(params[i], m.getName());
+        c.argTypes = new int[c.params.length];
+        for (int i = 0; i < c.params.length; i++) {
+            c.argTypes[i] = NativeBinder.getArgType(c.params[i], m.getName());
         }
         c.returnType = NativeBinder.getArgType(returnType, m.getName());
 
         // Create callback pointer and connect to our invoke method
-        c.cif = CIF.prepare(is64 ? FFI.ABI_WIN64 : FFI.ABI_STDCALL, params.length);
+        // FIXME: will need to handle long args on 32bit
+        c.cif = CIF.prepare(is64 ? FFI.ABI_WIN64 : FFI.ABI_STDCALL, c.params.length);
         c.objectId = Native.newGlobalRef(c);
         c.methodId = invokeId;
         c.handle = FFI.prepareClosure(c.cif.get(), c.objectId, c.methodId);
@@ -107,6 +109,12 @@ public class Closure
                     break;
                 case NativeBinder.ARG_LONG:
                     jargs[i] = aValue;
+                    break;
+                case NativeBinder.ARG_STRUCT_PTR:
+                    if (aValue != 0) {
+
+                        jargs[i] = aValue;
+                    }
                     break;
                 case NativeBinder.ARG_STRING:
                     if (aValue != 0) {
