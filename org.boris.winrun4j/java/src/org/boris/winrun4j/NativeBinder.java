@@ -117,7 +117,7 @@ public class NativeBinder
         types[0] = types[1] = FFI.FFI_TYPE_POINTER;
         for (int i = 0; i < params.length; i++) {
             int t = FFI.FFI_TYPE_POINTER;
-            if (long.class.equals(params[i]))
+            if (!is64 && long.class.equals(params[i]))
                 t = FFI.FFI_TYPE_SINT64;
             types[i + 2] = t;
         }

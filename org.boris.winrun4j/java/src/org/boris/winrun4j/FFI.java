@@ -53,7 +53,6 @@ public class FFI
     public static long call(long proc, long[] args) {
         CIF cif = CIF.prepare(is64 ? ABI_WIN64 : ABI_STDCALL, args.length);
         long rvalue = Native.malloc(8);
-        NativeHelper.zeroMemory(NativeHelper.getBuffer(rvalue, 8));
         long avalue = 0;
         long pvalue = 0;
         if (args.length > 0) {
@@ -129,7 +128,7 @@ public class FFI
         }
 
         private static long makeType(int type) {
-            long ffi_type = Native.malloc(16);
+            long ffi_type = Native.malloc(24);
             int size = 0;
             switch (type) {
             case FFI_TYPE_POINTER:
@@ -140,11 +139,13 @@ public class FFI
                 size = 8;
                 break;
             }
-            ByteBuffer bb = NativeHelper.getBuffer(ffi_type, 12);
-            bb.putInt(size);
+            ByteBuffer bb = NativeHelper.getBuffer(ffi_type, 24);
+            if (is64)
+                bb.putLong(size);
+            else
+                bb.putInt(size);
             bb.putShort((short) size);
             bb.putShort((short) type);
-            bb.putInt(0);
             return ffi_type;
         }
 
