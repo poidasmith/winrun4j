@@ -9,11 +9,13 @@
  *******************************************************************************/
 package org.boris.winrun4j;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 
 import org.boris.winrun4j.FFI.CIF;
 import org.boris.winrun4j.PInvoke.Delegate;
+import org.boris.winrun4j.PInvoke.NativeStruct;
 
 public class Closure
 {
@@ -91,7 +93,7 @@ public class Closure
         return callback;
     }
 
-    public void invoke(long resp, long args) {
+    public void invoke(long resp, long args) throws Throwable {
         Object[] jargs = new Object[argTypes.length];
         if (jargs.length > 0) {
             ByteBuffer argp = NativeHelper.getBuffer(args, NativeHelper.PTR_SIZE * argTypes.length);
@@ -112,8 +114,10 @@ public class Closure
                     break;
                 case NativeBinder.ARG_STRUCT_PTR:
                     if (aValue != 0) {
-
-                        jargs[i] = aValue;
+                        Object so = params[i].newInstance();
+                        NativeStruct ns = NativeBinder.getStruct(params[i], wideChar);
+                        ns.fromNative(aValue, so);
+                        jargs[i] = so;
                     }
                     break;
                 case NativeBinder.ARG_STRING:
@@ -128,8 +132,8 @@ public class Closure
         Object res = null;
         try {
             res = callbackMethod.invoke(callbackObj, jargs);
-        } catch (Exception e) {
-            // TODO: propogate exception
+        } catch (InvocationTargetException e) {
+            throw e.getTargetException();
         }
 
         long resv = 0;
