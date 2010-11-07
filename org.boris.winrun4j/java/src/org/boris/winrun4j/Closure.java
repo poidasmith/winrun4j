@@ -79,7 +79,6 @@ public class Closure
         c.returnType = NativeBinder.getArgType(returnType, m.getName());
 
         // Create callback pointer and connect to our invoke method
-        // FIXME: will need to handle long args on 32bit
         c.cif = CIF.prepare(is64 ? FFI.ABI_WIN64 : FFI.ABI_STDCALL, c.params.length);
         c.objectId = Native.newGlobalRef(c);
         c.methodId = invokeId;

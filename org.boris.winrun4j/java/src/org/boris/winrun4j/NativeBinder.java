@@ -262,6 +262,22 @@ public class NativeBinder
         }
     }
 
+    static NativeStruct getStruct(Class clazz, boolean wideChar) {
+        NativeStruct ns;
+        if (wideChar)
+            ns = wideStructs.get(clazz);
+        else
+            ns = ansiStructs.get(clazz);
+        if (ns == null) {
+            ns = NativeStruct.fromClass(clazz, wideChar);
+            if (wideChar)
+                wideStructs.put(clazz, ns);
+            else
+                ansiStructs.put(clazz, ns);
+        }
+        return ns;
+    }
+
     public void invoke(long resp, long args) throws Exception {
         // The args are coming from the java native method, need to convert
         // into native args
@@ -340,18 +356,7 @@ public class NativeBinder
                 case ARG_STRUCT_PTR:
                     if (inv != 0) {
                         Object o = Native.getObject(inv);
-                        NativeStruct ns = null;
-                        if (wideChar)
-                            ns = wideStructs.get(params[i]);
-                        else
-                            ns = ansiStructs.get(params[i]);
-                        if (ns == null) {
-                            ns = NativeStruct.fromClass(params[i], wideChar);
-                            if (wideChar)
-                                wideStructs.put(params[i], ns);
-                            else
-                                ansiStructs.put(params[i], ns);
-                        }
+                        NativeStruct ns = getStruct(params[i], wideChar);
                         argValue = ns.toNative(o);
                         jargs[i] = o;
                     }
