@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<title>WinRun4J</title>
+		<link rel="shortcut icon" href="http://winrun4j.sourceforge.net/favicon.ico" type="image/vnd.microsoft.icon"/>
+		<link rel="stylesheet" href="style.css" type="text/css"/>
+		<meta name="description" content="Configurable java launcher for windows"/>
+		<meta name="keywords" content="java, launcher, windows, icon, splash, screen, memory, open source"/>
+		<meta http-equiv="pragma" content="no-cache"/>
+	</head>
+	<body>
+
+	<div id="heading">
+		<div class="title"><a href="index.html"><img border="0" src="WinRun4J.gif"></a>WinRun4J</div>
+		<div class="subtitle">Native Binding</div>
+	</div>
+	
+	<div class="section">
+		<div class="section-title">Overview</div>
+		<div class="section-content">
+		The launcher provides the ability to bind Windows API functions to java native 
+		methods without the need to write any native code. This is best described with
+		a simple example:
+<pre>
+package org.boris.winrun4j.test;
+
+import org.boris.winrun4j.PInvoke;
+import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.UIntPtr;
+
+public class BindingExample1
+{
+    static {
+        PInvoke.bind(BindingExample1.class);
+    }
+
+    public static void main(String[] args) throws Exception {
+        StringBuilder name = new StringBuilder();
+        UIntPtr size = new UIntPtr(100);
+        if (GetComputerName(name, size)) {
+            System.out.println(name);
+        }
+    }
+
+    @DllImport("kernel32")
+    public static native boolean GetComputerName(StringBuilder lpBuffer, UIntPtr lpnSize);
+}
+</pre>
+On startup the native binding will bind the java method to a native function and automatically convert the
+java arguments into native values. 		
+<p/>
+This is equivalent to the information provided on pinvoke.net for <a href="http://www.pinvoke.net/default.aspx/kernel32.getcomputername">GetComputerName</a>. The only extra step required is the <code>PInvoke.bind</code> call in the static constructor.
+<p/>
+The "lpnSize" parameter tells the native binder how much space to allocate to the "lpBuffer" string.
+<p/>
+The goal of the native binder is to be as compatible with <a href="http://pinvoke.net">PINVOKE.NET</a> as possible
+so that it can be used as the reference. Some differences do exist due to language constraints, such as:
+<ul>
+<li>The native methods must be manually bound by using the <code>PInvoke.bind</code> method. The simplest
+approach is use a static constructor as above.</li>
+<li>The java "long" primitive type should be used where an [in] pointer or handle is required. It is interpreted
+by the native binder to mean the native pointer size (ie. it will work on both 32-bit and 64-bit VMs).
+</ul>  	
+<p/>
+	
+		</div>
+	</div>
+
+	<div class="section">
+		<div class="section-title">Binding Structs</div>
+		<div class="section-content">
+		The native binding supports C-structs using java classes with equivalent data members. The java clas must implement the <code>Struct</code> marker interface.
+		A simple example is as follows:
+		
+<pre>
+package org.boris.winrun4j.test;
+
+import org.boris.winrun4j.PInvoke;
+import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.MarshalAs;
+import org.boris.winrun4j.PInvoke.Struct;
+
+public class BindingExample2
+{
+    static {
+        PInvoke.bind(BindingExample2.class, "kernel32");
+    }
+
+    public static void main(String[] args) throws Exception {
+        OSVERSIONINFOEX ver = new OSVERSIONINFOEX();
+        if (GetVersionEx(ver)) {
+            System.out.println(ver.majorVersion);
+            System.out.println(ver.minorVersion);
+            System.out.println(ver.csdVersion);
+        }
+    }
+
+    @DllImport
+    public static native boolean GetVersionEx(OSVERSIONINFOEX version);
+
+    public static class OSVERSIONINFOEX implements Struct
+    {
+        public int sizeOf = PInvoke.sizeOf(OSVERSIONINFOEX.class, true);
+        public int majorVersion;
+        public int minorVersion;
+        public int buildNumber;
+        public int platformId;
+        @MarshalAs(sizeConst = 128)
+        public String csdVersion;
+        public short servicePackMajor;
+        public short servicePackMinor;
+        public short suiteMask;
+        public byte productType;
+        public byte reserved;
+    }
+}
+</pre>
+
+The native binder defaults to unicode or wide-character format and will automatically look for a native method named
+like the java native method with a "W" at the end (eg. GetVersionExW). To use the ANSI version of the method use
+the <code>wideChar</code> attribute of the DllImport annotation, like:
+
+<pre>
+    @DllImport(lib = "kernel32.dll", wideChar = false)
+    public static native boolean GetVersionEx(OSVERSIONINFOEX version);
+</pre>
+
+Note that the native library to bind to can be specified as an argument to the <code>PInvoke.bind</code> method. This
+is useful when you need to bind multiple methods to the same library.
+		</div>
+	</div>
+
+	<div class="section">
+		<div class="section-title">Callbacks</div>
+		<div class="section-content">
+		The native binding supports callbacks using java interfaces. The java clas must implement the <code>Callback</code> marker interface
+		and have only 1 method defined.
+		<p/>
+		A simple example is as follows:
+		
+<pre>
+package org.boris.winrun4j.test;
+
+import org.boris.winrun4j.PInvoke;
+import org.boris.winrun4j.PInvoke.Callback;
+import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.IntPtr;
+
+public class BindingExample3
+{
+    static {
+        PInvoke.bind(BindingExample3.class, "user32");
+    }
+
+    public static void main(String[] args) throws Exception {
+        IntPtr count = new IntPtr();
+
+        WindowEnumProc callback = new WindowEnumProc() {
+            public boolean windowEnum(long hWnd, IntPtr lParam) throws Exception {
+                System.out.println(hWnd);
+                System.out.println(lParam);
+                lParam.value++;
+                return true;
+            }
+        };
+
+        EnumWindows(callback, count);
+
+        System.out.println(count.value);
+    }
+
+    @DllImport
+    public static native boolean EnumWindows(WindowEnumProc enumFunc, IntPtr lParam);
+
+    public interface WindowEnumProc extends Callback
+    {
+        boolean windowEnum(long hWnd, IntPtr lParam) throws Exception;
+    }
+}
+</pre>
+		</div>
+	</div>
+
+<br/><br/>
+		
+    <div id="footer">
+		<div class="footer"/>
+		<table style="border:0px;width:750px">
+		<tr style="border:0px;vertical-align:top">
+		<td style="border:0px;vertical-align:top;width:619px">
+        <a href="http://www.opensource.org/docs/definition.php"><img border="0" alt="Open Source" src="http://opensource.org/trademarks/open_source_button.png" style="width:88px;height:31px" /></a>
+        <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=222420&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
+        </td>
+        <td align="right" style="border:0px;vertical-align:top">
+        <a href="http://winrun4j.sourceforge.net/"><img border="0" alt="WinRun4J - Configurable Java Launcher for Windows" src="others/winrun4j.gif"/></a>
+        <a href="http://xlloop.sourceforge.net/"><img border="0" alt="XLLoop - Excel Functions in Java, Javascript, Ruby, Python, Erlang" src="others/xlloop.gif"/></a>
+        <a href="http://variantcodec.sourceforge.net/"><img border="0" alt="VariantCodec - Generic Data Structure Serialization Library for Java" src="others/variantcodec.gif"/></a>
+        <a href="http://jvst.sourceforge.net/"><img border="0" alt="JVST - VST Interface for Java" src="others/jvst.gif"/></a>
+        <a href="http://jxll.sourceforge.net/"><img border="0" alt="JXLL - Excel Addin Interaction Library" src="others/jxll.gif"/></a>
+        <a href="http://expr4j.sourceforge.net/"><img border="0" alt="Expr4J - Expression Calculation Engine for Java" src="others/expr4j.gif"/></a>
+        </td>
+        </tr>
+        </table>
+    </div>
+</body>
+</html>
