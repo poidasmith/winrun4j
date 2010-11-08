@@ -78,6 +78,10 @@ public class PInvoke
         public int intValue() {
             return (int) value;
         }
+
+        public String toString() {
+            return Long.toString(value);
+        }
     }
 
     public static class UIntPtr extends IntPtr

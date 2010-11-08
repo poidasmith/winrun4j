@@ -15,7 +15,9 @@ import java.nio.ByteBuffer;
 
 import org.boris.winrun4j.FFI.CIF;
 import org.boris.winrun4j.PInvoke.Delegate;
+import org.boris.winrun4j.PInvoke.IntPtr;
 import org.boris.winrun4j.PInvoke.NativeStruct;
+import org.boris.winrun4j.PInvoke.UIntPtr;
 
 public class Closure
 {
@@ -111,6 +113,20 @@ public class Closure
                 case NativeBinder.ARG_LONG:
                     jargs[i] = aValue;
                     break;
+                case NativeBinder.ARG_UINT_PTR:
+                    Object ptr = null;
+                    if (aValue != 0) {
+                        ptr = new UIntPtr(NativeHelper.getInt(aValue));
+                    }
+                    jargs[i] = ptr;
+                    break;
+                case NativeBinder.ARG_INT_PTR:
+                    ptr = null;
+                    if (aValue != 0) {
+                        ptr = new IntPtr(NativeHelper.getInt(aValue));
+                    }
+                    jargs[i] = ptr;
+                    break;
                 case NativeBinder.ARG_STRUCT_PTR:
                     if (aValue != 0) {
                         Object so = params[i].newInstance();
@@ -152,6 +168,30 @@ public class Closure
         }
 
         NativeHelper.setPointer(resp, resv);
+
+        if (jargs.length > 0) {
+            ByteBuffer argp = NativeHelper.getBuffer(args, NativeHelper.PTR_SIZE * argTypes.length);
+            for (int i = 0; i < jargs.length; i++) {
+                long pValue = is64 ? argp.getLong() : argp.getInt();
+                long aValue = 0;
+                if (pValue != 0)
+                    aValue = NativeHelper.getPointer(pValue);
+                Object o = jargs[i];
+                switch (argTypes[i]) {
+                case NativeBinder.ARG_INT_PTR:
+                case NativeBinder.ARG_UINT_PTR:
+                    if (o != null) {
+                        int value = (int) ((IntPtr) o).value;
+                        if (aValue != 0) {
+                            NativeHelper.setInt(aValue, value);
+                        }
+                    }
+                    break;
+                case NativeBinder.ARG_STRUCT_PTR:
+                    break;
+                }
+            }
+        }
     }
 
     public synchronized void destroy() {
