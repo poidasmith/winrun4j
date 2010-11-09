@@ -35,4 +35,8 @@ public class FileAssociationsTest
         assertTrue(result.contains("[info] Registering .fte"));
         assertTrue(result.contains("[info] Registering .ft2"));
     }
+
+    public static void main(String[] args) throws Exception {
+        new FileAssociationsTest().testBasic();
+    }
 }

@@ -27,6 +27,10 @@ import org.junit.Test;
 
 public class ServicesTest
 {
+    public static void main(String[] args) throws Exception {
+        new ServicesTest().testRegistration();
+    }
+
     /**
      * Register and unregister a service.
      */

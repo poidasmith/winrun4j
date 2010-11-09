@@ -51,7 +51,7 @@ public class Registry
     public static native long deleteValue(long hKey, String valueName);
 
     @DllImport(entryPoint = "RegOpenKeyExW")
-    public static native int openKeyEx(long hKey, String subKey, int options, long samDesired);
+    public static native int openKeyEx(long hKey, String subKey, int options, long samDesired, UIntPtr phkResult);
 
     @DllImport(entryPoint = "RegEnumKeyExW")
     public static native int enumKeyEx(
@@ -80,12 +80,13 @@ public class Registry
         UIntPtr len = new UIntPtr(maxLen);
         int res = Registry.queryValueEx(hKey, valueName, 0, null, bb, len);
         if (res == 0)
-            bb.toArray();
+            return bb.toArray();
         return null;
     }
 
     @DllImport(entryPoint = "RegQueryValueEx")
-    public static native int queryValueEx(long hKey,
+    public static native int queryValueEx(
+            long hKey,
             String valueName,
             long reserved,
             UIntPtr lpType,
@@ -146,7 +147,8 @@ public class Registry
     }
 
     @DllImport(entryPoint = "RegSetValueEx")
-    public static native long setValueEx(long hKey, String valueName, int type, byte[] data, int offset, int len);
+    public static native long setValueEx(long hKey, String valueName,
+            int reserved, int type, byte[] data, int len);
 
     public static class QUERY_INFO
     {

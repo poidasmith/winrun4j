@@ -274,7 +274,7 @@ public class RegistryKey
         byte[] data = Registry.queryValueEx(h, name, 512);
         Registry.closeKey(h);
         if (data != null)
-            return new String(data);
+            return NativeHelper.getString(data, true);
         return null;
     }
 
@@ -336,7 +336,7 @@ public class RegistryKey
     public void setString(String name, String value) {
         long h = openKeyHandle(handle, path, false);
         byte[] b = NativeHelper.toBytes(value, true);
-        Registry.setValueEx(h, name, Registry.REG_SZ, b, 0, b.length);
+        Registry.setValueEx(h, name, 0, Registry.REG_SZ, b, b.length);
         Registry.closeKey(h);
     }
 
@@ -349,7 +349,7 @@ public class RegistryKey
     public void setExpandedString(String name, String value) {
         long h = openKeyHandle(handle, path, false);
         byte[] b = NativeHelper.toBytes(value, true);
-        Registry.setValueEx(h, name, Registry.REG_EXPAND_SZ, b, 0, b.length);
+        Registry.setValueEx(h, name, 0, Registry.REG_EXPAND_SZ, b, b.length);
         Registry.closeKey(h);
     }
 
@@ -361,7 +361,7 @@ public class RegistryKey
      */
     public void setBinary(String name, byte[] value) {
         long h = openKeyHandle(handle, path, false);
-        Registry.setValueEx(h, name, 3, value, 0, value.length);
+        Registry.setValueEx(h, name, 0, 3, value, value.length);
         Registry.closeKey(h);
     }
 
@@ -376,7 +376,7 @@ public class RegistryKey
         byte[] b = new byte[4];
         ByteBuffer bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN);
         bb.putInt(value);
-        Registry.setValueEx(h, name, Registry.REG_DWORD, b, 0, b.length);
+        Registry.setValueEx(h, name, 0, Registry.REG_DWORD, b, b.length);
         Registry.closeKey(h);
     }
 
@@ -399,7 +399,7 @@ public class RegistryKey
         } catch (IOException e) {
             // Should not happen as it is a byte array
         }
-        Registry.setValueEx(h, name, Registry.REG_MULTI_SZ, b, 0, b.length);
+        Registry.setValueEx(h, name, 0, Registry.REG_MULTI_SZ, b, b.length);
         Registry.closeKey(h);
     }
 
@@ -416,6 +416,8 @@ public class RegistryKey
      * Open a registry key in read or write mode.
      */
     private long openKeyHandle(long rootKey, String keyPath, boolean readOnly) {
-        return Registry.openKeyEx(rootKey, keyPath, 0, readOnly ? 0x20019 : 0xF003F);
+        UIntPtr key = new UIntPtr();
+        Registry.openKeyEx(rootKey, keyPath, 0, readOnly ? 0x20019 : 0xF003F, key);
+        return key.value;
     }
 }

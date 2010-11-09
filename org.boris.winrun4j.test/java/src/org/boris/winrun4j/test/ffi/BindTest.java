@@ -23,10 +23,14 @@ public class BindTest
 
     public static void main(String[] args) throws Exception {
         EnumWindows(new WindowEnumProc() {
-            public boolean windowEnum(long hWnd, IntPtr lParam) {
-                System.out.println(hWnd);
-                System.out.println(lParam);
-                return true;
+            public boolean windowEnum(long hWnd, IntPtr lParam) throws Exception {
+                try {
+                    System.out.println(hWnd);
+                    System.out.println(lParam);
+                    return false;
+                } finally {
+                    throw new Exception("Testing");
+                }
             }
         }, null);
     }
@@ -55,7 +59,7 @@ public class BindTest
 
     public interface WindowEnumProc extends Callback
     {
-        boolean windowEnum(long hWnd, IntPtr lParam);
+        boolean windowEnum(long hWnd, IntPtr lParam) throws Exception;
     }
 
     @DllImport(lib = "kernel32.dll", entryPoint = "GetCurrentProcessId")

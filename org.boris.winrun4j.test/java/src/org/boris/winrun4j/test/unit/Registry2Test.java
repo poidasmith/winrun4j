@@ -57,4 +57,8 @@ public class Registry2Test
         // Check that delete worked
         assertFalse(key.exists());
     }
+
+    public static void main(String[] args) throws Exception {
+        new Registry2Test().test1();
+    }
 }

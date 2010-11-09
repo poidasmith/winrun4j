@@ -301,6 +301,9 @@ public class NativeBinder
                     argValue = inv;
                     jargs[i] = new Integer((int) inv);
                     break;
+                case ARG_LONG:
+                    argValue = inv;
+                    break;
                 case ARG_UINT_PTR:
                 case ARG_INT_PTR:
                     if (inv != 0) {
