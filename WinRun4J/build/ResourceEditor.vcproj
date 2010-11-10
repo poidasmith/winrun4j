@@ -188,7 +188,7 @@
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\vc80.pdb"
 				XMLDocumentationFileName="$(IntDir)\"
-				CallingConvention="2"
+				CallingConvention="0"
 				CompileAs="2"
 			/>
 			<Tool
