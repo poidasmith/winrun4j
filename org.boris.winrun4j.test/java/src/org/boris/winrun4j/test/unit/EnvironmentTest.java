@@ -32,8 +32,8 @@ public class EnvironmentTest
 
     @Test
     public void testCommandLine() throws Exception {
-        ProcessResult pr = TestHelper.launcher().main(getClass()).log(Log.Level.WARN).launch(
-                "-test ok now this is great", "ok", "great");
+        ProcessResult pr = new ProcessResult(TestHelper.launcher().main(getClass()).log(Log.Level.WARN).launch(
+                "-test ok now this is great", "ok", "great"));
         pr.waitFor();
         String[] lines = IO.readLines(new StringReader(pr.getStdOut()));
         assertEquals(lines.length, 4);

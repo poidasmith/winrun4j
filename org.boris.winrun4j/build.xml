@@ -40,7 +40,10 @@
 		<mkdir dir="build"/>
 		<javac source="1.5" srcdir="../org.boris.winrun4j.test/java/src" destdir="build" debug="true">
 			<classpath>
+				<pathelement location="../org.boris.commons/bin"/>
 				<pathelement location="bin"/>
+				<pathelement location="C:/eclipse/platform3.5/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
+				<pathelement location="C:/eclipse/platform3.5/plugins/org.junit4_4.5.0.v20090824/junit.jar"/>
 			</classpath>
 		</javac>
 		<jar destfile="${deploy.dir}/bin/WinRun4JTest.jar">

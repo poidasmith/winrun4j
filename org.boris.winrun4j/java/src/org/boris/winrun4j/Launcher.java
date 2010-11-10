@@ -10,14 +10,17 @@
 package org.boris.winrun4j;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.boris.commons.io.IO;
-import org.boris.commons.io.ProcessResult;
 
 public class Launcher
 {
@@ -41,14 +44,14 @@ public class Launcher
     public Launcher create() throws IOException {
         launcher = File.createTempFile("winrun4j.launcher.", ".exe");
         launcher.deleteOnExit();
-        IO.copy(launcherFile, launcher);
-        ini = new File(launcher.getParent(), IO.getNameSansExtension(launcher) + ".ini");
+        copy(launcherFile, launcher);
+        ini = new File(launcher.getParent(), getNameSansExtension(launcher) + ".ini");
         ini.deleteOnExit();
-        IO.copy(new StringReader(toString()), new FileWriter(ini), true);
+        copy(new StringReader(toString()), new FileWriter(ini), true);
         return this;
     }
 
-    public ProcessResult launch(String... args) throws Exception {
+    public Process launch(String... args) throws Exception {
         if (launcher == null) {
             create();
         }
@@ -57,7 +60,7 @@ public class Launcher
         if (args != null) {
             System.arraycopy(args, 0, cmd, 1, args.length);
         }
-        return new ProcessResult(Runtime.getRuntime().exec(cmd));
+        return Runtime.getRuntime().exec(cmd);
     }
 
     public Launcher main(Class clazz) {
@@ -188,8 +191,8 @@ public class Launcher
     public Launcher debug(int port, boolean server, boolean suspend) {
         vmarg("-Xdebug");
         vmarg("-Xnoagent");
-        vmarg("-Xrunjdwp:transport=dt_socket,address=" + port + ",server=" + (server ? "y" : "n") + ",suspend="
-                + (suspend ? "y" : "n"));
+        vmarg("-Xrunjdwp:transport=dt_socket,address=" + port + ",server=" + (server ? "y" : "n") + ",suspend=" +
+                (suspend ? "y" : "n"));
         return this;
     }
 
@@ -233,5 +236,43 @@ public class Launcher
     public Launcher singleInstance(String si) {
         set(null, "single.instance", si);
         return this;
+    }
+
+    public static void copy(File source, File target) throws IOException {
+        copy(new FileInputStream(source), new FileOutputStream(target), true);
+    }
+
+    public static void copy(Reader r, Writer w, boolean close) throws IOException {
+        char[] buf = new char[4096];
+        int len = 0;
+        while ((len = r.read(buf)) > 0) {
+            w.write(buf, 0, len);
+        }
+        if (close) {
+            r.close();
+            w.close();
+        }
+    }
+
+    public static void copy(InputStream r, OutputStream w, boolean close) throws IOException {
+        byte[] buf = new byte[4096];
+        int len = 0;
+        while ((len = r.read(buf)) > 0) {
+            w.write(buf, 0, len);
+        }
+        if (close) {
+            r.close();
+            w.close();
+        }
+    }
+
+    public static String getNameSansExtension(File f) {
+        if (f == null)
+            return null;
+        String n = f.getName();
+        int idx = n.lastIndexOf('.');
+        if (idx == -1)
+            return n;
+        return n.substring(0, idx);
     }
 }

@@ -21,15 +21,10 @@ import org.boris.winrun4j.winapi.DDEML;
 public class FileAssociationsTest
 {
     public void testBasic() throws Exception {
-        Launcher l = TestHelper.launcher()
-                .main(FileAssociationsTest.class)
-                .classpath(new File("."))
-                .arg("-test")
-                .arg("-hello")
-                .dde(true, DDEML.class)
-                .fileAss(".fte", "File Association Test", "Testing file assocations")
+        Launcher l = TestHelper.launcher().main(FileAssociationsTest.class).classpath(new File(".")).arg("-test").arg(
+                "-hello").dde(true, DDEML.class).fileAss(".fte", "File Association Test", "Testing file assocations")
                 .fileAss(".ft2", "File Association Test 2", "Testing file assocations");
-        ProcessResult pr = l.launch("--WinRun4J:RegisterFileAssociations");
+        ProcessResult pr = new ProcessResult(l.launch("--WinRun4J:RegisterFileAssociations"));
         pr.waitFor();
         String result = pr.toString();
         assertTrue(result.contains("[info] Registering .fte"));

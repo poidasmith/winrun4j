@@ -25,9 +25,9 @@ public class SingleInstanceTest
     @Test
     public void testProcess() throws Exception {
         Launcher l = create();
-        ProcessResult res = l.launch("process");
+        ProcessResult res = new ProcessResult(l.launch("process"));
         Threads.sleepQuietly(10);
-        ProcessResult res2 = l.launch("process").waitFor();
+        ProcessResult res2 = new ProcessResult(l.launch("process")).waitFor();
         assertTrue(res2.getStdStr().contains("Single Instance Shutdown"));
         assertFalse(res2.isActive());
         res.destroy();

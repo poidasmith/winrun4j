@@ -39,14 +39,14 @@ public class ServicesTest
         Launcher l = BasicService.launcher();
 
         // Register service
-        ProcessResult res = l.launch("--WinRun4J:RegisterService");
+        ProcessResult res = new ProcessResult(l.launch("--WinRun4J:RegisterService"));
         res.waitFor();
         assertEquals(0, res.exitValue());
         assertTrue(res.getStdOut().indexOf("[info] Registering Service...") != -1);
 
         // Check that the registry keys are setup correctly
-        RegistryKey rk = new RegistryKey(RegistryKey.HKEY_LOCAL_MACHINE,
-                "SYSTEM\\CurrentControlSet\\Services\\" + BasicService.class.getSimpleName());
+        RegistryKey rk = new RegistryKey(RegistryKey.HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Services\\" +
+                BasicService.class.getSimpleName());
         assertTrue(rk.exists());
         assertEquals("Basic Service", rk.getString("DisplayName"));
         assertEquals("A test service for winrun4j", rk.getString("Description"));
@@ -56,7 +56,7 @@ public class ServicesTest
         assertEquals(2, rk.getDoubleWord("Start", -1));
 
         // Unregister service and check that the registry keys have gone
-        res = l.launch("--WinRun4J:UnregisterService").waitFor();
+        res = new ProcessResult(l.launch("--WinRun4J:UnregisterService")).waitFor();
         assertEquals(0, res.exitValue());
         assertTrue(res.getStdOut().indexOf("[info] Unregistering Service...") != -1);
         Thread.sleep(100); // race condition on registry clear out
@@ -78,7 +78,7 @@ public class ServicesTest
             l.arg(arg);
 
         // Register service
-        ProcessResult res = l.launch("--WinRun4J:RegisterService").waitFor();
+        ProcessResult res = new ProcessResult(l.launch("--WinRun4J:RegisterService")).waitFor();
         assertEquals(0, res.exitValue());
         assertTrue(res.getStdOut().indexOf("[info] Registering Service...") != -1);
 
@@ -122,7 +122,7 @@ public class ServicesTest
             assertEquals(stripOffQuotes(arg), br.readLine());
 
         // Unregister service
-        res = l.launch("--WinRun4J:UnregisterService").waitFor();
+        res = new ProcessResult(l.launch("--WinRun4J:UnregisterService")).waitFor();
         assertEquals(0, res.exitValue());
         assertTrue(res.getStdOut().indexOf("[info] Unregistering Service...") != -1);
     }
