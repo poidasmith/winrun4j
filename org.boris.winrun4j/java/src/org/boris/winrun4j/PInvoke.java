@@ -228,11 +228,15 @@ public class PInvoke
 
         public long toNative(Object obj) throws IllegalArgumentException, IllegalAccessException {
             long ptr = Native.malloc(size);
+            toNative(ptr, obj);
+            return ptr;
+        }
+
+        public void toNative(long ptr, Object obj) throws IllegalArgumentException, IllegalAccessException {
             ByteBuffer bb = NativeHelper.getBuffer(ptr, size);
             for (int i = 0; i < fieldTypes.length; i++) {
                 toNative(obj, fieldTypes[i], fieldSizes[i], fields[i], bb);
             }
-            return ptr;
         }
 
         private void toNative(Object obj, int fieldType, int fieldSize, Field field, ByteBuffer bb)

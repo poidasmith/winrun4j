@@ -180,7 +180,7 @@ public class Closure
                 switch (argTypes[i]) {
                 case NativeBinder.ARG_INT_PTR:
                 case NativeBinder.ARG_UINT_PTR:
-                    if (o != null) {
+                    if (aValue != 0 && o != null) {
                         int value = (int) ((IntPtr) o).value;
                         if (aValue != 0) {
                             NativeHelper.setInt(aValue, value);
@@ -188,6 +188,10 @@ public class Closure
                     }
                     break;
                 case NativeBinder.ARG_STRUCT_PTR:
+                    if (aValue != 0 && o != null) {
+                        NativeStruct ns = NativeBinder.getStruct(params[i], wideChar);
+                        ns.toNative(aValue, o);
+                    }
                     break;
                 }
             }
