@@ -18,7 +18,7 @@ public class ConsoleTest
     public static void main(String[] args) throws Exception {
         Console.AllocConsole();
         Console.SetConsoleTitle("Testing Console");
-        long handle = Console.GetStdHandle(-10);
+        long handle = Console.GetStdHandle(Console.STD_INPUT_HANDLE);
         Console.SetConsoleMode(handle, 1);
         HandlerRoutine hr = new Console.HandlerRoutine() {
             public boolean handlerRoutine(int dwCtrlType) {
@@ -29,6 +29,8 @@ public class ConsoleTest
         };
         Closure c = Closure.build(HandlerRoutine.class, hr, false);
         System.out.println(Console.SetConsoleCtrlHandler(c.getPointer(), true));
+        int res = Console.WriteConsole(Console.GetStdHandle(Console.STD_OUTPUT_HANDLE), "Test");
+        System.out.println(res);
         Thread.sleep(500000);
         c.destroy();
     }

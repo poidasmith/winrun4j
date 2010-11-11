@@ -11,6 +11,7 @@ import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.PInvoke.DllImport;
 import org.boris.winrun4j.PInvoke.MarshalAs;
 import org.boris.winrun4j.PInvoke.Struct;
+import org.boris.winrun4j.PInvoke.UIntPtr;
 
 public class Environment
 {
@@ -79,21 +80,18 @@ public class Environment
         return p;
     }
 
-    public static String getEnvironmentVariable(String var) {
-        if (var == null)
+    public static String getEnv(String name) {
+        StringBuilder sb = new StringBuilder();
+        UIntPtr ptr = new UIntPtr(4096);
+        int res = GetEnvironmentVariable(name, sb, ptr);
+        if (res > 0)
+            return sb.toString();
+        else
             return null;
-        long buf = NativeHelper.toNativeString(var, true);
-        long rbuf = Native.malloc(4096);
-        long res = NativeHelper.call(library, "GetEnvironmentVariableW", buf, rbuf, 4096);
-        if (res == 0)
-            return null;
-        if (res > 4096)
-            return null;
-        String str = NativeHelper.getString(rbuf, 4096, true);
-        Native.free(buf);
-        Native.free(rbuf);
-        return str;
     }
+
+    @DllImport("kernel32.dll")
+    public static native int GetEnvironmentVariable(String lpName, StringBuilder lpBuffer, UIntPtr nsize);
 
     public static File[] getLogicalDrives() {
         int len = 1024;

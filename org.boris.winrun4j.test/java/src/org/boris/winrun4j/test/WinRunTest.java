@@ -12,6 +12,7 @@ import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.RegistryKey;
 import org.boris.winrun4j.SplashScreen;
+import org.boris.winrun4j.winapi.Environment;
 
 public class WinRunTest
 {
@@ -54,6 +55,16 @@ public class WinRunTest
             sb.append("\n");
         }
 
+        sb.append("\n\nEnvironment Variables\n=============\n\n");
+        p = Environment.getEnvironmentVariables();
+        for (Iterator i = p.keySet().iterator(); i.hasNext();) {
+            String k = (String) i.next();
+            sb.append(k);
+            sb.append("=");
+            sb.append(p.getProperty((String) k));
+            sb.append("\n");
+        }
+
         // Test logger
         Log.info("test1");
         Log.warning("test2");
@@ -88,11 +99,8 @@ public class WinRunTest
         System.out.println("Random: " + Math.random());
 
         // Add DDE listener
-        /*DDE.addListener(new DDEListener() {
-            public void execute(String cmdLine) {
-                text.setText(cmdLine + "\n" + text.getText());
-            }
-        });*/
+        /* DDE.addListener(new DDEListener() { public void execute(String
+         * cmdLine) { text.setText(cmdLine + "\n" + text.getText()); } }); */
 
         new Thread(new Runnable() {
             public void run() {

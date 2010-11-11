@@ -27,6 +27,10 @@ public class Console
     public static final int CTRL_LOGOFF_EVENT = 5;
     public static final int CTRL_SHUTDOWN_EVENT = 6;
 
+    public static final int STD_INPUT_HANDLE = -10;
+    public static final int STD_OUTPUT_HANDLE = -11;
+    public static final int STD_ERROR_HANDLE = -12;
+
     @DllImport
     public static native boolean AllocConsole();
 

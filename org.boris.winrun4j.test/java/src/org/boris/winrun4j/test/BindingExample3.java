@@ -12,7 +12,7 @@ package org.boris.winrun4j.test;
 import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.PInvoke.Callback;
 import org.boris.winrun4j.PInvoke.DllImport;
-import org.boris.winrun4j.PInvoke.IntPtr;
+import org.boris.winrun4j.PInvoke.Struct;
 
 public class BindingExample3
 {
@@ -21,27 +21,36 @@ public class BindingExample3
     }
 
     public static void main(String[] args) throws Exception {
-        IntPtr count = new IntPtr();
+        SomeStruct ss = new SomeStruct();
 
         WindowEnumProc callback = new WindowEnumProc() {
-            public boolean windowEnum(long hWnd, IntPtr lParam) throws Exception {
+            public boolean windowEnum(long hWnd, SomeStruct ss) throws Exception {
                 System.out.println(hWnd);
-                System.out.println(lParam);
-                lParam.value++;
+                System.out.println(ss);
+                if (ss.value > 100)
+                    ss.thing = "ok there";
+                ss.value++;
                 return true;
             }
         };
 
-        EnumWindows(callback, count);
+        EnumWindows(callback, ss);
 
-        System.out.println(count.value);
+        System.out.println(ss.value);
+        System.out.println(ss.thing);
     }
 
     @DllImport
-    public static native boolean EnumWindows(WindowEnumProc enumFunc, IntPtr lParam);
+    public static native boolean EnumWindows(WindowEnumProc enumFunc, SomeStruct ss);
 
     public interface WindowEnumProc extends Callback
     {
-        boolean windowEnum(long hWnd, IntPtr lParam) throws Exception;
+        boolean windowEnum(long hWnd, SomeStruct ss) throws Exception;
+    }
+
+    public static class SomeStruct implements Struct
+    {
+        public int value;
+        public String thing;
     }
 }

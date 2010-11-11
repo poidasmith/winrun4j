@@ -37,8 +37,8 @@ public class EnvironmentTester
         System.out.println();
 
         System.out.println("Environment Variables");
-        System.out.printf("TEMP: %s\n", Environment.getEnvironmentVariable("TEMP"));
-        System.out.printf("TEMP2: %s\n", Environment.getEnvironmentVariable("TEMP2"));
+        System.out.printf("TEMP: %s\n", Environment.getEnv("TEMP"));
+        System.out.printf("TEMP2: %s\n", Environment.getEnv("TEMP2"));
         System.out.println(Environment.getEnvironmentVariables());
         System.out.println(Environment.expandEnvironmentString("temp: %TEMP%"));
         System.out.println();

@@ -9,17 +9,19 @@
  *******************************************************************************/
 package org.boris.winrun4j.winapi;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-
 import org.boris.winrun4j.Closure;
-import org.boris.winrun4j.Native;
-import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.PInvoke.Callback;
+import org.boris.winrun4j.PInvoke.DllImport;
+import org.boris.winrun4j.PInvoke.IntPtr;
+import org.boris.winrun4j.PInvoke.MarshalAs;
+import org.boris.winrun4j.PInvoke.Struct;
 
 public class FileManagement
 {
-    private static final long library = Native.loadLibrary("kernel32.dll");
+    static {
+        PInvoke.bind(FileManagement.class, "kernel32");
+    }
 
     public static final int MOVEFILE_REPLACE_EXISTING = 0x00000001;
     public static final int MOVEFILE_COPY_ALLOWED = 0x00000002;
@@ -43,160 +45,54 @@ public class FileManagement
     public static final int FILE_NOTIFY_CHANGE_CREATION = 0x40;
     public static final int FILE_NOTIFY_CHANGE_SECURITY = 0x100;
 
-    public static long createFile(String fileName, int dwDesiredAccess, int dwShareMode, long lpSecurityAttributes,
-            int dwCreationDisposition, int dwFlagsAndAttributes, long hTemplateFile) {
-        long lpFileName = NativeHelper.toNativeString(fileName, true);
-        long handle = NativeHelper.call(library, "CreateFileW", lpFileName, dwDesiredAccess, dwShareMode,
-                lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-        NativeHelper.free(lpFileName);
-        return handle;
-    }
+    @DllImport
+    public static native long CreateFile(String lpFileName, int dwDesiredAccess,
+            int dwShareMode, long lpSecurityAttributes,
+            int dwCreationDisposition, int dwFlagsAndAttributes, long hTemplateFile);
 
-    public static boolean moveFileEx(String existingName, String newName, int flags) {
-        if (existingName == null || newName == null)
-            throw new NullPointerException();
-        long e = NativeHelper.toNativeString(existingName, true);
-        long n = NativeHelper.toNativeString(newName, true);
-        boolean res = NativeHelper.call(library, "MoveFileExW", e, n, flags) == 1;
-        NativeHelper.free(e, n);
-        return res;
-    }
+    @DllImport
+    public static native boolean MoveFileEx(String existingName, String newName, int flags);
 
-    public static String getCurrentDirectory() {
-        long lpBuffer = Native.malloc(Shell32.MAX_PATHW);
-        int count = (int) NativeHelper.call(library, "GetCurrentDirectoryW", Shell32.MAX_PATHW, lpBuffer);
-        String res = null;
-        if (count > 0)
-            res = NativeHelper.getString(lpBuffer, Shell32.MAX_PATHW, true);
-        NativeHelper.free(lpBuffer);
-        return res;
-    }
+    @DllImport
+    public static native int GetCurrentDirectory(int nBufferLength, StringBuilder lpBuffer);
 
-    public static long getFileSize(long hFile) {
-        long lpFileSizeHigh = Native.malloc(4);
-        long size = NativeHelper.call(library, "GetFileSize", hFile, lpFileSizeHigh);
-        int fileSizeHigh = NativeHelper.getInt(lpFileSizeHigh);
-        NativeHelper.free(lpFileSizeHigh);
-        if (size == 0xffffffff && Kernel32.GetLastError() != 0)
-            return -1;
-        return ((long) fileSizeHigh) << 32 | size;
-    }
+    @DllImport
+    public static native long GetFileSize(long hFile, IntPtr lpFileSizeHigh);
 
-    public static long findFirstFile(String fileName, WIN32_FIND_DATA findFileData) {
-        if (findFileData == null)
-            return 0;
-        long lpFileName = NativeHelper.toNativeString(fileName, true);
-        long lpFindFileData = Native.malloc(WIN32_FIND_DATA.SIZE);
-        long handle = NativeHelper.call(library, "FindFirstFileW", lpFileName, lpFindFileData);
-        if (handle != 0) {
-            decode(lpFindFileData, findFileData);
-        }
-        NativeHelper.free(lpFileName, lpFindFileData);
-        return handle;
-    }
+    @DllImport
+    public static native long FindFirstFile(String fileName, WIN32_FIND_DATA findFileData);
 
-    public static long findFirstChangeNotification(String pathName, boolean bWatchSubtree, int dwNotifyFilter) {
-        if (pathName == null)
-            return 0;
-        long lpPathName = NativeHelper.toNativeString(pathName, true);
-        long handle = NativeHelper.call(library, "FindFirstChangeNotificationW", lpPathName, bWatchSubtree ? 1
-                : 0, dwNotifyFilter);
-        NativeHelper.free(lpPathName);
-        return handle;
-    }
+    @DllImport
+    public static native long FindFirstChangeNotification(String pathName, boolean bWatchSubtree, int dwNotifyFilter);
 
-    public static boolean findNextChangeNotification(long hChangeHandle) {
-        return NativeHelper.call(library, "FindNextChangeNotification", hChangeHandle) != 0;
-    }
+    @DllImport
+    public static native boolean FindNextChangeNotification(long hChangeHandle);
 
-    public static boolean findCloseChangeNotification(long hChangeHandle) {
-        return NativeHelper.call(library, "FindCloseChangeNotification", hChangeHandle) != 0;
-    }
+    @DllImport
+    public static native boolean FindCloseChangeNotification(long hChangeHandle);
 
-    public static boolean findNextFile(long handle, WIN32_FIND_DATA findFileData) {
-        long lpFindFileData = Native.malloc(WIN32_FIND_DATA.SIZE);
-        boolean res = NativeHelper.call(library, "FindNextFileW", handle, lpFindFileData) != 0;
-        if (res) {
-            decode(lpFindFileData, findFileData);
-        }
-        NativeHelper.free(lpFindFileData);
-        return res;
-    }
+    @DllImport
+    public static native boolean FindNextFile(long handle, WIN32_FIND_DATA findFileData);
 
-    public static boolean findClose(long handle) {
-        return NativeHelper.call(library, "FindClose", handle) != 0;
-    }
+    @DllImport
+    public static native boolean FindClose(long handle);
 
-    public static boolean readDirectoryChanges(long hDirectory, long lpBuffer, int dwBufferLength, boolean bWatchTree,
-            int dwNotifyFilter, long lpOverlapped, Closure completionRoutine) {
-        return NativeHelper.call(library, "ReadDirectoryChangesW", hDirectory, lpBuffer, dwBufferLength,
-                bWatchTree ? 1 : 0, dwNotifyFilter, 0, lpOverlapped, completionRoutine.getPointer()) != 0;
-    }
+    @DllImport
+    public static native boolean ReadDirectoryChanges(long hDirectory, long lpBuffer, int dwBufferLength,
+            boolean bWatchTree,
+            int dwNotifyFilter, long lpOverlapped, Closure completionRoutine);
 
-    public static boolean setCurrentDirectory(String pathName) {
-        long lpPathName = NativeHelper.toNativeString(pathName, true);
-        boolean res = NativeHelper.call(library, "SetCurrentDirectoryW", lpPathName) != 0;
-        NativeHelper.free(lpPathName);
-        return res;
-    }
+    @DllImport
+    public static native boolean SetCurrentDirectory(String pathName);
 
-    private static void decode(long ptr, WIN32_FIND_DATA findFileData) {
-        ByteBuffer bb = NativeHelper.getBuffer(ptr, WIN32_FIND_DATA.SIZE);
-        findFileData.dwFileAttributes = bb.getInt();
-        findFileData.ftCreationTime = decodeFileTime(bb);
-        findFileData.ftLastAccessTime = decodeFileTime(bb);
-        findFileData.ftLastWriteTime = decodeFileTime(bb);
-        findFileData.nFileSizeHigh = bb.getInt();
-        findFileData.nFileSizeLow = bb.getInt();
-        findFileData.dwReserved0 = bb.getInt();
-        findFileData.dwReserved1 = bb.getInt();
-        byte[] cbfn = new byte[Shell32.MAX_PATHW];
-        bb.get(cbfn);
-        findFileData.cFileName = NativeHelper.getString(cbfn, true);
-        byte[] cbaf = new byte[28];
-        bb.get(cbaf);
-        findFileData.cAlternateFileName = NativeHelper.getString(cbaf, true);
-        if (findFileData.cAlternateFileName != null && findFileData.cAlternateFileName.length() == 0)
-            findFileData.cAlternateFileName = null;
-    }
-
-    private static FILETIME decodeFileTime(ByteBuffer bb) {
-        FILETIME res = new FILETIME();
-        res.dwLowDateTime = bb.getInt();
-        res.dwHighDateTime = bb.getInt();
-        return res;
-    }
-
-    public static FILE_NOTIFY_INFORMATION[] decodeFileNotifyInformation(ByteBuffer bb) {
-        ArrayList results = new ArrayList();
-        int offset = 0;
-        while ((offset = bb.getInt()) != 0) {
-            FILE_NOTIFY_INFORMATION fni = new FILE_NOTIFY_INFORMATION();
-            fni.action = bb.getInt();
-            int len = bb.getInt();
-            byte[] b = new byte[len];
-            bb.get(b);
-            fni.filename = NativeHelper.getString(b, true);
-            bb.position(offset);
-            results.add(fni);
-        }
-        return (FILE_NOTIFY_INFORMATION[]) results.toArray(new FILE_NOTIFY_INFORMATION[results.size()]);
-    }
-
-    public static abstract class FileNotifyInformationCallback implements Callback
+    public interface FileNotifyInformationCallback extends Callback
     {
-        protected final int callback(int stack) {
-            ByteBuffer bb = NativeHelper.getBuffer(stack, 12);
-            return fileIoCompletionRoutine(bb.getInt(), bb.getInt(), bb.getInt());
-        }
-
-        protected abstract int fileIoCompletionRoutine(int dwErrorCode, int dwNumberOfBytesTransferred,
+        int fileIoCompletionRoutine(int dwErrorCode, int dwNumberOfBytesTransferred,
                 long lpOverlapped);
     }
 
-    public static class WIN32_FIND_DATA
+    public static class WIN32_FIND_DATA implements Struct
     {
-        public static final int SIZE = 592;
         public int dwFileAttributes;
         public FILETIME ftCreationTime;
         public FILETIME ftLastAccessTime;
@@ -205,23 +101,26 @@ public class FileManagement
         public int nFileSizeLow;
         public int dwReserved0;
         public int dwReserved1;
+        @MarshalAs(sizeConst = 256)
         public String cFileName;
+        @MarshalAs(sizeConst = 256)
         public String cAlternateFileName;
     }
 
-    public static class FILETIME
+    public static class FILETIME implements Struct
     {
         public int dwLowDateTime;
         public int dwHighDateTime;
     }
 
-    public static class FILE_NOTIFY_INFORMATION
+    public static class FILE_NOTIFY_INFORMATION implements Struct
     {
         public int action;
+        @MarshalAs(sizeConst = 256)
         public String filename;
     }
 
-    public static class OVERLAPPED
+    public static class OVERLAPPED implements Struct
     {
         public int internal;
         public int internalHigh;

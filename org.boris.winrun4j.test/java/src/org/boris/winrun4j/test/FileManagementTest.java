@@ -16,12 +16,12 @@ public class FileManagementTest
 {
     public static void main(String[] args) throws Exception {
         WIN32_FIND_DATA fd = new WIN32_FIND_DATA();
-        long handle = FileManagement.findFirstFile("f:\\*.*", fd);
+        long handle = FileManagement.FindFirstFile("f:\\*.*", fd);
         System.out.println(handle);
         Reflection.println(fd);
-        while (FileManagement.findNextFile(handle, fd)) {
+        while (FileManagement.FindNextFile(handle, fd)) {
             Reflection.println(fd);
         }
-        FileManagement.findClose(handle);
+        FileManagement.FindClose(handle);
     }
 }

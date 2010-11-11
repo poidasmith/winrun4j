@@ -27,7 +27,7 @@ public class EnvironmentTest
 {
     @Test
     public void testVars() throws Exception {
-        assertEquals(Environment.expandEnvironmentString("%TEMP%"), Environment.getEnvironmentVariable("TEMP"));
+        assertEquals(Environment.expandEnvironmentString("%TEMP%"), Environment.getEnv("TEMP"));
     }
 
     @Test
