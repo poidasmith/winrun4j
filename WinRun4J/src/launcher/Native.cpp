@@ -70,7 +70,6 @@ bool Native::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 
-	// TEMP FFI class
 	Log::Info("Registering natives for FFI class");
 
 	jclass clazz2 = JNI::FindClass(env, "org/boris/winrun4j/FFI");
@@ -227,12 +226,16 @@ typedef struct {
 void Closure(ffi_cif* /*cif*/, void *resp, void **arg_area, void* user_data)
 {
 	JNIEnv* env = VM::GetJNIEnv(true);
+	// Sanity check here to avoid JVM crash
 	if(env->ExceptionCheck()) {
 		env->ExceptionDescribe();
 		env->ExceptionClear();
 	}
 	FFI_CLOSURE_DATA* fd = (FFI_CLOSURE_DATA*) user_data;
 	env->CallVoidMethod(fd->objectId, fd->methodId, (jlong) resp, (jlong) arg_area);
+	if(env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+	}
 }
 
 jlong Native::FFIPrepareClosure(JNIEnv* /*env*/, jobject /*self*/, jlong cif, jlong objectId, jlong methodId)
