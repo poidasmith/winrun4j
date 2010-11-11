@@ -70,10 +70,10 @@ public class INI
     public static String[] getPropertyKeys() {
         long d = NativeHelper.call(0, "INI_GetDictionary");
         int n = NativeHelper.getInt(d);
-        long keyPtr = NativeHelper.getInt(d + 12);
+        long keyPtr = NativeHelper.getInt(d + (Native.IS_64 ? 16 : 12));
         String[] res = new String[n];
-        for (int i = 0, offset = 0; i < n; i++, offset += 4) {
-            long ptr = NativeHelper.getInt(keyPtr + offset);
+        for (int i = 0, offset = 0; i < n; i++, offset += NativeHelper.PTR_SIZE) {
+            long ptr = NativeHelper.getPointer(keyPtr + offset);
             res[i] = NativeHelper.getString(ptr, 260, false);
         }
         return res;
