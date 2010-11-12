@@ -269,7 +269,11 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, UINT& count)
 	// Extract memory size
 	MEMORYSTATUS ms;
 	GlobalMemoryStatus(&ms);
+#ifdef X64
+	int overallMax = 8000;
+#else
 	int overallMax = 1530;
+#endif
 	int availMax = (ms.dwTotalPhys/1024/1024) - 80;
 
 	// Look for preferred VM size
