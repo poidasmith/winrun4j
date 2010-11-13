@@ -9,18 +9,10 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
-import org.boris.winrun4j.Log;
-import org.junit.Test;
-
 /**
- * Test logging, memory setting, console setting...
+ * Test InI keys match expected values.
  */
-public class LauncherFunctionsTest
+public class INITest
 {
-    @Test
-    public void testLogging() throws Exception {
-        Log.error("error test");
-        Log.info("info test");
-        Log.warning("warn test");
-    }
+
 }

@@ -1,13 +1,16 @@
 package org.boris.winrun4j.test;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import org.boris.winrun4j.DDE;
 import org.boris.winrun4j.EventLog;
+import org.boris.winrun4j.FileAssociationListener;
 import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.RegistryKey;
@@ -18,7 +21,7 @@ public class WinRunTest
 {
     public static void main(String[] args) throws Exception {
         final JFrame frame = new JFrame();
-        StringBuffer ab = new StringBuffer();
+        StringBuilder ab = new StringBuilder();
         ab.append("WinRun4J");
         if (args.length > 0) {
             ab.append(" - ");
@@ -30,7 +33,7 @@ public class WinRunTest
         frame.setTitle(ab.toString());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
             sb.append(args[i]);
             sb.append("\n");
@@ -46,9 +49,8 @@ public class WinRunTest
             sb.append("\n");
         }
         sb.append("\n\nINI Properties\n=============\n\n");
-        p = INI.getProperties();
-        for (Iterator i = p.keySet().iterator(); i.hasNext();) {
-            String k = (String) i.next();
+        Map<String, String> inip = INI.getProperties();
+        for (String k : inip.keySet()) {
             sb.append(k);
             sb.append("=");
             sb.append(p.getProperty((String) k));
@@ -99,8 +101,11 @@ public class WinRunTest
         System.out.println("Random: " + Math.random());
 
         // Add DDE listener
-        /* DDE.addListener(new DDEListener() { public void execute(String
-         * cmdLine) { text.setText(cmdLine + "\n" + text.getText()); } }); */
+        DDE.addFileAssocationListener(new FileAssociationListener() {
+            public void execute(String cmdLine) {
+                text.setText(cmdLine + "\n" + text.getText());
+            }
+        });
 
         new Thread(new Runnable() {
             public void run() {

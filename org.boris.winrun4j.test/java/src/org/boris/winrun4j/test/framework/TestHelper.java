@@ -16,6 +16,7 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
+import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Native;
 
@@ -26,6 +27,9 @@ public class TestHelper
     public static final File LAUNCHER = Native.IS_64 ? new File(BASE_PATH,
             "WinRun4J\\build\\WinRun4J-Debug-x64\\WinRun4J.exe") : new File(BASE_PATH,
             "WinRun4J\\build\\WinRun4J-Debug\\WinRun4J.exe");
+    public static final File LAUNCHER_CONSOLE = Native.IS_64 ? new File(BASE_PATH,
+            "WinRun4J\\build\\WinRun4J-Debug-x64 - Console\\WinRun4J.exe") : new File(BASE_PATH,
+            "WinRun4J\\build\\WinRun4J-Debug - Console\\WinRun4J.exe");
 
     public static byte[] createRandomByteArray() {
         Random r = new Random();
@@ -50,9 +54,18 @@ public class TestHelper
                 BASE_PATH + "\\..\\platform3.5\\plugins\\org.junit*\\*.jar");
     }
 
-    public static Launcher launcher() throws IOException {
-        Launcher l = new Launcher(LAUNCHER);
+    public static Launcher launcher(boolean console) throws IOException {
+        Launcher l = new Launcher(console ? LAUNCHER_CONSOLE : LAUNCHER);
         testcp(l);
         return l;
+    }
+
+    public static Launcher launcher() throws IOException {
+        return launcher(false);
+    }
+
+    public static String run(Launcher l, String... args) throws Exception {
+        ProcessResult pr = new ProcessResult(l.launch(args));
+        return pr.waitFor().getStdStr();
     }
 }

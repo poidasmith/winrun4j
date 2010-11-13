@@ -20,7 +20,7 @@ public class HeaderIndex
         BufferedReader br = new BufferedReader(new InputStreamReader(
                 new FileInputStream("docs/jni.txt")));
         String line = null;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while ((line = br.readLine()) != null) {
             sb.append(line.trim());
         }

@@ -67,22 +67,8 @@
 			</fileset>
 		</jar>
 		<mkdir dir="build"/>
-		<javac source="1.5" srcdir="../org.boris.winrun4j.eclipsedde/java/src" destdir="build" debug="true">
-			<classpath path="../org.eclipse.equinox.launcher/bin"/>
-		</javac>
-		<jar destfile="${deploy.dir}/bin/EclipseDDE.jar">
-            <fileset dir="build">
-                <include name="**/*.class"/>
-            </fileset>
-            <fileset dir="../org.boris.winrun4j.eclipsedde/java/src">
-                <include name="**/*.java"/>
-            </fileset>
-        </jar>
-		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/eclipse.ico"/>
-		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/eclipse.ini"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/service.ini"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/WinRun4Jc.ini"/>
-		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/EclipseFile.ico"/>
 		<delete dir="build"/>
 		<zip destfile="${release.dir}/${release.name}-${release.version}.zip">
 			<fileset dir="${release.dir}/${release.name}-${release.version}">

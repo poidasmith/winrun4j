@@ -10,6 +10,8 @@
 package org.boris.winrun4j;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -84,8 +86,8 @@ public class INI
      * 
      * @return Map.
      */
-    public static Properties getProperties() {
-        Properties props = new Properties();
+    public static Map<String, String> getProperties() {
+        Map<String, String> props = new HashMap<String, String>();
         String[] keys = getPropertyKeys();
 
         for (int i = 0; i < keys.length; i++) {

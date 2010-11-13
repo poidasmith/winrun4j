@@ -41,7 +41,7 @@ public class Environment
         String s = NativeHelper.getString(res, 1024, true);
         boolean inQuote = false;
         ArrayList args = new ArrayList();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int len = s.length();
         for (int i = 0; i < len; i++) {
             char c = s.charAt(i);
@@ -99,7 +99,7 @@ public class Environment
         long res = NativeHelper.call(library, "GetLogicalDriveStringsW", len, buf);
         ByteBuffer bb = NativeHelper.getBuffer(buf, (int) (res + 1) << 1);
         ArrayList drives = new ArrayList();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (true) {
             char c = (char) bb.getChar();
             if (c == 0) {

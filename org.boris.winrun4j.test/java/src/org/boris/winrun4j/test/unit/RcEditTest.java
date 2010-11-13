@@ -9,18 +9,10 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
-import org.boris.winrun4j.Log;
-import org.junit.Test;
-
 /**
- * Test logging, memory setting, console setting...
+ * Test setting of icon etc.., list resources.
  */
-public class LauncherFunctionsTest
+public class RcEditTest
 {
-    @Test
-    public void testLogging() throws Exception {
-        Log.error("error test");
-        Log.info("info test");
-        Log.warning("warn test");
-    }
+
 }
