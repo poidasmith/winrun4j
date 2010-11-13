@@ -18,6 +18,10 @@ import org.boris.winrun4j.winapi.Environment;
 
 public class PrintEnvironment
 {
+    public static void main(String[] args) throws Exception {
+        print();
+    }
+
     public static void print() {
         StringBuilder sb = new StringBuilder();
 

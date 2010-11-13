@@ -13,25 +13,20 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.boris.winrun4j.PInvoke.DllImport;
-
 /**
  * A manager for DDE.
  */
 public class DDE
 {
-    static {
-        PInvoke.bind(DDE.class);
-    }
-
     private static Set fileAssociationListeners = new LinkedHashSet();
     private static Set activationListeners = new LinkedHashSet();
 
     /**
      * To be called by the application when it is ready to receive DDE messages.
      */
-    @DllImport(entryPoint = "DDE_Ready", internal = true)
-    public static native void ready();
+    public static void ready() {
+        NativeHelper.call(0, "DDE_Ready");
+    }
 
     /**
      * Add a file association listener.

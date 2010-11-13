@@ -13,9 +13,15 @@ import java.io.File;
 
 import org.boris.winrun4j.Native;
 import org.boris.winrun4j.NativeHelper;
+import org.boris.winrun4j.PInvoke;
+import org.boris.winrun4j.PInvoke.DllImport;
 
 public class Shell32
 {
+    static {
+        PInvoke.bind(Shell32.class, "shell32");
+    }
+
     public static final long library = Native.loadLibrary("shell32");
 
     public static final int Desktop = 0;
@@ -56,6 +62,10 @@ public class Shell32
 
     public static final int MAX_PATH = 260;
     public static final int MAX_PATHW = 520;
+
+    @DllImport
+    public static native long ShellExecute(long hwnd, String operation, String file, String parameters,
+            String directory, int nShowCmd);
 
     public static File getFolderPath(int type) {
         long buf = Native.malloc(MAX_PATHW);

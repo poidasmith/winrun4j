@@ -38,6 +38,13 @@ public class TestHelper
         return b;
     }
 
+    public static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+        }
+    }
+
     public static void assertArrayEquals(Object arr1, Object arr2) {
         TestCase.assertNotNull("Array 1 is null", arr1);
         TestCase.assertNotNull("Array 2 is null", arr2);
@@ -65,9 +72,12 @@ public class TestHelper
         return launcher(false).showErrorPopup(false);
     }
 
-    public static String run(Launcher l, String... args) throws Exception {
-        l.create();
+    public static ProcessResult start(Launcher l, String... args) throws Exception {
         ProcessResult pr = new ProcessResult(l.launch(args));
-        return pr.waitFor().getStdStr();
+        return pr;
+    }
+
+    public static String run(Launcher l, String... args) throws Exception {
+        return start(l, args).waitFor().getStdStr();
     }
 }

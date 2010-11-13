@@ -40,7 +40,7 @@ public class FileAssociationsTest
         assertTrue(result.contains("[info] Unregistering .ft2"));
     }
 
-    public void validateFileAssociation(File launcher, String extension, String name) {
+    public static void validateFileAssociation(File launcher, String extension, String name) {
         RegistryKey rkey;
         rkey = RegistryKey.HKEY_CLASSES_ROOT.getSubKey(extension);
         assertEquals(name, rkey.getString(null));
