@@ -121,6 +121,13 @@ public class Launcher
         return this;
     }
 
+    public Launcher heap(String max, String min, String preferred) {
+        set(null, "vm.heapsize.max.percent", max);
+        set(null, "vm.heapsize.min.percent", min);
+        set(null, "vm.heapsize.preferred", preferred);
+        return this;
+    }
+
     public Launcher log(Log.Level level) {
         set(null, "log.level", level.getText());
         return this;
