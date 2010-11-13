@@ -392,7 +392,7 @@ char * iniparser_getstring(dictionary * d, const char * key, char * def)
     if (d==NULL || key==NULL)
         return def ;
 
-    lc_key = strdup(strlwc(key));
+    lc_key = strdup(key);
     sval = dictionary_get(d, lc_key, def);
     free(lc_key);
     return sval ;
@@ -444,13 +444,13 @@ int iniparser_find_entry(dictionary * ini, char * entry)
 
 int iniparser_setstr(dictionary * ini, char * entry, char * val)
 {
-    dictionary_set(ini, strlwc(entry), val);
+    dictionary_set(ini, entry, val);
     return 0 ;
 }
 
 void iniparser_unset(dictionary * ini, char * entry)
 {
-    dictionary_unset(ini, strlwc(entry));
+    dictionary_unset(ini, entry);
 }
 
 void parse_line(char * sec, char * lin, dictionary * d)
@@ -465,12 +465,11 @@ void parse_line(char * sec, char * lin, dictionary * d)
     else {
         if (sscanf(wher, "[%[^]]", sec)==1) {
             /* Valid section name */
-            strcpy(sec, strlwc(sec));
             iniparser_add_entry(d, sec, NULL, NULL);
         } else if (sscanf (wher, "%[^=] = \"%[^\"]\"", key, val) == 2
                ||  sscanf (wher, "%[^=] = '%[^\']'",   key, val) == 2
                ||  sscanf (wher, "%[^=] = %[^;#]",     key, val) == 2) {
-            strcpy(key, strlwc(strcrop(key)));
+            strcpy(key, strcrop(key));
             /*
              * sscanf cannot handle "" or '' as empty value,
              * this is done here

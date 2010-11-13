@@ -9,10 +9,10 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
-import java.util.Map;
+import static org.junit.Assert.assertTrue;
 
-import org.boris.winrun4j.INI;
 import org.boris.winrun4j.Launcher;
+import org.boris.winrun4j.test.framework.PrintEnvironment;
 import org.boris.winrun4j.test.framework.TestHelper;
 import org.junit.Test;
 
@@ -24,19 +24,22 @@ public class ErrorsTest
     @Test
     public void testVMVersion() throws Exception {
         Launcher l = TestHelper.launcher();
-        l.main(ErrorsTest.class);
-        // l.vmVersion(null, null, "10.5.2");
-        System.out.println(TestHelper.run(l));
+        l.main(PrintEnvironment.class);
+        l.vmVersion(null, null, "10.5.2");
+        l.showErrorPopup(false);
+        assertTrue(TestHelper.run(l).contains("[err] Failed to find Java VM"));
+        l.errorMessages("Could not find a matching VM version", null);
+        l.create();
+        assertTrue(TestHelper.run(l).contains("[err] Could not find a matching VM version"));
+        l = TestHelper.launcher().main("Unknown").showErrorPopup(false);
+        assertTrue(TestHelper.run(l).contains("[err] Could not find or initialize main class"));
+        l.vmarg("-Xmx45G");
+        l.errorMessages(null, "VM not start");
+        l.create();
+        assertTrue(TestHelper.run(l).contains("[err] VM not start"));
     }
 
     public static void main(String[] args) throws Exception {
-        Map<String, String> p = INI.getProperties();
-        for (String k : p.keySet()) {
-            System.out.print(k);
-            System.out.print("=");
-            System.out.print(p.get((String) k));
-            System.out.print("\n");
-        }
         new ErrorsTest().testVMVersion();
     }
 }

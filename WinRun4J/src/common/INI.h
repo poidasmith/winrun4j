@@ -16,10 +16,10 @@
 #include <jni.h>
 
 // Internal keys
-#define MODULE_NAME "winrun4j:module.name"
-#define MODULE_INI  "winrun4j:module.ini"
-#define MODULE_DIR  "winrun4j:module.dir"
-#define INI_DIR     "winrun4J:ini.dir"
+#define MODULE_NAME "WinRun4j:module.name"
+#define MODULE_INI  "WinRun4j:module.ini"
+#define MODULE_DIR  "WinRun4j:module.dir"
+#define INI_DIR     "WinRun4J:ini.dir"
 
 // Ini keys
 #define WORKING_DIR   ":working.directory"

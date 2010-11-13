@@ -14,7 +14,7 @@
 #include "../common/Runtime.h"
 #include "../common/INI.h"
 
-#define CLASS_PATH ":classpath"
+#define CLASS_PATH     ":classpath"
 #define CLASS_PATH_ARG "-Djava.class.path="
 
 struct Classpath {

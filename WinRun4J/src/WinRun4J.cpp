@@ -19,8 +19,9 @@
 
 #define CONSOLE_TITLE                    ":console.title"
 #define PROCESS_PRIORITY                 ":process.priority"
-#define ERROR_MESSAGES_JAVA_NOT_FOUND    "errormessages:java.not.found"
-#define ERROR_MESSAGES_JAVA_START_FAILED "errormessages:java.failed"
+#define ERROR_MESSAGES_SHOW_POPUP        "ErrorMessages:show.popup"
+#define ERROR_MESSAGES_JAVA_NOT_FOUND    "ErrorMessages:java.not.found"
+#define ERROR_MESSAGES_JAVA_START_FAILED "ErrorMessages:java.failed"
 
 using namespace std;
 
@@ -143,11 +144,10 @@ dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
 {
 	dictionary* ini = INI::LoadIniFile(hInstance);
 	if(ini == NULL) {
-#ifdef CONSOLE
+		bool showErrorPopup = iniparser_getboolean(ini, ERROR_MESSAGES_SHOW_POPUP, 1);
 		Log::Error("Failed to find or load ini file.");
-#else
-		MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
-#endif
+		if(showErrorPopup)
+			MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
 		Log::Close();
 		return NULL;
 	}
@@ -157,12 +157,15 @@ dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
 
 int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 {
+	bool showErrorPopup = iniparser_getboolean(ini, ERROR_MESSAGES_SHOW_POPUP, 1);
+
 	// Attempt to find an appropriate java VM
 	char* vmlibrary = VM::FindJavaVMLibrary(ini);
 	if(!vmlibrary) {
-		char* javaNotFound = iniparser_getstr(ini, ERROR_MESSAGES_JAVA_NOT_FOUND);
-		Log::Error("Failed to find Java VM.");
-		MessageBox(NULL, (javaNotFound == NULL ? "Failed to find Java VM." : javaNotFound), "Startup Error", 0);
+		char* javaNotFound = iniparser_getstring(ini, ERROR_MESSAGES_JAVA_NOT_FOUND, "Failed to find Java VM.");
+		Log::Error(javaNotFound);
+		if(showErrorPopup)
+			MessageBox(NULL, javaNotFound, "Startup Error", 0);
 		Log::Close();
 		return 1;
 	}
@@ -231,9 +234,10 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 
 	// Start the VM
 	if(VM::StartJavaVM(vmlibrary, vmargs, NULL) != 0) {
-		Log::Error("Error starting Java VM");
-		char* javaFailed = iniparser_getstr(ini, ERROR_MESSAGES_JAVA_START_FAILED);
-		MessageBox(NULL, (javaFailed == NULL ? "Error starting Java VM." : javaFailed), "Startup Error", 0);
+		char* javaFailed = iniparser_getstring(ini, ERROR_MESSAGES_JAVA_START_FAILED, "Error starting Java VM.");
+		Log::Error(javaFailed);
+		if(showErrorPopup)
+			MessageBox(NULL, javaFailed, "Startup Error", 0);
 		Log::Close();
 		return 1;
 	}
