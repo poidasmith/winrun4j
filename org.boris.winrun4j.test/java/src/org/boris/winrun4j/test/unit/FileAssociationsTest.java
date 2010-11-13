@@ -28,6 +28,9 @@ public class FileAssociationsTest
         String result = TestHelper.run(l, "--WinRun4J:RegisterFileAssociations");
         assertTrue(result.contains("[info] Registering .fte"));
         assertTrue(result.contains("[info] Registering .ft2"));
+        result = TestHelper.run(l, "--WinRun4J:UnregisterFileAssociations");
+        assertTrue(result.contains("[info] Unregistering .fte"));
+        assertTrue(result.contains("[info] Unregistering .ft2"));
     }
 
     public static void main(String[] args) throws Exception {

@@ -65,6 +65,7 @@ public class TestHelper
     }
 
     public static String run(Launcher l, String... args) throws Exception {
+        l.create();
         ProcessResult pr = new ProcessResult(l.launch(args));
         return pr.waitFor().getStdStr();
     }
