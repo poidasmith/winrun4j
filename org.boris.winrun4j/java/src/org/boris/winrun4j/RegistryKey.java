@@ -123,6 +123,34 @@ public class RegistryKey
     }
 
     /**
+     * Gets a value from a key path.
+     * 
+     * @param The path.
+     * @return String.
+     */
+    public String get(String path) {
+        if (path == null)
+            return getString(null);
+
+        boolean defaultValue = path.endsWith("/");
+        String[] p = path.split("/");
+        if (p.length == 0) {
+            return getString(path);
+        }
+
+        RegistryKey k = this;
+        int len = defaultValue ? p.length : p.length - 1;
+        for (int i = 0; i < len; i++) {
+            k = k.getSubKey(p[i]);
+        }
+
+        if (k.exists())
+            return defaultValue ? k.getString(null) : k.getString(p[p.length - 1]);
+
+        return null;
+    }
+
+    /**
      * Opens up the key for this path. Windows doesn't provide a way to open up
      * a path.
      */

@@ -58,7 +58,18 @@ public class Registry2Test
         assertFalse(key.exists());
     }
 
+    @Test
+    public void testKeyPath() throws Exception {
+        RegistryKey software = RegistryKey.HKEY_CURRENT_USER.getSubKey("Software");
+        String keyName = "Testing-WinRun4J";
+        RegistryKey key = software.createSubKey(keyName);
+        key.setString(null, "Def");
+        key.setString("other", "Def2");
+        assertEquals("Def", software.get(keyName + "/"));
+        assertEquals("Def2", software.get(keyName + "/other"));
+    }
+
     public static void main(String[] args) throws Exception {
-        new Registry2Test().test1();
+        new Registry2Test().testKeyPath();
     }
 }

@@ -30,6 +30,10 @@ public class LauncherFunctionsTest
         assertTrue(result.contains("[warn] warn test"));
     }
 
+    @Test
+    public void testMaxMemory() throws Exception {
+    }
+
     public static void main(String[] args) throws Exception {
         Log.error("error test");
         Log.info("info test");

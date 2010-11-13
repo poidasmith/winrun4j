@@ -41,6 +41,10 @@ public class Launcher
         this.launcherFile = launcherFile;
     }
 
+    public File getLauncher() {
+        return launcher;
+    }
+
     public Launcher create() throws IOException {
         launcher = File.createTempFile("winrun4j.launcher.", ".exe");
         launcher.deleteOnExit();
