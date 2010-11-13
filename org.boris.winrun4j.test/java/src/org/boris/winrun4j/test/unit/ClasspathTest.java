@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
-import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.test.framework.TestHelper;
@@ -23,7 +22,7 @@ public class ClasspathTest
         l.main(ClasspathTest.class);
         l.classpath("F:/downloads/*.jar");
         l.log(Log.Level.WARN);
-        String res = new ProcessResult(l.launch()).waitFor().getStdOut();
+        String res = TestHelper.run(l);
         System.out.println(res);
     }
 

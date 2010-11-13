@@ -61,7 +61,7 @@ public class TestHelper
     }
 
     public static Launcher launcher() throws IOException {
-        return launcher(false);
+        return launcher(false).showErrorPopup(false);
     }
 
     public static String run(Launcher l, String... args) throws Exception {

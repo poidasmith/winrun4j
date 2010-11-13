@@ -13,7 +13,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.test.framework.TestHelper;
 import org.boris.winrun4j.winapi.DDEML;
@@ -21,12 +20,12 @@ import org.boris.winrun4j.winapi.DDEML;
 public class FileAssociationsTest
 {
     public void testBasic() throws Exception {
-        Launcher l = TestHelper.launcher().main(FileAssociationsTest.class).classpath(new File(".")).arg("-test").arg(
-                "-hello").dde(true, DDEML.class).fileAss(".fte", "File Association Test", "Testing file assocations")
-                .fileAss(".ft2", "File Association Test 2", "Testing file assocations");
-        ProcessResult pr = new ProcessResult(l.launch("--WinRun4J:RegisterFileAssociations"));
-        pr.waitFor();
-        String result = pr.toString();
+        Launcher l = TestHelper.launcher().main(FileAssociationsTest.class);
+        l.classpath(new File(".")).arg("-test").arg("-hello");
+        l.dde(true, DDEML.class);
+        l.fileAss(".fte", "File Association Test", "Testing file assocations");
+        l.fileAss(".ft2", "File Association Test 2", "Testing file assocations");
+        String result = TestHelper.run(l, "--WinRun4J:RegisterFileAssociations");
         assertTrue(result.contains("[info] Registering .fte"));
         assertTrue(result.contains("[info] Registering .ft2"));
     }
