@@ -315,7 +315,7 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 	return true;
 }
 
-void DDE::EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, void (*CallbackFunc)(DDEInfo&))
+void DDE::EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, bool isRegister, void (*CallbackFunc)(DDEInfo&))
 {
 	// For the moment just register all
 	char key[MAX_PATH];
@@ -327,7 +327,7 @@ void DDE::EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, void (*CallbackF
 		info.extension = iniparser_getstr(ini, key);
 		if(info.extension == NULL) break;
 
-		Log::Info("Registering %s", info.extension);
+		Log::Info(isRegister ? "Registering %s" : "Unregistering %s", info.extension);
 
 		sprintf(key, "FileAssociations:file.%d.name", i);
 		info.name = iniparser_getstr(ini, key);
@@ -348,7 +348,7 @@ void DDE::EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, void (*CallbackF
 
 void DDE::RegisterFileAssociations(dictionary* ini, LPSTR lpCmdLine)
 {
-	EnumFileAssocations(ini, lpCmdLine, RegisterFileAssociation);
+	EnumFileAssocations(ini, lpCmdLine, true, RegisterFileAssociation);
 }
 
 void DDE::RegisterFileAssociation(DDEInfo& info)
@@ -463,6 +463,6 @@ void DDE::UnregisterFileAssociation(DDEInfo& info)
 
 void DDE::UnregisterFileAssociations(dictionary* ini, LPSTR lpCmdLine)
 {
-	EnumFileAssocations(ini, lpCmdLine, UnregisterFileAssociation);
+	EnumFileAssocations(ini, lpCmdLine, false, UnregisterFileAssociation);
 }
 
