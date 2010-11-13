@@ -39,15 +39,16 @@ public class DDETest
         final File fte = File.createTempFile("something", ".fte");
         final File quit = File.createTempFile("something", ".quit.fte");
         ProcessResult pr = TestHelper.start(l);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         launch(fte);
-        launch(fte);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         TestHelper.start(l, quit.getAbsolutePath());
-        Thread.sleep(1000);
+        Thread.sleep(100);
         pr.waitFor();
         result = pr.getStdStr();
-        System.out.println(result);
+        assertTrue(result.contains("execute: " + fte.getAbsolutePath()));
+        assertTrue(result.contains("activate: " + quit.getAbsolutePath()));
+        TestHelper.run(l, "--WinRun4J:UnregisterFileAssociations");
     }
 
     public void launch(File f) throws IOException {

@@ -25,9 +25,9 @@ public class SingleInstanceTest
     @Test
     public void testProcess() throws Exception {
         Launcher l = create();
-        ProcessResult res = new ProcessResult(l.launch("process"));
-        Threads.sleepQuietly(10);
-        ProcessResult res2 = new ProcessResult(l.launch("process")).waitFor();
+        ProcessResult res = TestHelper.start(l, "process");
+        Threads.sleepQuietly(100);
+        ProcessResult res2 = TestHelper.start(l, "process").waitFor();
         assertTrue(res2.getStdStr().contains("Single Instance Shutdown"));
         assertFalse(res2.isActive());
         res.destroy();
@@ -40,5 +40,9 @@ public class SingleInstanceTest
         l.singleInstance("process");
         l.dde(true, null);
         return l;
+    }
+
+    public static void main(String[] args) throws Exception {
+        new SingleInstanceTest().testProcess();
     }
 }
