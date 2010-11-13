@@ -23,7 +23,7 @@
 			<div class="section-content">
 				WinRun4j is a java launcher for windows. It is an alternative to javaw.exe and provides the following benefits:
 				<ul>
-						<li><b><font color="red">NEW: </font></b>Flexible native access to all Windows APIs, compatible with <a href="http://pinvoke.net">PINVOKE.NET</a>. 
+						<li><b><font color="red">NEW: </font></b>Flexible native access to any Windows API, compatible with <a href="http://pinvoke.net">PINVOKE.NET</a>. 
 							See <a href="nativebinding.html">native binding examples</a> for more information.
 							This is currently BETA quality.</li>
 							
@@ -285,6 +285,10 @@ given the physical memory available.</td>
 				<table>
 					<tr><th>Key</th><th>Description</th></tr>
 					<tr>
+						<td>show.popup</td>
+						<td>Set this to "false" to disable popups, default is "true".</td>
+					</tr>
+					<tr>
 						<td>java.not.found</td>
 						<td>This message will be displayed as a message box popup when the launcher cannot find an appropriate JVM to load.</td>
 					</tr>
@@ -360,48 +364,6 @@ main.class=org.eclipse.equinox.launcher.Main
 classpath.1=plugins\org.eclipse.equinox.launcher*
 arg.1=-showsplash				
 vm.heapsize.percent=80
-</pre>
-			</div>
-		</div>
-		<div class="section"/>
-
-			<div class="section-title">Eclipse DDE Example</div>
-			<div class="section-content">
-				<p>
-					The download includes an alternative launcher for Eclipse that enables DDE. This allows
-					the user to double-click on a java file in Windows explorer and have the file
-					open in the currently opened workspace.
-				</p>
-				<p>
-					To setup this example:
-					<ol>
-						<li>In your eclipse directory rename eclipse.exe to eclipse.exe.old and rename eclipse.ini to eclipse.ini.old.</li>
-
-						<li>Copy WinRun4J.exe, EcliseDDE.jar, eclipse.ico and eclipse.ini from to downloaded zip file to your eclipse directory.</li>
-						<li>Rename <code>WinRun4J.exe</code> to <code>eclipse.exe</code>.</li>
-						<li>Run <code>RCEDIT.exe /I eclipse.exe eclipse.ico</code>. This will change the exectable icon to the eclipse icon.</li>
-						<li>Run <code>eclipse.exe --WinRun4J:RegisterFileAssociations</code>. This will register java files to be associated with eclipse.</li>
-
-					</ol>
-					You should now be able to double-click on java files in Windows.
-				</p>
-				<p>
-					The following shows the INI file setup:<br/>
-<pre>
-working.directory=.
-main.class=org.boris.winrun4j.EclipseDDE
-classpath.1=EclipseDDE.jar
-classpath.2=plugins\org.eclipse.equinox.launcher*
-vmarg.1=-Xmx512M
-vmarg.2=-XX:MaxPermSpace=256M
-arg.1=-showsplash
-dde.enabled=true
-dde.class=org.boris.winrun4j.EclipseDDE
-
-[FileAssociations]
-file.1.extension=.java
-file.1.name=EclipseJavaFile
-file.1.description=Java Source File
 </pre>
 			</div>
 		</div>
@@ -481,6 +443,10 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 					<li>Fixed a race condition in the service implementation for quick starting applications.</li>
 					<li>The launcher java library now requires java 1.5 minimum (due to use of annotations).
 					 The launcher executable is compatible with java 1.4 and above.</li>
+					<li>Fixed lowercased key issue with INI file</li>
+					<li>Fixed max heap size issue on 64-bit VM</li>
+					<li>Added option to set console title via INI file</li>
+					<li>Added option to suppress error popups</li>
 				</ul>
 				V0.3.3
 				<ul>

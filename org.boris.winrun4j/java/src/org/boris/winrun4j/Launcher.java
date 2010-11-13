@@ -196,6 +196,17 @@ public class Launcher
         return this;
     }
 
+    public Launcher errorMessages(String notFound, String loadFailed) {
+        set("ErrorMessages", "java.not.found", notFound);
+        set("ErrorMessages", "java.failed", loadFailed);
+        return this;
+    }
+
+    public Launcher showErrorPopup(boolean show) {
+        set("ErrorMessages", "show.popup", show);
+        return this;
+    }
+
     private void set(String section, String name, Object value) {
         if (value == null)
             return;

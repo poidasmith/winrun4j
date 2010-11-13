@@ -34,6 +34,9 @@ public class BindingExample1
         PInvoke.bind(BindingExample1.class);
     }
 
+    @DllImport("kernel32")
+    public static native boolean GetComputerName(StringBuilder lpBuffer, UIntPtr lpnSize);
+    
     public static void main(String[] args) throws Exception {
         StringBuilder name = new StringBuilder();
         UIntPtr size = new UIntPtr(100);
@@ -41,9 +44,6 @@ public class BindingExample1
             System.out.println(name);
         }
     }
-
-    @DllImport("kernel32")
-    public static native boolean GetComputerName(StringBuilder lpBuffer, UIntPtr lpnSize);
 }
 </pre>
 On startup the native binding will bind the java method to a native function and automatically convert the
@@ -86,15 +86,6 @@ public class BindingExample2
         PInvoke.bind(BindingExample2.class, "kernel32");
     }
 
-    public static void main(String[] args) throws Exception {
-        OSVERSIONINFOEX ver = new OSVERSIONINFOEX();
-        if (GetVersionEx(ver)) {
-            System.out.println(ver.majorVersion);
-            System.out.println(ver.minorVersion);
-            System.out.println(ver.csdVersion);
-        }
-    }
-
     @DllImport
     public static native boolean GetVersionEx(OSVERSIONINFOEX version);
 
@@ -112,6 +103,15 @@ public class BindingExample2
         public short suiteMask;
         public byte productType;
         public byte reserved;
+    }
+    
+    public static void main(String[] args) throws Exception {
+        OSVERSIONINFOEX ver = new OSVERSIONINFOEX();
+        if (GetVersionEx(ver)) {
+            System.out.println(ver.majorVersion);
+            System.out.println(ver.minorVersion);
+            System.out.println(ver.csdVersion);
+        }
     }
 }
 </pre>
@@ -152,6 +152,14 @@ public class BindingExample3
         PInvoke.bind(BindingExample3.class, "user32");
     }
 
+    @DllImport
+    public static native boolean EnumWindows(WindowEnumProc enumFunc, IntPtr lParam);
+
+    public interface WindowEnumProc extends Callback
+    {
+        boolean windowEnum(long hWnd, IntPtr lParam) throws Exception;
+    }
+    
     public static void main(String[] args) throws Exception {
         IntPtr count = new IntPtr();
 
@@ -167,15 +175,7 @@ public class BindingExample3
         EnumWindows(callback, count);
 
         System.out.println(count.value);
-    }
-
-    @DllImport
-    public static native boolean EnumWindows(WindowEnumProc enumFunc, IntPtr lParam);
-
-    public interface WindowEnumProc extends Callback
-    {
-        boolean windowEnum(long hWnd, IntPtr lParam) throws Exception;
-    }
+    }    
 }
 </pre>
 		</div>
