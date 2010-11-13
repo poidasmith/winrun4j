@@ -167,7 +167,7 @@ bool DDE::NotifySingleInstance(dictionary* ini)
 
 	HCONV conv = DdeConnect(g_pidInst, g_serverName, g_topic, NULL);
 	if (conv != NULL) {
-		LPSTR cmdline = GetCommandLine();
+		LPSTR cmdline = StripArg0(GetCommandLine());
 		char* activate = (char*) malloc(strlen(DDE_EXECUTE_ACTIVATE) + strlen(cmdline) + 2);
 		strcpy(activate, DDE_EXECUTE_ACTIVATE);
 		strcat(activate, " ");
@@ -198,7 +198,9 @@ void DDE::Execute(LPSTR lpExecuteStr)
 
 			if (memcmp(lpExecuteStr, DDE_EXECUTE_ACTIVATE, 8) == 0) {
 				if (g_activateMethodID != NULL) {
-					env->CallStaticVoidMethod(g_class, g_activateMethodID, &lpExecuteStr[8]);
+					jstring str = 0;
+					if(lpExecuteStr) str = env->NewStringUTF(&lpExecuteStr[9]);
+					env->CallStaticVoidMethod(g_class, g_activateMethodID, str);
 				} else {
 					Log::Error("Ignoring DDE single instance activate message");
 				}

@@ -46,10 +46,13 @@ public class BindingExample1
     }
 }
 </pre>
-On startup the native binding will bind the java method to a native function and automatically convert the
-java arguments into native values. 		
+When the class is loaded the PInvoke method will bind all java methods with the DllImport to a native function. 
+When the native method is invoked the java arguments will be automatically converted into native values.
+Native memory will be managed automatically. 		
 <p/>
-This is equivalent to the information provided on pinvoke.net for <a href="http://www.pinvoke.net/default.aspx/kernel32.getcomputername">GetComputerName</a>. The only extra step required is the <code>PInvoke.bind</code> call in the static constructor.
+The example above is equivalent to the information/instructions provided on PINVOKE.NET for 
+<a href="http://www.pinvoke.net/default.aspx/kernel32.getcomputername">GetComputerName</a>. 
+The only extra step required is the <code>PInvoke.bind</code> call in the static constructor.
 <p/>
 The "lpnSize" parameter tells the native binder how much space to allocate to the "lpBuffer" string.
 <p/>
@@ -115,6 +118,12 @@ public class BindingExample2
     }
 }
 </pre>
+		</div>
+	</div>
+
+	<div class="section">
+		<div class="section-title">Unicode/Multi-byte Character Support</div>
+		<div class="section-content">
 
 The native binder defaults to unicode or wide-character format and will automatically look for a native method named
 like the java native method with a "W" at the end (eg. GetVersionExW). To use the ANSI version of the method use
