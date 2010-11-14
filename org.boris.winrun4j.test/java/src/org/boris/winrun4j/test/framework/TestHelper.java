@@ -30,6 +30,9 @@ public class TestHelper
     public static final File LAUNCHER_CONSOLE = Native.IS_64 ? new File(BASE_PATH,
             "WinRun4J\\build\\WinRun4J-Debug-x64 - Console\\WinRun4J.exe") : new File(BASE_PATH,
             "WinRun4J\\build\\WinRun4J-Debug - Console\\WinRun4J.exe");
+    public static final File RCEDIT = Native.IS_64 ? new File(BASE_PATH,
+            "WinRun4J\\build\\ResourceEditor-Debug - Console-x64\\ResourceEditor.exe") : new File(BASE_PATH,
+            "WinRun4J\\build\\ResourceEditor-Debug - Console\\ResourceEditor.exe");
 
     public static byte[] createRandomByteArray() {
         Random r = new Random();

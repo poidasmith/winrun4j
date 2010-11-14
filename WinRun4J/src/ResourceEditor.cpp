@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
 	//  - add checks on icon import to ensure a valid icon
 
 	bool ok = true;
-	char* option = strlwc(option);
+	char* option = strlwc(argv[1]);
 	
 	if(strcmp(option, "/i") == 0) {
 		if(argc != 4) return PrintUsage();
