@@ -53,9 +53,9 @@ public class EnvironmentTest
         assertTrue(version.buildNumber != 0);
         assertEquals(version.majorVersion, 5);
         assertTrue(version.minorVersion >= 0);
-        assertEquals(version.reserved, 0);
+        assertTrue(version.reserved == 0 || version.reserved == 30);
         assertEquals(version.productType, 1);
-        assertEquals(version.servicePackMajor, 3);
+        assertTrue(version.servicePackMajor == 3 || version.servicePackMajor == 2);
         assertEquals(version.servicePackMinor, 0);
     }
 
