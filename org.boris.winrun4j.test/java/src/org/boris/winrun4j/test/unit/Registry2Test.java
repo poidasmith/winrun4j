@@ -59,6 +59,20 @@ public class Registry2Test
     }
 
     @Test
+    public void testEnum() throws Exception {
+        RegistryKey key = new RegistryKey(RegistryKey.HKEY_CURRENT_USER, "Control Panel");
+        String[] keys = key.getSubKeyNames();
+        assertTrue(keys != null);
+        assertTrue(keys.length > 0);
+        assertTrue(keys[0] != null);
+        key = new RegistryKey(RegistryKey.HKEY_CURRENT_USER, "Control Panel\\Appearance\\Schemes");
+        String[] names = key.getValueNames();
+        assertTrue(names != null);
+        assertTrue(names.length > 0);
+        assertTrue(names[0] != null);
+    }
+
+    @Test
     public void testKeyPath() throws Exception {
         RegistryKey software = RegistryKey.HKEY_CURRENT_USER.getSubKey("Software");
         String keyName = "Testing-WinRun4J";
@@ -70,6 +84,8 @@ public class Registry2Test
     }
 
     public static void main(String[] args) throws Exception {
-        new Registry2Test().testKeyPath();
+        // new Registry2Test().test1();
+        new Registry2Test().testEnum();
+        // new Registry2Test().testKeyPath();
     }
 }
