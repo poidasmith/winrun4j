@@ -21,6 +21,7 @@ import org.boris.commons.io.ProcessResult;
 import org.boris.commons.lang.Threads;
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.RegistryKey;
+import org.boris.winrun4j.test.framework.TestHelper;
 import org.boris.winrun4j.winapi.Services;
 import org.boris.winrun4j.winapi.Services.ENUM_SERVICE_STATUS_PROCESS;
 import org.junit.Test;
@@ -29,6 +30,7 @@ public class ServicesTest
 {
     public static void main(String[] args) throws Exception {
         new ServicesTest().testRegistration();
+        new ServicesTest().testService();
     }
 
     /**
@@ -39,7 +41,10 @@ public class ServicesTest
         Launcher l = BasicService.launcher();
 
         // Register service
-        ProcessResult res = new ProcessResult(l.launch("--WinRun4J:RegisterService"));
+        ProcessResult res = TestHelper.start(l, "--WinRun4J:UnregisterService");
+        res.waitFor();
+        System.out.println(res);
+        res = TestHelper.start(l, "--WinRun4J:RegisterService");
         res.waitFor();
         assertEquals(0, res.exitValue());
         assertTrue(res.getStdOut().indexOf("[info] Registering Service...") != -1);
@@ -56,7 +61,7 @@ public class ServicesTest
         assertEquals(2, rk.getDoubleWord("Start", -1));
 
         // Unregister service and check that the registry keys have gone
-        res = new ProcessResult(l.launch("--WinRun4J:UnregisterService")).waitFor();
+        res = TestHelper.start(l, "--WinRun4J:UnregisterService").waitFor();
         assertEquals(0, res.exitValue());
         assertTrue(res.getStdOut().indexOf("[info] Unregistering Service...") != -1);
         Thread.sleep(100); // race condition on registry clear out

@@ -52,7 +52,7 @@ public class EnvironmentTest
         assertTrue(version.csdVersion.startsWith("Service Pack"));
         assertTrue(version.buildNumber != 0);
         assertEquals(version.majorVersion, 5);
-        assertEquals(version.minorVersion, 1);
+        assertTrue(version.minorVersion >= 0);
         assertEquals(version.reserved, 0);
         assertEquals(version.productType, 1);
         assertEquals(version.servicePackMajor, 3);

@@ -12,6 +12,7 @@ package org.boris.winrun4j.test.unit;
 import static org.junit.Assert.assertTrue;
 
 import org.boris.winrun4j.Launcher;
+import org.boris.winrun4j.Native;
 import org.boris.winrun4j.test.framework.PrintEnvironment;
 import org.boris.winrun4j.test.framework.TestHelper;
 import org.junit.Test;
@@ -33,10 +34,12 @@ public class ErrorsTest
         assertTrue(TestHelper.run(l).contains("[err] Could not find a matching VM version"));
         l = TestHelper.launcher().main("Unknown").showErrorPopup(false);
         assertTrue(TestHelper.run(l).contains("[err] Could not find or initialize main class"));
-        l.vmarg("-Xmx45G");
-        l.errorMessages(null, "VM not start");
-        l.create();
-        assertTrue(TestHelper.run(l).contains("[err] VM not start"));
+        if (!Native.IS_64) {
+            l.vmarg("-Xmx45G");
+            l.errorMessages(null, "VM not start");
+            l.create();
+            assertTrue(TestHelper.run(l).contains("[err] VM not start"));
+        }
     }
 
     public static void main(String[] args) throws Exception {

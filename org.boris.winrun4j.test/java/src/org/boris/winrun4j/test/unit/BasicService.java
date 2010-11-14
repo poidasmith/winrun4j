@@ -49,11 +49,8 @@ public class BasicService extends AbstractService
 
     public static Launcher launcher() throws IOException {
         Launcher l = TestHelper.launcher();
-        l.service(BasicService.class,
-                "Basic Service", "A test service for winrun4j").
-                startup("auto").
-                depends("Tcpip").
-                debug(8787, true, false);
+        l.service(BasicService.class, "Basic Service", "A test service for winrun4j")
+            .depends("Tcpip").startup("auto").debug(8787, true, false);
         return l;
     }
 }
