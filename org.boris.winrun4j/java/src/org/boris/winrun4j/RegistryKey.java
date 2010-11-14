@@ -180,15 +180,35 @@ public class RegistryKey
         String[] keys = new String[qi.subKeyCount];
         for (int i = 0; i < keys.length; i++) {
             StringBuilder name = new StringBuilder();
-            UIntPtr cbName = new UIntPtr(qi.maxSubkeyLen);
-            int res = Registry.enumKeyEx(h, i, name, cbName, 0, 0, 0, null);
-            if (res != 0)
-                continue;
-            keys[i] = name.toString();
+            UIntPtr cbName = new UIntPtr(qi.maxSubkeyLen + 1);
+            if (Registry.enumKeyEx(h, i, name, cbName, 0, 0, 0, null) == 0)
+                keys[i] = name.toString();
         }
 
         Registry.closeKey(h);
         return keys;
+    }
+
+    /**
+     * Gets the values for this key.
+     * 
+     * @return String[].
+     */
+    public String[] getValueNames() {
+        long h = openKeyHandle(handle, path, true);
+        QUERY_INFO qi = Registry.queryInfoKey(h);
+        if (qi == null)
+            return null;
+        String[] res = new String[qi.valueCount];
+        for (int i = 0; i < res.length; i++) {
+            StringBuilder sb = new StringBuilder();
+            UIntPtr valueLen = new UIntPtr(qi.maxValueNameLen + 1);
+            if (Registry.enumValue(h, i, sb, valueLen, 0, null, null, null) == 0)
+                res[i] = sb.toString();
+        }
+
+        Registry.closeKey(h);
+        return res;
     }
 
     /**
@@ -223,27 +243,6 @@ public class RegistryKey
         }
 
         return null;
-    }
-
-    /**
-     * Gets the values for this key.
-     * 
-     * @return String[].
-     */
-    public String[] getValueNames() {
-        long h = openKeyHandle(handle, path, true);
-        QUERY_INFO info = Registry.queryInfoKey(handle);
-        if (info == null)
-            return null;
-        String[] res = new String[info.valueCount];
-        for (int i = 0; i < res.length; i++) {
-            StringBuilder sb = new StringBuilder();
-            UIntPtr valueLen = new UIntPtr(255);
-            if (Registry.enumValue(handle, i, sb, valueLen, 0, null, null, null) != 0)
-                res[i] = sb.toString();
-        }
-        Registry.closeKey(h);
-        return res;
     }
 
     /**
