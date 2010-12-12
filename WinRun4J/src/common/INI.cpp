@@ -36,7 +36,10 @@ void INI::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entrie
 	entries[index] = NULL;
 }
 
-/* The ini filename is in the same directory as the executable and called the same (except with ini at the end). */
+/* 
+ * The ini filename is in the same directory as the executable and 
+ * called the same (except with ini at the end). 
+ */
 dictionary* INI::LoadIniFile(HINSTANCE hInstance)
 {
 	TCHAR filename[MAX_PATH], inifile[MAX_PATH];
@@ -138,6 +141,39 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 	g_ini = ini;
 
 	return ini;
+}
+
+char* INI::GetString(dictionary* ini, const TCHAR* section, const TCHAR* key, TCHAR* defValue, bool defFromMainSection)
+{
+	char tmp[MAX_PATH];
+	tmp[0] = 0;
+	if(section)
+		strcat(tmp, section);
+	strcat(tmp, key);
+	if(section && defFromMainSection) defValue = iniparser_getstring(ini, key, defValue);
+	return iniparser_getstring(ini, tmp, defValue);
+}
+
+int INI::GetInteger(dictionary* ini, const TCHAR* section, const TCHAR* key, int defValue, bool defFromMainSection)
+{
+	char tmp[MAX_PATH];
+	tmp[0] = 0;
+	if(section)
+		strcat(tmp, section);
+	strcat(tmp, key);
+	if(section && defFromMainSection) defValue = iniparser_getint(ini, key, defValue);
+	return iniparser_getint(ini, tmp, defValue);
+}
+
+bool INI::GetBoolean(dictionary* ini, const TCHAR* section, const TCHAR* key, bool defValue, bool defFromMainSection)
+{
+	char tmp[MAX_PATH];
+	tmp[0] = 0;
+	if(section)
+		strcat(tmp, section);
+	strcat(tmp, key);
+	if(section && defFromMainSection) defValue = iniparser_getboolean(ini, key, defValue);
+	return iniparser_getboolean(ini, tmp, defValue);
 }
 
 void INI::ParseRegistryKeys(dictionary* ini)

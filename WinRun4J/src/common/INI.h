@@ -38,6 +38,10 @@ public:
 	static dictionary* LoadIniFile(HINSTANCE hInstance);
 	static dictionary* LoadIniFile(HINSTANCE hInstance, LPSTR inifile);
 
+	static char* GetString(dictionary* ini, const TCHAR* section, const TCHAR* key, TCHAR* defValue, bool defFromMainSection = true);
+	static int   GetInteger(dictionary* ini, const TCHAR* section, const TCHAR* key, int defValue, bool defFromMainSection = true);
+	static bool  GetBoolean(dictionary* ini, const TCHAR* section, const TCHAR* key, bool defValue, bool defFromMainSection = true);
+
 private:
 	static bool StrTrimInChars(LPSTR trimChars, char c);
 	static void StrTrim(LPSTR str, LPSTR trimChars);
