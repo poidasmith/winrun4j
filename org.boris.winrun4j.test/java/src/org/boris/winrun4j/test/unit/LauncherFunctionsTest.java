@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Log;
+import org.boris.winrun4j.Native;
 import org.boris.winrun4j.test.framework.TestHelper;
 import org.junit.Test;
 
@@ -32,6 +33,11 @@ public class LauncherFunctionsTest
 
     @Test
     public void testMaxMemory() throws Exception {
+        if (Native.IS_64) {
+        } else {
+            Launcher l = TestHelper.launcher().main(LauncherFunctionsTest.class).heapMax(100);
+            String res = TestHelper.run(l);
+        }
     }
 
     public static void main(String[] args) throws Exception {

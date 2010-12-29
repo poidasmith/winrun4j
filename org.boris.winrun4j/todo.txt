@@ -1,3 +1,6 @@
+
+
+
 Release Notes for WinRun4J 0.4.0
 ================================
 
@@ -157,64 +160,10 @@ Service Support
 - should the service log failure messages to event log?
 
 
-JNI Library
-===========
-
-- Add wrapper around ShellExecute command
-- CLSID generator
-- support for protocol handlers
-- shell services
-	 - list drives
-	 - load resources
-	 - grab icon from exe and convert to image
-	 - keyboard hooks
-	 - system listeners (font changes, themes, logout)
-	 - windows version/info
-	 - environment variables
-	 
-Implement file move ex operation (ie. To move a file "later")
-Check that shutdown hooks work. 
-JNI util: Expand environment variables...
-
-
-- get commandline
-- get current directory
-- hasShutdownStarted?
-- machine name
-- new line char
-- operation system version
-- processor count
-- get user domain ( Gets the network domain name associated with the
-current user.)
-- get user interactive (Gets a value indicating whether the current
-process is running in user interactive mode.)
-
-Add filesystem monitor library.
-Look at generic dde support.
-Jruby windows service wrapper? 
-- file permissions (set readable/writeable etc..)
-
-= proper console api (eg. Ability to write to area of console)
-= guid generator
-
-
-
-
-
 Build/Release
 =============
 
 - console version option to add "Press any key to continue..." at the end ??
-- console version JNI access to change console title.
-
-- possibly split out win32 features from core executable
-	* registry access
-	* event log
-	* resource access
-	* shell api
-	* possibly arbitrary function calls with callback support
-	* implement a wrapper api over win32 functions (eg. dde, com?, 
-	  shell)
 - look at supporting an open source VM impl. possibly build a version that includes
   a VM (ie. statically link the VM to the executable). maybe jamvm.
 
