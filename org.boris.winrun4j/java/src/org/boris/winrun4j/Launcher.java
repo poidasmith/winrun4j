@@ -207,6 +207,21 @@ public class Launcher
         return this;
     }
 
+    public Launcher heapMax(double percent) {
+        set(null, "vm.heapsize.max.percent", Double.toString(percent));
+        return this;
+    }
+
+    public Launcher heapMin(double percent) {
+        set(null, "vm.heapsize.min.percent", Double.toString(percent));
+        return this;
+    }
+
+    public Launcher heapPreferred(double mb) {
+        set(null, "vm.heapsize.preferred", Double.toString(mb));
+        return this;
+    }
+
     public Launcher errorMessages(String notFound, String loadFailed) {
         set("ErrorMessages", "java.not.found", notFound);
         set("ErrorMessages", "java.failed", loadFailed);
