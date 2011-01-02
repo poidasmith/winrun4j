@@ -20,21 +20,22 @@ import java.io.PrintStream;
 public class GenerateCodeBuffer
 {
     public static void main(String[] args) throws Exception {
-        PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream("C:\\eclipse\\workspace\\WinRun4J\\src\\java\\EmbeddedClasses.cpp")));
+        PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(
+                "F:\\eclipse\\workspace\\WinRun4J\\src\\java\\EmbeddedClasses.cpp")));
         out.println(HEADER);
         out.println();
         outputClass("EmbeddedClassLoader.class", "g_classLoaderCode", out);
         outputClass("ByteBufferInputStream.class", "g_byteBufferISCode", out);
         out.close();
     }
-    
+
     public static void outputClass(String resource, String varName, PrintStream out) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         InputStream is = EmbeddedClassLoader.class
                 .getResourceAsStream(resource);
         copy(is, bos, true);
         byte[] b = bos.toByteArray();
-        out.println("static BYTE " + varName + "[] = {"); 
+        out.println("static BYTE " + varName + "[] = {");
         out.print("    ");
         for (int i = 0; i < b.length; i++) {
             out.print("0x");
@@ -53,7 +54,7 @@ public class GenerateCodeBuffer
         out.println("};");
         out.println();
     }
-    
+
     public static void copy(InputStream r, OutputStream w, boolean close)
             throws IOException {
         byte[] buf = new byte[4096];
@@ -66,14 +67,15 @@ public class GenerateCodeBuffer
             w.close();
         }
     }
-    
-    public static final String HEADER = "/*******************************************************************************\n" + 
-    		"* This program and the accompanying materials\n" + 
-    		"* are made available under the terms of the Common Public License v1.0\n" + 
-    		"* which accompanies this distribution, and is available at \n" + 
-    		"* http://www.eclipse.org/legal/cpl-v10.html\n" + 
-    		"* \n" + 
-    		"* Contributors:\n" + 
-    		"*     Peter Smith\n" + 
-    		"*******************************************************************************/";
+
+    public static final String HEADER = "/*******************************************************************************\n"
+            +
+            "* This program and the accompanying materials\n" +
+            "* are made available under the terms of the Common Public License v1.0\n" +
+            "* which accompanies this distribution, and is available at \n" +
+            "* http://www.eclipse.org/legal/cpl-v10.html\n" +
+            "* \n" +
+            "* Contributors:\n" +
+            "*     Peter Smith\n" +
+            "*******************************************************************************/";
 }

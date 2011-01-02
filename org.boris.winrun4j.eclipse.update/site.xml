@@ -9,11 +9,15 @@
    <feature url="features/org.boris.winrun4j.eclipse_0.1.1.jar" id="org.boris.winrun4j.eclipse" version="0.1.1" os="win32" ws="win32,wpf">
       <category name="deploy"/>
    </feature>
-   <feature url="features/org.boris.winrun4j.eclipse_0.1.2.jar" id="org.boris.winrun4j.eclipse" version="0.1.2" os="win32" ws="win32,wpf">
+   <feature url="features/org.boris.winrun4j.eclipse_0.1.2.jar" id="org.boris.winrun4j.eclipse" version="0.1.2" os="win32">
+      <category name="deploy"/>
+   </feature>
+   <feature url="features/org.boris.winrun4j.eclipse_0.1.3.jar" id="org.boris.winrun4j.eclipse" version="0.1.3" os="win32">
       <category name="deploy"/>
    </feature>
    <archive path="plugins/org.boris.winrun4j.eclipse_0.1.0.jar" url="http://downloads.sourceforge.net/winrun4j/org.boris.winrun4j.eclipse_0.1.0.jar"/>
    <archive path="plugins/org.boris.winrun4j.eclipse_0.1.1.jar" url="http://downloads.sourceforge.net/winrun4j/org.boris.winrun4j.eclipse_0.1.1.jar"/>
    <archive path="plugins/org.boris.winrun4j.eclipse_0.1.2.jar" url="http://downloads.sourceforge.net/winrun4j/org.boris.winrun4j.eclipse_0.1.2.jar"/>
+   <archive path="plugins/org.boris.winrun4j.eclipse_0.1.3.jar" url="http://downloads.sourceforge.net/winrun4j/org.boris.winrun4j.eclipse_0.1.3.jar"/>
    <category-def name="deploy" label="Deploy Tools"/>
 </site>

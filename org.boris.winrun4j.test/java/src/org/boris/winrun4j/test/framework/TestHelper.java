@@ -67,6 +67,7 @@ public class TestHelper
 
     public static Launcher launcher(boolean console) throws IOException {
         Launcher l = new Launcher(console ? LAUNCHER_CONSOLE : LAUNCHER);
+        l.vmarg("-Xcheck:jni");
         testcp(l);
         return l;
     }

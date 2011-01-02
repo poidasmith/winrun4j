@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: WinRun4J Eclipse Launcher
 Bundle-SymbolicName: org.boris.winrun4j.eclipse;singleton:=true
-Bundle-Version: 0.1.2
+Bundle-Version: 0.1.3
 Bundle-Vendor: Boris Inc.
 Import-Package: org.eclipse.core.runtime
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
