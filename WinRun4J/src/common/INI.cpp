@@ -84,7 +84,7 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 			}		
 			iniparser_freedict(ini2);
 		}
-	} else {
+	} else if(!ini) {
 		ini = iniparser_load(inifile);
 		if(ini == NULL) {
 			Log::Error("Could not load INI file: %s", inifile);

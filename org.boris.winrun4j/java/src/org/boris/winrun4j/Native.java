@@ -14,14 +14,6 @@ import java.nio.ByteBuffer;
 /**
  * General JNI utilities for windows. Use at own risk.
  */
-/**
- * @author Poida
- *
- */
-/**
- * @author Poida
- * 
- */
 public class Native
 {
     public static final boolean IS_64 = "amd64".equals(System.getProperty("os.arch"));

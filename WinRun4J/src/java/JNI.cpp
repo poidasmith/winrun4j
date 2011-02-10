@@ -341,8 +341,3 @@ void JNI::LoadEmbeddedClassloader(JNIEnv* env)
 	}
 }
 
-extern "C" __declspec(dllexport) jobject __cdecl JNI_GetJar()
-{
-	return g_ini;
-}
-
