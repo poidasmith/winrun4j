@@ -44,6 +44,8 @@ void WINAPI ServiceCtrlHandler(DWORD opCode)
 {
 	int result;
 
+	Log::Info("ServiceCtrlHandler: %d", opCode);
+
 	switch(opCode)
 	{
 	case SERVICE_CONTROL_PAUSE:
@@ -171,6 +173,8 @@ int Service::Initialise(dictionary* ini)
 		Log::Error("Could not create service class");
 		return 1;
 	}
+	// Need a global reference here to as we transfer across threads
+	g_serviceInstance = env->NewGlobalRef(g_serviceInstance);
 
 	g_controlMethod = env->GetMethodID(g_serviceClass, "serviceRequest", "(I)I");
 	if(g_controlMethod == NULL) {
@@ -366,10 +370,17 @@ DWORD ServiceMainThread(LPVOID lpParam)
 {
 	JNIEnv* env = VM::GetJNIEnv(false);
 
+	// Need another global ref here
+	jobject args = env->NewGlobalRef((jobject) lpParam);
+
 	// Now signal launcher thread
 	SetEvent(g_event);
 
-	g_returnCode = env->CallIntMethod(g_serviceInstance, g_mainMethod, (jobjectArray) lpParam);
+	Log::Info("Service method starting...");
+
+	g_returnCode = env->CallIntMethod(g_serviceInstance, g_mainMethod, args);
+
+	Log::Info("Service method completed.");
 
 	// When the service main completes we assume the service wants to stop
 	// so wait for the VM is tidy up (all non-daemon threads complete etc..)
@@ -407,6 +418,8 @@ int Service::Main(DWORD argc, LPSTR* argv)
 	// Create a global ref so its not lost as we pass it across threads
 	args = (jobjectArray) env->NewGlobalRef(args);
 
+	Log::Info("Service startup initiated with %d INI args and %d Ctrl Manager args", progargsCount, argc-1);
+
 	// Create the event
 	g_event = CreateEvent(0, TRUE, FALSE, 0);
 
@@ -415,7 +428,7 @@ int Service::Main(DWORD argc, LPSTR* argv)
 	SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus);
 
 	// This is the main thread for the java service
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ServiceMainThread, (LPDWORD) args, 0, 0);
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)ServiceMainThread, args, 0, 0);
 
 	// Need to wait for service thread to attach
 	WaitForSingleObject(g_event, INFINITE);

@@ -35,6 +35,7 @@ namespace
 	LoggingLevel g_logLevel = none; 
 	bool g_error = false;
 	char g_errorText[MAX_PATH];
+	bool g_logToDebugMonitor = true;
 }
 
 typedef BOOL (_stdcall *FPTR_AttachConsole) ( DWORD );
@@ -44,6 +45,7 @@ typedef BOOL (_stdcall *FPTR_AttachConsole) ( DWORD );
 #define LOG_ROLL_SIZE ":log.roll.size"
 #define LOG_ROLL_PREFIX ":log.roll.prefix"
 #define LOG_ROLL_SUFFIX ":log.roll.suffix"
+#define LOG_OUTPUT_DEBUG_MONITOR ":log.output.debug.monitor"
 
 void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, dictionary* ini)
 {
@@ -65,6 +67,12 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 		g_logLevel = info;
 		Warning("log.level unrecognized");
 	}
+
+	// Flag to indicate if we want to log to the debug monitor - useful for services
+	g_logToDebugMonitor = (ini == NULL || iniparser_getboolean(ini, LOG_OUTPUT_DEBUG_MONITOR, 0));
+#ifdef DEBUG_LOG
+	g_logToDebugMonitor = true;
+#endif
 
 	// If there is a log file specified redirect std streams to this file
 	if(logfile != NULL) {
@@ -179,14 +187,11 @@ void Log::LogIt(LoggingLevel loggingLevel, const char* marker, const char* forma
 
 	char tmp[4096];
 	vsprintf(tmp, format, args);
-#ifdef DEBUG_LOG
-	if(marker) {
-		OutputDebugString(marker);
-		OutputDebugString(" ");
+	if(g_logToDebugMonitor) {
+		char tmp2[4096];
+		sprintf(tmp2, "%s %s\n", marker ? marker : "", tmp);
+		OutputDebugString(tmp2);
 	}
-	OutputDebugString(tmp);
-	OutputDebugString("\n");
-#endif
 	DWORD dwRead;
 	if(marker) {
 		WriteFile(g_logfileHandle, marker, strlen(marker), &dwRead, NULL);

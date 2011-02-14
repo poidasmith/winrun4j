@@ -301,6 +301,8 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 		if(env->ExceptionCheck()) env->ExceptionClear();
 		return false;
 	}
+	// Global ref in case of garbage collection
+	g_class = (jclass) env->NewGlobalRef(g_class);
 
 	g_executeMethodID = env->GetStaticMethodID(g_class, "execute", "(Ljava/lang/String;)V");
 	if(g_executeMethodID == NULL) {
