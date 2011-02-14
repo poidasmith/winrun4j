@@ -58,7 +58,7 @@ public class TestHelper
             TestCase.assertEquals("Element " + i + " not equal", Array.get(arr1, i), Array.get(arr2, i));
     }
 
-    private static Launcher testcp(Launcher l) {
+    public static Launcher testcp(Launcher l) {
         return l.classpath(BASE_PATH + "\\org.boris.winrun4j.test\\bin").classpath(
                 BASE_PATH + "\\org.boris.commons\\bin").classpath(BASE_PATH + "\\org.boris.winrun4j\\bin").classpath(
                 BASE_PATH + "\\org.boris.winrun4j.x64test\\bin").classpath(

@@ -46,6 +46,8 @@ public class DDETest
         Thread.sleep(100);
         pr.waitFor();
         result = pr.getStdStr();
+        if (!result.contains("execute: "))
+            System.out.println(result);
         assertTrue(result.contains("execute: " + fte.getAbsolutePath()));
         assertTrue(result.contains("activate: " + quit.getAbsolutePath()));
         TestHelper.run(l, "--WinRun4J:UnregisterFileAssociations");
