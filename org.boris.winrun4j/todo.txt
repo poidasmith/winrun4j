@@ -1,5 +1,14 @@
 
 
+RCEDIT:
+- add manifest
+- add version info struct
+
+Launcher
+- OutputDebugString -> logger
+- fix for service reference bug
+- fix for ini override option bug
+
 
 Release Notes for WinRun4J 0.4.0
 ================================
