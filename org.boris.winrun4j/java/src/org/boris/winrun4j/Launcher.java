@@ -45,6 +45,16 @@ public class Launcher
         return launcher;
     }
 
+    public Launcher createAt(File exeFile) throws IOException {
+        launcher = exeFile;
+        copy(launcherFile, launcher);
+        ini = new File(launcher.getParent(), getNameSansExtension(launcher) + ".ini");
+        if (ini.exists())
+            ini.delete();
+        copy(new StringReader(toString()), new FileWriter(ini), true);
+        return this;
+    }
+
     public Launcher create() throws IOException {
         launcher = File.createTempFile("winrun4j.launcher.", ".exe");
         launcher.deleteOnExit();
