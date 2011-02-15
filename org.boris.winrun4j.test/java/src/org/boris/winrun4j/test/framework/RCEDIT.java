@@ -40,6 +40,10 @@ public class RCEDIT
         return run("/J", exe, jar);
     }
 
+    public static String setManifest(File exe, File manifest) throws Exception {
+        return run("/M", exe, manifest);
+    }
+
     public static String clear(File exe) throws Exception {
         return run("/C", exe, null);
     }

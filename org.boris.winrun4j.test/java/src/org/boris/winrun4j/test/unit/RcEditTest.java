@@ -36,7 +36,11 @@ public class RcEditTest
         assertTrue(res.contains("[info] OK"));
         res = RCEDIT.addJar(exe, new File("../org.boris.winrun4j.eclipse/launcher/WinRun4J.jar"));
         assertTrue(res.contains("[info] OK"));
+        res = RCEDIT.setManifest(exe, new File("docs/manifest.xml"));
+        System.out.println(res);
+        assertTrue(res.contains("[info] OK"));
         res = RCEDIT.list(exe);
+        System.out.println(res);
         assertTrue(res.contains("Icon      \t0007"));
         assertTrue(res.contains("Group Icon\t0001"));
         assertTrue(res.contains("INI File"));

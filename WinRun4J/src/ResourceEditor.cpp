@@ -34,9 +34,7 @@ int PrintUsage()
 	printf("  /J\t\tAdds a JAR file.\n");
 	printf("  /E\t\tExtracts a JAR file from the EXE/DLL.\n");
 	printf("  /S\t\tSets the splash image.\n");
-/*
 	printf("  /M\t\tSets the manifest.\n");
-*/
 	printf("  /H\t\tAdds an HTML file the EXE/DLL.\n");
 	printf("  /C\t\tClears all resources from the EXE/DLL.\n");
 	printf("  /L\t\tLists the resources in the EXE/DLL.\n");
