@@ -2,12 +2,15 @@
 
 RCEDIT:
 - add manifest
-- add version info struct
+TODO - add version info struct
 
 Launcher
 - OutputDebugString -> logger
 - fix for service reference bug
 - fix for ini override option bug
+
+TODO
+- double check max memory args just before starting VM (ie. after loading the DLLs)
 
 
 Release Notes for WinRun4J 0.4.0

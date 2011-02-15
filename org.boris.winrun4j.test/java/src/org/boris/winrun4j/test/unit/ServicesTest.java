@@ -43,7 +43,6 @@ public class ServicesTest
         // Register service
         ProcessResult res = TestHelper.start(l, "--WinRun4J:UnregisterService");
         res.waitFor();
-        System.out.println(res);
         res = TestHelper.start(l, "--WinRun4J:RegisterService");
         res.waitFor();
         assertEquals(0, res.exitValue());

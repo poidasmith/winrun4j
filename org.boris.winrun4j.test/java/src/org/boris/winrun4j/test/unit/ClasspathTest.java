@@ -9,6 +9,10 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.test.framework.TestHelper;
@@ -20,10 +24,15 @@ public class ClasspathTest
     public void testLongClassPath() throws Exception {
         Launcher l = TestHelper.launcher();
         l.main(ClasspathTest.class);
-        l.classpath("F:/downloads/*.jar");
+        l.workingDir(new File("."));
+        l.classpath("data/jars/*.jar");
+        l.classpath("data/jars/*.zip");
         l.log(Log.Level.WARN);
         String res = TestHelper.run(l);
-        System.out.println(res);
+        assertTrue(res.contains("Copy of dummy1"));
+        assertTrue(res.contains("d2.jar"));
+        assertTrue(res.contains("whatever"));
+        assertTrue(res.contains("something with a really"));
     }
 
     public static void main(String[] args) throws Exception {
