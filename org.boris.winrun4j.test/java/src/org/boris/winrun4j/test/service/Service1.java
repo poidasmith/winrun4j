@@ -24,8 +24,8 @@ import org.boris.winrun4j.test.framework.TestHelper;
 public class Service1 extends AbstractService
 {
     public static void main(String[] args) throws Exception {
-        // register();
-        launcher();
+        register();
+        //launcher();
         // unregister();
     }
 
@@ -53,9 +53,9 @@ public class Service1 extends AbstractService
                 vmVersion("1.6", null, null).
                 debug(8787, true, false).
                 service(Service1.class, "Service1", "Testing service for w4j").
-                log("F:\\TEMP\\Service1.log", Level.INFO, true, true);
+                log("c:\\TEMP\\Service1.log", Level.INFO, true, true);
         l.vmarg("-Xcheck:jni");
         TestHelper.testcp(l);
-        return l.createAt(new File("F:\\TEMP\\Service1.exe"));
+        return l.createAt(new File("c:\\TEMP\\Service1.exe"));
     }
 }

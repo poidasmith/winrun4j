@@ -83,7 +83,6 @@
 					<tr><th>Key</th><th>Description</th></tr>
 					<tr>
 						<td>working.directory</td>
-
 						<td>This will be the current directory for the app. It can be relative to your executable.</td>
 					</tr>
 					<tr>
@@ -91,7 +90,6 @@
 						<td>Classpath entries. These will be relative to the working directory above. They can be wildcards (eg. *.jar)</td>
 					</tr>
 					<tr>
-
 						<td>main.class</td>
 						<td>This is the java class that will be run</td>
 					</tr>
@@ -99,7 +97,6 @@
 						<td>vmarg.1, vmarg.2, ..., vmarg.n</td>
 						<td>Java VM args. These will be passed on to the VM.</td>
 					</tr>
-
 					<tr>
 						<td>vm.version.max</td>
 						<td>The maximum allowed version (1.0, 1.1, 1.2, 1.3, 1.4, 1.5).</td>
@@ -107,7 +104,6 @@
 					<tr>
 						<td>vm.version.min</td>
 						<td>The minimum allowed version (1.0, 1.1, 1.2, 1.3, 1.4, 1.5).</td>
-
 					</tr>
 					<tr>
 						<td>vm.version</td>
@@ -115,7 +111,6 @@
 					</tr>
 					<tr>
 						<td>vm.location</td>
-
 						<td>Specify the location of the JVM dll you want to use. This is useful when you package
 						    your own JRE with your app.</td>
 					</tr>
@@ -127,7 +122,6 @@ a proportion of the available physical memory to use (ie. relates to
 use the maximum memory possible.</td>
 					</tr>
 					<tr>
-
 						<td>vm.heapsize.min.percent</td>
 						<td>Specify a proportion of the available physical memory to use as the minimum starting heap size (ie. relates to -Xms arg).</td>
 					</tr>
@@ -138,7 +132,6 @@ a preferred amount (in MB) for the heap size (ie. relates to -Xmx arg).
 If this amount is not available it will use the maximum amount possible
 given the physical memory available.</td>
 					</tr>
-
 					<tr>
 						<td>arg.1, arg.2, ..., arg.n</td>
 						<td>Program arguments. These will be sent before any command line arguments.</td>
@@ -146,7 +139,6 @@ given the physical memory available.</td>
 					<tr>
 						<td>log</td>
 						<td>Standard out and error streams will be redirected to this file (including launcher messages and JNI logging).</td>
-
 					</tr>
 					<tr>
 						<td>log.level</td>
@@ -154,7 +146,6 @@ given the physical memory available.</td>
 					</tr>
 					<tr>
 						<td>log.overwrite</td>
-
 						<td>Set to "true" to cause the log file to be overwritten each time the application/service is launched.</td>
 					</tr>
 					<tr>
@@ -163,7 +154,6 @@ given the physical memory available.</td>
 						Note: this only applies to WinRun4J log messages and Java logging using the Log class.</td>
 					</tr>
 					<tr>
-
 						<td>log.roll.size</td>
 						<td>A decimal value in megabytes for the max log size before rolling. Old logs
 						    are moved to logname-[timestamp].extension.
@@ -174,17 +164,19 @@ given the physical memory available.</td>
 						<td>Customizes the rolled log file prefix to [prefix]-[timestamp].extension
 						</td>
 					</tr>
-
 					<tr>
 						<td>log.roll.suffix</td>
 						<td>Customizes the rolled log file suffix to [prefix]-[timestamp][suffix]
 						</td>
 					</tr>
 					<tr>
+						<td>log.output.debug.monitor</td>
+						<td>Useful for monitoring services. Set this to "true" to log to the debug monitor. Use <a href="http://technet.microsoft.com/en-us/sysinternals/bb896647">DebugView</a> to view. For Vista/Windows 7 see <a href="http://www.osronline.com/article.cfm?article=295">here</a> if you don't see the output.
+					</tr>
+					<tr>
 						<td>splash.image</td>
 						<td>The name of the splash image file to display (This can be gif, jpg or bmp).
 						This will auto-hide itself when it detects the first application window.</td>
-
 					</tr>
 					<tr>
 						<td>splash.autohide</td>
@@ -192,7 +184,6 @@ given the physical memory available.</td>
 					</tr>
 					<tr>
 						<td>dde.enabled</td>
-
 						<td>This flag needs to be set to "true" to enable DDE.</td>
 					</tr>
 					<tr>
@@ -200,7 +191,6 @@ given the physical memory available.</td>
 						<td>Optional flag to send execute commands to your class.</td>
 					</tr>
 					<tr>
-
 						<td>dde.server.name, dde.topic, dde.window.class</td>
 						<td>Override the DDE server name, topic and window class.</td>
 					</tr>
@@ -218,7 +208,6 @@ given the physical memory available.</td>
 						</td>
 					</tr>					
 					<tr>
-
 						<td>process.priority</td>
 						<td>This is can be one of "idle", "below_normal", "normal", "above_normal", "high", "realtime".</td>
 					</tr>
@@ -226,7 +215,6 @@ given the physical memory available.</td>
 						<td>service.class</td>
 						<td>This is the java class that will be run (for a service)</td>
 					</tr>
-
 					<tr>
 						<td>service.id</td>
 						<td>This is the ID of the service (used for registration)</td>
@@ -234,7 +222,6 @@ given the physical memory available.</td>
 					<tr>
 						<td>service.name</td>
 						<td>The name of the service. This will appear in the service control panel.</td>
-
 					</tr>
 					<tr>
 						<td>service.description</td>
@@ -242,7 +229,6 @@ given the physical memory available.</td>
 					</tr>
 					<tr>
 						<td>service.controls</td>
-
 						<td>The control commands accepted by the service. This can one or multiple of "stop", "shutdown", "pause", "param", "netbind", "hardward", "power", "session". For multiple simply OR together (eg. service.controls=stop|shutdown). The default is "stop|shutdown".</td>
 					</tr>
 					<tr>
@@ -250,7 +236,6 @@ given the physical memory available.</td>
 						<td>Can be one of "auto", "boot", "demand", "disabled", "system". The default is "demand"</td>
 					</tr>
 					<tr>
-
 						<td>service.dependency.1, service.dependency.2, ....</td>
 						<td>Specifies a set of services that this service depends on.</td>
 					</tr>
@@ -258,7 +243,6 @@ given the physical memory available.</td>
 						<td>service.loadordergroup</td>
 						<td>Specifies the service's load order group.</td>
 					</tr>
-
 					<tr>
 						<td>service.user</td>
 						<td>Specifies the account to run the service under.</td>
@@ -270,6 +254,18 @@ given the physical memory available.</td>
 					<tr>
 						<td>console.title</td>
 						<td>Sets the console title (only for console version of launcher).</td>
+					</tr>
+					<tr>
+						<td>ini.file.location</td>
+						<td>The addin will include INI keys from the file location specified (eg "<code>C:\Program Files\MyApp\include.ini</code>")</td>
+					</tr>
+					<tr>
+						<td>ini.registry.location</td>
+						<td>The addin will include INI keys from the registry location specified (eg "<code>HKEY_CURRENT_USER\Software\MyApp</code>"). Currently only string and DWORD values are supported</td>
+					</tr>
+					<tr>
+						<td>ini.override</td>
+						<td>A flag ("true"/"false") to indicate if an external INI file can override values from an embedded one.</td>
 					</tr>
 				</table>
 			<p/>				
@@ -436,6 +432,13 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				0.4.2
+				<ul>
+					<li>Fixed issue with the ini.override flag.</li>
+					<li>Fixed some JNI issues with Service and DDE functionality.</li>
+					<li>Added ability to log to the debug monitor.</li>
+					<li>RCEDIT supports /M option to add a manifest file.</li>
+				</ul>
 				0.4.1
 				<ul>
 					<li>Fix for loading embedded jars.</li>
@@ -467,7 +470,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 				</ul>
 				0.3.2
 				<ul>
-					<li>Implemented --WinRun4J:ExecuteINI built-in command - allows the launcher
+					<li>Implemented <code>--WinRun4J:ExecuteINI</code> built-in command - allows the launcher
 					    to execute abitrary INI files</li>
 					<li>Fix for splash.autohide enable/disable option.</li>
 					<li>Fix for service startup args</li>
@@ -486,7 +489,6 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 		</div>
 		<div class="section">
 			<div class="section-title">Contributors</div>
-
 			<div class="section-content">
 			<ul>
 				<li>Peter Smith</li>
@@ -494,7 +496,6 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 				<li><a href="http://www.aquafold.com/">AquaFold</a>, launcher used in Aqua Data Studio.
 				<li>Frederic Canut</li>
 			</ul>
-
 			</div>
 		</div>
 	</div>
