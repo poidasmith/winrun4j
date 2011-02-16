@@ -10,6 +10,7 @@
 package org.boris.winrun4j.test.unit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -30,6 +31,7 @@ public class FileAssociationsTest
         String result = TestHelper.run(l, "--WinRun4J:RegisterFileAssociations");
         assertTrue(result.contains("[info] Registering .fte"));
         assertTrue(result.contains("[info] Registering .ft2"));
+        assertFalse(result.contains("[err]"));
 
         File f = l.getLauncher();
         validateFileAssociation(f, ".fte", "File Association Test");
@@ -38,6 +40,7 @@ public class FileAssociationsTest
         result = TestHelper.run(l, "--WinRun4J:UnregisterFileAssociations");
         assertTrue(result.contains("[info] Unregistering .fte"));
         assertTrue(result.contains("[info] Unregistering .ft2"));
+        assertFalse(result.contains("[err]"));
     }
 
     public static void validateFileAssociation(File launcher, String extension, String name) {
