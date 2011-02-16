@@ -53,7 +53,7 @@ public class WinRunTest
         for (String k : inip.keySet()) {
             sb.append(k);
             sb.append("=");
-            sb.append(p.getProperty((String) k));
+            sb.append(inip.get(k));
             sb.append("\n");
         }
 
