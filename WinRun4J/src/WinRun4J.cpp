@@ -17,13 +17,12 @@
 #include "launcher/Native.h"
 #include "common/Registry.h"
 
-#define CONSOLE_TITLE                    ":console.title"
-#define PROCESS_PRIORITY                 ":process.priority"
-#define ERROR_MESSAGES_SHOW_POPUP        "ErrorMessages:show.popup"
-#define ERROR_MESSAGES_JAVA_NOT_FOUND    "ErrorMessages:java.not.found"
-#define ERROR_MESSAGES_JAVA_START_FAILED "ErrorMessages:java.failed"
-
-using namespace std;
+#define CONSOLE_TITLE                       ":console.title"
+#define PROCESS_PRIORITY                    ":process.priority"
+#define ERROR_MESSAGES_SHOW_POPUP           "ErrorMessages:show.popup"
+#define ERROR_MESSAGES_JAVA_NOT_FOUND       "ErrorMessages:java.not.found"
+#define ERROR_MESSAGES_JAVA_START_FAILED    "ErrorMessages:java.failed"
+#define ERROR_MESSAGES_MAIN_CLASS_NOT_FOUND "ErrorMessages:main.class.not.found"
 
 namespace 
 {
@@ -143,11 +142,9 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
 {
 	dictionary* ini = INI::LoadIniFile(hInstance);
-	if(ini == NULL) {
-		bool showErrorPopup = iniparser_getboolean(ini, ERROR_MESSAGES_SHOW_POPUP, 1);
+	if(!ini) {
 		Log::Error("Failed to find or load ini file.");
-		if(showErrorPopup)
-			MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
+		MessageBox(NULL, "Failed to find or load ini file.", "Startup Error", 0);
 		Log::Close();
 		return NULL;
 	}
