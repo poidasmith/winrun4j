@@ -19,6 +19,8 @@ import java.util.Random;
 /**
  * Wraps another process as a service and (optionally) restarts the service on
  * failure (with exponential backoff).
+ * 
+ * @see http://en.wikipedia.org/wiki/Exponential_backoff
  */
 public class RetryService implements Service
 {
