@@ -12,7 +12,6 @@ package org.boris.winrun4j;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Provides access to the INI file used to startup the app.
@@ -65,6 +64,19 @@ public class INI
     }
 
     /**
+     * Gets a property from the INI file.
+     * 
+     * @param key The INI key
+     * @param defaultValue Returned if key not present.
+     * 
+     * @return String.
+     */
+    public static String getProperty(String key, String defaultValue) {
+        String res = getProperty(key);
+        return res != null ? res : defaultValue;
+    }
+
+    /**
      * Gets the keys from the INI file.
      * 
      * @return String.
@@ -100,11 +112,11 @@ public class INI
     /**
      * Grab numbered entries from the properties.
      */
-    public static String[] getNumberedEntries(Properties p, String baseKey) {
+    public static String[] getNumberedEntries(String baseKey) {
         ArrayList l = new ArrayList();
         int i = 1;
         while (true) {
-            String v = p.getProperty(baseKey + "." + i);
+            String v = getProperty(baseKey + "." + i);
             if (v != null)
                 l.add(v);
             i++;
