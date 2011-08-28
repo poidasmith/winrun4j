@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinRun4J", "build\WinRun4J.vcproj", "{B3EC7585-646E-4D0D-850E-8CD6FADB323D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XLLoop", "build\XLLoop.vcproj", "{930CC50F-F2EF-486E-BDDB-9B6867177A4C}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ResourceEditor", "build\ResourceEditor.vcproj", "{B3EC7585-646E-4D0D-850E-7CD7FADB723D}"
 EndProject
 Global
