@@ -17,7 +17,6 @@ public class MainService implements Service
 
     public int serviceMain(String[] args) throws ServiceException {
         try {
-            System.setProperty(serviceClass + ".shutdown", "false");
             Class c = Class.forName(serviceClass);
             Method m = c.getMethod("main", String[].class);
             m.invoke(null, (Object) args);
@@ -31,7 +30,7 @@ public class MainService implements Service
         switch (control) {
         case SERVICE_CONTROL_STOP:
         case SERVICE_CONTROL_SHUTDOWN:
-            System.setProperty(serviceClass + ".shutdown", "true");
+            System.exit(0);
             break;
         default:
             break;
