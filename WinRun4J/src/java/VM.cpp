@@ -353,7 +353,20 @@ void VM::LoadRuntimeLibrary(TCHAR* libPath)
 	if(!LoadLibrary(binPath)) {
 		binPath[i] = 0;
 		strcat(binPath, "\\msvcrt.dll");
-		LoadLibrary(binPath);
+		if(!LoadLibrary(binPath)) {
+			binPath[i] = 0;
+			strcat(binPath, "\\msvcrt100.dll");
+			if(!LoadLibrary(binPath)) {
+				// Now resort to using SetDllDirectory - must use dynamic binding as 
+				// this function is not available on all versions of windows
+				typedef BOOL (WINAPI *LPFNSetDllDirectory)(LPCTSTR lpPathname);
+				HINSTANCE hKernel32 = GetModuleHandle("kernel32");
+				LPFNSetDllDirectory lpfnSetDllDirectory = (LPFNSetDllDirectory)GetProcAddress(hKernel32, "SetDllDirectoryA");
+				if (lpfnSetDllDirectory != NULL) {
+					lpfnSetDllDirectory(binPath);
+				}
+			}
+		}
 	}
 }
 
