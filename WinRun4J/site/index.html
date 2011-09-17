@@ -26,6 +26,7 @@
 						<li><b><font color="red">NEW: </font></b>Flexible native access to any Windows API, compatible with <a href="http://pinvoke.net">PINVOKE.NET</a>. 
 							See <a href="nativebinding.html">native binding examples</a> for more information.
 							This is currently BETA quality.</li>
+
 							
 						<li>Uses an INI file for specifying classpath, main class, vm args, program args.</li>
 						<li>Custom executable name that appears in task manager.</li>
@@ -34,6 +35,7 @@
 						<li>Built-in icon replacer for custom icon.</li>
 						<li>Pre-JVM splash screen with auto-hide.</li>
 						<li>DDE implementation for file assocations.</li>
+
 						<li>Windows NT Service wrapper.</li>
 						<li>Windows EventLog API</li> 
 						<li>Console version</li>
@@ -41,6 +43,7 @@
 							
 						<li>Support for 64-bit JVM.</li>
 						<li>Supports embedding (inside the executable) the INI file. See <a href="#Embed">Embedded Resources</a> section below.</li>
+
 						<li>Supports embedding a splash image.</li>
 						<li>Supports embedding JAR files. These will be included in the classpath (without extraction). This is currently BETA quality.</li>
 
@@ -49,6 +52,7 @@
 				<p>
 					WinRun4J is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
 				</p>
+
 			</div>
 		</div>
 
@@ -56,15 +60,23 @@
 			<div class="section-title">Download</div>
 			<div class="section-content">
 				The latest <a href="https://sourceforge.net/project/showfiles.php?group_id=195634">download</a> is available from the Project Page.
+
 				<br/><br/>
+				<b><a href="https://github.com/poidasmith/winrun4j">The source code for WinRun4J</a> has moved to GitHub</b>. Git patches are now the preferred way of accepting patches (bug fixes and enhancements).
+
+				<br/><br/>
+
 				The latest version of the <a href="eclipseplugin.html">Eclipse Plugin for WinRun4J</a> can be downloaded from within Eclipse using the following Update URL:
 				<br/><br/>
 
 				<b>http://winrun4j.sourceforge.net/</b>
+
 			</div>
 		</div>
+		
 		<div class="section">
 			<div class="section-title">Usage</div>
+
 			<div class="section-content">
 				The launcher is designed to be used as follows:
 				<ol>
@@ -73,6 +85,7 @@
 					<li>Create [YourApp].ini (in the same directory)</li>
 					<li>Customize [YourApp].ini (see the table below for information)</li>
 					<li>Create [YourApp].ico (in the same directory)</li>
+
 					<li>Run <code>RCEDIT.exe /I [YourApp].exe [YourApp].ico</code> (this will inject your icon into the executable).</li>
 
 					<li>Launch [YourApp].exe</li>
@@ -80,6 +93,7 @@
 				The INI file accepts the following settings:
 				<br/><br/>
 				<table>
+
 					<tr><th>Key</th><th>Description</th></tr>
 					<tr>
 						<td>working.directory</td>
@@ -87,6 +101,7 @@
 					</tr>
 					<tr>
 						<td>classpath.1, classpath.2, ..., classpath.n</td>
+
 						<td>Classpath entries. These will be relative to the working directory above. They can be wildcards (eg. *.jar)</td>
 					</tr>
 					<tr>
@@ -94,6 +109,7 @@
 						<td>This is the java class that will be run</td>
 					</tr>
 					<tr>
+
 						<td>vmarg.1, vmarg.2, ..., vmarg.n</td>
 						<td>Java VM args. These will be passed on to the VM.</td>
 					</tr>
@@ -101,6 +117,7 @@
 						<td>vm.version.max</td>
 						<td>The maximum allowed version (1.0, 1.1, 1.2, 1.3, 1.4, 1.5).</td>
 					</tr>
+
 					<tr>
 						<td>vm.version.min</td>
 						<td>The minimum allowed version (1.0, 1.1, 1.2, 1.3, 1.4, 1.5).</td>
@@ -108,6 +125,7 @@
 					<tr>
 						<td>vm.version</td>
 						<td>Specify an exact version to use (eg. 1.5.0_07).</td>
+
 					</tr>
 					<tr>
 						<td>vm.location</td>
@@ -116,6 +134,7 @@
 					</tr>
 					<tr>
 						<td>vm.heapsize.max.percent</td>
+
 						<td>Specify
 a proportion of the available physical memory to use (ie. relates to
 -Xmx arg). For example, vm.heapsize.max.percent=75. Note that this will
@@ -126,6 +145,7 @@ use the maximum memory possible.</td>
 						<td>Specify a proportion of the available physical memory to use as the minimum starting heap size (ie. relates to -Xms arg).</td>
 					</tr>
 					<tr>
+
 						<td>vm.heapsize.preferred</td>
 						<td>Specify
 a preferred amount (in MB) for the heap size (ie. relates to -Xmx arg).
@@ -136,6 +156,7 @@ given the physical memory available.</td>
 						<td>arg.1, arg.2, ..., arg.n</td>
 						<td>Program arguments. These will be sent before any command line arguments.</td>
 					</tr>
+
 					<tr>
 						<td>log</td>
 						<td>Standard out and error streams will be redirected to this file (including launcher messages and JNI logging).</td>
@@ -143,6 +164,7 @@ given the physical memory available.</td>
 					<tr>
 						<td>log.level</td>
 						<td>Specify the logging level. One of "info", "warning", "error", "none". Default is "info".</td>
+
 					</tr>
 					<tr>
 						<td>log.overwrite</td>
@@ -150,6 +172,7 @@ given the physical memory available.</td>
 					</tr>
 					<tr>
 						<td>log.file.and.console</td>
+
 						<td>Set to "true" to output to the console and the log file (if present).
 						Note: this only applies to WinRun4J log messages and Java logging using the Log class.</td>
 					</tr>
@@ -160,6 +183,7 @@ given the physical memory available.</td>
 						</td>
 					</tr>
 					<tr>
+
 						<td>log.roll.prefix</td>
 						<td>Customizes the rolled log file prefix to [prefix]-[timestamp].extension
 						</td>
@@ -169,12 +193,14 @@ given the physical memory available.</td>
 						<td>Customizes the rolled log file suffix to [prefix]-[timestamp][suffix]
 						</td>
 					</tr>
+
 					<tr>
 						<td>log.output.debug.monitor</td>
 						<td>Useful for monitoring services. Set this to "true" to log to the debug monitor. Use <a href="http://technet.microsoft.com/en-us/sysinternals/bb896647">DebugView</a> to view. For Vista/Windows 7 see <a href="http://www.osronline.com/article.cfm?article=295">here</a> if you don't see the output.
 					</tr>
 					<tr>
 						<td>splash.image</td>
+
 						<td>The name of the splash image file to display (This can be gif, jpg or bmp).
 						This will auto-hide itself when it detects the first application window.</td>
 					</tr>
@@ -183,6 +209,7 @@ given the physical memory available.</td>
 						<td>A flag to disable the splash screen autohide feature ("true").</td>
 					</tr>
 					<tr>
+
 						<td>dde.enabled</td>
 						<td>This flag needs to be set to "true" to enable DDE.</td>
 					</tr>
@@ -190,6 +217,7 @@ given the physical memory available.</td>
 						<td>dde.class</td>
 						<td>Optional flag to send execute commands to your class.</td>
 					</tr>
+
 					<tr>
 						<td>dde.server.name, dde.topic, dde.window.class</td>
 						<td>Override the DDE server name, topic and window class.</td>
@@ -197,6 +225,7 @@ given the physical memory available.</td>
 					<tr>
 						<td>single.instance</td>
 						<td>
+
 						This will detect another instance of the application running and will shutdown if one is found.<br/>
 
 						It takes the following options:
@@ -205,6 +234,7 @@ given the physical memory available.</td>
 						<li>"window", this will detect if a process for the same executable is present and if there is a visible window - if this is the case it will set the window to the front and then shutdown.</li>
 						<li>"dde", this will simply detect if a process for the same executable and if dde is enabled it will fire a dde activation call (and then shutdown), which can be picked up by the other process. If dde is not enabled it will simply defer to the "window" method.</li>
 						</ul>
+
 						</td>
 					</tr>					
 					<tr>
@@ -213,6 +243,7 @@ given the physical memory available.</td>
 					</tr>
 					<tr>
 						<td>service.class</td>
+
 						<td>This is the java class that will be run (for a service)</td>
 					</tr>
 					<tr>
@@ -220,6 +251,7 @@ given the physical memory available.</td>
 						<td>This is the ID of the service (used for registration)</td>
 					</tr>
 					<tr>
+
 						<td>service.name</td>
 						<td>The name of the service. This will appear in the service control panel.</td>
 					</tr>
@@ -227,6 +259,7 @@ given the physical memory available.</td>
 						<td>service.description</td>
 						<td>The description on the service. This will appear in the service control panel.</td>
 					</tr>
+
 					<tr>
 						<td>service.controls</td>
 						<td>The control commands accepted by the service. This can one or multiple of "stop", "shutdown", "pause", "param", "netbind", "hardward", "power", "session". For multiple simply OR together (eg. service.controls=stop|shutdown). The default is "stop|shutdown".</td>
@@ -234,6 +267,7 @@ given the physical memory available.</td>
 					<tr>
 						<td>service.startup</td>
 						<td>Can be one of "auto", "boot", "demand", "disabled", "system". The default is "demand"</td>
+
 					</tr>
 					<tr>
 						<td>service.dependency.1, service.dependency.2, ....</td>
@@ -241,6 +275,7 @@ given the physical memory available.</td>
 					</tr>
 					<tr>
 						<td>service.loadordergroup</td>
+
 						<td>Specifies the service's load order group.</td>
 					</tr>
 					<tr>
@@ -248,6 +283,7 @@ given the physical memory available.</td>
 						<td>Specifies the account to run the service under.</td>
 					</tr>
 					<tr>
+
 						<td>service.password</td>
 						<td>Specifies the password for the user account.</td>
 					</tr>
@@ -255,18 +291,21 @@ given the physical memory available.</td>
 						<td>console.title</td>
 						<td>Sets the console title (only for console version of launcher).</td>
 					</tr>
+
 					<tr>
 						<td>ini.file.location</td>
 						<td>The addin will include INI keys from the file location specified (eg "<code>C:\Program Files\MyApp\include.ini</code>")</td>
 					</tr>
 					<tr>
 						<td>ini.registry.location</td>
+
 						<td>The addin will include INI keys from the registry location specified (eg "<code>HKEY_CURRENT_USER\Software\MyApp</code>"). Currently only string and DWORD values are supported</td>
 					</tr>
 					<tr>
 						<td>ini.override</td>
 						<td>A flag ("true"/"false") to indicate if an external INI file can override values from an embedded one.</td>
 					</tr>
+
 				</table>
 			<p/>				
 			<b>Note: </b>INI values can contain environment variables, which will be substituted on startup, eg <code>log.file=%TEMP%/mylog.txt</code>
@@ -274,6 +313,7 @@ given the physical memory available.</td>
 		</div>
 		<div class="section">
 			<div class="section-title">Error Messages</div>
+
 			<div class="section-content">
 				Error messages emitted by the launcher can be customized via the INI file. These can be placed in an "[ErrorMessages]" section:
 				<br/><br/>
@@ -282,6 +322,7 @@ given the physical memory available.</td>
 					<tr><th>Key</th><th>Description</th></tr>
 					<tr>
 						<td>show.popup</td>
+
 						<td>Set this to "false" to disable popups, default is "true".</td>
 					</tr>
 					<tr>
@@ -326,6 +367,7 @@ RCEDIT &lt;option&gt; &lt;exe/dll&gt; [resource]
   /C            Clears all resources from the EXE/DLL.
   /L            Lists the resources in the EXE/DLL.
   /P            Outputs the contents of the INI file in the EXE.
+
 
 </pre>
 Note: 
@@ -379,6 +421,7 @@ vm.heapsize.percent=80
 						<li>Copy <code>WinRun4JTest.jar</code> to <code>C:/test</code>.</li>
 						<li>Run <code>service.exe --WinRun4J:RegisterService</code>. </li>
 						<li>To start/stop the service use the control panel services console (The service name will be "WinRun4J Test Service")</li>
+
 						<li>To unregister run <code>service.exe --WinRun4J:UnregisterService</code>.</li>
 
 					</ol>
@@ -412,6 +455,7 @@ public class ServiceTest extends AbstractService
         return 0;
     }
 }
+
 </pre>
 		The INI file for this service looks like this:
 <pre>
@@ -432,6 +476,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+
 				0.4.2
 				<ul>
 					<li>Fixed issue with the ini.override flag.</li>
@@ -439,6 +484,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 					<li>Added ability to log to the debug monitor.</li>
 					<li>RCEDIT supports /M option to add a manifest file.</li>
 				</ul>
+
 				0.4.1
 				<ul>
 					<li>Fix for loading embedded jars.</li>
@@ -447,6 +493,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 				<ul>
 					<li>Dynamic native binding implementation using <a href="http://sourceware.org/libffi/">libffi</a>.
 					See <a href="nativebinding.html">native binding examples</a> for more information.</li>
+
 					<li>Fixed a race condition in the service implementation for quick starting applications.</li>
 					<li>The launcher java library now requires java 1.5 minimum (due to use of annotations).
 					 The launcher executable is compatible with java 1.4 and above.</li>
@@ -454,6 +501,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 					<li>Fixed max heap size issue on 64-bit VM</li>
 					<li>Added option to set console title via INI file</li>
 					<li>Added option to suppress error popups</li>
+
 					<li>DDE activate message sends command line</li> 
 				</ul>
 				0.3.3
@@ -462,6 +510,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 
 					<li>Refactored Service interface and added AbstractService helper class</li>
 					<li>Implemented FileAssociations helper class</li>
+
 					<li>Greatly improved the Registry API</li>
 					<li>Option to log to console and file</li>
 					<li>Log file rolling</li>
@@ -470,6 +519,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 				</ul>
 				0.3.2
 				<ul>
+
 					<li>Implemented <code>--WinRun4J:ExecuteINI</code> built-in command - allows the launcher
 					    to execute abitrary INI files</li>
 					<li>Fix for splash.autohide enable/disable option.</li>
@@ -477,6 +527,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 					<li>Fix for dde activate thread hang</li>
 
 				</ul>
+
 				<a href="oldchangehistory.html">Older Change History</a>
 			</div>
 		</div>
@@ -485,6 +536,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 			<div class="section-title">Blog</div>
 			<div class="section-content">
 			You can find a blog about this launcher, with more information and tips at <a href="http://borisinc.wordpress.com/">Boris Inc.</a>
+
 			</div>
 		</div>
 		<div class="section">
@@ -493,6 +545,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 			<ul>
 				<li>Peter Smith</li>
 				<li>Karl von Randow</li>
+
 				<li><a href="http://www.aquafold.com/">AquaFold</a>, launcher used in Aqua Data Studio.
 				<li>Frederic Canut</li>
 			</ul>
@@ -501,6 +554,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 	</div>
     <div id="footer">
 		<div class="footer"/>
+
 		<table style="border:0px;width:750px">
 		<tr style="border:0px;vertical-align:top">
 		<td style="border:0px;vertical-align:top;width:619px">
@@ -510,6 +564,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
         </td>
         <td align="right" style="border:0px;vertical-align:top">
         <a href="http://winrun4j.sourceforge.net/"><img border="0" alt="WinRun4J - Configurable Java Launcher for Windows" src="others/winrun4j.gif"/></a>
+
         <a href="http://xlloop.sourceforge.net/"><img border="0" alt="XLLoop - Excel Functions in Java, Javascript, Ruby, Python, Erlang" src="others/xlloop.gif"/></a>
         <a href="http://variantcodec.sourceforge.net/"><img border="0" alt="VariantCodec - Generic Data Structure Serialization Library for Java" src="others/variantcodec.gif"/></a>
         <a href="http://jvst.sourceforge.net/"><img border="0" alt="JVST - VST Interface for Java" src="others/jvst.gif"/></a>
@@ -519,6 +574,7 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
         </td>
         </tr>
         </table>
+
     </div>
 </body>
 <!-- Piwik -->
