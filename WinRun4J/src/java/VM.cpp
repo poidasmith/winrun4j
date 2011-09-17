@@ -355,7 +355,7 @@ void VM::LoadRuntimeLibrary(TCHAR* libPath)
 		strcat(binPath, "\\msvcrt.dll");
 		if(!LoadLibrary(binPath)) {
 			binPath[i] = 0;
-			strcat(binPath, "\\msvcrt100.dll");
+			strcat(binPath, "\\msvcr100.dll");
 			if(!LoadLibrary(binPath)) {
 				// Now resort to using SetDllDirectory - must use dynamic binding as 
 				// this function is not available on all versions of windows
