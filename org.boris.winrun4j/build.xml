@@ -1,9 +1,9 @@
 <project name="WinRun4J" default="build">
 	
 	<property name="release.dir" value="c:\Development\Releases"/>
-	<property name="src.dir" value="c:\eclipse\workspace\WinRun4J"/>
+	<property name="src.dir" value="c:\eclipse\git\winrun4j\WinRun4J"/>
 	<property name="release.name" value="winrun4J"/>
-	<property name="release.version" value="0.4.0"/>
+	<property name="release.version" value="0.4.3"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/winrun4j"/>
 	
 	<target name="build">
@@ -40,7 +40,7 @@
 		<mkdir dir="build"/>
 		<javac source="1.5" srcdir="../org.boris.winrun4j.test/java/src" destdir="build" debug="true">
 			<classpath>
-				<pathelement location="../org.boris.commons/bin"/>
+				<pathelement location="C:/eclipse/workspace/org.boris.commons/bin"/>
 				<pathelement location="bin"/>
 				<pathelement location="C:/eclipse/platform3.5/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
 				<pathelement location="C:/eclipse/platform3.5/plugins/org.junit4_4.5.0.v20090824/junit.jar"/>
