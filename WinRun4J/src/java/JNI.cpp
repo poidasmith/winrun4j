@@ -63,6 +63,32 @@ jclass JNI::FindClass(JNIEnv* env, TCHAR* classStr)
 	return cl;
 }
 
+/*
+http://java.sun.com/docs/books/jni/html/other.html
+ 
+8.2.1 Creating jstrings from Native Strings
+*/
+jstring JNI::JNU_NewStringNative(JNIEnv *env, jclass aStringClass, const char *str)
+{
+     jstring result;
+     jbyteArray bytes = 0;
+     int len;
+     if (env->EnsureLocalCapacity(2) < 0) {
+         return NULL; /* out of memory error */
+     }
+     len = strlen(str);
+     bytes = env->NewByteArray(len);
+     if (bytes != NULL) {
+         env->SetByteArrayRegion(bytes, 0, len, (jbyte *)str);
+         jmethodID MID_String_init = env->GetMethodID(aStringClass,
+                        "<init>", "([B)V");
+         result = (jstring)env->NewObject(aStringClass, MID_String_init, bytes);
+         env->DeleteLocalRef(bytes);
+         return result;
+     } /* else fall through */
+     return NULL;
+}
+
 bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 {
 	if(!mainClassStr) {
@@ -90,7 +116,7 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 	// Create the run args
 	jobjectArray args = env->NewObjectArray(argc - 1, stringClass, NULL);
 	for(int i = 0; i < argc - 1; i++) {
-		env->SetObjectArrayElement(args, i, env->NewStringUTF(progArgs[i]));
+		env->SetObjectArrayElement(args, i, JNU_NewStringNative(env, stringClass, progArgs[i]));
 	}
 
 	jmethodID mainMethod = env->GetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
