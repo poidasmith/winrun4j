@@ -35,5 +35,6 @@ private:
 	static jobject GetJar(JNIEnv* env, jobject self, jstring library, jstring jarName);
 	static jclass DefineClass(JNIEnv* env, const char* filename, const char* name, jobject loader);
 	static bool SetClassLoaderJars(JNIEnv* env, jobject classloader);
+	static jstring JNU_NewStringNative(JNIEnv *env, jclass aStringClass, const char *str);
 };
 #endif // JNI_UTILS_H
