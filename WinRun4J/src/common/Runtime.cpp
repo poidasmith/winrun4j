@@ -161,8 +161,8 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, 
 		endPos[currentIndex] = i;
 	}
 
-	int index;
-	for (index = 0, i = (includeFirst) ? 0 : 1; i <= currentIndex; i++) {
+	int index = (includeFirst) ? count : 0;
+	for (i = 0; i <= currentIndex; i++) {
 
 		int begin = startPos[i];
 		int end = endPos[i];
