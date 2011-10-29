@@ -103,43 +103,91 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, 
 		return;
 	}
 
-	int start = 0;
-	bool quote = false;
-	bool first = true;
-	TCHAR arg[4096];
-	for(int i = 0; i < len; i++) {
+	//values positions (like java - startPos inclusive, endPos exclusive)
+	int startPos[1024], endPos[1024];
+
+	//current index of value borders
+	int currentIndex = -1;
+
+	//if we are inside quotes so space/tab are no arg separators
+	bool insideQuotes = false;
+
+	//if we are between values so space/tab are arg separators
+	bool insideArgSeparator = true;
+
+	int i;
+	//let's find value borders
+	for(i = 0; i < len; i++) {
+
 		char c = lpCmdLine[i];
-		if(c == '\"') {
-			quote = !quote;
-		} else if(!quote && c == ' ') {
-			if(!first || includeFirst) {
-				int k = 0;
-				for(int j = start; j < i; j++, k++) {
-					arg[k] = lpCmdLine[j];
-				}
-				arg[k] = 0;
-				args[count] = strdup(arg);
-				StrTrim(args[count], " ");
-				StrTrim(args[count], "\"");
-				count++;
-			}
-			start = i;
-			first = false;
+		if (c == ' ' || c == '\t') {
+
+			//space is no arg separator in quotes
+			if (insideQuotes) {continue;};
+
+			//ignore multiple arg separators
+			if (insideArgSeparator) {continue;};
+
+			//it is first arg separator so save the end border of value
+			endPos[currentIndex] = i;
+
+			//set we are in separator seeking mode
+			insideArgSeparator = true;
 		}
+		else {
+
+			if (insideArgSeparator) {
+
+				//save start of value
+				startPos[++currentIndex] = i;
+
+				//set unknown end
+				endPos[currentIndex] = -1;
+
+				//set we are in value seeking mode
+				insideArgSeparator = false;
+			}
+
+			if (c == '"') {
+
+				insideQuotes = !insideQuotes;
+			}
+		}
+	}//end of for(i = 0; i < len; i++) {
+
+	if (endPos[currentIndex] < 0) {
+
+		//set end position if it is still unknown
+		endPos[currentIndex] = i;
 	}
 
-	// Add the last one
-	if(!first || includeFirst) {
-		int k = 0;
-		for(int j = start; j < len; j++, k++) {
-			arg[k] = lpCmdLine[j];
+	int index = (includeFirst) ? count : 0;
+	for (i = 0; i <= currentIndex; i++) {
+
+		int begin = startPos[i];
+		int end = endPos[i];
+		
+		if (lpCmdLine[begin] == '"' && lpCmdLine[end - 1] == '"') {
+
+			//remove quotes
+			begin++;
+			end--;
 		}
-		arg[k] = 0;
-		args[count] = _strdup(arg);
-		StrTrim(args[count], " ");
-		StrTrim(args[count], "\"");
-		count++;
+		int valueLen = end - begin;
+		
+		if (valueLen > 0) {
+		
+			TCHAR *value = (TCHAR *)malloc(sizeof(TCHAR) * (valueLen + 1));
+			for (int a = 0; a < valueLen; a++) {
+			
+				value[a] = lpCmdLine[begin + a];
+			}
+			value[valueLen] = '\0';
+				
+			args[index++] = value;
+		}
 	}
+	count = index;
 }
 
 extern void _cdecl GetFileDirectory(LPSTR filename, LPSTR output)
