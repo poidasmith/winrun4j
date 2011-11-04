@@ -103,6 +103,56 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, 
 		return;
 	}
 
+	int start = 0;
+	bool quote = false;
+	bool first = true;
+	TCHAR arg[4096];
+	for(int i = 0; i < len; i++) {
+		char c = lpCmdLine[i];
+		if(c == '\"') {
+			quote = !quote;
+		} else if(!quote && c == ' ') {
+			if(!first || includeFirst) {
+				int k = 0;
+				for(int j = start; j < i; j++, k++) {
+					arg[k] = lpCmdLine[j];
+				}
+				arg[k] = 0;
+				args[count] = strdup(arg);
+				StrTrim(args[count], " ");
+				StrTrim(args[count], "\"");
+				count++;
+			}
+			start = i;
+			first = false;
+		}
+	}
+
+	// Add the last one
+	if(!first || includeFirst) {
+		int k = 0;
+		for(int j = start; j < len; j++, k++) {
+			arg[k] = lpCmdLine[j];
+		}
+		arg[k] = 0;
+		args[count] = _strdup(arg);
+		StrTrim(args[count], " ");
+		StrTrim(args[count], "\"");
+		count++;
+	}
+}
+/*
+extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, bool includeFirst)
+{
+	// Bug fix here provided by Frederic.Canut@kxen.com 
+	if(lpCmdLine == NULL || *lpCmdLine == 0) return;
+
+	StrTrim(lpCmdLine, " ");
+	int len = strlen(lpCmdLine);
+	if(len == 0) {
+		return;
+	}
+
 	//values positions (like java - startPos inclusive, endPos exclusive)
 	int startPos[1024], endPos[1024];
 
@@ -161,8 +211,8 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, 
 		endPos[currentIndex] = i;
 	}
 
-	int index;
-	for (index = 0, i = (includeFirst) ? 0 : 1; i <= currentIndex; i++) {
+	int index = (includeFirst) ? count : 0;
+	for (i = 0; i <= currentIndex; i++) {
 
 		int begin = startPos[i];
 		int end = endPos[i];
@@ -189,7 +239,7 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, 
 	}
 	count = index;
 }
-
+*/
 extern void _cdecl GetFileDirectory(LPSTR filename, LPSTR output)
 {
 	int len = strlen(filename);
