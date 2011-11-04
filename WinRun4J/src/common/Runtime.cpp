@@ -11,6 +11,9 @@
 #include "Runtime.h"
 #include <stdio.h>
 
+//To show debug messages uncomment the next row
+//#define SHOW_DEBUG
+
 extern void _cdecl StrTruncate(LPSTR target, LPSTR source, size_t len)
 {
 	if(source == NULL) return;
@@ -103,56 +106,13 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, 
 		return;
 	}
 
-	int start = 0;
-	bool quote = false;
-	bool first = true;
-	TCHAR arg[4096];
-	for(int i = 0; i < len; i++) {
-		char c = lpCmdLine[i];
-		if(c == '\"') {
-			quote = !quote;
-		} else if(!quote && c == ' ') {
-			if(!first || includeFirst) {
-				int k = 0;
-				for(int j = start; j < i; j++, k++) {
-					arg[k] = lpCmdLine[j];
-				}
-				arg[k] = 0;
-				args[count] = strdup(arg);
-				StrTrim(args[count], " ");
-				StrTrim(args[count], "\"");
-				count++;
-			}
-			start = i;
-			first = false;
-		}
-	}
-
-	// Add the last one
-	if(!first || includeFirst) {
-		int k = 0;
-		for(int j = start; j < len; j++, k++) {
-			arg[k] = lpCmdLine[j];
-		}
-		arg[k] = 0;
-		args[count] = _strdup(arg);
-		StrTrim(args[count], " ");
-		StrTrim(args[count], "\"");
-		count++;
-	}
-}
-/*
-extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, bool includeFirst)
-{
-	// Bug fix here provided by Frederic.Canut@kxen.com 
-	if(lpCmdLine == NULL || *lpCmdLine == 0) return;
-
-	StrTrim(lpCmdLine, " ");
-	int len = strlen(lpCmdLine);
-	if(len == 0) {
-		return;
-	}
-
+	#ifdef SHOW_DEBUG
+	
+		//just to see input argument(s) (btw written method contract is a better way)
+		printf ("DBG begin - includeFirst: %i, count: %i, lpCmdLine: '%s'\n"
+			, includeFirst, count, lpCmdLine);
+	#endif
+			
 	//values positions (like java - startPos inclusive, endPos exclusive)
 	int startPos[1024], endPos[1024];
 
@@ -211,8 +171,8 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, 
 		endPos[currentIndex] = i;
 	}
 
-	int index = (includeFirst) ? count : 0;
-	for (i = 0; i <= currentIndex; i++) {
+	int index = count;
+	for (i = (includeFirst) ? 0 : 1; i <= currentIndex; i++) {
 
 		int begin = startPos[i];
 		int end = endPos[i];
@@ -233,13 +193,19 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, 
 				value[a] = lpCmdLine[begin + a];
 			}
 			value[valueLen] = '\0';
-				
+			
+			#ifdef SHOW_DEBUG
+	
+				//just to see inserted value(s)
+				printf ("DBG add - index: %i, value: '%s'\n"
+					, index, value);
+			#endif
 			args[index++] = value;
 		}
 	}
 	count = index;
 }
-*/
+
 extern void _cdecl GetFileDirectory(LPSTR filename, LPSTR output)
 {
 	int len = strlen(filename);
