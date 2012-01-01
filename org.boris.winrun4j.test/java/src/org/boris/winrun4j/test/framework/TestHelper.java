@@ -23,6 +23,7 @@ import org.boris.winrun4j.Native;
 public class TestHelper
 {
     public static final File BASE_PATH = new File("..").getAbsoluteFile();
+    public static final File ECLIPSE_PATH = new File("F:\\eclipse\\workspace");
 
     public static final File LAUNCHER = Native.IS_64 ? new File(BASE_PATH,
             "WinRun4J\\build\\WinRun4J-Debug-x64\\WinRun4J.exe") : new File(BASE_PATH,
@@ -60,9 +61,10 @@ public class TestHelper
 
     public static Launcher testcp(Launcher l) {
         return l.classpath(BASE_PATH + "\\org.boris.winrun4j.test\\bin").classpath(
-                BASE_PATH + "\\org.boris.commons\\bin").classpath(BASE_PATH + "\\org.boris.winrun4j\\bin").classpath(
-                BASE_PATH + "\\org.boris.winrun4j.x64test\\bin").classpath(
-                BASE_PATH + "\\..\\platform3.5\\plugins\\org.junit*\\*.jar");
+                ECLIPSE_PATH + "\\org.boris.commons\\bin").classpath(BASE_PATH + "\\org.boris.winrun4j\\bin")
+                .classpath(
+                        BASE_PATH + "\\org.boris.winrun4j.x64test\\bin").classpath(
+                        BASE_PATH + "\\..\\platform3.5\\plugins\\org.junit*\\*.jar");
     }
 
     public static Launcher launcher(boolean console) throws IOException {

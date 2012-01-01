@@ -32,7 +32,7 @@ public class RcEditTest
         assertTrue(res.contains("[info] OK"));
         res = RCEDIT.setINI(exe, res("service.ini"));
         assertTrue(res.contains("[info] OK"));
-        res = RCEDIT.setSplash(exe, res("../resources/spinner1.gif"));
+        res = RCEDIT.setSplash(exe, res("../SplashScreen.gif"));
         assertTrue(res.contains("[info] OK"));
         res = RCEDIT.addJar(exe, new File("../org.boris.winrun4j.eclipse/launcher/WinRun4J.jar"));
         assertTrue(res.contains("[info] OK"));

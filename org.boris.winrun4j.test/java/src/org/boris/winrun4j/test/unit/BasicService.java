@@ -17,6 +17,7 @@ import java.io.PrintStream;
 import org.boris.commons.lang.Threads;
 import org.boris.winrun4j.AbstractService;
 import org.boris.winrun4j.Launcher;
+import org.boris.winrun4j.Log.Level;
 import org.boris.winrun4j.ServiceException;
 import org.boris.winrun4j.test.framework.TestHelper;
 
@@ -48,9 +49,11 @@ public class BasicService extends AbstractService
     }
 
     public static Launcher launcher() throws IOException {
+        File temp = new File(System.getProperty("java.io.tmpdir"));
         Launcher l = TestHelper.launcher();
         l.service(BasicService.class, "Basic Service", "A test service for winrun4j")
-            .depends("Tcpip").startup("auto").debug(8787, true, false);
+                .depends("Tcpip").startup("auto").debug(8787, true, false)
+                .log(new File(temp, "BasicService.log").toString(), Level.INFO, true, true);
         return l;
     }
 }
