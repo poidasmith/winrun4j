@@ -28,7 +28,7 @@
 class WinRun4J
 {
 public:
-	static void SetWorkingDirectory(dictionary* ini);
+	static void SetWorkingDirectory(dictionary* ini, bool defaultToIniDir = false);
 	static void SetProcessPriority(dictionary* ini);
 	static int DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine);
 	static dictionary* LoadIniFile(HINSTANCE hInstance);

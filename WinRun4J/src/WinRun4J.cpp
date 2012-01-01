@@ -34,17 +34,19 @@ namespace
 	bool workingDirectorySet = false;
 }
 
-void WinRun4J::SetWorkingDirectory(dictionary* ini)
+void WinRun4J::SetWorkingDirectory(dictionary* ini, bool defaultToIniDir)
 {
 	if(workingDirectorySet) 
 		return;
 	char* dir = iniparser_getstr(ini, WORKING_DIR);
-	if(dir != NULL) {
+	if(dir != NULL || defaultToIniDir) {
 		// First set the current directory to the module (or ini) directory
 		SetCurrentDirectory(iniparser_getstr(ini, INI_DIR));
 
-		// Now set working directory to specified (this allows for a relative working directory)
-		SetCurrentDirectory(dir);
+		if(dir != NULL) {
+			// Now set working directory to specified (this allows for a relative working directory)
+			SetCurrentDirectory(dir);
+		}
 
 		// Inform the user of the absolute path
 		if(Log::GetLevel() == info) {
@@ -290,8 +292,13 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	if(Shell::CheckSingleInstance(ini))
 		return 0;
 
+	char* serviceCls = iniparser_getstr(ini, SERVICE_CLASS);
+
+	// If this is a service we want to default the working directory to the INI dir if not specified
+	bool defaultToIniDir = (serviceCls != NULL);
+
 	// Set the current working directory if specified
-	WinRun4J::SetWorkingDirectory(ini);
+	WinRun4J::SetWorkingDirectory(ini, defaultToIniDir);
 
 	// Display the splash screen if present
 	SplashScreen::ShowSplashImage(hInstance, ini);
@@ -322,7 +329,6 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 #endif 
 
 	// Run the main class (or service class)
-	char* serviceCls = iniparser_getstr(ini, SERVICE_CLASS);
 	if(serviceCls != NULL)
 		Service::Run(hInstance, ini, progargsCount, progargs);
 	else
