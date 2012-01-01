@@ -54,11 +54,13 @@ struct VM {
 	static void ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, UINT& count);
 	static char* GetJavaVMLibrary(LPSTR version, LPSTR min, LPSTR max);
 	static void LoadRuntimeLibrary(TCHAR* libPath);
-	static int StartJavaVM( TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance);
+	static int StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance);
 	static int CleanupVM();
 	static JavaVM* GetJavaVM();
 	static JNIEnv* GetJNIEnv(bool daemon=false);
 	static void DetachCurrentThread();
+	static void AbortHook();
+	static void ExitHook(int status);
 	
 public:
 	static Version* FindVersion(Version* versions, DWORD numVersions, LPSTR version, LPSTR min, LPSTR max);

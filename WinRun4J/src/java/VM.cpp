@@ -9,8 +9,10 @@
  *******************************************************************************/
 
 #include "VM.h"
+#include "JNI.h"
 #include "../common/Log.h"
 #include "../common/INI.h"
+#include "../launcher/Service.h"
 
 // VM Registry keys
 #define JRE_REG_PATH             TEXT("Software\\JavaSoft\\Java Runtime Environment")
@@ -363,6 +365,7 @@ void VM::LoadRuntimeLibrary(TCHAR* libPath)
 				HINSTANCE hKernel32 = GetModuleHandle("kernel32");
 				LPFNSetDllDirectory lpfnSetDllDirectory = (LPFNSetDllDirectory)GetProcAddress(hKernel32, "SetDllDirectoryA");
 				if (lpfnSetDllDirectory != NULL) {
+					binPath[i] = 0;
 					lpfnSetDllDirectory(binPath);
 				}
 			}
@@ -396,17 +399,26 @@ int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance)
 	// Count the vm args
 	int numVMArgs = -1;
 	while(vmArgs[++numVMArgs] != NULL) {}
+
+	// Add the options for exit and abort hooks
+	int numHooks = 2;
 	
-	JavaVMOption* options = (JavaVMOption*) malloc((numVMArgs) * sizeof(JavaVMOption));
+	JavaVMOption* options = (JavaVMOption*) malloc((numVMArgs + numHooks) * sizeof(JavaVMOption));
 	for(int i = 0; i < numVMArgs; i++){
 		options[i].optionString = _strdup(vmArgs[i]);
 		options[i].extraInfo = 0;
 	}
+
+	// Setup hook pointers
+	options[numVMArgs].optionString = "abort";
+	options[numVMArgs].extraInfo = (void*) &VM::AbortHook;
+	options[numVMArgs + 1].optionString = "exit";
+	options[numVMArgs + 1].extraInfo = (void*) &VM::ExitHook;
 		
 	JavaVMInitArgs init_args;
 	init_args.version = JNI_VERSION_1_2;
 	init_args.options = options;
-	init_args.nOptions = numVMArgs;
+	init_args.nOptions = numVMArgs + numHooks;
 	init_args.ignoreUnrecognized = JNI_TRUE;
 	
 	int result = createJavaVM(&jvm, &env, &init_args);
@@ -426,12 +438,8 @@ int VM::CleanupVM()
 		return 1;
 	}
 
-	JNIEnv* env = VM::GetJNIEnv();
-
-	if (env && env->ExceptionOccurred()) {
-		env->ExceptionDescribe();
-		env->ExceptionClear();
-	}
+	JNIEnv* env = VM::GetJNIEnv(true);
+	JNI::PrintStackTrace(env);
 
 	int result = jvm->DestroyJavaVM();
 	if(g_jniLibrary) {
@@ -442,6 +450,24 @@ int VM::CleanupVM()
 	env = 0;
 	jvm = 0;
 
+	Log::Info("VM destroyed.");
+
 	return result;
+}
+
+void VM::AbortHook()
+{
+	Log::Error("Application aborted.");
+
+	// If we are a service we need to update the service control manager
+	Service::Shutdown(255);
+}
+
+void VM::ExitHook(int status)
+{
+	Log::Info("Application exited (%d).", status);
+
+	// If we are a service we need to update the service control manager
+	Service::Shutdown(status);
 }
 

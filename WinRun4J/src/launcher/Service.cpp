@@ -380,11 +380,13 @@ DWORD ServiceMainThread(LPVOID lpParam)
 
 	g_returnCode = env->CallIntMethod(g_serviceInstance, g_mainMethod, args);
 
-	Log::Info("Service method completed.");
+	Log::Info("Service method completed...");
+	VM::DetachCurrentThread();
 
 	// When the service main completes we assume the service wants to stop
 	// so wait for the VM is tidy up (all non-daemon threads complete etc..)
 	VM::CleanupVM();
+
 	g_serviceStatus.dwCurrentState = SERVICE_STOPPED;
 	SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus);
 
@@ -440,4 +442,18 @@ int Service::Main(DWORD argc, LPSTR* argv)
 	VM::DetachCurrentThread();
 
 	return 0;
+}
+
+void Service::Shutdown(int exitCode)
+{
+	if(g_serviceId != 0) {
+		g_serviceStatus.dwWin32ExitCode = exitCode;
+		g_serviceStatus.dwCurrentState = SERVICE_STOPPED;
+		g_serviceStatus.dwCheckPoint = 0;
+		g_serviceStatus.dwWaitHint = 0;
+		
+		if(!SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus)) {
+			Log::Error("Error in SetServiceStatus: %d", GetLastError());
+		}
+	}
 }

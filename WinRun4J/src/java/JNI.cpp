@@ -176,7 +176,7 @@ jthrowable JNI::PrintStackTrace(JNIEnv* env)
 	jthrowable thr = env->ExceptionOccurred();
 	if(thr) {
 		// Print out the stack trace for this exception
-		jclass c = env->GetObjectClass(thr);
+		jclass c = env->FindClass("java/lang/Throwable");
 		jmethodID m = env->GetMethodID(c, "printStackTrace", "()V");
 		if(m) 
 			env->CallVoidMethod(thr, m);
