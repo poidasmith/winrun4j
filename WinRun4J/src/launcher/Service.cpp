@@ -357,7 +357,7 @@ int Service::Unregister(dictionary* ini)
 		return error;
 	}
 
-	return DeleteService(s);
+	return DeleteService(s) == 0;
 }
 
 int Service::Control(DWORD opCode)

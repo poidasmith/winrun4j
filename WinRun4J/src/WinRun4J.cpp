@@ -96,14 +96,12 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 
 	// Check for RegisterDDE util request
 	if(StartsWith(lpCmdLine, "--WinRun4J:RegisterFileAssociations")) {
-		DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
-		return 0;
+		return DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
 	}
 
 	// Check for UnregisterDDE util request
 	if(StartsWith(lpCmdLine, "--WinRun4J:UnregisterFileAssociations")) {
-		DDE::UnregisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
-		return 0;
+		return DDE::UnregisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
 	}
 
 	// Check for Register Service util request
@@ -111,8 +109,7 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 		dictionary* ini = INI::LoadIniFile(hInstance);
 		if(ini == NULL) 
 			return 1;
-		Service::Register(ini);
-		return 0;
+		return Service::Register(ini);
 	}
 
 	// Check for Unregister Service util request
@@ -120,8 +117,7 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 		dictionary* ini = INI::LoadIniFile(hInstance);
 		if(ini == NULL) 
 			return 1;
-		Service::Unregister(ini);
-		return 0;
+		return Service::Unregister(ini);
 	}
 
 	if(StartsWith(lpCmdLine, "--WinRun4J:PrintINI")) {
