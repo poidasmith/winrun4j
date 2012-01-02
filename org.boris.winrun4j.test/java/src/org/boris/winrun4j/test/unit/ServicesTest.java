@@ -127,8 +127,9 @@ public class ServicesTest
 
         // Unregister service
         res = new ProcessResult(l.launch("--WinRun4J:UnregisterService")).waitFor();
+        String out = res.getStdStr();
         assertEquals(0, res.exitValue());
-        assertTrue(res.getStdOut().indexOf("[info] Unregistering Service...") != -1);
+        assertTrue(out.indexOf("[info] Unregistering Service...") != -1);
     }
 
     @Test
