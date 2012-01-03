@@ -14,10 +14,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
-import org.boris.commons.io.ProcessResult;
-import org.boris.commons.lang.Threads;
 import org.boris.winrun4j.Launcher;
+import org.boris.winrun4j.test.framework.ProcessResult;
 import org.boris.winrun4j.test.framework.TestHelper;
+import org.boris.winrun4j.test.framework.Threads;
 import org.junit.Test;
 
 public class SingleInstanceTest

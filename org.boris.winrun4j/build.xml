@@ -3,7 +3,7 @@
 	<property name="release.dir" value="c:\Development\Releases"/>
 	<property name="src.dir" value="c:\eclipse\git\winrun4j\WinRun4J"/>
 	<property name="release.name" value="winrun4J"/>
-	<property name="release.version" value="0.4.3"/>
+	<property name="release.version" value="0.4.4"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/winrun4j"/>
 	
 	<target name="build">
@@ -57,18 +57,21 @@
 		<delete dir="build"/>
 		<jar destfile="${deploy.dir}/src/WinRun4J-cppsrc.zip">
 			<fileset dir="${src.dir}">
-				<include name="**/*.cpp"/>
-				<include name="**/*.h"/>
-				<include name="**/*.vcproj"/>
-				<include name="**/*.sln"/>
-				<include name="**/*.rc"/>
-				<include name="**/*.ico"/>
-				<exclude name="xlcall.h"/>
+				<include name="build/*.vcproj"/>
+				<include name="src/**"/>
+				<include name="lib/**"/>
+				<include name="*.sln"/>
+				<include name="*.ico"/>
+				<include name="*.html"/>
+				<include name="*.gif"/>
+				<exclude name="build/WinRun4J-*/**"/>
+				<exclude name="build/ResourceEditor-*/**"/>
 			</fileset>
 		</jar>
 		<mkdir dir="build"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/service.ini"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/WinRun4Jc.ini"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/RegTest.ini"/>
 		<delete dir="build"/>
 		<zip destfile="${release.dir}/${release.name}-${release.version}.zip">
 			<fileset dir="${release.dir}/${release.name}-${release.version}">

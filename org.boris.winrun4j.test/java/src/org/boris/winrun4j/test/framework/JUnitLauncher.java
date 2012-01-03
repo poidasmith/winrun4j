@@ -15,7 +15,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import org.boris.commons.io.IO;
 import org.junit.Test;
 
 public class JUnitLauncher

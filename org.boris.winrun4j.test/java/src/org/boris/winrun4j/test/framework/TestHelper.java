@@ -16,7 +16,6 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Native;
 

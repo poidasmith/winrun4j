@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.winrun4j.test.unit;
 
-import org.boris.commons.lang.Threads;
+import org.boris.winrun4j.test.framework.Threads;
 
 public class SingleInstanceRunner
 {

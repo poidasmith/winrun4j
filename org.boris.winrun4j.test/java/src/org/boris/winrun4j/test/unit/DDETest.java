@@ -14,9 +14,9 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 
-import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.DDE;
 import org.boris.winrun4j.Launcher;
+import org.boris.winrun4j.test.framework.ProcessResult;
 import org.boris.winrun4j.test.framework.TestHelper;
 import org.junit.Test;
 

@@ -14,12 +14,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.boris.commons.lang.Threads;
 import org.boris.winrun4j.AbstractService;
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Log.Level;
 import org.boris.winrun4j.ServiceException;
 import org.boris.winrun4j.test.framework.TestHelper;
+import org.boris.winrun4j.test.framework.Threads;
 
 public class BasicService extends AbstractService
 {
