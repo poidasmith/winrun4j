@@ -10,6 +10,7 @@
 package org.boris.winrun4j.test.unit;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -18,6 +19,7 @@ import org.boris.winrun4j.AbstractService;
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Log.Level;
 import org.boris.winrun4j.ServiceException;
+import org.boris.winrun4j.test.framework.IO;
 import org.boris.winrun4j.test.framework.TestHelper;
 import org.boris.winrun4j.test.framework.Threads;
 
@@ -49,11 +51,19 @@ public class BasicService extends AbstractService
     }
 
     public static Launcher launcher() throws IOException {
-        File temp = new File(System.getProperty("java.io.tmpdir"));
         Launcher l = TestHelper.launcher();
         l.service(BasicService.class, "Basic Service", "A test service for winrun4j")
                 .depends("Tcpip").startup("auto").debug(8787, true, false)
-                .log(new File(temp, "BasicService.log").toString(), Level.INFO, true, true);
+                .log(new File(temp(), "BasicService.log").toString(), Level.INFO, true, true);
+        l.workingDir(System.getProperty("user.dir"));
         return l;
+    }
+    
+    public static File temp() {
+        return new File(System.getProperty("java.io.tmpdir"));
+    }
+    
+    public static void printLog() throws IOException {
+        IO.copy(new FileInputStream(new File(temp(), "BasicService.log")), System.out, false);
     }
 }

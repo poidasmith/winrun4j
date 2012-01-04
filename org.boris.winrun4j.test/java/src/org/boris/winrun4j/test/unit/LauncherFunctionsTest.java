@@ -36,7 +36,7 @@ public class LauncherFunctionsTest
         if (Native.IS_64) {
         } else {
             Launcher l = TestHelper.launcher().main(LauncherFunctionsTest.class).heapMax(100);
-            String res = TestHelper.run(l);
+            TestHelper.run(l);
         }
     }
 

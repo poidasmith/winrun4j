@@ -24,6 +24,7 @@ public class ArgsTest
         l.main(ArgsDumper.class);
         l.arg("a").arg(" b").arg("\"  as asdf  \"");
         String out = TestHelper.run(l, "\"  \"", "adf", "--WinRun4J:ExecuteINI");
+        //System.out.println(out);
         assertTrue(out.contains("'a' 'b' '  as asdf' '  ' 'adf' '--WinRun4J:ExecuteINI'"));
     }
 }

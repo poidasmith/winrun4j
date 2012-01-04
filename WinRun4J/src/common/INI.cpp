@@ -58,6 +58,12 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 {
 	dictionary* ini = NULL;
 
+	// Set PWD environment variable so that it can be used in the INI file
+	TCHAR oldpwd[MAX_PATH], newpwd[MAX_PATH];
+	GetEnvironmentVariable("PWD", oldpwd, MAX_PATH);
+	GetCurrentDirectory(MAX_PATH, newpwd);
+	SetEnvironmentVariable("PWD", newpwd);
+
 	// First attempt to load INI from exe
 	HRSRC hi = FindResource(hInstance, MAKEINTRESOURCE(1), RT_INI_FILE);
 	if(hi) {
@@ -88,6 +94,8 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 		ini = iniparser_load(inifile);
 		if(ini == NULL) {
 			Log::Error("Could not load INI file: %s", inifile);
+			// Reset PWD environment variable
+			SetEnvironmentVariable("PWD", oldpwd);
 			return NULL;
 		}
 	}
@@ -139,6 +147,9 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 
 	// Store a reference to be used by JNI functions
 	g_ini = ini;
+
+	// Reset PWD environment variable
+	SetEnvironmentVariable("PWD", oldpwd);
 
 	return ini;
 }

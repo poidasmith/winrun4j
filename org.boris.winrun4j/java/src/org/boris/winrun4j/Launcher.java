@@ -51,6 +51,7 @@ public class Launcher
         ini = new File(launcher.getParent(), getNameSansExtension(launcher) + ".ini");
         if (ini.exists())
             ini.delete();
+        //System.out.println(toString());
         copy(new StringReader(toString()), new FileWriter(ini), true);
         return this;
     }
@@ -61,6 +62,7 @@ public class Launcher
         copy(launcherFile, launcher);
         ini = new File(launcher.getParent(), getNameSansExtension(launcher) + ".ini");
         ini.deleteOnExit();
+        //System.out.println(toString());
         copy(new StringReader(toString()), new FileWriter(ini), true);
         return this;
     }

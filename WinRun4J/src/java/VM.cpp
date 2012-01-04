@@ -450,8 +450,6 @@ int VM::CleanupVM()
 	env = 0;
 	jvm = 0;
 
-	Log::Info("VM destroyed.");
-
 	return result;
 }
 

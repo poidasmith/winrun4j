@@ -36,6 +36,7 @@ public class EnvironmentTest
                 "-test ok now this is great", "ok", "great"));
         pr.waitFor();
         String[] lines = IO.readLines(new StringReader(pr.getStdOut()));
+        //System.out.println(pr.getStdOut());
         assertEquals(lines.length, 4);
         assertEquals(lines[1], "\"-test ok now this is great\"");
         assertEquals(lines[2], "ok");
