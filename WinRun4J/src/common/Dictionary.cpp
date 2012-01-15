@@ -527,8 +527,6 @@ void iniparser_freedict(dictionary * d)
     dictionary_del(d);
 }
 
-#define ASCIILINESZ	1024
-
 char * strlwc(const char * s)
 {
     static char l[ASCIILINESZ+1];
@@ -610,15 +608,16 @@ char * strstrip(char * s)
 }
 
 char* sgets(char* buffer, int* pos, char * line, int maxsize)
-{
+{		
 	if(buffer[*pos] == 0) return NULL;
 	int i = *pos;
-	for(; i < maxsize; i++) {
-		if(buffer[i] == '\n' || buffer[i] == 0)
+	int offset = 0;
+	for(; offset < maxsize; offset++) {
+		if(buffer[offset + i] == '\n' || buffer[offset + i] == 0)
 			break;
 	}
-	memcpy(line, &buffer[*pos], i - (*pos));
-	line[i - (*pos)] = 0;
-	*pos = i + (buffer[i] == 0 ? 0 : 1);
+	memcpy(line, &buffer[*pos], offset);
+	line[offset] = 0;
+	*pos = i + offset + (buffer[i] == 0 ? 0 : 1);
 	return line;
 }

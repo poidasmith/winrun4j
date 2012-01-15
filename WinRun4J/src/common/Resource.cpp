@@ -135,7 +135,8 @@ bool Resource::ListINI(LPSTR exeFile)
 	PBYTE pb = (PBYTE) LockResource(hg);
 	DWORD* pd = (DWORD*) pb;
 	if(*pd == INI_RES_MAGIC) {
-		printf("%s\n", &pb[4]);
+		puts((char *) &pb[4]);
+		puts("\n");
 	} else {
 		printf("Unknown resource\n");
 	}
