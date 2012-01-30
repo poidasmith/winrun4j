@@ -29,7 +29,10 @@ public class RcEditTest
         File exe = l.getLauncher();
         String res = RCEDIT.clear(exe);
         res = RCEDIT.setMainIcon(exe, res("EclipseFile.ico"));
-        assertTrue(res.contains("[info] OK"));
+        boolean tres = res.contains("[info] OK");
+        if(!tres)
+            System.out.println(res);
+        assertTrue(tres);
         res = RCEDIT.setINI(exe, res("service.ini"));
         assertTrue(res.contains("[info] OK"));
         res = RCEDIT.setSplash(exe, res("SplashScreen.gif"));

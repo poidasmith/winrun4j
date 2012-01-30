@@ -69,6 +69,7 @@
 		<mkdir dir="build"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/service.ini"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/WinRun4Jc.ini"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/EclipseFile.ico"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/RegTest.ini"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/RegTest.bat"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/WinRun4J.exe.manifest"/>

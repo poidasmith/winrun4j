@@ -133,6 +133,11 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 		return WinRun4J::ExecuteINI(hInstance, lpCmdLine);
 	}
 
+	if(StartsWith(lpCmdLine, "--WinRun4J:Version")) {
+		Log::Info("0.4.4\n");
+		return 0;
+	}
+
 	Log::Error("Unrecognized command: %s", lpCmdLine);
 	return 1;
 }

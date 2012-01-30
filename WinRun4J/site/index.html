@@ -23,13 +23,10 @@
 			<div class="section-content">
 				WinRun4j is a java launcher for windows. It is an alternative to javaw.exe and provides the following benefits:
 				<ul>
-						<li><b><font color="red">NEW: </font></b>Flexible native access to any Windows API, compatible with <a href="http://pinvoke.net">PINVOKE.NET</a>. 
-							See <a href="nativebinding.html">native binding examples</a> for more information.
-							This is currently BETA quality.</li>
-
-							
 						<li>Uses an INI file for specifying classpath, main class, vm args, program args.</li>
 						<li>Custom executable name that appears in task manager.</li>
+
+							
 						<li>Additional JVM args for more flexible memory use.</li>
 
 						<li>Built-in icon replacer for custom icon.</li>
@@ -46,6 +43,9 @@
 
 						<li>Supports embedding a splash image.</li>
 						<li>Supports embedding JAR files. These will be included in the classpath (without extraction). This is currently BETA quality.</li>
+						<li>Flexible native access to any Windows API, compatible with <a href="http://pinvoke.net">PINVOKE.NET</a>. 
+							See <a href="nativebinding.html">native binding examples</a> for more information.
+							This is currently BETA quality.</li>
 
 						<li><a href="eclipseplugin.html">Eclipse Plugin</a> for integrated launching, debugging and exporting as an executable bundle.</li>
 				</ul>
@@ -477,6 +477,15 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 			<div class="section-title">Change History</div>
 			<div class="section-content">
 
+				0.4.4
+				<ul>
+					<li>Improved command line argument parsing</li>
+					<li>Fixes for service shutdown and working directory</li>
+					<li>Fixes for return codes in built-in commands</li>
+					<li>Fix for large INI files</li>
+					<li>Added <code>--WinRun4J:Version</code> built-in command to check launcher version</li>
+				</ul>
+				
 				0.4.3
 				<ul>
 					<li>Fixed loading issue with Java 7</li>
