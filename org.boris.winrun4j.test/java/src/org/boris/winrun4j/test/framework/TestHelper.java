@@ -31,8 +31,8 @@ public class TestHelper
     private static File findLauncher(boolean console) {
         if (new File(BASE_PATH, "WinRun4J\\build\\").exists()) {
             if (console) {
-                return Native.IS_64 ? new File(BASE_PATH, "WinRun4J\\build\\WinRun4J-Debug-x64 - Console\\WinRun4J.exe")
-                        : new File(BASE_PATH, "WinRun4J\\build\\WinRun4J-Debug - Console\\WinRun4J.exe");
+                return Native.IS_64 ? new File(BASE_PATH, "WinRun4J\\build\\WinRun4J-Debug-x64 - Console\\WinRun4Jc.exe")
+                        : new File(BASE_PATH, "WinRun4J\\build\\WinRun4J-Debug - Console\\WinRun4Jc.exe");
             } else {
                 return Native.IS_64 ? new File(BASE_PATH, "WinRun4J\\build\\WinRun4J-Debug-x64\\WinRun4J.exe")
                         : new File(BASE_PATH, "WinRun4J\\build\\WinRun4J-Debug\\WinRun4J.exe");

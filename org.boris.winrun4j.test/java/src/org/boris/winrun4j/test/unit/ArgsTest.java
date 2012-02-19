@@ -22,9 +22,14 @@ public class ArgsTest
     public void testArgs() throws Exception {
         Launcher l = TestHelper.launcher();
         l.main(ArgsDumper.class);
+        l.vmarg("\"-Dp=23;23;23\"");
         l.arg("a").arg(" b").arg("\"  as asdf  \"");
         String out = TestHelper.run(l, "\"  \"", "adf", "--WinRun4J:ExecuteINI");
-        //System.out.println(out);
+        System.out.println(out);
         assertTrue(out.contains("'a' 'b' '  as asdf' '  ' 'adf' '--WinRun4J:ExecuteINI'"));
+    }
+    
+    public static void main(String[] args) throws Exception {
+        new ArgsTest().testArgs();
     }
 }
