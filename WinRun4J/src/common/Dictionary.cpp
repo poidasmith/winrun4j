@@ -480,6 +480,10 @@ void parse_line(char * sec, char * lin, dictionary * d)
                 strcpy(val, strcrop(val));
             }
             iniparser_add_entry(d, sec, key, val);
+
+			// allow WinRun4J section to be an alias to the main/unnamed section
+			if(sec && !strcmp(sec, "WinRun4J"))
+				iniparser_add_entry(d, "", key, val);
         }
     }
 }
