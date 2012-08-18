@@ -16,6 +16,10 @@ public class MainService implements Service
     private String serviceClass = INI.getProperty("MainService:class");
 
     public int serviceMain(String[] args) throws ServiceException {
+        // Set context class loader to avoid troubles
+        if(Thread.currentThread().getContextClassLoader() == null)
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+        
         try {
             Class c = Class.forName(serviceClass);
             Method m = c.getMethod("main", String[].class);
