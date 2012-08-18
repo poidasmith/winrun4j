@@ -14,9 +14,6 @@ public abstract class AbstractService implements Service
     protected volatile boolean shutdown = false;
     
     public AbstractService() {
-        // Set context class loader to avoid troubles
-        if(Thread.currentThread().getContextClassLoader() == null)
-            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
     }
 
     public int serviceRequest(int control) throws ServiceException {
