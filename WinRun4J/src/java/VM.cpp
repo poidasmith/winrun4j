@@ -59,6 +59,19 @@ void VM::DetachCurrentThread()
 
 char* VM::FindJavaVMLibrary(dictionary *ini)
 {
+	//	If "vm.sysfirst" is specified, then default to using the system's 
+	//	already installed JVM rather than the one specified in "vm.location".
+
+	int findSystemVmFirst = iniparser_getboolean(ini, VM_SYSFIRST, 0);
+	char* vmDefaultLocation = GetJavaVMLibrary(
+		iniparser_getstr(ini, VM_VERSION),
+		iniparser_getstr(ini, VM_VERSION_MIN),
+		iniparser_getstr(ini, VM_VERSION_MAX)
+	);
+
+	if (findSystemVmFirst && vmDefaultLocation != NULL)
+		return vmDefaultLocation;
+
 	char* vmLocation = iniparser_getstr(ini, VM_LOCATION);
 	if(vmLocation != NULL)
 	{
@@ -88,7 +101,7 @@ char* VM::FindJavaVMLibrary(dictionary *ini)
 		return strdup(vmFull);
 	}
 
-	return GetJavaVMLibrary(iniparser_getstr(ini, VM_VERSION), iniparser_getstr(ini, VM_VERSION_MIN), iniparser_getstr(ini, VM_VERSION_MAX));
+	return vmDefaultLocation;
 }
 
 // Find an appropriate VM library (this needs improving)
@@ -328,6 +341,21 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, UINT& count)
 			sprintf(sizeArg, "-Xms%um", size);
 			args[count++] = strdup(sizeArg);
 		}
+	}
+
+	// Look for java.library.path.N entries
+	TCHAR *libPaths[MAX_PATH];
+	UINT libPathsCount = 0;
+	INI::GetNumberedKeysFromIni(ini, JAVA_LIBRARY_PATH, libPaths, libPathsCount);
+	if(libPathsCount > 0) {
+		TCHAR libPathArg[4096];
+		libPathArg[0] = 0;
+		strcat(libPathArg, "-Djava.library.path=");
+		for(int i =0 ; i < libPathsCount; i++) {
+			strcat(libPathArg, libPaths[i]);
+			strcat(libPathArg, ";");
+		}
+		args[count++] = strdup(libPathArg);
 	}
 }
 
