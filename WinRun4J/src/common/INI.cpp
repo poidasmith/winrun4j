@@ -58,11 +58,10 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 {
 	dictionary* ini = NULL;
 
-	// Set PWD environment variable so that it can be used in the INI file
-	TCHAR oldpwd[MAX_PATH], newpwd[MAX_PATH];
-	GetEnvironmentVariable("PWD", oldpwd, MAX_PATH);
-	GetCurrentDirectory(MAX_PATH, newpwd);
-	SetEnvironmentVariable("PWD", newpwd);
+	// Set DIR environment variable so that it can be used in the INI file
+	TCHAR inidir[MAX_PATH];
+	GetFileDirectory(inifile, inidir);
+	SetEnvironmentVariable("DIR", inidir);
 
 	// First attempt to load INI from exe
 	HRSRC hi = FindResource(hInstance, MAKEINTRESOURCE(1), RT_INI_FILE);
@@ -70,7 +69,7 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 		HGLOBAL hg = LoadResource(hInstance, hi);
 		PBYTE pb = (PBYTE) LockResource(hg);
 		DWORD* pd = (DWORD*) pb;
-		if(*pd == INI_RES_MAGIC) {
+		if(pd && *pd == INI_RES_MAGIC) {
 			ini = iniparser_load((char *) &pb[RES_MAGIC_SIZE], true);	
 			if(!ini) {
 				Log::Warning("Could not load embedded INI file");
@@ -94,8 +93,6 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 		ini = iniparser_load(inifile);
 		if(ini == NULL) {
 			Log::Error("Could not load INI file: %s", inifile);
-			// Reset PWD environment variable
-			SetEnvironmentVariable("PWD", oldpwd);
 			return NULL;
 		}
 	}
@@ -109,6 +106,7 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 		Log::Info("Loading INI keys from file location: %s", iniFileLocation);
 		dictionary* ini3 = iniparser_load(iniFileLocation);
 		if(ini3) {
+			ExpandVariables(ini3);
 			for(int i = 0; i < ini3->n; i++) {
 				char* key = ini3->key[i];
 				char* value = ini3->val[i];
@@ -124,19 +122,17 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 	ParseRegistryKeys(ini);
 
 	iniparser_setstr(ini, MODULE_INI, inifile);
+	iniparser_setstr(ini, INI_DIR, inidir);
 
 	// Add module name to ini
-	TCHAR filename[MAX_PATH], filedir[MAX_PATH];
+	TCHAR filename[MAX_PATH];
 	GetModuleFileName(hInstance, filename, MAX_PATH);
 	iniparser_setstr(ini, MODULE_NAME, filename);
 
 	// strip off filename to get module directory
+	TCHAR filedir[MAX_PATH];
 	GetFileDirectory(filename, filedir);
 	iniparser_setstr(ini, MODULE_DIR, filedir);
-
-	// stip off filename to get ini directory
-	GetFileDirectory(inifile, filedir);
-	iniparser_setstr(ini, INI_DIR, filedir);
 
 	// Log init
 	Log::Init(hInstance, iniparser_getstr(ini, LOG_FILE), iniparser_getstr(ini, LOG_LEVEL), ini);
@@ -147,9 +143,6 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 
 	// Store a reference to be used by JNI functions
 	g_ini = ini;
-
-	// Reset PWD environment variable
-	SetEnvironmentVariable("PWD", oldpwd);
 
 	return ini;
 }

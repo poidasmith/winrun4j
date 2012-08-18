@@ -26,6 +26,7 @@ public:
 	static char* CallStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
 	static const bool CallBooleanMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
 	static jclass FindClass(JNIEnv* env, TCHAR* mainClassStr);
+	static void SetContextClassLoader(JNIEnv* env, jobject refObject);
 
 private:
 	static jstring NewString(JNIEnv *env, TCHAR * str);

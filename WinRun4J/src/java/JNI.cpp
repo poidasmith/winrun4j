@@ -367,3 +367,21 @@ void JNI::LoadEmbeddedClassloader(JNIEnv* env)
 	}
 }
 
+void JNI::SetContextClassLoader(JNIEnv* env, jobject refObject)
+{
+	jclass threadCls = env->FindClass("java/lang/Thread");
+	jmethodID currentThreadMid = env->GetStaticMethodID(threadCls, "currentThread", "()Ljava/lang/Thread;");
+	jobject currentThread = env->CallStaticObjectMethod(threadCls, currentThreadMid);
+	jmethodID getCtxClsLoaderMid = env->GetMethodID(threadCls, "getContextClassLoader", "()Ljava/lang/ClassLoader;");
+	jobject ctxClassLoader = env->CallObjectMethod(currentThread, getCtxClsLoaderMid);
+	if(ctxClassLoader)
+		return;
+	jclass refCls = env->GetObjectClass(refObject);
+	jmethodID getClsMid = env->GetMethodID(refCls, "getClass", "()Ljava/lang/Class;");
+	jobject clsObj = env->CallObjectMethod(refObject, getClsMid);
+	jclass clsCls = env->GetObjectClass(clsObj);
+	jmethodID getClsLoaderMid = env->GetMethodID(clsCls, "getClassLoader", "()Ljava/lang/ClassLoader;");
+	ctxClassLoader = env->CallObjectMethod(clsObj, getClsLoaderMid);
+	jmethodID setCtxClsLoaderMid = env->GetMethodID(threadCls, "setContextClassLoader", "(Ljava/lang/ClassLoader;)V");
+	env->CallVoidMethod(currentThread, setCtxClsLoaderMid, ctxClassLoader);
+}

@@ -162,7 +162,8 @@ int Service::Initialise(dictionary* ini)
 		return 1;
 	}
 
-	g_serviceClass = env->FindClass(iniparser_getstr(ini, SERVICE_CLASS));
+	char* svcClass = iniparser_getstr(ini, SERVICE_CLASS);
+	g_serviceClass = JNI::FindClass(env, svcClass);
 	if(g_serviceClass == NULL) {
 		Log::Error("Could not find service class");
 		return 1;
@@ -369,6 +370,9 @@ int Service::Control(DWORD opCode)
 DWORD ServiceMainThread(LPVOID lpParam)
 {
 	JNIEnv* env = VM::GetJNIEnv(false);
+
+	// Set context classloader as some libraries expect this to be set
+	JNI::SetContextClassLoader(env, g_serviceInstance);
 
 	// Need another global ref here
 	jobject args = env->NewGlobalRef((jobject) lpParam);
