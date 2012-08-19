@@ -22,7 +22,7 @@ public:
 	static void Init(JNIEnv* env);
 	static void ClearException(JNIEnv* env);
 	static jthrowable PrintStackTrace(JNIEnv* env);
-	static bool RunMainClass( JNIEnv* env, TCHAR* mainClass, TCHAR* progArgs[] );
+	static int RunMainClass( JNIEnv* env, TCHAR* mainClass, TCHAR* progArgs[] );
 	static char* CallStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
 	static const bool CallBooleanMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
 	static jclass FindClass(JNIEnv* env, TCHAR* mainClassStr);

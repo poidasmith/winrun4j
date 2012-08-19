@@ -331,9 +331,9 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 
 	// Run the main class (or service class)
 	if(serviceCls != NULL)
-		Service::Run(hInstance, ini, progargsCount, progargs);
+		result = Service::Run(hInstance, ini, progargsCount, progargs);
 	else
-		JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
+		result = JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
 	// Check for exception - if not a service
 	if(serviceCls == NULL)
@@ -345,7 +345,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	WinRun4J::FreeArgs();
 
 	// Close VM (This will block until all non-daemon java threads finish).
-	result = VM::CleanupVM();
+	result |= VM::CleanupVM();
 
 	// Close the log
 	Log::Close();

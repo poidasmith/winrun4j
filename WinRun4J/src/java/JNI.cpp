@@ -89,24 +89,24 @@ jstring JNI::JNU_NewStringNative(JNIEnv *env, jclass aStringClass, const char *s
      return NULL;
 }
 
-bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
+int JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 {
 	if(!mainClassStr) {
 		Log::Error("No main class specified");
-		return false;
+		return 1;
 	}
 
 	jclass mainClass = FindClass(env, mainClassStr);
 
 	if(mainClass == NULL) {
 		Log::Error("Could not find or initialize main class");
-		return false;
+		return 2;
 	}
 	
 	jclass stringClass = env->FindClass("java/lang/String");
 	if(stringClass == NULL) {
 		Log::Error("Could not find String class");
-		return false;
+		return 4;
 	}
 
 	// Count the args
@@ -122,7 +122,7 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 	jmethodID mainMethod = env->GetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
 	if(mainMethod == NULL) {
 		Log::Error("Could not find main method.");
-		return false;
+		return 8;
 	}
 
 	env->CallStaticVoidMethod(mainClass, mainMethod, args);
@@ -130,7 +130,7 @@ bool JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 	PrintStackTrace(env);
 	ClearException(env);
 
-	return true;
+	return 0;
 }
 
 char* JNI::CallStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name)
