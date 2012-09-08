@@ -291,3 +291,34 @@ An example is as follows:
 java.not.found=A suitable version of Java could not be found on your system. Please contact VendorX.
 java.failed=Java failed to startup successfully. Please contact VendorX.
 ```
+
+## Embedded Resources
+
+The following shows the help information for RCEDIT, the resource editor included in the download:
+
+```
+WinRun4J Resource Editor v1.0 (winrun4j.sf.net)
+
+Edits resources in executables (EXE) and dynamic link-libraries (DLL).
+
+RCEDIT &lt;option&gt; &lt;exe/dll&gt; [resource]
+
+  filename      Specifies the filename of the EXE/DLL.
+  resource      Specifies the name of the resource to add to the EXE/DLL.
+  /I            Set the icon as the default icon for the executable.
+  /A            Adds an icon to the EXE/DLL.
+  /N            Sets the INI file.
+  /J            Adds a JAR file.
+  /E            Extracts a JAR file from the EXE/DLL.
+  /S            Sets the splash image.
+  /C            Clears all resources from the EXE/DLL.
+  /L            Lists the resources in the EXE/DLL.
+  /P            Outputs the contents of the INI file in the EXE.
+
+```
+
+Note: 
+
+* The embedded INI entries are overwridden by an external INI file (if present).
+* Any JARs added to the executable will automatically be added to the classpath (before all classpath entries specified in the INI file and in the order in which they are embedded). They don't need to be specified in the INI file.
+* If an embedded splash image is present it will automatically appear (it doesn't need to be specified in the INI file).
