@@ -40,6 +40,7 @@ A very basic INI file would look like:
 
 <code>
 main.class=org.something.MyMainClass
+
 classpath.1=*.jar
 </code>
 
