@@ -37,6 +37,7 @@ The launcher is designed to be used as follows:
 6. Launch [YourApp].exe
 
 A very basic INI file would look like:
+
 <code>
 main.class=org.something.MyMainClass
 classpath.1=*.jar
