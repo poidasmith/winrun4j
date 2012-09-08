@@ -258,5 +258,36 @@ given the physical memory available.</td>
 		<td>ini.override</td>
 		<td>A flag ("true"/"false") to indicate if an external INI file can override values from an embedded one.</td>
 	</tr>
-
 </table>
+
+<b>Note: </b>INI values can contain environment variables, which will be substituted on startup, eg <code>log.file=%TEMP%/mylog.txt</code>
+
+## Error Messages
+
+Error messages emitted by the launcher can be customized via the INI file. These can be placed in an "[ErrorMessages]" section:
+
+<table>
+	<tr><th>Key</th><th>Description</th></tr>
+	<tr>
+		<td>show.popup</td>
+
+		<td>Set this to "false" to disable popups, default is "true".</td>
+	</tr>
+	<tr>
+		<td>java.not.found</td>
+		<td>This message will be displayed as a message box popup when the launcher cannot find an appropriate JVM to load.</td>
+	</tr>
+	<tr>
+
+		<td>java.failed</td>
+		<td>This message will be displayed as a message box popup when the JVM fails to startup, for example if invalid VM args are entered in the INI file</td>
+	</tr>
+</table>
+
+An example is as follows:
+
+```
+[ErrorMessages]
+java.not.found=A suitable version of Java could not be found on your system. Please contact VendorX.
+java.failed=Java failed to startup successfully. Please contact VendorX.
+```
