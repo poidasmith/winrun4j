@@ -301,7 +301,7 @@ WinRun4J Resource Editor v1.0 (winrun4j.sf.net)
 
 Edits resources in executables (EXE) and dynamic link-libraries (DLL).
 
-RCEDIT &lt;option&gt; &lt;exe/dll&gt; [resource]
+RCEDIT <option> <exe/dll> [resource]
 
   filename      Specifies the filename of the EXE/DLL.
   resource      Specifies the name of the resource to add to the EXE/DLL.
