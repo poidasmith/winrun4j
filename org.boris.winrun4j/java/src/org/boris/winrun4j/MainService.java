@@ -14,12 +14,28 @@ import java.lang.reflect.Method;
 public class MainService implements Service
 {
     private String serviceClass = INI.getProperty("MainService:class");
+    private volatile boolean shutdown = false;
 
-    public int serviceMain(String[] args) throws ServiceException {
+    public int serviceMain(final String[] args) throws ServiceException {
         try {
             Class c = Class.forName(serviceClass);
-            Method m = c.getMethod("main", String[].class);
-            m.invoke(null, (Object) args);
+            final Method m = c.getMethod("main", String[].class);
+            // Create a thread to run the service in, and use this thread to monitor it.
+            Thread t = new Thread() {
+                public void run() {
+                    try {
+                        m.invoke(null, (Object) args);
+                    } catch (Exception e) {
+                    }
+                    shutdown = true;
+                }
+            };
+            t.start();
+            while (!shutdown) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {}
+            }
         } catch (Exception e) {
             throw new ServiceException(e);
         }
@@ -30,7 +46,7 @@ public class MainService implements Service
         switch (control) {
         case SERVICE_CONTROL_STOP:
         case SERVICE_CONTROL_SHUTDOWN:
-            System.exit(0);
+            shutdown = true;
             break;
         default:
             break;
