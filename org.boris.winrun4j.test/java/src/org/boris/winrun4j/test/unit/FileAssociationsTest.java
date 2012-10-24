@@ -35,7 +35,7 @@ public class FileAssociationsTest
 
         File f = l.getLauncher();
         validateFileAssociation(f, ".fte", "File Association Test");
-        validateFileAssociation(f, ".fte", "File Association Test");
+        validateFileAssociation(f, ".ft2", "File Association Test 2");
 
         result = TestHelper.run(l, "--WinRun4J:UnregisterFileAssociations");
         assertTrue(result.contains("[info] Unregistering .fte"));

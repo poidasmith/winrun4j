@@ -34,8 +34,8 @@ public:
 	static void Ready();
 
 	// Registration helpers
-	static void RegisterFileAssociations(dictionary* ini, LPSTR lpCmdLine);
-	static void UnregisterFileAssociations(dictionary* ini, LPSTR lpCmdLine);
+	static int RegisterFileAssociations(dictionary* ini, LPSTR lpCmdLine);
+	static int UnregisterFileAssociations(dictionary* ini, LPSTR lpCmdLine);
 
 	// Execute
 	static void Execute(LPSTR lpExecuteStr);
@@ -45,9 +45,9 @@ public:
 
 private:
 	static bool RegisterNatives(JNIEnv* env, dictionary* ini);
-	static void EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, bool isRegister, void (*CallbackFunc)(DDEInfo&));
-	static void RegisterFileAssociation(DDEInfo&);
-	static void UnregisterFileAssociation(DDEInfo&);
+	static int EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, bool isRegister, int (*CallbackFunc)(DDEInfo&));
+	static int RegisterFileAssociation(DDEInfo&);
+	static int UnregisterFileAssociation(DDEInfo&);
 };
 
 #endif // DDE_H

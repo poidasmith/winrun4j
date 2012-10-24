@@ -9,8 +9,10 @@
  *******************************************************************************/
 
 #include "VM.h"
+#include "JNI.h"
 #include "../common/Log.h"
 #include "../common/INI.h"
+#include "../launcher/Service.h"
 
 // VM Registry keys
 #define JRE_REG_PATH             TEXT("Software\\JavaSoft\\Java Runtime Environment")
@@ -57,6 +59,19 @@ void VM::DetachCurrentThread()
 
 char* VM::FindJavaVMLibrary(dictionary *ini)
 {
+	//	If "vm.sysfirst" is specified, then default to using the system's 
+	//	already installed JVM rather than the one specified in "vm.location".
+
+	int findSystemVmFirst = iniparser_getboolean(ini, VM_SYSFIRST, 0);
+	char* vmDefaultLocation = GetJavaVMLibrary(
+		iniparser_getstr(ini, VM_VERSION),
+		iniparser_getstr(ini, VM_VERSION_MIN),
+		iniparser_getstr(ini, VM_VERSION_MAX)
+	);
+
+	if (findSystemVmFirst && vmDefaultLocation != NULL)
+		return vmDefaultLocation;
+
 	char* vmLocation = iniparser_getstr(ini, VM_LOCATION);
 	if(vmLocation != NULL)
 	{
@@ -86,7 +101,7 @@ char* VM::FindJavaVMLibrary(dictionary *ini)
 		return strdup(vmFull);
 	}
 
-	return GetJavaVMLibrary(iniparser_getstr(ini, VM_VERSION), iniparser_getstr(ini, VM_VERSION_MIN), iniparser_getstr(ini, VM_VERSION_MAX));
+	return vmDefaultLocation;
 }
 
 // Find an appropriate VM library (this needs improving)
@@ -327,6 +342,21 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, UINT& count)
 			args[count++] = strdup(sizeArg);
 		}
 	}
+
+	// Look for java.library.path.N entries
+	TCHAR *libPaths[MAX_PATH];
+	UINT libPathsCount = 0;
+	INI::GetNumberedKeysFromIni(ini, JAVA_LIBRARY_PATH, libPaths, libPathsCount);
+	if(libPathsCount > 0) {
+		TCHAR libPathArg[4096];
+		libPathArg[0] = 0;
+		strcat(libPathArg, "-Djava.library.path=");
+		for(int i =0 ; i < libPathsCount; i++) {
+			strcat(libPathArg, libPaths[i]);
+			strcat(libPathArg, ";");
+		}
+		args[count++] = strdup(libPathArg);
+	}
 }
 
 void VM::LoadRuntimeLibrary(TCHAR* libPath)
@@ -363,6 +393,7 @@ void VM::LoadRuntimeLibrary(TCHAR* libPath)
 				HINSTANCE hKernel32 = GetModuleHandle("kernel32");
 				LPFNSetDllDirectory lpfnSetDllDirectory = (LPFNSetDllDirectory)GetProcAddress(hKernel32, "SetDllDirectoryA");
 				if (lpfnSetDllDirectory != NULL) {
+					binPath[i] = 0;
 					lpfnSetDllDirectory(binPath);
 				}
 			}
@@ -396,17 +427,26 @@ int VM::StartJavaVM(TCHAR* libPath, TCHAR* vmArgs[], HINSTANCE hInstance)
 	// Count the vm args
 	int numVMArgs = -1;
 	while(vmArgs[++numVMArgs] != NULL) {}
+
+	// Add the options for exit and abort hooks
+	int numHooks = 2;
 	
-	JavaVMOption* options = (JavaVMOption*) malloc((numVMArgs) * sizeof(JavaVMOption));
+	JavaVMOption* options = (JavaVMOption*) malloc((numVMArgs + numHooks) * sizeof(JavaVMOption));
 	for(int i = 0; i < numVMArgs; i++){
 		options[i].optionString = _strdup(vmArgs[i]);
 		options[i].extraInfo = 0;
 	}
+
+	// Setup hook pointers
+	options[numVMArgs].optionString = "abort";
+	options[numVMArgs].extraInfo = (void*) &VM::AbortHook;
+	options[numVMArgs + 1].optionString = "exit";
+	options[numVMArgs + 1].extraInfo = (void*) &VM::ExitHook;
 		
 	JavaVMInitArgs init_args;
 	init_args.version = JNI_VERSION_1_2;
 	init_args.options = options;
-	init_args.nOptions = numVMArgs;
+	init_args.nOptions = numVMArgs + numHooks;
 	init_args.ignoreUnrecognized = JNI_TRUE;
 	
 	int result = createJavaVM(&jvm, &env, &init_args);
@@ -426,12 +466,8 @@ int VM::CleanupVM()
 		return 1;
 	}
 
-	JNIEnv* env = VM::GetJNIEnv();
-
-	if (env && env->ExceptionOccurred()) {
-		env->ExceptionDescribe();
-		env->ExceptionClear();
-	}
+	JNIEnv* env = VM::GetJNIEnv(true);
+	JNI::PrintStackTrace(env);
 
 	int result = jvm->DestroyJavaVM();
 	if(g_jniLibrary) {
@@ -443,5 +479,21 @@ int VM::CleanupVM()
 	jvm = 0;
 
 	return result;
+}
+
+void VM::AbortHook()
+{
+	Log::Error("Application aborted.");
+
+	// If we are a service we need to update the service control manager
+	Service::Shutdown(255);
+}
+
+void VM::ExitHook(int status)
+{
+	Log::Info("Application exited (%d).", status);
+
+	// If we are a service we need to update the service control manager
+	Service::Shutdown(status);
 }
 

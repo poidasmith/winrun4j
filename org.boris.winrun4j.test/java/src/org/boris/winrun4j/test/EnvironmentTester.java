@@ -11,6 +11,7 @@ package org.boris.winrun4j.test;
 
 import java.io.File;
 
+import org.boris.winrun4j.Log;
 import org.boris.winrun4j.PInvoke;
 import org.boris.winrun4j.winapi.Environment;
 import org.boris.winrun4j.winapi.Environment.OSVERSIONINFOEX;
@@ -21,6 +22,7 @@ import org.boris.winrun4j.winapi.Shell32;
 public class EnvironmentTester
 {
     public static void main(String[] args) throws Exception {
+        Log.info("TESTING");
         System.out.println("Logical Drives");
         File[] logicalDrives = Environment.getLogicalDrives();
         for (File f : logicalDrives) {

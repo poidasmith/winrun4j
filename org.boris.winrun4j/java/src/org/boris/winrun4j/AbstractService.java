@@ -12,6 +12,9 @@ package org.boris.winrun4j;
 public abstract class AbstractService implements Service
 {
     protected volatile boolean shutdown = false;
+    
+    public AbstractService() {
+    }
 
     public int serviceRequest(int control) throws ServiceException {
         switch (control) {

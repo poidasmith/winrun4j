@@ -34,17 +34,19 @@ namespace
 	bool workingDirectorySet = false;
 }
 
-void WinRun4J::SetWorkingDirectory(dictionary* ini)
+void WinRun4J::SetWorkingDirectory(dictionary* ini, bool defaultToIniDir)
 {
 	if(workingDirectorySet) 
 		return;
 	char* dir = iniparser_getstr(ini, WORKING_DIR);
-	if(dir != NULL) {
+	if(dir != NULL || defaultToIniDir) {
 		// First set the current directory to the module (or ini) directory
 		SetCurrentDirectory(iniparser_getstr(ini, INI_DIR));
 
-		// Now set working directory to specified (this allows for a relative working directory)
-		SetCurrentDirectory(dir);
+		if(dir != NULL) {
+			// Now set working directory to specified (this allows for a relative working directory)
+			SetCurrentDirectory(dir);
+		}
 
 		// Inform the user of the absolute path
 		if(Log::GetLevel() == info) {
@@ -94,14 +96,12 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 
 	// Check for RegisterDDE util request
 	if(StartsWith(lpCmdLine, "--WinRun4J:RegisterFileAssociations")) {
-		DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
-		return 0;
+		return DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
 	}
 
 	// Check for UnregisterDDE util request
 	if(StartsWith(lpCmdLine, "--WinRun4J:UnregisterFileAssociations")) {
-		DDE::UnregisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
-		return 0;
+		return DDE::UnregisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
 	}
 
 	// Check for Register Service util request
@@ -109,8 +109,7 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 		dictionary* ini = INI::LoadIniFile(hInstance);
 		if(ini == NULL) 
 			return 1;
-		Service::Register(ini);
-		return 0;
+		return Service::Register(ini);
 	}
 
 	// Check for Unregister Service util request
@@ -118,8 +117,7 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 		dictionary* ini = INI::LoadIniFile(hInstance);
 		if(ini == NULL) 
 			return 1;
-		Service::Unregister(ini);
-		return 0;
+		return Service::Unregister(ini);
 	}
 
 	if(StartsWith(lpCmdLine, "--WinRun4J:PrintINI")) {
@@ -133,6 +131,11 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 
 	if(StartsWith(lpCmdLine, "--WinRun4J:ExecuteINI")) {
 		return WinRun4J::ExecuteINI(hInstance, lpCmdLine);
+	}
+
+	if(StartsWith(lpCmdLine, "--WinRun4J:Version")) {
+		Log::Info("0.4.4\n");
+		return 0;
 	}
 
 	Log::Error("Unrecognized command: %s", lpCmdLine);
@@ -290,8 +293,13 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	if(Shell::CheckSingleInstance(ini))
 		return 0;
 
+	char* serviceCls = iniparser_getstr(ini, SERVICE_CLASS);
+
+	// If this is a service we want to default the working directory to the INI dir if not specified
+	bool defaultToIniDir = (serviceCls != NULL);
+
 	// Set the current working directory if specified
-	WinRun4J::SetWorkingDirectory(ini);
+	WinRun4J::SetWorkingDirectory(ini, defaultToIniDir);
 
 	// Display the splash screen if present
 	SplashScreen::ShowSplashImage(hInstance, ini);
@@ -322,11 +330,10 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 #endif 
 
 	// Run the main class (or service class)
-	char* serviceCls = iniparser_getstr(ini, SERVICE_CLASS);
 	if(serviceCls != NULL)
-		Service::Run(hInstance, ini, progargsCount, progargs);
+		result = Service::Run(hInstance, ini, progargsCount, progargs);
 	else
-		JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
+		result = JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
 	
 	// Check for exception - if not a service
 	if(serviceCls == NULL)
@@ -338,7 +345,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	WinRun4J::FreeArgs();
 
 	// Close VM (This will block until all non-daemon java threads finish).
-	result = VM::CleanupVM();
+	result |= VM::CleanupVM();
 
 	// Close the log
 	Log::Close();

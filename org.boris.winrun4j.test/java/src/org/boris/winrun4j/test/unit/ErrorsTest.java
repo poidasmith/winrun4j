@@ -31,7 +31,8 @@ public class ErrorsTest
         assertTrue(TestHelper.run(l).contains("[err] Failed to find Java VM"));
         l.errorMessages("Could not find a matching VM version", null);
         l.create();
-        assertTrue(TestHelper.run(l).contains("[err] Could not find a matching VM version"));
+        String res = TestHelper.run(l);
+        assertTrue(res.contains("[err] Could not find a matching VM version"));
         l = TestHelper.launcher().main("Unknown").showErrorPopup(false);
         assertTrue(TestHelper.run(l).contains("[err] Could not find or initialize main class"));
         if (!Native.IS_64) {

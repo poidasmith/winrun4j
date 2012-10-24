@@ -3,7 +3,7 @@
 	<property name="release.dir" value="c:\Development\Releases"/>
 	<property name="src.dir" value="c:\eclipse\git\winrun4j\WinRun4J"/>
 	<property name="release.name" value="winrun4J"/>
-	<property name="release.version" value="0.4.3"/>
+	<property name="release.version" value="0.4.4"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/winrun4j"/>
 	
 	<target name="build">
@@ -40,10 +40,8 @@
 		<mkdir dir="build"/>
 		<javac source="1.5" srcdir="../org.boris.winrun4j.test/java/src" destdir="build" debug="true">
 			<classpath>
-				<pathelement location="C:/eclipse/workspace/org.boris.commons/bin"/>
+				<pathelement location="../org.boris.winrun4j.test/lib/junit-4.10.jar"/>
 				<pathelement location="bin"/>
-				<pathelement location="C:/eclipse/platform3.5/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
-				<pathelement location="C:/eclipse/platform3.5/plugins/org.junit4_4.5.0.v20090824/junit.jar"/>
 			</classpath>
 		</javac>
 		<jar destfile="${deploy.dir}/bin/WinRun4JTest.jar">
@@ -57,25 +55,32 @@
 		<delete dir="build"/>
 		<jar destfile="${deploy.dir}/src/WinRun4J-cppsrc.zip">
 			<fileset dir="${src.dir}">
-				<include name="**/*.cpp"/>
-				<include name="**/*.h"/>
-				<include name="**/*.vcproj"/>
-				<include name="**/*.sln"/>
-				<include name="**/*.rc"/>
-				<include name="**/*.ico"/>
-				<exclude name="xlcall.h"/>
+				<include name="build/*.vcproj"/>
+				<include name="src/**"/>
+				<include name="lib/**"/>
+				<include name="*.sln"/>
+				<include name="*.ico"/>
+				<include name="*.html"/>
+				<include name="*.gif"/>
+				<exclude name="build/WinRun4J-*/**"/>
+				<exclude name="build/ResourceEditor-*/**"/>
 			</fileset>
 		</jar>
 		<mkdir dir="build"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/service.ini"/>
 		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/WinRun4Jc.ini"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/EclipseFile.ico"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/RegTest.ini"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/RegTest.bat"/>
+		<copy todir="${deploy.dir}/bin/" file="${src.dir}/test/WinRun4J.exe.manifest"/>
+		<copy todir="${deploy.dir}/bin/" file="../org.boris.winrun4j.test/lib/junit-4.10.jar"/>
 		<delete dir="build"/>
 		<zip destfile="${release.dir}/${release.name}-${release.version}.zip">
 			<fileset dir="${release.dir}/${release.name}-${release.version}">
 				<include name="**/*"/>
 			</fileset>
 		</zip>
-		<delete dir="${release.dir}/${release.name}-${release.version}"/>
+		<!-- <delete dir="${release.dir}/${release.name}-${release.version}"/> -->
 		<mkdir dir="${release.dir}/winrun4j-javadoc"/>
 		<javadoc sourcepath="java/src" packagenames="*" destdir="${release.dir}/winrun4j-javadoc"/>
 	</target>

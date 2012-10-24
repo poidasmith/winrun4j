@@ -7,20 +7,14 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.winrun4j.test.unit;
+package org.boris.winrun4j.test.framework;
 
-import org.boris.winrun4j.test.framework.Threads;
-
-public class SingleInstanceRunner
+public class ArgsDumper
 {
     public static void main(String[] args) throws Exception {
-        String mode = args[0];
-        if (mode.equals("process")) {
-            Threads.sleepQuietly(Long.MAX_VALUE);
-        } else if (mode.equals("window")) {
-        } else if (mode.equals("dde")) {
-        } else {
-            System.exit(1);
+        for (int i = 0; i < args.length; i++) {
+            System.out.print("'" + args[i] + "' ");
         }
+        System.out.println();
     }
 }

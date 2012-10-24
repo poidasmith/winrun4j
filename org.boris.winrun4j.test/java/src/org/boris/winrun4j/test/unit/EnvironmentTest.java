@@ -14,10 +14,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 
-import org.boris.commons.io.IO;
-import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.Log;
 import org.boris.winrun4j.PInvoke;
+import org.boris.winrun4j.test.framework.IO;
+import org.boris.winrun4j.test.framework.ProcessResult;
 import org.boris.winrun4j.test.framework.TestHelper;
 import org.boris.winrun4j.winapi.Environment;
 import org.boris.winrun4j.winapi.Environment.OSVERSIONINFOEX;

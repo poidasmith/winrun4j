@@ -162,7 +162,8 @@ int Service::Initialise(dictionary* ini)
 		return 1;
 	}
 
-	g_serviceClass = env->FindClass(iniparser_getstr(ini, SERVICE_CLASS));
+	char* svcClass = iniparser_getstr(ini, SERVICE_CLASS);
+	g_serviceClass = JNI::FindClass(env, svcClass);
 	if(g_serviceClass == NULL) {
 		Log::Error("Could not find service class");
 		return 1;
@@ -357,7 +358,7 @@ int Service::Unregister(dictionary* ini)
 		return error;
 	}
 
-	return DeleteService(s);
+	return DeleteService(s) == 0;
 }
 
 int Service::Control(DWORD opCode)
@@ -370,6 +371,9 @@ DWORD ServiceMainThread(LPVOID lpParam)
 {
 	JNIEnv* env = VM::GetJNIEnv(false);
 
+	// Set context classloader as some libraries expect this to be set
+	JNI::SetContextClassLoader(env, g_serviceInstance);
+
 	// Need another global ref here
 	jobject args = env->NewGlobalRef((jobject) lpParam);
 
@@ -380,11 +384,13 @@ DWORD ServiceMainThread(LPVOID lpParam)
 
 	g_returnCode = env->CallIntMethod(g_serviceInstance, g_mainMethod, args);
 
-	Log::Info("Service method completed.");
+	Log::Info("Service method completed...");
+	VM::DetachCurrentThread();
 
 	// When the service main completes we assume the service wants to stop
 	// so wait for the VM is tidy up (all non-daemon threads complete etc..)
 	VM::CleanupVM();
+
 	g_serviceStatus.dwCurrentState = SERVICE_STOPPED;
 	SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus);
 
@@ -440,4 +446,18 @@ int Service::Main(DWORD argc, LPSTR* argv)
 	VM::DetachCurrentThread();
 
 	return 0;
+}
+
+void Service::Shutdown(int exitCode)
+{
+	if(g_serviceId != 0) {
+		g_serviceStatus.dwWin32ExitCode = exitCode;
+		g_serviceStatus.dwCurrentState = SERVICE_STOPPED;
+		g_serviceStatus.dwCheckPoint = 0;
+		g_serviceStatus.dwWaitHint = 0;
+		
+		if(!SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus)) {
+			Log::Error("Error in SetServiceStatus: %d", GetLastError());
+		}
+	}
 }

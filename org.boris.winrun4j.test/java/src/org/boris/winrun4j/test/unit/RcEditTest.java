@@ -28,21 +28,24 @@ public class RcEditTest
         Launcher l = TestHelper.launcher().create();
         File exe = l.getLauncher();
         String res = RCEDIT.clear(exe);
-        res = RCEDIT.setMainIcon(exe, res("eclipse.ico"));
-        assertTrue(res.contains("[info] OK"));
+        res = RCEDIT.setMainIcon(exe, res("EclipseFile.ico"));
+        boolean tres = res.contains("[info] OK");
+        if(!tres)
+            System.out.println(res);
+        assertTrue(tres);
         res = RCEDIT.setINI(exe, res("service.ini"));
         assertTrue(res.contains("[info] OK"));
-        res = RCEDIT.setSplash(exe, res("../resources/spinner1.gif"));
+        res = RCEDIT.setSplash(exe, res("SplashScreen.gif"));
         assertTrue(res.contains("[info] OK"));
-        res = RCEDIT.addJar(exe, new File("../org.boris.winrun4j.eclipse/launcher/WinRun4J.jar"));
+        res = RCEDIT.addJar(exe, res("junit-4.10.jar"));
         assertTrue(res.contains("[info] OK"));
-        res = RCEDIT.setManifest(exe, new File("docs/manifest.xml"));
+        res = RCEDIT.setManifest(exe, res("WinRun4J.exe.manifest"));
         assertTrue(res.contains("[info] OK"));
         res = RCEDIT.list(exe);
-        assertTrue(res.contains("Icon      \t0007"));
+        assertTrue(res.contains("Icon      \t0003"));
         assertTrue(res.contains("Group Icon\t0001"));
         assertTrue(res.contains("INI File"));
-        assertTrue(res.contains("JAR File  \tWinRun4J.jar"));
+        assertTrue(res.contains("JAR File  \tjunit-4.10.jar"));
         assertTrue(res.contains("Splash File"));
         res = RCEDIT.printINI(exe);
         assertTrue(res.contains("service.class=org.boris.winrun4j.test.ServiceTest"));
@@ -55,6 +58,13 @@ public class RcEditTest
     }
 
     private static File res(String res) {
-        return new File("../WinRun4J/test/" + res);
+        String[] locations = {"../WinRun4J/test/", ".", "docs", "lib", "../WinRun4J/" };
+        for(String location : locations) {
+            File f = new File(new File(location), res);
+            if(f.exists())
+                return f;
+        }
+        
+        return new File(res);
     }
 }

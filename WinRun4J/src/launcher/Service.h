@@ -20,6 +20,7 @@ public:
 	static int Register(dictionary* ini);
 	static int Unregister(dictionary* ini);
 	static int Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[]);
+	static void Shutdown(int exitCode);
 
 	// Internal methods
 	static int Control(DWORD opCode);

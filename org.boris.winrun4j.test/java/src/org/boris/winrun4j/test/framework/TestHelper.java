@@ -16,23 +16,45 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-import org.boris.commons.io.ProcessResult;
 import org.boris.winrun4j.Launcher;
 import org.boris.winrun4j.Native;
 
 public class TestHelper
 {
     public static final File BASE_PATH = new File("..").getAbsoluteFile();
+    public static final File ECLIPSE_PATH = new File("F:\\eclipse\\workspace");
 
-    public static final File LAUNCHER = Native.IS_64 ? new File(BASE_PATH,
-            "WinRun4J\\build\\WinRun4J-Debug-x64\\WinRun4J.exe") : new File(BASE_PATH,
-            "WinRun4J\\build\\WinRun4J-Debug\\WinRun4J.exe");
-    public static final File LAUNCHER_CONSOLE = Native.IS_64 ? new File(BASE_PATH,
-            "WinRun4J\\build\\WinRun4J-Debug-x64 - Console\\WinRun4J.exe") : new File(BASE_PATH,
-            "WinRun4J\\build\\WinRun4J-Debug - Console\\WinRun4J.exe");
-    public static final File RCEDIT = Native.IS_64 ? new File(BASE_PATH,
-            "WinRun4J\\build\\ResourceEditor-Debug - Console-x64\\ResourceEditor.exe") : new File(BASE_PATH,
-            "WinRun4J\\build\\ResourceEditor-Debug - Console\\ResourceEditor.exe");
+    public static final File LAUNCHER = findLauncher(false);
+    public static final File LAUNCHER_CONSOLE = findLauncher(true);
+    public static final File RCEDIT = findRcEdit();
+
+    private static File findLauncher(boolean console) {
+        if (new File(BASE_PATH, "WinRun4J\\build\\").exists()) {
+            if (console) {
+                return Native.IS_64 ? new File(BASE_PATH, "WinRun4J\\build\\WinRun4J-Debug-x64 - Console\\WinRun4Jc.exe")
+                        : new File(BASE_PATH, "WinRun4J\\build\\WinRun4J-Debug - Console\\WinRun4Jc.exe");
+            } else {
+                return Native.IS_64 ? new File(BASE_PATH, "WinRun4J\\build\\WinRun4J-Debug-x64\\WinRun4J.exe")
+                        : new File(BASE_PATH, "WinRun4J\\build\\WinRun4J-Debug\\WinRun4J.exe");
+            }
+        } else {
+            if (console) {
+                return Native.IS_64 ? new File("WinRun4J64.exe") : new File("WinRun4J.exe");
+            } else {
+                return Native.IS_64 ? new File("WinRun4J64c.exe") : new File("WinRun4Jc.exe");
+            }
+        }
+    }
+
+    private static File findRcEdit() {
+        if (new File(BASE_PATH, "WinRun4J\\build\\").exists()) {
+            return Native.IS_64 ? new File(BASE_PATH,
+                    "WinRun4J\\build\\ResourceEditor-Debug - Console-x64\\ResourceEditor.exe") : new File(BASE_PATH,
+                    "WinRun4J\\build\\ResourceEditor-Debug - Console\\ResourceEditor.exe");
+        } else {
+            return Native.IS_64 ? new File("RCEDIT64.exe") : new File("RCEDIT.exe");
+        }
+    }
 
     public static byte[] createRandomByteArray() {
         Random r = new Random();
@@ -59,16 +81,18 @@ public class TestHelper
     }
 
     public static Launcher testcp(Launcher l) {
-        return l.classpath(BASE_PATH + "\\org.boris.winrun4j.test\\bin").classpath(
-                BASE_PATH + "\\org.boris.commons\\bin").classpath(BASE_PATH + "\\org.boris.winrun4j\\bin").classpath(
-                BASE_PATH + "\\org.boris.winrun4j.x64test\\bin").classpath(
-                BASE_PATH + "\\..\\platform3.5\\plugins\\org.junit*\\*.jar");
+        return l.classpath("*.jar")
+                .classpath(BASE_PATH + "\\org.boris.winrun4j.test\\bin")
+                .classpath(BASE_PATH + "\\org.boris.winrun4j\\bin")
+                .classpath(BASE_PATH + "\\org.boris.winrun4j.x64test\\bin")
+                .classpath(BASE_PATH + "\\..\\platform3.5\\plugins\\org.junit*\\*.jar");
     }
 
     public static Launcher launcher(boolean console) throws IOException {
         Launcher l = new Launcher(console ? LAUNCHER_CONSOLE : LAUNCHER);
         l.vmarg("-Xcheck:jni");
         testcp(l);
+        l.workingDir("%PWD%");
         return l;
     }
 

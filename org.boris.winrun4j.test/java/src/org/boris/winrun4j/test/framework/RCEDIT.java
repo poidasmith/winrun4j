@@ -12,8 +12,6 @@ package org.boris.winrun4j.test.framework;
 import java.io.File;
 import java.io.IOException;
 
-import org.boris.commons.io.ProcessResult;
-
 public class RCEDIT
 {
     public static String setMainIcon(File exe, File icon) throws Exception {
