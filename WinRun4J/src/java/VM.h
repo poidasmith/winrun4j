@@ -14,6 +14,8 @@
 #include "../common/Runtime.h"
 #include <jni.h>
 #include "../common/INI.h"
+#include <string.h>
+
 
 // VM versions
 #define VM_VERSION_MAX ":vm.version.max"
