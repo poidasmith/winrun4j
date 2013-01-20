@@ -5,17 +5,17 @@ Bundle-SymbolicName: org.boris.winrun4j.eclipse;singleton:=true
 Bundle-Version: 0.1.3
 Bundle-Vendor: Boris Inc.
 Import-Package: org.eclipse.core.runtime
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
+Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.debug.core,
- org.eclipse.jdt.launching;bundle-version="3.4.1",
+ org.eclipse.jdt.launching,
  org.eclipse.debug.ui,
- org.eclipse.jdt.debug.ui;bundle-version="3.3.1",
- org.eclipse.jdt.core;bundle-version="3.4.4",
- org.eclipse.jface;bundle-version="3.4.2",
- org.eclipse.ui;bundle-version="3.4.2",
+ org.eclipse.jdt.debug.ui,
+ org.eclipse.jdt.core,
+ org.eclipse.jface,
+ org.eclipse.ui,
  org.eclipse.jdt.ui,
- org.eclipse.jdt.debug;bundle-version="3.4.1",
- org.eclipse.ui.ide;bundle-version="3.4.2"
+ org.eclipse.jdt.debug,
+ org.eclipse.ui.ide
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
 Bundle-Activator: org.boris.winrun4j.eclipse.WActivator
 Bundle-ActivationPolicy: lazy
