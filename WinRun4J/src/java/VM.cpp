@@ -72,9 +72,14 @@ char* VM::FindJavaVMLibrary(dictionary *ini)
 	if (findSystemVmFirst && vmDefaultLocation != NULL)
 		return vmDefaultLocation;
 
-	char* vmLocation = iniparser_getstr(ini, VM_LOCATION);
-	if(vmLocation != NULL)
+	char* vmLocations = iniparser_getstr(ini, VM_LOCATION);
+	//Configuration example: vm.location=..\jre\bin\client\jvm.dll|..\..\jre\bin\client\jvm.dll
+	//Tested: vm.location=|foo|| |..\jre\bin\client\jvm.dll|G:\jdk1.6.0_26_32b\jre\bin\client\jvm.dll
+	Log::Info("Configured vm.location: %s", vmLocations);
+
+	if(vmLocations != NULL)
 	{
+	
 		// If the working.dir is not specified then we assume the vm location is relative to the
 		// module dir
 		char defWorkingDir[MAX_PATH];
@@ -84,21 +89,39 @@ char* VM::FindJavaVMLibrary(dictionary *ini)
 			SetCurrentDirectory(iniparser_getstr(ini, INI_DIR));
 		}
 
-		// Check if file is valid (ie. accessible or present)
-		DWORD fileAttr = GetFileAttributes(vmLocation);
-		if(fileAttr == INVALID_FILE_ATTRIBUTES) {
-			return NULL;
-		}
-
-		char vmFull[MAX_PATH];
-		GetFullPathName(vmLocation, MAX_PATH, vmFull, NULL);
-
+		char *delimiter = "|";
+	   	char *vmLocation = strtok(vmLocations, delimiter);
+	   
+	   	while (vmLocation != NULL)
+	   	{
+			
+			// Check if file is valid (ie. accessible or present)
+			DWORD fileAttr = GetFileAttributes(vmLocation);
+			if(fileAttr != INVALID_FILE_ATTRIBUTES)
+			{
+				char vmFull[MAX_PATH];
+				GetFullPathName(vmLocation, MAX_PATH, vmFull, NULL);
+	
+				// Reset working dir if set
+				if(!workingDir) {
+					SetCurrentDirectory(defWorkingDir);
+				}
+	
+				return strdup(vmFull);
+				
+			}//end of if(fileAttr != INVALID_FILE_ATTRIBUTES)
+			
+			Log::Info("vm.location item not found: %s", vmLocation); 		
+    		vmLocation = strtok(NULL, delimiter);
+			
+		}//end of while (vmLocation != NULL)
+		
 		// Reset working dir if set
 		if(!workingDir) {
 			SetCurrentDirectory(defWorkingDir);
 		}
-
-		return strdup(vmFull);
+		
+		return NULL;
 	}
 
 	return vmDefaultLocation;
