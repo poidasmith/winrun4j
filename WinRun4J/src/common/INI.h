@@ -46,7 +46,10 @@ private:
 	static bool StrTrimInChars(LPSTR trimChars, char c);
 	static void StrTrim(LPSTR str, LPSTR trimChars);
 	static void ExpandVariables(dictionary* ini);
+	static void ExpandRegistryVariables(dictionary* ini);
+	static int GetRegistryValue(char* input, char* output, int len);
 	static void ParseRegistryKeys(dictionary* ini);
+	static HKEY GetHKey(char* key);
 };
 
 #endif // INI_H
