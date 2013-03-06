@@ -100,6 +100,9 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 	// Expand environment variables
 	ExpandVariables(ini);
 
+	// Expand registry variables
+	ExpandRegistryVariables(ini);
+
 	// Now check if we have an external file to load
 	char* iniFileLocation = iniparser_getstr(ini, INI_FILE_LOCATION);
 	if(iniFileLocation) {
@@ -194,28 +197,22 @@ void INI::ParseRegistryKeys(dictionary* ini)
 	int len = strlen(iniRegistryLocation);
 	int slash = 0;
 	while(slash < len && iniRegistryLocation[slash] != '\\')
-		slash++;
+        slash++;
 
 	if(slash == len) {
 		Log::Warning("Unable to parse registry location (%s) - keys not included", iniRegistryLocation);
 		return;
 	}
 
-	HKEY hKey = 0;
 	char* rootKey = strdup(iniRegistryLocation);
 	rootKey[slash] = 0;
-	if(strcmp(rootKey, "HKEY_LOCAL_MACHINE") == 0) {
-		hKey = HKEY_LOCAL_MACHINE;
-	} else if(strcmp(rootKey, "HKEY_CURRENT_USER") == 0) {
-		hKey = HKEY_CURRENT_USER;
-	} else if(strcmp(rootKey, "HKEY_CLASSES_ROOT") == 0) {
-		hKey = HKEY_CLASSES_ROOT;
-	} else {
+
+	HKEY hKey = GetHKey(rootKey);
+	free(rootKey);
+	if(hKey == 0) {
 		Log::Warning("Unrecognized registry root key: %s", rootKey);
-		free(rootKey);
 		return;
 	}
-	free(rootKey);
 
 	HKEY subKey;
 	if(RegOpenKeyEx(hKey, &iniRegistryLocation[slash+1], 0, KEY_READ, &subKey) != ERROR_SUCCESS) {
@@ -246,6 +243,119 @@ void INI::ParseRegistryKeys(dictionary* ini)
 	}
 }
 
+
+HKEY INI::GetHKey(char* key)
+{
+	HKEY hKey = 0;
+
+	if(strcmp(key, "HKEY_LOCAL_MACHINE") == 0) {
+		hKey = HKEY_LOCAL_MACHINE;
+	} else if(strcmp(key, "HKEY_CURRENT_USER") == 0) {
+		hKey = HKEY_CURRENT_USER;
+	} else if(strcmp(key, "HKEY_CLASSES_ROOT") == 0) {
+		hKey = HKEY_CLASSES_ROOT;
+	}
+	return hKey;
+}
+
+int INI::GetRegistryValue(char* input, char* output, int len)
+{
+	Log::Info("GetRegistryValue input (%s), output (%s), len (%d)", input, output, len);
+	char rootKey[4096];
+	strcpy(rootKey, input);
+	char* slash = strchr(rootKey, '\\');
+	if(slash == NULL) {
+		Log::Warning("Invalid registry key, no backslash found (%s)", input);
+		return ERROR_INVALID_DATA;
+	}
+	*slash = 0;
+	char* key = slash + 1;
+
+	Log::Info("GetRegistryValue rootKey (%s)", rootKey);
+
+	HKEY hKey = GetHKey(rootKey);
+
+	Log::Info("GetRegistryValue full key (%s)", key);
+
+	char* colon = strchr(key, ':');
+	if(colon == NULL) {
+		Log::Warning("Invalid registry key, no key name found (%s)", input);
+		return ERROR_INVALID_DATA;
+	}
+
+	*colon = 0;
+
+	Log::Info("GetRegistryValue stripped key (%s)", key);
+
+	char* valueName = colon + 1;
+
+	Log::Info("GetRegistryValue valueName (%s)", valueName);
+
+	HKEY subKey;
+
+	long result = RegOpenKeyEx(hKey, key, 0, KEY_READ|KEY_WOW64_64KEY, &subKey);
+	if(result != ERROR_SUCCESS) {
+		Log::Warning("Unable to open registry key (%s) error (%d)", input, result);
+		return ERROR_INVALID_DATA;
+	}
+
+	DWORD type;
+	if(RegQueryValueEx(subKey, valueName, NULL, (LPDWORD)&type, (LPBYTE)output, (LPDWORD)&len) != ERROR_SUCCESS) {
+		Log::Warning("Unable to get registry value (%s)", input);
+		return ERROR_INVALID_DATA;
+	}
+	if(type != REG_DWORD && type != REG_SZ) {
+		return ERROR_INVALID_DATA;
+	}
+	if(type == REG_DWORD) {
+		DWORD val = *((LPDWORD)output);
+		sprintf(output, "%d", val);
+	}
+
+	return ERROR_SUCCESS;
+}
+
+void INI::ExpandRegistryVariables(dictionary* ini)
+{
+	Log::Info("ExpandRegistryVariables");
+	char tmp[4096];
+	char result[4096];
+	int len = 4096;
+	for(int i = 0; i < ini->size; i++) {
+		char* key = ini->key[i];
+		char* value = ini->val[i];
+		Log::Info("ExpandRegistryVariables key (%s)", key);
+		Log::Info("ExpandRegistryVariables value (%s)", value);
+
+		if(value == NULL) {
+			Log::Info("ExpandRegistryVariables value == null");
+			continue;
+		}
+		strcpy(tmp, value);
+		char* expansionStart = strstr(tmp, "$REG{");
+		Log::Info("ExpandRegistryVariables expansionStart (%s)", expansionStart);
+		if(expansionStart == NULL) {
+			continue;
+		}
+		char* keyStart = expansionStart + 5;
+		*expansionStart = 0;
+		char* regEnd = strchr(keyStart, '}');
+		Log::Info("ExpandRegistryVariables regEnd (%s)", regEnd);
+		if(regEnd == NULL) {
+			continue;
+		}
+		*regEnd = 0;
+		char* iniValue = value;
+		if(GetRegistryValue(keyStart, result, len) == ERROR_SUCCESS) {
+			char expandedValue[4096];
+			strcpy(expandedValue, tmp);
+			strcat(expandedValue, result);
+			strcat(expandedValue, regEnd + 1);
+			iniValue = expandedValue;
+			iniparser_setstr(ini, key, iniValue);
+		}
+	}
+}
 
 void INI::ExpandVariables(dictionary* ini)
 {
