@@ -19,6 +19,7 @@
 
 #define CONSOLE_TITLE                       ":console.title"
 #define PROCESS_PRIORITY                    ":process.priority"
+#define DISABLE_NATIVE_METHODS              ":disable.native.methods"
 #define ERROR_MESSAGES_SHOW_POPUP           "ErrorMessages:show.popup"
 #define ERROR_MESSAGES_JAVA_NOT_FOUND       "ErrorMessages:java.not.found"
 #define ERROR_MESSAGES_JAVA_START_FAILED    "ErrorMessages:java.failed"
@@ -317,7 +318,8 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 
 	// Register native methods
 	JNI::Init(env);
-	Native::RegisterNatives(env);
+	if(!iniparser_getboolean(ini, DISABLE_NATIVE_METHODS, 0))
+		Native::RegisterNatives(env);
 
 	// Startup DDE if requested
 	bool ddeInit = DDE::Initialize(hInstance, env, ini);
