@@ -11,6 +11,7 @@
 #include "DDE.h"
 #include "../common/Log.h"
 #include "../java/VM.h"
+#include "../java/JNI.h"
 
 static dictionary* g_ini = 0;
 static HWND g_hWnd;
@@ -292,9 +293,9 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 			if(ddeClassName[i] == '.')
 				ddeClassName[i] = '/';
 		}
-		g_class = env->FindClass(ddeClassName);
+		g_class = JNI::FindClass(env, ddeClassName);
 	} else {
-		g_class = env->FindClass("org/boris/winrun4j/DDE");
+		g_class = JNI::FindClass(env, "org/boris/winrun4j/DDE");
 	}
 	if(g_class == NULL) {
 		Log::Error("Could not find DDE class.");
