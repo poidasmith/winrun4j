@@ -101,6 +101,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -190,6 +193,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -269,6 +275,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -351,6 +360,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -427,6 +439,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -499,6 +514,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -582,6 +600,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -661,6 +682,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -844,12 +868,28 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
 						CommandLine="$(InputDir)\asm.bat $(InputDir) $(InputName) &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 						Outputs="$(OutDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -862,23 +902,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release - Console|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="$(InputDir)\asm.bat $(InputDir) $(InputName) &quot;$(OutDir)&quot;&#x0D;&#x0A;"
-						Outputs="$(OutDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug - Console|x64"
 					ExcludedFromBuild="true"
 					>
@@ -887,11 +910,12 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
+					Name="Release - Console|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
+						CommandLine="$(InputDir)\asm.bat $(InputDir) $(InputName) &quot;$(OutDir)&quot;&#x0D;&#x0A;"
+						Outputs="$(OutDir)\$(InputName).obj"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -915,11 +939,12 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug - Console|Win32"
-					ExcludedFromBuild="true"
+					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
+						CommandLine="$(InputDir)\asm64.bat $(InputDir) $(InputName) &quot;$(OutDir)&quot;&#x0D;&#x0A;"
+						Outputs="$(OutDir)\$(InputName).obj"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -931,20 +956,20 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release - Console|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
 						CommandLine="$(InputDir)\asm64.bat $(InputDir) $(InputName) &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 						Outputs="$(OutDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug - Console|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -957,12 +982,11 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
+					Name="Release - Console|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="$(InputDir)\asm64.bat $(InputDir) $(InputName) &quot;$(OutDir)&quot;&#x0D;&#x0A;"
-						Outputs="$(OutDir)\$(InputName).obj"
 					/>
 				</FileConfiguration>
 				<FileConfiguration

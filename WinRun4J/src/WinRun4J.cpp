@@ -143,7 +143,7 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance)
 	}
 
 	if(StartsWith(lpArg1, "--WinRun4J:Version")) {
-		Log::Info("0.5.0\n");
+		Log::Info("0.4.5\n");
 		return 0;
 	}
 

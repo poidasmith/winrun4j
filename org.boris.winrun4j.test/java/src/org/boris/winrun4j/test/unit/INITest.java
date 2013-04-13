@@ -33,9 +33,8 @@ public class INITest
     public void testINI() throws Exception {
         Launcher l = TestHelper.launcher();
         l.arg("hello");
-        l.vmarg("-Dtest=this");
         l.main(PrintEnvironment.class);
-        String result = TestHelper.run(l);
+        String result = TestHelper.run(l, "-Dtest=this", "-Xms128M");
         assertTrue(result.contains("arg.1=hello"));
         assertTrue(result.contains("vmarg.1=-Dtest=this"));
         assertTrue(result.contains("WinRun4J:module.ini="));
@@ -61,6 +60,7 @@ public class INITest
     }
 
     public static void main(String[] args) throws Exception {
+        new INITest().testINI();
         new INITest().testLargeINI();
     }
 }
