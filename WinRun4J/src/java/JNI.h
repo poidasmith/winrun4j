@@ -22,15 +22,15 @@ public:
 	static void Init(JNIEnv* env);
 	static void ClearException(JNIEnv* env);
 	static jthrowable PrintStackTrace(JNIEnv* env);
-	static int RunMainClass( JNIEnv* env, TCHAR* mainClass, TCHAR* progArgs[] );
+	static int RunMainClass(JNIEnv* env, TCHAR* mainClass, int argc, char* argv[]);
 	static char* CallStringMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
 	static const bool CallBooleanMethod(JNIEnv* env, jclass clazz, jobject obj, char* name);
 	static jclass FindClass(JNIEnv* env, TCHAR* mainClassStr);
 	static void SetContextClassLoader(JNIEnv* env, jobject refObject);
+	static jobjectArray CreateRunArgs(JNIEnv *env, int argc, char* argv[]);
 
 private:
 	static jstring NewString(JNIEnv *env, TCHAR * str);
-	static jobjectArray CreateRunArgs(JNIEnv *env, TCHAR* args[]);
 	static void LoadEmbeddedClassloader(JNIEnv* env);
 	static jobjectArray ListJars(JNIEnv* env, jobject self, jstring library);
 	static jobject GetJar(JNIEnv* env, jobject self, jstring library, jstring jarName);

@@ -36,7 +36,7 @@ public class INITest
         l.vmarg("-Dtest=this");
         l.main(PrintEnvironment.class);
         String result = TestHelper.run(l);
-        assertTrue(result.contains("arg.0=hello"));
+        assertTrue(result.contains("arg.1=hello"));
         assertTrue(result.contains("vmarg.1=-Dtest=this"));
         assertTrue(result.contains("WinRun4J:module.ini="));
     }

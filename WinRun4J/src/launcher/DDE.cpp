@@ -319,7 +319,7 @@ bool DDE::RegisterNatives(JNIEnv* env, dictionary* ini)
 	return true;
 }
 
-int DDE::EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, bool isRegister, int (*CallbackFunc)(DDEInfo&))
+int DDE::EnumFileAssocations(dictionary* ini, bool isRegister, int (*CallbackFunc)(DDEInfo&))
 {
 	// For the moment just register all
 	char key[MAX_PATH];
@@ -354,9 +354,9 @@ int DDE::EnumFileAssocations(dictionary* ini, LPSTR lpCmdLine, bool isRegister, 
 	return res;
 }
 
-int DDE::RegisterFileAssociations(dictionary* ini, LPSTR lpCmdLine)
+int DDE::RegisterFileAssociations(dictionary* ini)
 {
-	return EnumFileAssocations(ini, lpCmdLine, true, RegisterFileAssociation);
+	return EnumFileAssocations(ini, true, RegisterFileAssociation);
 }
 
 int DDE::RegisterFileAssociation(DDEInfo& info)
@@ -474,8 +474,8 @@ int DDE::UnregisterFileAssociation(DDEInfo& info)
 	return 0;
 }
 
-int DDE::UnregisterFileAssociations(dictionary* ini, LPSTR lpCmdLine)
+int DDE::UnregisterFileAssociations(dictionary* ini)
 {
-	return EnumFileAssocations(ini, lpCmdLine, false, UnregisterFileAssociation);
+	return EnumFileAssocations(ini, false, UnregisterFileAssociation);
 }
 

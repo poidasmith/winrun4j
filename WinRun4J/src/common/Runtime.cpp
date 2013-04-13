@@ -65,6 +65,19 @@ extern bool _cdecl StrContains(LPSTR str, char c)
 	return false;
 }
 
+extern void _cdecl StrReplace(LPSTR str, char old, char nu)
+{
+	if(!str)
+		return;
+
+	int len = strlen(str);
+	for(int i = 0; i < len; i++) {
+		if(str[i] == old) {
+			str[i] = nu;
+		}
+	}
+}
+
 extern void _cdecl StrTrim(LPSTR str, LPSTR trimChars)
 {
 	unsigned int start = 0;

@@ -30,14 +30,14 @@ namespace
 	HANDLE g_event;
 }
 
-#define SERVICE_ID ":service.id"
-#define SERVICE_NAME ":service.name"
-#define SERVICE_DESCRIPTION ":service.description"
-#define SERVICE_CONTROLS ":service.controls"
-#define SERVICE_STARTUP ":service.startup"
-#define SERVICE_DEPENDENCY ":service.dependency"
-#define SERVICE_USER ":service.user"
-#define SERVICE_PWD ":service.password"
+#define SERVICE_ID               ":service.id"
+#define SERVICE_NAME             ":service.name"
+#define SERVICE_DESCRIPTION      ":service.description"
+#define SERVICE_CONTROLS         ":service.controls"
+#define SERVICE_STARTUP          ":service.startup"
+#define SERVICE_DEPENDENCY       ":service.dependency"
+#define SERVICE_USER             ":service.user"
+#define SERVICE_PWD              ":service.password"
 #define SERVICE_LOAD_ORDER_GROUP ":service.loadordergroup"
 
 void WINAPI ServiceCtrlHandler(DWORD opCode)
@@ -163,13 +163,20 @@ int Service::Initialise(dictionary* ini)
 	}
 
 	char* svcClass = iniparser_getstr(ini, SERVICE_CLASS);
+	StrReplace(svcClass, '.', '/');
 	g_serviceClass = JNI::FindClass(env, svcClass);
 	if(g_serviceClass == NULL) {
 		Log::Error("Could not find service class");
 		return 1;
 	}
 
-	g_serviceInstance = env->NewObject(g_serviceClass, env->GetMethodID(g_serviceClass, "<init>", "()V"));
+	jmethodID scon = env->GetMethodID(g_serviceClass, "<init>", "()V");
+	if(scon == NULL) {
+		Log::Error("Could not find service class default constructor");
+		return 1;
+	}
+
+	g_serviceInstance = env->NewObject(g_serviceClass, scon);
 	if(g_serviceInstance == NULL) {
 		Log::Error("Could not create service class");
 		return 1;
@@ -196,6 +203,7 @@ int Service::Run(HINSTANCE hInstance, dictionary* ini, int argc, char* argv[])
 {
 	int result = Initialise(ini);
 	if(result != 0) {
+		Log::Error("Failed to initialise service: %d", result);
 		return result;
 	}
 	
@@ -397,7 +405,7 @@ DWORD ServiceMainThread(LPVOID lpParam)
 	return g_returnCode;
 }
 
-int Service::Main(DWORD argc, LPSTR* argv)
+int Service::Main(int argc, char* argv[])
 {
 	JNIEnv* env = VM::GetJNIEnv();
 
@@ -457,7 +465,7 @@ void Service::Shutdown(int exitCode)
 		g_serviceStatus.dwWaitHint = 0;
 		
 		if(!SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus)) {
-			Log::Error("Error in SetServiceStatus: %d", GetLastError());
+			Log::Error("Error in SetServiceStatus: 0x%x", GetLastError());
 		}
 	}
 }

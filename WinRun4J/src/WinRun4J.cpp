@@ -20,6 +20,9 @@
 #define CONSOLE_TITLE                       ":console.title"
 #define PROCESS_PRIORITY                    ":process.priority"
 #define DISABLE_NATIVE_METHODS              ":disable.native.methods"
+#define ARGS_ALLOW_OVERRIDES                ":args.allow.overrides"
+#define ARGS_ALLOW_VMARGS                   ":args.allow.vmargs"
+#define ARGS_OVERRIDE_PREFIX                ":args.override.prefix"
 #define ERROR_MESSAGES_SHOW_POPUP           "ErrorMessages:show.popup"
 #define ERROR_MESSAGES_JAVA_NOT_FOUND       "ErrorMessages:java.not.found"
 #define ERROR_MESSAGES_JAVA_START_FAILED    "ErrorMessages:java.failed"
@@ -29,9 +32,9 @@ namespace
 {
 	TCHAR *vmargs[MAX_PATH];
 	UINT vmargsCount = 0;
-	bool progargsParsed = false;
 	TCHAR *progargs[MAX_PATH];
 	UINT progargsCount = 0;
+	UINT progargsOffset = 0;
 	bool workingDirectorySet = false;
 }
 
@@ -87,26 +90,25 @@ void WinRun4J::SetProcessPriority(dictionary* ini)
 	}
 }
 
-int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
+int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance)
 {
-	// Remove any leading whitespace
-	StrTrim(lpCmdLine, " ");
+	LPSTR lpArg1 = progargs[0];
 
 	// Make sure we also log to console
 	Log::SetLogFileAndConsole(true);
 
 	// Check for RegisterDDE util request
-	if(StartsWith(lpCmdLine, "--WinRun4J:RegisterFileAssociations")) {
-		return DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
+	if(StartsWith(lpArg1, "--WinRun4J:RegisterFileAssociations")) {
+		return DDE::RegisterFileAssociations(WinRun4J::LoadIniFile(hInstance));
 	}
 
 	// Check for UnregisterDDE util request
-	if(StartsWith(lpCmdLine, "--WinRun4J:UnregisterFileAssociations")) {
-		return DDE::UnregisterFileAssociations(WinRun4J::LoadIniFile(hInstance), lpCmdLine);
+	if(StartsWith(lpArg1, "--WinRun4J:UnregisterFileAssociations")) {
+		return DDE::UnregisterFileAssociations(WinRun4J::LoadIniFile(hInstance));
 	}
 
 	// Check for Register Service util request
-	if(StartsWith(lpCmdLine, "--WinRun4J:RegisterService")) {
+	if(StartsWith(lpArg1, "--WinRun4J:RegisterService")) {
 		dictionary* ini = INI::LoadIniFile(hInstance);
 		if(ini == NULL) 
 			return 1;
@@ -114,14 +116,14 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 	}
 
 	// Check for Unregister Service util request
-	if(StartsWith(lpCmdLine, "--WinRun4J:UnregisterService")) {
+	if(StartsWith(lpArg1, "--WinRun4J:UnregisterService")) {
 		dictionary* ini = INI::LoadIniFile(hInstance);
 		if(ini == NULL) 
 			return 1;
 		return Service::Unregister(ini);
 	}
 
-	if(StartsWith(lpCmdLine, "--WinRun4J:PrintINI")) {
+	if(StartsWith(lpArg1, "--WinRun4J:PrintINI")) {
 		dictionary* ini = INI::LoadIniFile(hInstance);
 		if(ini == NULL) 
 			return 1;
@@ -130,16 +132,22 @@ int WinRun4J::DoBuiltInCommand(HINSTANCE hInstance, LPSTR lpCmdLine)
 		return 0;
 	}
 
-	if(StartsWith(lpCmdLine, "--WinRun4J:ExecuteINI")) {
-		return WinRun4J::ExecuteINI(hInstance, lpCmdLine);
+	if(StartsWith(lpArg1, "--WinRun4J:ExecuteINI")) {
+		if(progargsCount < 2) {
+			Log::Error("INI file not specified");
+			return 1;
+		}
+		dictionary* ini = INI::LoadIniFile(hInstance, progargs[1]);
+		progargsOffset = 2;
+		return WinRun4J::ExecuteINI(hInstance, ini);
 	}
 
-	if(StartsWith(lpCmdLine, "--WinRun4J:Version")) {
-		Log::Info("0.4.4\n");
+	if(StartsWith(lpArg1, "--WinRun4J:Version")) {
+		Log::Info("0.5.0\n");
 		return 0;
 	}
 
-	Log::Error("Unrecognized command: %s", lpCmdLine);
+	Log::Error("Unrecognized command: %s", lpArg1);
 	return 1;
 }
 
@@ -156,7 +164,7 @@ dictionary* WinRun4J::LoadIniFile(HINSTANCE hInstance)
 	return ini;
 }
 
-int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
+int WinRun4J::StartVM(dictionary* ini)
 {
 	bool showErrorPopup = iniparser_getboolean(ini, ERROR_MESSAGES_SHOW_POPUP, 1);
 
@@ -191,47 +199,8 @@ int WinRun4J::StartVM(LPSTR lpCmdLine, dictionary* ini)
 		Log::Info("vmarg.%d=%s", i, argl);
 	}
 
-	// Collect the program arguments from the INI file
-	INI::GetNumberedKeysFromIni(ini, PROG_ARG, progargs, progargsCount);
-
-	// Add the args from commandline
-	if(!progargsParsed)
-		ParseCommandLine(lpCmdLine, progargs, progargsCount, true);
-
-	// Log the commandline args
-	if(progargsCount > 0)
-		Log::Info("Program Args");
-	for(UINT i = 0; i < progargsCount; i++) {
-		StrTruncate(argl, progargs[i], MAX_PATH);
-		Log::Info("arg.%d=%s", i, argl);
-	}
-
 	// Make sure there is a NULL at the end of the args
 	vmargs[vmargsCount] = NULL;
-	progargs[progargsCount] = NULL;
-
-	char* mainClass = iniparser_getstr(ini, MAIN_CLASS);
-
-	// If we don't have a main class we might have a service class
-	if(mainClass == NULL)
-		mainClass = iniparser_getstr(ini, SERVICE_CLASS);
-
-	// Fix main class - ie. replace x.y.z with x/y/z for use in jni
-	if(mainClass != NULL) {
-		int len = strlen(mainClass);
-		for(int i = 0; i < len; i++) {
-			if(mainClass[i] == '.') {
-				mainClass[i] = '/';
-			}
-		}
-	}
-
-	if(mainClass == NULL) {
-		Log::Error("No main class specified");
-		return 1;
-	} else {
-		Log::Info("Main Class: %s", mainClass);
-	}
 
 	// Start the VM
 	if(VM::StartJavaVM(vmlibrary, vmargs, NULL) != 0) {
@@ -259,57 +228,79 @@ void WinRun4J::FreeArgs()
 	}
 }
 
-int WinRun4J::ExecuteINI(HINSTANCE hInstance, LPSTR lpCmdLine)
+void WinRun4J::ProcessCommandLineArgs(dictionary* ini)
 {
-	ParseCommandLine(lpCmdLine, progargs, progargsCount, false);
+	bool allowOverrides = iniparser_getboolean(ini, ARGS_ALLOW_OVERRIDES, true);
+	bool allowVmargs    = iniparser_getboolean(ini, ARGS_ALLOW_VMARGS, true);
+	LPSTR overrideArg   = iniparser_getstring(ini, ARGS_OVERRIDE_PREFIX, "-W");
+	UINT oaLen          = strlen(overrideArg);
 
-	// The first arg should be the ini file
-	if(progargsCount == 0) {
-		Log::Error("INI file not specified");
-		return 1;
-	}
+	// Get the max index for prog args so we can add from there
+	UINT paMax = INI::GetNumberedKeysMax(ini, ":arg");
+	UINT vmMax = INI::GetNumberedKeysMax(ini, ":vmarg");
 
-	// Load the INI
-	dictionary* ini = INI::LoadIniFile(hInstance, progargs[0]);
-	if(!ini) {
-		return 1;
-	}
-
-	// Now shuffle any program args
-	progargsParsed = true;
-	if(progargsCount > 0) {
-		free(progargs[0]);
-		for(UINT i = 1; i < progargsCount; i++) {
-			progargs[i-1] = progargs[i];
+	// Loop through each program argument - check if we have an override and apply
+	// otherwise add to INI arg.N
+	TCHAR entryName[MAX_PATH];
+	for(UINT i = progargsOffset; i < progargsCount; i++) {
+		if(allowOverrides && StartsWith(progargs[i], overrideArg)) {
+			char* nmptr = &(progargs[i][oaLen]);
+			char* eqptr = strchr(nmptr, '=');
+			char* scptr = strchr(nmptr, ':');
+			bool inSection = scptr && (scptr < eqptr || !eqptr);
+			int offset = 0;
+			if(!inSection) {
+				entryName[0] = ':';
+				offset = 1;
+			}
+			if(eqptr) {
+				strncpy((char *) (entryName + offset), nmptr, eqptr - nmptr);
+				entryName[eqptr - nmptr + offset] = 0;
+				iniparser_setstr(ini, entryName, eqptr+1);
+			} else {
+				// Remove the entry
+				strcpy((char *) (entryName + offset), nmptr);
+				iniparser_unset(ini, entryName);
+			}
+		} else if(allowVmargs && (StartsWith(progargs[i], "-X") || StartsWith(progargs[i], "-D"))) {
+			sprintf(entryName, ":vmarg.%d", ++vmMax);
+			iniparser_setstr(ini, entryName, progargs[i]);
+		} else {
+			sprintf(entryName, ":arg.%d", ++paMax);
+			iniparser_setstr(ini, entryName, progargs[i]);
 		}
-		progargsCount--;
-	} 
-
-	return ExecuteINI(hInstance, ini, NULL);
+	}
 }
 
-int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
+int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini)
 {
+	// Merge in command line args and overrides
+	ProcessCommandLineArgs(ini);
+
 	// Check for single instance option
 	if(Shell::CheckSingleInstance(ini))
 		return 0;
 
+	// Check if we are in service or main mode
 	char* serviceCls = iniparser_getstr(ini, SERVICE_CLASS);
+	char* mainCls    = iniparser_getstr(ini, MAIN_CLASS);
+	bool serviceMode = iniparser_getboolean(ini, SERVICE_MODE, serviceCls != NULL);
 
 	// If this is a service we want to default the working directory to the INI dir if not specified
-	bool defaultToIniDir = (serviceCls != NULL);
+	bool defaultToIniDir = serviceMode;
 
 	// Set the current working directory if specified
 	WinRun4J::SetWorkingDirectory(ini, defaultToIniDir);
 
-	// Display the splash screen if present
-	SplashScreen::ShowSplashImage(hInstance, ini);
+	// Display the splash screen if present (only for main mode)
+	if(!serviceMode)
+		SplashScreen::ShowSplashImage(hInstance, ini);
 
 	// Check for process priority setting
 	WinRun4J::SetProcessPriority(ini);
 
 	// Start vm
-	int result = WinRun4J::StartVM(lpCmdLine, ini);
+	int result = WinRun4J::StartVM(ini);
 	if(result) {
 		return result;
 	}
@@ -331,11 +322,16 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 		SetConsoleTitle(title); 
 #endif 
 
+	// Pull out the command line args (plus any existing INI args)
+	TCHAR *argv[MAX_PATH];
+	UINT argc = 0;
+	INI::GetNumberedKeysFromIni(ini, ":arg", argv, argc);
+
 	// Run the main class (or service class)
-	if(serviceCls != NULL)
-		result = Service::Run(hInstance, ini, progargsCount, progargs);
+	if(serviceMode)
+		result = Service::Run(hInstance, ini, argc, argv);
 	else
-		result = JNI::RunMainClass(env, iniparser_getstr(ini, MAIN_CLASS), progargs);
+		result = JNI::RunMainClass(env, mainCls, argc, argv);
 	
 	// Check for exception - if not a service
 	if(serviceCls == NULL)
@@ -358,26 +354,6 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini, LPSTR lpCmdLine)
 	return result;
 }
 
-// Checks if the command is built in (ie. starts with --WinRun4J)
-bool IsBuiltInCommand(LPSTR lpCmdLine)
-{
-	if(lpCmdLine == NULL)
-		return false;
-
-	int len = strlen(lpCmdLine);
-	int i = 0;
-	for(i = 0; i < len; i++) {
-		char c = lpCmdLine[i];
-		if(c != ' ' && c != '\"')
-			break;
-	}
-
-	if(len - i > 11)
-		return strncmp(&lpCmdLine[i], "--WinRun4J:", 11) == 0;
-	else
-		return false;
-}
-
 #ifdef CONSOLE
 int main(int argc, char* argv[])
 {
@@ -392,9 +368,12 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lp
 	// Initialise the logger using std streams
 	Log::Init(hInstance, NULL, NULL, NULL);
 
+	// Parse cmd line so we can check for built ins and overrides
+	ParseCommandLine(lpCmdLine, progargs, progargsCount, true);
+
 	// Check for Builtin commands
-	if(IsBuiltInCommand(lpCmdLine)) {
-		int res = WinRun4J::DoBuiltInCommand(hInstance, lpCmdLine);
+	if(progargsCount && strncmp(progargs[0], "--WinRun4J:", 11) == 0) {
+		int res = WinRun4J::DoBuiltInCommand(hInstance);
 		Log::Close();
 		return res;
 	}
@@ -405,6 +384,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lp
 		return 1;
 	}
 	
-	return WinRun4J::ExecuteINI(hInstance, ini, lpCmdLine);
+	return WinRun4J::ExecuteINI(hInstance, ini);
 }
 

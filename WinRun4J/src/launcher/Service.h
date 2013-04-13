@@ -24,7 +24,7 @@ public:
 
 	// Internal methods
 	static int Control(DWORD opCode);
-	static int Main(DWORD argc, LPSTR* argv);
+	static int Main(int argc, char* argv[]);
 
 private:
 	static int Initialise(dictionary* ini);

@@ -30,11 +30,14 @@
 #define PROG_ARG      ":arg"
 #define MAIN_CLASS    ":main.class"
 #define SERVICE_CLASS ":service.class"
+#define SERVICE_MODE  ":service.mode"
 
 class INI
 {
 public:
-	static void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, UINT& index);
+	static void GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, UINT& index, UINT max = 10);
+	static UINT GetNumberedKeysMax(dictionary* ini, TCHAR* keyName);
+	static void SetNumberedKeys(dictionary* ini, TCHAR* keyName, TCHAR** entries, UINT count); 
 	static dictionary* LoadIniFile(HINSTANCE hInstance);
 	static dictionary* LoadIniFile(HINSTANCE hInstance, LPSTR inifile);
 

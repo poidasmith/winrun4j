@@ -39,7 +39,7 @@ void JNI::Init(JNIEnv* env)
 		return;
 	}
 
-	// Simply attempt to load the embedded classloader if required
+	// Attempt to load the embedded classloader if required
 	LoadEmbeddedClassloader(env);
 }
 
@@ -49,13 +49,7 @@ jclass JNI::FindClass(JNIEnv* env, TCHAR* classStr)
 		return env->FindClass(classStr);
 	}
 
-	TCHAR t[1024];
-	strcpy(t, classStr);
-	int len = strlen(classStr);
-	for(int i = 0; i < len; i++) 
-		if(t[i] == '/') t[i] = '.';
-
-	jclass cl = (jclass) env->CallObjectMethod(g_classLoader, g_findClassMethod, env->NewStringUTF(t));
+	jclass cl = (jclass) env->CallObjectMethod(g_classLoader, g_findClassMethod, env->NewStringUTF(classStr));
 	// Workaround for bug in sun 1.6 VMs
 	if(cl && CLASS_GETCTORS_METHOD) {
 		env->CallObjectMethod(cl, CLASS_GETCTORS_METHOD);
@@ -89,13 +83,14 @@ jstring JNI::JNU_NewStringNative(JNIEnv *env, jclass aStringClass, const char *s
      return NULL;
 }
 
-int JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
+int JNI::RunMainClass(JNIEnv* env, TCHAR* mainClassStr, int argc, char* argv[])
 {
 	if(!mainClassStr) {
 		Log::Error("No main class specified");
 		return 1;
 	}
 
+	StrReplace(mainClassStr, '.', '/');
 	jclass mainClass = FindClass(env, mainClassStr);
 
 	if(mainClass == NULL) {
@@ -103,20 +98,10 @@ int JNI::RunMainClass( JNIEnv* env, TCHAR* mainClassStr, TCHAR* progArgs[] )
 		return 2;
 	}
 	
-	jclass stringClass = env->FindClass("java/lang/String");
-	if(stringClass == NULL) {
-		Log::Error("Could not find String class");
+	jobjectArray args = CreateRunArgs(env, argc, argv);
+	if(args == NULL) {
+		Log::Error("Could not create args");
 		return 4;
-	}
-
-	// Count the args
-	int argc = 0;
-	while(progArgs[argc++] != NULL);
-
-	// Create the run args
-	jobjectArray args = env->NewObjectArray(argc - 1, stringClass, NULL);
-	for(int i = 0; i < argc - 1; i++) {
-		env->SetObjectArrayElement(args, i, JNU_NewStringNative(env, stringClass, progArgs[i]));
 	}
 
 	jmethodID mainMethod = env->GetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
@@ -384,4 +369,21 @@ void JNI::SetContextClassLoader(JNIEnv* env, jobject refObject)
 	ctxClassLoader = env->CallObjectMethod(clsObj, getClsLoaderMid);
 	jmethodID setCtxClsLoaderMid = env->GetMethodID(threadCls, "setContextClassLoader", "(Ljava/lang/ClassLoader;)V");
 	env->CallVoidMethod(currentThread, setCtxClsLoaderMid, ctxClassLoader);
+}
+
+jobjectArray JNI::CreateRunArgs(JNIEnv *env, int argc, char* argv[])
+{
+	jclass stringClass = env->FindClass("java/lang/String");
+	if(stringClass == NULL) {
+		Log::Error("Could not find String class");
+		return NULL;
+	}
+
+	// Create the run args
+	jobjectArray args = env->NewObjectArray(argc, stringClass, NULL);
+	for(int i = 0; i < argc; i++) {
+		env->SetObjectArrayElement(args, i, JNU_NewStringNative(env, stringClass, argv[i]));
+	}
+
+	return args;
 }

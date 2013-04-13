@@ -18,7 +18,23 @@
 
 static dictionary* g_ini = NULL;
 
-void INI::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, UINT& index)
+UINT INI::GetNumberedKeysMax(dictionary* ini, TCHAR* keyName)
+{
+	UINT idx = 0, max = 0;
+	TCHAR entryName[MAX_PATH];
+	while(true) {
+		sprintf(entryName, "%s.%d", keyName, idx+1);
+		TCHAR* entry = iniparser_getstr(ini, entryName);
+		if(idx > 10 && entry == NULL )
+			break;
+		idx++;
+		if(entry) 
+			max = idx;
+	}
+	return max;
+}
+
+void INI::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entries, UINT& index, UINT max)
 {
 	UINT i = 0;
 	TCHAR entryName[MAX_PATH];
@@ -29,11 +45,21 @@ void INI::GetNumberedKeysFromIni(dictionary* ini, TCHAR* keyName, TCHAR** entrie
 			entries[index++] = _strdup(entry);
 		}
 		i++;
-		if(i > 10 && entry == NULL) {
+		if(i > max && entry == NULL) {
 			break;
 		}
 	}
 	entries[index] = NULL;
+}
+
+void INI::SetNumberedKeys(dictionary* ini, TCHAR* keyName, TCHAR** entries, UINT count)
+{
+	UINT max = GetNumberedKeysMax(ini, keyName);
+	TCHAR entryName[MAX_PATH];
+	for(int i = 0; i < count; i++) {
+		sprintf(entryName, "%s.%d", keyName, i+max+1);
+		iniparser_setstr(ini, entryName, entries[i]);
+	}
 }
 
 /* 
@@ -61,7 +87,7 @@ dictionary* INI::LoadIniFile(HINSTANCE hInstance, LPSTR inifile)
 	// Set DIR environment variable so that it can be used in the INI file
 	TCHAR inidir[MAX_PATH];
 	GetFileDirectory(inifile, inidir);
-	SetEnvironmentVariable("DIR", inidir);
+	SetEnvironmentVariable("INI_DIR", inidir);
 
 	// First attempt to load INI from exe
 	HRSRC hi = FindResource(hInstance, MAKEINTRESOURCE(1), RT_INI_FILE);
@@ -250,9 +276,15 @@ HKEY INI::GetHKey(char* key)
 
 	if(strcmp(key, "HKEY_LOCAL_MACHINE") == 0) {
 		hKey = HKEY_LOCAL_MACHINE;
+	} else if(strcmp(key, "HKLM") == 0) {
+		hKey = HKEY_LOCAL_MACHINE;
 	} else if(strcmp(key, "HKEY_CURRENT_USER") == 0) {
 		hKey = HKEY_CURRENT_USER;
+	} else if(strcmp(key, "HKCU") == 0) {
+		hKey = HKEY_CURRENT_USER;
 	} else if(strcmp(key, "HKEY_CLASSES_ROOT") == 0) {
+		hKey = HKEY_CLASSES_ROOT;
+	} else if(strcmp(key, "HKCR") == 0) {
 		hKey = HKEY_CLASSES_ROOT;
 	}
 	return hKey;
@@ -317,42 +349,34 @@ int INI::GetRegistryValue(char* input, char* output, int len)
 
 void INI::ExpandRegistryVariables(dictionary* ini)
 {
-	Log::Info("ExpandRegistryVariables");
 	char tmp[4096];
 	char result[4096];
 	int len = 4096;
 	for(int i = 0; i < ini->size; i++) {
 		char* key = ini->key[i];
 		char* value = ini->val[i];
-		Log::Info("ExpandRegistryVariables key (%s)", key);
-		Log::Info("ExpandRegistryVariables value (%s)", value);
-
 		if(value == NULL) {
-			Log::Info("ExpandRegistryVariables value == null");
 			continue;
 		}
 		strcpy(tmp, value);
 		char* expansionStart = strstr(tmp, "$REG{");
-		Log::Info("ExpandRegistryVariables expansionStart (%s)", expansionStart);
 		if(expansionStart == NULL) {
 			continue;
 		}
 		char* keyStart = expansionStart + 5;
 		*expansionStart = 0;
 		char* regEnd = strchr(keyStart, '}');
-		Log::Info("ExpandRegistryVariables regEnd (%s)", regEnd);
 		if(regEnd == NULL) {
 			continue;
 		}
 		*regEnd = 0;
-		char* iniValue = value;
 		if(GetRegistryValue(keyStart, result, len) == ERROR_SUCCESS) {
-			char expandedValue[4096];
-			strcpy(expandedValue, tmp);
-			strcat(expandedValue, result);
-			strcat(expandedValue, regEnd + 1);
-			iniValue = expandedValue;
-			iniparser_setstr(ini, key, iniValue);
+			char ev[4096];
+			strcpy(ev, tmp);
+			strcat(ev, result);
+			strcat(ev, regEnd + 1);
+			Log::Info("Reg: %s = '%s' to '%s'", key, value, ev);
+			iniparser_setstr(ini, key, ev);
 		}
 	}
 }
