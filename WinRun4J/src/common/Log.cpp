@@ -277,7 +277,6 @@ void Log::Close()
 	}
 }
 
-#ifndef NO_JAVA
 extern "C" __declspec(dllexport) void Log_LogIt(int level, const char* marker, const char* format, ...)
 {
 	va_list args;
@@ -285,4 +284,3 @@ extern "C" __declspec(dllexport) void Log_LogIt(int level, const char* marker, c
 	Log::LogIt((LoggingLevel) level, marker, format, args);
 	va_end(args);
 }
-#endif

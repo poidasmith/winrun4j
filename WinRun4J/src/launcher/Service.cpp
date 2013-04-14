@@ -470,13 +470,11 @@ void Service::Shutdown(int exitCode)
 	}
 }
 
-#ifndef NO_JAVA
 extern "C" __declspec(dllexport) BOOL __cdecl Service_SetStatus(DWORD dwCurrentState, DWORD dwWaitHint)
 {
 	g_serviceStatus.dwCurrentState = dwCurrentState;
 	g_serviceStatus.dwWaitHint     = dwWaitHint;
 	return SetServiceStatus(g_serviceStatusHandle, &g_serviceStatus);
 }
-#endif
 
 

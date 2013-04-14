@@ -395,7 +395,6 @@ void INI::ExpandVariables(dictionary* ini)
 	}
 }
 
-#ifndef NO_JAVA
 extern "C" __declspec(dllexport) dictionary* __cdecl INI_GetDictionary()
 {
 	return g_ini;
@@ -405,6 +404,5 @@ extern "C" __declspec(dllexport) const char* __cdecl INI_GetProperty(const char*
 {
 	return iniparser_getstr(g_ini, key);
 }
-#endif
 
 
