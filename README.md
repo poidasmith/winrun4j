@@ -188,7 +188,7 @@ given the physical memory available.</td>
 	</tr>
 	<tr>
 		<td>service.mode</td>
-		<td>Set to "false2 to run the launcher in main mode (ie. will check for main.class)</td>
+		<td>Set to "false" to run the launcher in main mode (ie. will check for main.class)</td>
 	</tr>
 	<tr>
 		<td>service.class</td>
@@ -246,9 +246,37 @@ given the physical memory available.</td>
 		<td>ini.override</td>
 		<td>A flag ("true"/"false") to indicate if an external INI file can override values from an embedded one.</td>
 	</tr>
+	<tr>
+		<td>args.allow.overrides</td>
+		<td>Set to "false" to disable the command line argument overrides</td>
+	</tr>
+	<tr>
+		<td>args.allow.vmargs</td>
+		<td>Set to "false" to disable VM arguments override on the command line</td>
+	</tr>
+	<tr>
+		<td>args.override.prefix</td>
+		<td>Changes the default INI key override prefix (-W)</td>
+	</tr>
 </table>
 
 <b>Note: </b>INI values can contain environment variables, which will be substituted on startup, eg <code>log.file=%TEMP%/mylog.txt</code>
+
+## Command Line Arguments
+
+The launcher supports overriding INI keys and VM args on the command line. The default setup is per the following example:
+
+```
+myapp.exe test -Dprop1=val1 -Xms128M -Wservice.mode=false
+```
+
+The above command line will:
+* set system property prop1 to val1
+* set VM arg -Xms128M
+* set INI key service.mode to false
+* pass the arg 'test' to the main class
+
+The feature and behaviours are configurable via INI keys per above table.
 
 ## Error Messages
 
