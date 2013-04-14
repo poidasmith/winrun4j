@@ -471,6 +471,21 @@ vmarg.3=-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
 			<div class="section-title">Change History</div>
 			<div class="section-content">
 
+				0.4.5
+				<ul>
+					<li>Allow vmargs and INI overrides on the commandline (-D, -X, -W)</li>
+					<li>Fixes for DDE class loading</li>
+					<li>Added INI key 'service.mode' to allow specifying both service and main classes and switching modes via command line</li>
+					<li>Improve logging of startup errors</li>
+					<li>vm.location can accept multiple locations separated by |. This first found is used.</li>
+					<li>Added java.library.path.N INI keys</li>
+					<li>Fix for issue with service with embedded jars</li>
+					<li>Set context class loader in service thread - fixes some class loading issue with services</li>
+					<li>Add option to disable native method integration - for launchers that do not use WinRun4J.jar</li>
+					<li>Allow registry values to be expanded in INI files - eg test=$REG{HKLM\something}</li>
+					<li>If INI key vm.sysfirst=true is set then the launcher will attempt to search for a local VM first, then use vm.location</li>
+				</ul>
+
 				0.4.4
 				<ul>
 					<li>Improved command line argument parsing</li>
