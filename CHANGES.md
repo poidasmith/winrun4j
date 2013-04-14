@@ -1,5 +1,19 @@
 ## Change History
 
+### 0.4.5
+
+* Allow vmargs and INI overrides on the commandline (-D, -X, -W)
+* Fixes for DDE class loading
+* Added INI key 'service.mode' to allow specifying both service and main classes and switching modes via command line
+* Improve logging of startup errors
+* vm.location can accept multiple locations separated by |. This first found is used.
+* Added java.library.path.N INI keys
+* Fix for issue with service with embedded jars
+* Set context class loader in service thread - fixes some class loading issue with services
+* Add option to disable native method integration - for launchers that do not use WinRun4J.jar
+* Allow registry values to be expanded in INI files - eg test=$REG{HKLM\something}
+* If INI key vm.sysfirst=true is set then the launcher will attempt to search for a local VM first, then use vm.location
+
 ### 0.4.4
 
 * Improved command line argument parsing
