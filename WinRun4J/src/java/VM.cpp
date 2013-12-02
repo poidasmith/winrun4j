@@ -47,6 +47,7 @@ JNIEnv* VM::GetJNIEnv(bool daemon)
 	if(daemon) {
 		jvm->AttachCurrentThreadAsDaemon((void**) &env, NULL);
 	} else {
+		Log::Info("Attach current thread");
 		jvm->AttachCurrentThread((void**) &env, NULL);
 	}
 	return env;
@@ -493,6 +494,7 @@ int VM::CleanupVM()
 	JNI::PrintStackTrace(env);
 
 	int result = jvm->DestroyJavaVM();
+	if (result) Log::Warning("DestroyJavaVM failed %d", result);
 	if(g_jniLibrary) {
 		FreeLibrary(g_jniLibrary);
 		g_jniLibrary = 0;

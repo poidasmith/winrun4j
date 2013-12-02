@@ -306,6 +306,7 @@ extern void _cdecl GetFileNameSansExtension(LPSTR filename, LPSTR output)
 		strcpy(output, &filename[i]);
 	}
 }
+/*
 
 extern "C" char * _cdecl strrev(char *str)
 {
@@ -334,6 +335,7 @@ extern "C" char * _cdecl _strdup(const char *src)
 {
 	return strdup(src);
 }
+*/
 
 extern "C" void __cdecl _wassert(int e)
 {

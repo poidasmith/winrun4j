@@ -354,6 +354,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini)
 
 	// Close VM (This will block until all non-daemon java threads finish).
 	result |= VM::CleanupVM();
+	Log::Info("VM closed and cleaned up");
 
 	// Close the log
 	Log::Close();
@@ -393,7 +394,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lp
 	if(ini == NULL) {
 		return 1;
 	}
-	
 	return WinRun4J::ExecuteINI(hInstance, ini);
 }
 
