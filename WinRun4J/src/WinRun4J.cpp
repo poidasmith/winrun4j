@@ -180,6 +180,16 @@ int WinRun4J::StartVM(dictionary* ini)
 	}
 
 	Log::Info("Found VM: %s", vmlibrary);
+	char java_home[MAX_PATH];
+	if (strstr(vmlibrary, "\\jdk") != NULL) {
+		strncpy(java_home, vmlibrary, strlen(vmlibrary) - strlen(strstr(strstr(vmlibrary, "\\jdk") + 1, "\\")));
+		SetEnvironmentVariable("JDK_HOME", java_home);
+		Log::Info("Setting JDK to: %s", java_home);
+	} else if (strstr(vmlibrary, "\\jre") != NULL) {
+		strncpy(java_home, vmlibrary, strlen(vmlibrary) - strlen(strstr(strstr(vmlibrary, "\\jre") + 1, "\\")));
+		SetEnvironmentVariable("JRE_HOME", java_home);
+		Log::Info("Setting JRE_HOME to: %s", java_home);
+	}
 
 	// Collect the VM args from the INI file
 	INI::GetNumberedKeysFromIni(ini, VM_ARG, vmargs, vmargsCount);
