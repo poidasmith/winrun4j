@@ -51,7 +51,7 @@ bool Resource::SetIcon(LPSTR exeFile, LPSTR iconFile)
 bool Resource::AddIcon(LPSTR exeFile, LPSTR iconFile)
 {
 	// Find the resource indices that are available
-	HMODULE hm = LoadLibrary(exeFile);
+	HMODULE hm = LoadLibraryEx(exeFile, NULL, LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE);
 	if(!hm) {
 		Log::Error("Could not load exe to add icon: %s", exeFile);
 		return false;
@@ -120,7 +120,7 @@ bool Resource::SetManifest(LPSTR exeFile, LPSTR manifestFile)
 // Prints the contents of the  INI  file
 bool Resource::ListINI(LPSTR exeFile)
 {
-	HMODULE hm = LoadLibrary(exeFile);
+	HMODULE hm = LoadLibraryEx(exeFile, NULL, LOAD_LIBRARY_AS_DATAFILE);
 	if(!hm) {
 		Log::Error("Could not load exe to list INI contents: %s", exeFile);
 		return false;
@@ -160,7 +160,7 @@ bool Resource::AddJar(LPSTR exeFile, LPSTR jarFile)
 	strcpy(jarName, &jarFile[len+1]);
 
 	// Find next available slot for JAR file
-	HMODULE hm = LoadLibrary(exeFile);
+	HMODULE hm = LoadLibraryEx(exeFile, NULL, LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE);
 	if(!hm) {
 		Log::Error("Could not load exe to add JAR: %s", exeFile);
 		return false;
@@ -370,7 +370,7 @@ BOOL EnumTypesFunc(HANDLE hModule, LPTSTR lpType, LONG lParam)
 
 bool Resource::ClearResources(LPSTR exeFile)
 {
-	HMODULE hMod = LoadLibrary(exeFile);
+	HMODULE hMod = LoadLibraryEx(exeFile, NULL, LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE);
 	if(!hMod) {
 		Log::Error("Could not load exe to clear resources: %s", exeFile);
 		return false;
@@ -405,7 +405,7 @@ bool Resource::ClearResources(LPSTR exeFile)
 
 bool Resource::ListResources(LPSTR exeFile)
 {
-	HMODULE hMod = LoadLibrary(exeFile);
+	HMODULE hMod = LoadLibraryEx(exeFile, NULL, LOAD_LIBRARY_AS_DATAFILE);
 	if(!hMod) {
 		Log::Error("Could not load exe to list resources: %s", exeFile);
 		return false;
