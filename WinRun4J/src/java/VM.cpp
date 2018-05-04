@@ -15,6 +15,7 @@
 #include "../launcher/Service.h"
 
 // VM Registry keys
+#define JRE10_REG_PATH           TEXT("Software\\JavaSoft\\JRE")
 #define JRE_REG_PATH             TEXT("Software\\JavaSoft\\Java Runtime Environment")
 #define JRE_REG_PATH_WOW6432     TEXT("Software\\Wow6432Node\\JavaSoft\\Java Runtime Environment")
 #define IBM_JRE_REG_PATH         TEXT("Software\\IBM\\Java2 Runtime Environment")
@@ -221,12 +222,23 @@ void VM::FindVersions(Version* versions, DWORD* numVersions)
 	DWORD size = *numVersions;
 	*numVersions = 0;
 
-	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_REG_PATH, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
-		for(; *numVersions < size; (*numVersions)++) {
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE10_REG_PATH, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+		for (; *numVersions < size; (*numVersions)++) {
 			length = MAX_PATH;
-			if(RegEnumKeyEx(hKey, *numVersions, version, &length, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+			if (RegEnumKeyEx(hKey, *numVersions, version, &length, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
 				break;
-			
+
+			versions[*numVersions].Parse(version);
+			versions[*numVersions].SetRegPath(JRE10_REG_PATH);
+		}
+	}
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_REG_PATH, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+		for (; *numVersions < size; (*numVersions)++) {
+			length = MAX_PATH;
+			if (RegEnumKeyEx(hKey, *numVersions, version, &length, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+				break;
+
 			versions[*numVersions].Parse(version);
 			versions[*numVersions].SetRegPath(JRE_REG_PATH);
 		}
