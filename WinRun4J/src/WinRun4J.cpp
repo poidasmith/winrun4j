@@ -180,6 +180,16 @@ int WinRun4J::StartVM(dictionary* ini)
 	}
 
 	Log::Info("Found VM: %s", vmlibrary);
+	char java_home[MAX_PATH];
+	if (strstr(vmlibrary, "\\jdk") != NULL) {
+		strncpy(java_home, vmlibrary, strlen(vmlibrary) - strlen(strstr(strstr(vmlibrary, "\\jdk") + 1, "\\")));
+		SetEnvironmentVariable("JDK_HOME", java_home);
+		Log::Info("Setting JDK to: %s", java_home);
+	} else if (strstr(vmlibrary, "\\jre") != NULL) {
+		strncpy(java_home, vmlibrary, strlen(vmlibrary) - strlen(strstr(strstr(vmlibrary, "\\jre") + 1, "\\")));
+		SetEnvironmentVariable("JRE_HOME", java_home);
+		Log::Info("Setting JRE_HOME to: %s", java_home);
+	}
 
 	// Collect the VM args from the INI file
 	INI::GetNumberedKeysFromIni(ini, VM_ARG, vmargs, vmargsCount);
@@ -344,6 +354,7 @@ int WinRun4J::ExecuteINI(HINSTANCE hInstance, dictionary* ini)
 
 	// Close VM (This will block until all non-daemon java threads finish).
 	result |= VM::CleanupVM();
+	Log::Info("VM closed and cleaned up");
 
 	// Close the log
 	Log::Close();
@@ -383,7 +394,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lp
 	if(ini == NULL) {
 		return 1;
 	}
-	
 	return WinRun4J::ExecuteINI(hInstance, ini);
 }
 

@@ -31,8 +31,13 @@ void ExpandClassPathEntry(char* arg, char** result, int* current, int max)
 	Log::Info("Expanding Classpath: %s", arg);
 
 	// Convert to full path
+	char tmp[4096];
+	int size = ExpandEnvironmentStrings(arg, tmp, 4096);
+	if(size == 0) {
+		Log::Warning("Could not expand variable: %s", arg);
+	}
 	char fullpath[MAX_PATH];
-	GetFullPathName(arg, MAX_PATH, fullpath, NULL);
+	GetFullPathName(tmp, MAX_PATH, fullpath, NULL);
 	WIN32_FIND_DATA fd;
 
 	// Check for special case - where we don't have a wildcard
