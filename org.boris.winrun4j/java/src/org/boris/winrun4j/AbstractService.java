@@ -21,6 +21,7 @@ public abstract class AbstractService implements Service
         case SERVICE_CONTROL_STOP:
         case SERVICE_CONTROL_SHUTDOWN:
             shutdown = true;
+            shutdownRequest();
             break;
         default:
             break;
@@ -28,7 +29,11 @@ public abstract class AbstractService implements Service
         return 0;
     }
 
+    public void shutdownRequest() {
+        
+    }
+    
     public boolean isShutdown() {
         return shutdown;
-    }
+    }    
 }
