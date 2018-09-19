@@ -16,6 +16,7 @@
 
 // VM Registry keys
 #define JRE_REG_PATH             TEXT("Software\\JavaSoft\\Java Runtime Environment")
+#define JRE_REG_PATH_NEW         TEXT("Software\\JavaSoft\\JRE")
 #define JRE_REG_PATH_WOW6432     TEXT("Software\\Wow6432Node\\JavaSoft\\Java Runtime Environment")
 #define IBM_JRE_REG_PATH         TEXT("Software\\IBM\\Java2 Runtime Environment")
 #define IBM_JRE_REG_PATH_WOW6432 TEXT("Software\\Wow6432Node\\IBM\\Java2 Runtime Environment")
@@ -142,17 +143,17 @@ char* VM::GetJavaVMLibrary(LPSTR version, LPSTR min, LPSTR max)
 	Version* v = FindVersion(versions, numVersions, version, min, max);
 
 	// If version is null we could not find anything
-	if(!v) return NULL;
+   if(!v) return NULL;
 
 	// Now just grab the vm dll from the version
-	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, v->GetRegPath(), 0, KEY_READ, &hKey) != ERROR_SUCCESS)
+   if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, v->GetRegPath(), 0, KEY_READ, &hKey) != ERROR_SUCCESS) 
 		return NULL;
 
-	if(RegOpenKeyEx(hKey, v->GetVersionStr(), 0, KEY_READ, &hVersionKey) != ERROR_SUCCESS)
+   if(RegOpenKeyEx(hKey, v->GetVersionStr(), 0, KEY_READ, &hVersionKey) != ERROR_SUCCESS)
 		return NULL;
 
 	DWORD length = MAX_PATH;
-	if(RegQueryValueEx(hVersionKey, JRE_LIB_KEY, NULL, NULL, (LPBYTE)&filename, &length) != ERROR_SUCCESS)
+   if(RegQueryValueEx(hVersionKey, JRE_LIB_KEY, NULL, NULL, (LPBYTE)&filename, &length) != ERROR_SUCCESS)
 		return NULL;
 
 // Add check for registry bug with sun amd64 
@@ -220,7 +221,7 @@ void VM::FindVersions(Version* versions, DWORD* numVersions)
 	DWORD size = *numVersions;
 	*numVersions = 0;
 
-	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_REG_PATH, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+   if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_REG_PATH, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
 		for(; *numVersions < size; (*numVersions)++) {
 			length = MAX_PATH;
 			if(RegEnumKeyEx(hKey, *numVersions, version, &length, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
@@ -228,6 +229,17 @@ void VM::FindVersions(Version* versions, DWORD* numVersions)
 			
 			versions[*numVersions].Parse(version);
 			versions[*numVersions].SetRegPath(JRE_REG_PATH);
+		}
+	}
+
+ 	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_REG_PATH_NEW, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+		for(; *numVersions < size; (*numVersions)++) {
+			length = MAX_PATH;
+			if(RegEnumKeyEx(hKey, *numVersions, version, &length, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+				break;
+			
+			versions[*numVersions].Parse(version);
+			versions[*numVersions].SetRegPath(JRE_REG_PATH_NEW);
 		}
 	}
 
