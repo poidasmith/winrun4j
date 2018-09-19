@@ -34,6 +34,7 @@ void ExpandClassPathEntry(char* arg, char** result, int* current, int max)
 	char fullpath[MAX_PATH];
 	GetFullPathName(arg, MAX_PATH, fullpath, NULL);
 	WIN32_FIND_DATA fd;
+	WIN32_FIND_DATA fdcheck;
 
 	// Check for special case - where we don't have a wildcard
 	if(strchr(arg, '*') == NULL) {
@@ -48,47 +49,41 @@ void ExpandClassPathEntry(char* arg, char** result, int* current, int max)
 	int prev = 0;
 	bool hasStar = false;
 	char search[MAX_PATH];
-	for(int i = 0; i <= len; i++) {
-		if(fullpath[i] == '/' || fullpath[i] == '\\' || fullpath[i] == 0) {
-			if(hasStar) {
+	for (int i = 0; i <= len; i++) {
+		if (fullpath[i] == '/' || fullpath[i] == '\\' || fullpath[i] == 0) {
+			if (hasStar) {
 				// Temp set end of string to be current position
 				fullpath[i] = 0;
 				HANDLE h = FindFirstFile(fullpath, &fd);
-				if(h == INVALID_HANDLE_VALUE) {
+				if (h == INVALID_HANDLE_VALUE) {
 					return;
 				} else {
-					if(strcmp(fd.cFileName, ".") != 0 && strcmp(fd.cFileName, "..") != 0) {
-						if(prev != 0) fullpath[prev] = 0;
+					do {
+						if (prev != 0) fullpath[prev] = 0;
 						strcpy(search, fullpath);
-						if(prev != 0) fullpath[prev] = '/';
-						strcat(search, "/");
+						if (prev != 0) fullpath[prev] = '\\';
+						strcat(search, "\\");
 						strcat(search, fd.cFileName);
-						if(i < len - 1)	{
-							strcat(search, "/");
-							strcat(search, &fullpath[i + 1]);
-						}
-						ExpandClassPathEntry(search, result, current, max);
-					}
-					while(FindNextFile(h, &fd) != 0) {
-						if(strcmp(fd.cFileName, ".") != 0 && strcmp(fd.cFileName, "..") != 0) {
-							if(prev != 0) fullpath[prev] = 0;
-							strcpy(search, fullpath);
-							if(prev != 0) fullpath[prev] = '/';
-							strcat(search, "/");
-							strcat(search, fd.cFileName);
-							if(i < len - 1)	{
-								strcat(search, "/");
-								strcat(search, &fullpath[i + 1]);
+
+						if (i < len - 1) {
+							if (FindFirstFile(search, &fdcheck) != INVALID_HANDLE_VALUE) {
+								if (fdcheck.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY == FILE_ATTRIBUTE_DIRECTORY) {
+									strcat(search, "\\");
+									strcat(search, &fullpath[i + 1]);
+								} else {
+									continue;
+								}
 							}
-							ExpandClassPathEntry(search, result, current, max);
 						}
-					}
+						
+						ExpandClassPathEntry(search, result, current, max);
+					} while(FindNextFile(h, &fd) != 0);
 					return;
 				}
-			} 
+			}
 			hasStar = false;
 			prev = i;
-		} else if(fullpath[i] == '*') {
+		} else if (fullpath[i] == '*') {
 			hasStar = true;
 		}
 	}
