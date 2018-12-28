@@ -383,14 +383,34 @@ void VM::ExtractSpecificVMArgs(dictionary* ini, TCHAR** args, UINT& count)
 	UINT libPathsCount = 0;
 	INI::GetNumberedKeysFromIni(ini, JAVA_LIBRARY_PATH, libPaths, libPathsCount);
 	if(libPathsCount > 0) {
+	
+		//toPeter: Sorry I am repeating the same code, i really hate it but I cannot afford a refactoring right now, duplicit to #83 row
+		// If the working.dir is not specified then we assume the java.library.path location is relative to the module dir
+		char defWorkingDir[MAX_PATH];
+		char* workingDir = iniparser_getstr(ini, WORKING_DIR);
+		if(!workingDir) {
+			GetCurrentDirectory(MAX_PATH, defWorkingDir);
+			SetCurrentDirectory(iniparser_getstr(ini, INI_DIR));
+		}
+		
 		TCHAR libPathArg[4096];
 		libPathArg[0] = 0;
 		strcat(libPathArg, "-Djava.library.path=");
 		for(int i =0 ; i < libPathsCount; i++) {
-			strcat(libPathArg, libPaths[i]);
+		
+			//rel2abs
+			char fullpath[MAX_PATH];
+			GetFullPathName(libPaths[i], MAX_PATH, fullpath, NULL);
+			strcat(libPathArg, fullpath);
 			strcat(libPathArg, ";");
 		}
 		args[count++] = strdup(libPathArg);
+		
+		//toPeter: Sorry I am repeating the same code, i really hate it but I cannot afford a refactoring right now, duplicit to #119 row
+		// Reset working dir if set
+		if(!workingDir) {
+			SetCurrentDirectory(defWorkingDir);
+		}
 	}
 }
 
