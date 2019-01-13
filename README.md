@@ -9,7 +9,7 @@ WinRun4j is a java launcher for windows. It is an alternative to javaw.exe and p
 * Additional JVM args for more flexible memory use.
 * Built-in icon replacer for custom icon.
 * Pre-JVM splash screen with auto-hide.
-* DDE implementation for file assocations.
+* DDE implementation for file associations.
 * Windows Service wrapper.
 * Access Windows API without JNI, compatible with <a href="http://pinvoke.net">PINVOKE.NET</a>. See <a href="nativebinding.html">native binding examples</a> for more information. This is currently BETA quality.
 * Console version
@@ -159,6 +159,6 @@ RCEDIT <option> <exe/dll> [resource]
 
 Note: 
 
-* The embedded INI entries are overwridden by an external INI file (if present).
+* The embedded INI entries are overridden by an external INI file (if present).
 * Any JARs added to the executable will automatically be added to the classpath (before all classpath entries specified in the INI file and in the order in which they are embedded). They don't need to be specified in the INI file.
 * If an embedded splash image is present it will automatically appear (it doesn't need to be specified in the INI file).
